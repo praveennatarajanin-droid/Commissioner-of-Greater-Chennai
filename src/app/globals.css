@@ -1,0 +1,236 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&display=swap');
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Inter", sans-serif;
+  --font-display: "Outfit", sans-serif;
+  
+  --color-brand-maroon: #ed1b24; /* Logo Red */
+  --color-brand-maroon-dark: #b80f16;
+  --color-brand-maroon-light: #f25259;
+  --color-brand-gold: #c5a059;
+  --color-brand-gold-dark: #b08d4a;
+  --color-brand-gold-light: #d8b776;
+  --color-brand-bg-warm: #faf8f5;
+
+  --color-brand-blue: #2e3192; /* Logo Blue */
+  --color-brand-blue-dark: #1d206f;
+  --color-brand-blue-light: #4a4ebd;
+
+  /* Override Tailwind sky colors with Logo Blue variants */
+  --color-sky-50: #f4f4fa;
+  --color-sky-100: #e5e6f6;
+  --color-sky-200: #cccde9;
+  --color-sky-300: #aaacd8;
+  --color-sky-400: #7477c2;
+  --color-sky-500: #2e3192;
+  --color-sky-600: #1d206f;
+  --color-sky-700: #121453;
+  --color-sky-800: #0c0d3b;
+  --color-sky-900: #050624;
+  --color-sky-950: #020314;
+
+  /* Redefine text sizing scale for globally larger, more readable text */
+  --text-xs: 0.775rem;   /* ~12.4px */
+  --text-sm: 0.875rem;   /* ~14px */
+  --text-base: 1rem;     /* ~16px */
+  --text-lg: 1.125rem;   /* ~18px */
+  --text-xl: 1.25rem;    /* ~20px */
+  --text-2xl: 1.5rem;    /* ~24px */
+  --text-3xl: 1.875rem;  /* ~30px */
+  --text-4xl: 2.25rem;   /* ~36px */
+  --text-5xl: 3rem;      /* ~48px */
+}
+
+/* Base Styles matching screenshot */
+html {
+  scroll-behavior: smooth;
+  font-size: 102%; /* Globally boost font size of all rem elements slightly */
+}
+
+/* Accessibility overrides: scale up custom inline arbitrary font-sizes */
+.text-\[8px\] { font-size: 0.625rem !important; } /* ~10px */
+.text-\[9px\] { font-size: 0.6875rem !important; } /* ~11px */
+.text-\[10px\] { font-size: 0.75rem !important; } /* ~12px */
+.text-\[11px\] { font-size: 0.8125rem !important; } /* ~13px */
+
+body {
+  font-family: var(--font-sans);
+  background-color: #ffffff;
+  color: #1c1917;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  overflow-x: hidden;
+}
+
+.dark body {
+  background-color: #0c0a09; /* stone-950 */
+  color: #f5f5f4;           /* stone-100 */
+}
+
+/* Border styling helper */
+.gold-divider {
+  border-bottom: 2px solid var(--color-brand-gold);
+}
+
+/* Card framing styles */
+.gov-card {
+  background-color: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-top: 3px solid var(--color-brand-maroon);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.dark .gov-card {
+  background-color: #1c1917; /* stone-900 */
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 3px solid var(--color-brand-gold);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(122, 28, 28, 0.2);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(122, 28, 28, 0.4);
+}
+
+/* Custom marquee animation for Live News Ticker */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 140s linear infinite;
+  will-change: transform;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+/* Print Styles to fix multi-page pagination and hide unwanted UI clutter */
+@media print {
+  /* Absolute guarantee for hidden elements */
+  .print\:hidden,
+  [class*="print:hidden"],
+  nav.print\:hidden,
+  button,
+  iframe,
+  .share-panel,
+  header,
+  footer,
+  aside,
+  nav,
+  .no-print {
+    display: none !important;
+  }
+
+  @page {
+    size: A4;
+    margin: 15mm 15mm 15mm 15mm;
+  }
+
+  html, body {
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    overflow-x: visible !important;
+    overflow-y: visible !important;
+    background: white !important;
+    color: black !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  
+  /* Reset flex/grid behaviors on wrapper containers for print flow compatibility */
+  main, .flex, .grid, [class*="min-h-"] {
+    display: block !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    position: static !important;
+  }
+
+  /* Header Print Customization: Clean Letterhead Style */
+  header {
+    background: white !important;
+    color: #1c1917 !important;
+    box-shadow: none !important;
+    border-bottom: 2px solid #c5a059 !important; /* Gold border line */
+  }
+
+  header * {
+    color: #1c1917 !important;
+  }
+
+  header .bg-brand-maroon {
+    background: white !important;
+    color: #1c1917 !important;
+    border-bottom: 1px solid #e5e7eb !important;
+  }
+
+  /* Footer Print Customization: Clean Document Style */
+  footer {
+    background: white !important;
+    color: #1c1917 !important;
+    border-top: 1px solid #c5a059 !important;
+    padding-top: 1.5rem !important;
+    padding-bottom: 1rem !important;
+    margin-top: 3rem !important;
+    page-break-inside: avoid !important;
+  }
+
+  footer * {
+    color: #1c1917 !important;
+  }
+
+  footer .grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important; /* Force Col 1 and Col 3 side by side */
+    gap: 2rem !important;
+  }
+
+  /* Make the main article take up 100% width on the page */
+  article {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    color: #000000 !important;
+  }
+
+  /* Perfect alignment and spacing for news article content and images in print */
+  .prose, article p {
+    text-align: justify !important;
+    color: #000000 !important;
+  }
+
+  /* Prevent page-breaks in the middle of headers, images, highlights and quotes */
+  h1, h2, h3, h4, h5, h6, img, blockquote {
+    page-break-inside: avoid;
+  }
+
+  /* Prevent widows and orphans in paragraphs */
+  p {
+    page-break-inside: avoid;
+    orphans: 3;
+    widows: 3;
+  }
+}
+
+
