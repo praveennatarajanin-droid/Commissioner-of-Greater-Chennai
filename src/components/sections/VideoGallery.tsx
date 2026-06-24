@@ -206,9 +206,9 @@ export default function VideoGallery({ customVideos }: VideoGalleryProps) {
                 <h4 className="text-[10px] uppercase font-black text-stone-400 dark:text-slate-500 tracking-wider">Related Clips</h4>
                 
                 <div className="space-y-3">
-                  {videosList.map((item) => (
+                  {videosList.map((item, idx) => (
                     <div 
-                      key={item.id} 
+                      key={`${item.id}-${idx}`} 
                       className={`flex gap-3 items-center p-2 rounded-xl hover:bg-stone-50/70 dark:hover:bg-stone-855/50 cursor-pointer border transition ${
                         activeVideo?.id === item.id 
                           ? "bg-brand-maroon/5 border-brand-maroon/20 dark:bg-brand-gold/5 dark:border-brand-gold/25" 

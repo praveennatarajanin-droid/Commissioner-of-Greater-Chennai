@@ -4,22 +4,383 @@
       "id": 1,
       "username": "admin",
       "passwordHash": "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9",
-      "role": "superadmin"
-    },
-    {
-      "id": 2,
-      "username": "editor",
-      "passwordHash": "ef5e5a1fb95055e0e56cccf98a41e784a132c14e7f6e1ba244302f0e72b29baf",
-      "role": "editor"
-    },
-    {
-      "id": 3,
-      "username": "content",
-      "passwordHash": "ebe5be54a4482d9be706c84071753c547587ea3e01abe787afe880dc4f2023f0",
-      "role": "contentadmin"
+      "role": "superadmin",
+      "email": "admin@chennaiguardian.in",
+      "status": "active",
+      "createdAt": "2026-06-24T07:10:06.866Z"
     }
   ],
   "news": [
+    {
+      "id": 26,
+      "slug": "tn-moves-sc-against-madras-hc-nod-for-lamp-lighting",
+      "title_en": "TN moves SC against Madras HC nod for lamp lighting",
+      "title_ta": "",
+      "category_en": "COMMUNITY OUTREACH",
+      "category_ta": "சமுக தொடர்பு",
+      "summary_en": "TN moves SC against Madras HC nod for lamp lighting on Thirupparakundram hill\nTVK govt’s plea says Madras HC order didn’t adequately weigh heritage concerns, seeks interim stayNEW DELHI: The Tamil Nad...",
+      "summary_ta": "",
+      "content_en": [
+        "TN moves SC against Madras HC nod for lamp lighting on Thirupparakundram hill\nTVK govt’s plea says Madras HC order didn’t adequately weigh heritage concerns, seeks interim stayNEW DELHI: The Tamil Nadu government has moved the Supreme Court challenging the Madras High Court order allowing the lighting of a ceremonial lamp on Thirupparankundram hill during the Karthigai Deepam festival.",
+        "The petition filed on June 11 challenged the January 6 order of the Madurai bench upholding the single-judge’s order of December 1, 2025, giving directions that the ceremonial lamp be lit on the festival day.",
+        "Thirupparankundram, one of the six Arupadai Veedu temples of Lord Murugan, has long been at the centre of disputes over rituals on the hillock. In its earlier order, the HC had held that the traditional lamp-lighting practice must be permitted, directing authorities to ensure public order.TN counsel B Karunakaran said that the hill is a centrally protected monument under the Ancient Monuments and Archaeological Sites and Remains Act. He submitted that the lamp lighting could damage fragile rock-cut caves, inscriptions and natural terrain, besides creating crowd management and law and order issues.",
+        "The case arose following a writ petition filed by one Rama Ravikumar and others seeking directions to light the sacred Deepam at the ancient stone pillar on Thirupparankundram hill during the annual Karthigai Deepam festival in November-December.",
+        "The HC’s December 2025 order had directed the district administration to facilitate lamp lighting with safety precautions. The Madurai bench observed that the custom was centuries-old and could not be barred without compelling justification.The dispute now places religious custom against monument protection, with the apex court set to weigh both aspects. It is to be noted that the original petitioner in the Thirupparankundram case,",
+        "Ravikumar has also filed an appeal in the Supreme Court challenging the January 6 judgment of the Madras HC which made the lighting of the Karthigai Deepam at the Thirupparankundram hilltop subject to prior consultation and clearance from the Archaeological Survey of India (ASI) and the police."
+      ],
+      "content_ta": [
+        ""
+      ],
+      "image": "/uploads/upload_1782280437177.png",
+      "tags_en": [
+        "Greater Chennai Police",
+        "Police",
+        "Law & Order"
+      ],
+      "tags_ta": [],
+      "section": "event",
+      "published": 1,
+      "featured": 0,
+      "breaking": 0,
+      "latest": 1,
+      "homepage_visible": 1,
+      "views_count": 171,
+      "language": "Both",
+      "date": "Jun 24, 2026",
+      "author_en": "Greater Chennai Police Media Desk",
+      "author_ta": "சென்னை பெருநகர காவல் ஊடகப் பிரிவு",
+      "sourceName": "Greater Chennai Police Desk",
+      "sourceUrl": "https://www.newindianexpress.com/states/tamil-nadu/2026/Jun/24/tn-moves-sc-against-madras-hc-nod-for-lamp-lighting-on-thirupparakundram-hill",
+      "updated_at": "2026-06-24T05:53:58.997Z",
+      "created_at": "2026-06-24T05:53:16.754Z"
+    },
+    {
+      "id": 25,
+      "slug": "my-rise-to-cm-s-seat-not-sudden-it-s",
+      "title_en": "My rise to CM s seat ",
+      "title_ta": "",
+      "category_en": "Trending News",
+      "category_ta": "பிரபல செய்தி",
+      "summary_en": "My rise to CM’s seat not sudden, it’s a three-decade-long journey: Jospeh Vijay\nVijay said his public service journey began in the 1990s through the fan club (Vijay Rasigar Mandram), which later evolv...",
+      "summary_ta": "",
+      "content_en": [
+        "My rise to CM’s seat not sudden, it’s a three-decade-long journey: Jospeh Vijay\nVijay said his public service journey began in the 1990s through the fan club (Vijay Rasigar Mandram), which later evolved into a welfare organisation (Vijay Makkal Iyakkam) that undertook educational, social and relief activities.CHENNAI: Dismissing the repeated attempts to create an impression that Vijay the actor was catapulted straight from the shooting set to the chief minister’s seat, Chief Minister C Joseph Vijay said he rose from humble beginnings as an actor and reached Fort St George after a nearly three-decade socio-political journey.",
+        "Replying to the discussion on the motion of thanks to the governor’s address in the Assembly, on Tuesday, the CM gave a detailed account of the path traversed by him from social service, which gradually blossomed into a political movement.Vijay said his public service journey had begun in the 1990s through the fan club (Vijay Rasigar Mandram), which later evolved into a welfare organisation (Vijay Makkal Iyakkam), undertaking educational, social and relief activities. He pointed out that he had consistently spoken out against corruption and for social justice through his films. He also supported causes such as Eelam Tamils, fishermen, Jallikattu, and Sterlite victims.",
+        "He said, unlike most political parties, which first launch a party and then reach out to the people, TVK was founded only after he had already reached households across Tamil Nadu. Vijay said that his government carried forward the legacy of governments of ordinary people and that the 2026 mandate had enabled TVK to break the barriers of religion, caste and money power in politics.Vijay said he had risen from being an actor through hard work and the unwavering affection of the people of Tamil Nadu, to whom he expressed his gratitude.",
+        "“Some say that our ministers and MLAs know nothing. Yes, there are indeed many things we do not know — how to siphon off public money, how to inflate the rates of tenders and indulge in corruption, how to demand money for promotions or transfers, etc. We only know how to serve the people,” the CM said amidst cheers from his party MLAs.",
+        "“From this august House, I appeal to the people to give us a little more time. While gradually delivering welfare measures to the people, we will also rectify the numerous shortcomings and deficiencies left behind in every department by those who were in power from 2017 until April 2026,” the CM said, taking a dig at previous regimes led by Edappadi K Palaniswami and MK Stalin.",
+        "The CM said the TVK government would eliminate power cuts in the state very soon. The CM also turned the tables on the previous DMK government for the deterioration of the law and order situation and the spread of narcotic substances. “What were they doing when the police were in their hands?” he asked, and promised that the law and order situation would be maintained, and safety of women and girls would be ensured."
+      ],
+      "content_ta": [
+        ""
+      ],
+      "image": "/uploads/upload_1782280201704.png",
+      "tags_en": [
+        "Greater Chennai Police",
+        "Women Safety",
+        "Police",
+        "Law & Order"
+      ],
+      "tags_ta": [],
+      "section": "spotlight",
+      "published": 1,
+      "featured": 1,
+      "breaking": 0,
+      "latest": 1,
+      "homepage_visible": 1,
+      "views_count": 239,
+      "language": "Both",
+      "date": "June 24, 2026",
+      "author_en": "Greater Chennai Police Media Desk",
+      "author_ta": "சென்னை பெருநகர காவல் ஊடகப் பிரிவு",
+      "sourceName": "Greater Chennai Police Desk",
+      "updated_at": "2026-06-24T05:50:03.261Z",
+      "created_at": "2026-06-24T05:50:03.261Z"
+    },
+    {
+      "id": 24,
+      "slug": "singappen-for-women-s-safety-rolled-out-in-tn-the",
+      "title_en": "Singappen for women s safety rolled out in TN ",
+      "title_ta": "",
+      "category_en": "WOMEN SAFETY",
+      "category_ta": "பெண்கள் பாதுகாப்பு",
+      "summary_en": "Singappen’ for women’s safety rolled out in TN\nThe strength of the force will be increased to 2,545 members in a phased manner and Rs 354 crore will be allocated in the first phase.CHENNAI: The Tamil ...",
+      "summary_ta": "",
+      "content_en": [
+        "Singappen’ for women’s safety rolled out in TN\nThe strength of the force will be increased to 2,545 members in a phased manner and Rs 354 crore will be allocated in the first phase.CHENNAI: The Tamil Nadu government on Tuesday ordered the statewide rollout of the Singappen Adhiradi Padai (Singappen Special Force-SSF), sanctioning 2,545 posts, patrol vehicles, surveillance drones and body-worn cameras for the all-women policing unit that will deploy across all police subdivisions in the state.The ambitious SSF was launched by Chief Minister C Joseph Vijay.",
+        "Speaking at the launch, the CM asserted that drugs must be eradicated for women’s safety and the new force will play a vital role in preventive policing to stop crimes before they occur. “For the first time in India, drone patrolling will be introduced to prevent crimes against women,” he said.",
+        "The CM said the roots for crime against women could be invariably traced to drugs and that menace had to be eradicated first. Taking a dig at the previous regimes led by the DMK and the AIADMK, the CM said, “This (drug menace) didn’t just sprout out of nowhere overnight. This is a problem that has been around for years.”‘SSF recruitment will gradually increase’",
+        "“Because it was ignored for all these years, the roots have grown this deep. I don’t really need to be the one to tell you who ignored it all this time; you know it very well. Talking about that now is useless. First, this prevalence of drugs must be uprooted,” Vijay added.",
+        "He expressed confidence that once the drug menace is eliminated, women’s safety will improve and this will lead to a better law and order situation. “Women should lead a dignified life at educational institutes, offices and other places free of fear. That is our primary target,” he said.“I have been speaking softly so far, but the punishment for those who threaten or disturb women’s safety will be severe. This is a warning to anyone who believes they can harass women and escape the consequences.",
+        "The filing of chargesheets and the process of securing punishment will be swift, but the police must ensure that no innocent person is wrongly implicated. Only when offenders receive strict punishment will it serve as a deterrent to those contemplating similar crimes.”",
+        "Explaining about the special force, Vijay said that the government is set to allocate a total of Rs 354 crore in the first phase to create 2,500 new posts.",
+        "The special force will concentrate on preventing stalking of women, sexual harassment, kidnapping, lewd comments, and other crimes against women. The special force will be used for field work and preventive action, so that the all women police in the state can concentrate more on investigation and securing punishments for accused in other cases, he said.",
+        "Vijay concluded his speech saying that the government understands the dreams and expectations of women, and it is working to implement them gradually.",
+        "“A true safe society is not one where women are told to be careful or are protected only by police presence, but where responsibility becomes collective. Singappen is not merely about protecting women but it is about building a society with a changed mindset,” Director General of Police and Head of Police Force Mahesh Kumar Aggarwal said.",
+        "Additional Chief Secretary to Government, Home, Prohibition and Excise Department, K Manivasan also spoke.",
+        "Advertisement",
+        "What is Singappen Special Force ?",
+        "Around 70 patrol teams, each comprising four women personnel, will be deployed in the first phase. The force will focus on preventive policing in vulnerable locations during morning and night hours.",
+        "According to the order, the SSF will comprise 270 field units covering all police subdivisions and police ranges. The sanctioned strength includes 540 Sub-Inspectors and 1,620 personnel of other ranks in field units, besides 49 Inspectors, 98 Sub-Inspectors and 196 Grade-II Constables at district and city headquarters. A dedicated SSF Headquarters Control Room and additional posts for the State Police Master Control Room have also been sanctioned, bringing the total strength to 2,545 posts, including 2,538 executive posts and seven ministerial posts.",
+        "The government sanctioned Rs 354.66 crore for the Phase-II rollout of the force. To support field operations, it approved 49 surveillance drones with advanced monitoring capabilities at a cost of Rs 2 lakh each. The drones will deploy for hotspot surveillance and in areas where physical patrolling is difficult, aiming to strengthen situational awareness and preventive policing. The government also sanctioned 270 body-worn cameras with live-streaming capability and an upgraded Kaval Uthavi mobile application to report unsafe environments, monitor safe journeys and enable real-time coordination. A centralised control room equipped with a video wall and video-conferencing facilities has also been approved.",
+        "The non-recurring expenditure includes procuring 319 Bolero vehicles, 101 two-wheelers, 270 tablets, 638 walkie-talkies and 319 mobile wireless sets. An annual awareness fund of Rs 1 crore has also been sanctioned.",
+        "The SSF will function under the supervision of an Inspector General of Police, with field units reporting to district Superintendents of Police and Commissioners of Police. The order specifies that SSF personnel shall not ordinarily be diverted for law and order or bandobust duties. Pending legislative approval, the recurring expenditure will initially be met through an advance from the Contingency Fund and later included in the Revised Budget Estimates for 2026-27.",
+        "Senior officials associated with the force told TNIE that recruitment would gradually increase the number of patrol teams. \"The force would focus primarily on preventive policing. Since SSF personnel do not have the power to register FIRs in the initial phase, detained suspects will be handed over to the jurisdictional police station for further action. Personnel have also undergone a five-day training programme covering self-defence"
+      ],
+      "content_ta": [
+        ""
+      ],
+      "image": "/uploads/upload_1782279899278.png",
+      "tags_en": [
+        "Greater Chennai Police",
+        "Commissioner",
+        "Crime Prevention",
+        "Women Safety",
+        "Patrol",
+        "Awareness"
+      ],
+      "tags_ta": [],
+      "section": "event",
+      "published": 1,
+      "featured": 0,
+      "breaking": 0,
+      "latest": 1,
+      "homepage_visible": 1,
+      "views_count": 311,
+      "language": "Both",
+      "date": "June 24, 2026",
+      "author_en": "Greater Chennai Police Media Desk",
+      "author_ta": "சென்னை பெருநகர காவல் ஊடகப் பிரிவு",
+      "sourceName": "Greater Chennai Police Desk",
+      "updated_at": "2026-06-24T05:45:01.334Z",
+      "created_at": "2026-06-24T05:44:25.875Z"
+    },
+    {
+      "id": 23,
+      "slug": "t-n-police-warn-public-about-new-cyber-scam-involving",
+      "title_en": "T N police warn public about new cyber scam involving",
+      "title_ta": "",
+      "category_en": "CYBER SAFETY",
+      "category_ta": "இணைய பாதுகாப்பு",
+      "summary_en": "T.N. police warn public about new cyber scam involving USSD codes\nCriminals impersonate courier or delivery service agents to fraudulently access citizens’ bank accounts and social media profiles The ...",
+      "summary_ta": "",
+      "content_en": [
+        "T.N. police warn public about new cyber scam involving USSD codes\nCriminals impersonate courier or delivery service agents to fraudulently access citizens’ bank accounts and social media profiles The Cyber Crime Wing of the Tamil Nadu Police has issued a public advisory regarding a new and emerging cyber fraud, where criminals impersonate courier or delivery service agents to fraudulently access citizens’ bank accounts and social media profiles.",
+        "As part of this scam, cybercriminals contact individuals claiming to confirm or reschedule a parcel delivery. During the conversation, victims are instructed to dial a USSD (Unstructured Supplementary Service Data) code received via SMS, typically beginning with *21* followed by a mobile number that belongs to the fraudster. Dialing this code enables call forwarding on the victim’s mobile phone without their knowledge.",
+        ""
+      ],
+      "content_ta": [
+        ""
+      ],
+      "image": "/uploads/upload_1782279603052.png",
+      "tags_en": [
+        "Greater Chennai Police",
+        "Cyber Safety",
+        "Crime Prevention",
+        "Online Scam",
+        "Fraud",
+        "Police"
+      ],
+      "tags_ta": [],
+      "section": "activity",
+      "published": 1,
+      "featured": 0,
+      "breaking": 0,
+      "latest": 1,
+      "homepage_visible": 1,
+      "views_count": 334,
+      "language": "Both",
+      "date": " December 20, 2025",
+      "author_en": "Greater Chennai Police Media Desk",
+      "author_ta": "சென்னை பெருநகர காவல் ஊடகப் பிரிவு",
+      "sourceUrl": "https://www.thehindu.com/news/cities/chennai/tn-police-warn-public-about-new-cyber-scam-involving-ussd-codes/article70418996.ece",
+      "sourceName": "Greater Chennai Police Desk",
+      "updated_at": "2026-06-24T05:40:37.357Z",
+      "created_at": "2026-06-24T05:40:37.357Z"
+    },
+    {
+      "id": 22,
+      "slug": "cyber-crime-wing-arrests-seven-members-of-international-cyber-crime",
+      "title_en": "Cyber Crime Wing arrests seven members of International Cyber Crime",
+      "title_ta": "",
+      "category_en": "CYBER SAFETY",
+      "category_ta": "இணைய பாதுகாப்பு",
+      "summary_en": "Cyber Crime Wing arrests seven members of International Cyber Crime Network in Ramanathapuram District.",
+      "summary_ta": "",
+      "content_en": [
+        "Cyber Crime Wing arrests seven members of International Cyber Crime Network in Ramanathapuram District."
+      ],
+      "content_ta": [
+        ""
+      ],
+      "image": "/uploads/upload_1782279404303.png",
+      "tags_en": [
+        "Greater Chennai Police",
+        "Cyber Safety",
+        "Crime Prevention",
+        "Arrest"
+      ],
+      "tags_ta": [],
+      "section": "event",
+      "published": 1,
+      "featured": 0,
+      "breaking": 0,
+      "latest": 1,
+      "homepage_visible": 1,
+      "views_count": 410,
+      "language": "Both",
+      "date": "June 24, 2026",
+      "author_en": "Greater Chennai Police Media Desk",
+      "author_ta": "சென்னை பெருநகர காவல் ஊடகப் பிரிவு",
+      "sourceName": "Greater Chennai Police Desk",
+      "updated_at": "2026-06-24T05:38:24.530Z",
+      "created_at": "2026-06-24T05:37:39.436Z",
+      "sourceUrl": "https://www.facebook.com/photo/?fbid=1368205968672565&set=a.356999586459880"
+    },
+    {
+      "id": 21,
+      "slug": "over-2-400-warrants-executed-687-arrested-in-south-t",
+      "title_en": "Over 2 400 warrants executed 687 arrested in south T",
+      "title_ta": "",
+      "category_en": "CYBER SAFETY",
+      "category_ta": "இணைய பாதுகாப்பு",
+      "summary_en": "Over 2,400 warrants executed, 687 arrested in south T.N. ‘Operation Shield’\nAmong these, 682 individuals were caught specifically for the sale and distribution of banned ganja and tobacco products\nUpd...",
+      "summary_ta": "",
+      "content_en": [
+        "Over 2,400 warrants executed, 687 arrested in south T.N. ‘Operation Shield’\nAmong these, 682 individuals were caught specifically for the sale and distribution of banned ganja and tobacco products\nUpdated - June 24, 2026 08:31 am IST - MADURAI In a massive, coordinated crackdown on crime and narcotics across south Tamil Nadu, the Southern Range Police have executed over 2,400 arrest warrants and apprehended 687 offenders under a specialised drive named ‘Operation Shield’.",
+        "The intensive operation, which commenced on May 20, spans 10 districts under the jurisdiction of the southern range: Madurai, Theni, Dindigul, Ramanathapuram, Sivaganga, Virudhunagar, Tirunelveli, Thoothukudi, Tenkasi, and Kanniyakumari.",
+        "According to Inspector General of Police (IG) Vijayendra Bidari, the initiative—digitally tracked under the hashtag #OperationSHIELDNET—was launched to heavily bolster crime prevention and dismantle illegal drug networks in the region.",
+        "A primary focus of the operation has been the eradication of banned substances.",
+        "Police registered 497 cases, leading to the arrest of 687 drug offenders.",
+        "Among these, 682 individuals were caught specifically for the sale and distribution of banned ganja and tobacco products.The localised raids yielded massive contraband seizures, including 401 kg of ganja and 4,458 kg of illegal tobacco products.",
+        "In a bid to tighten the legal noose around habitual offenders, the police did not just make fresh arrests but also targeted those out on bail, said police sources.",
+        "A total of 694 petitions were filed in court seeking the cancellation of bail for non-compliant individuals.Further, 2,441 pending arrest warrants were successfully executed during this period.",
+        "To ensure long-term public tranquility, the police have actively invoked preventive clauses.",
+        "Good conduct bonds were secured from 365 individuals identified as potential threats to public peace, legally binding them to maintain order.",
+        "The scope of Operation Shield also extended into civic discipline and local grievances.",
+        "Regional traffic enforcement saw a massive surge, resulting in the seizure of 55,336 two-wheelers for various motor vehicle violations.",
+        "Additionally, addressing root causes of local violence, the police initiated 127 legal actions under Section 164 of the Bharatiya Nagarik Suraksha Sanhita (BNSS) to resolve escalating property disputes before they turned into law-and-order issues.",
+        "Mr. Vijayendra Bidari emphasised that these intensive crime-prevention measures are being continuously maintained to ensure absolute safety and public order across all 10 southern districts."
+      ],
+      "content_ta": [
+        "Over 2,400 warrants executed, 687 arrested in south T.N. ‘Operation Shield’\nAmong these, 682 individuals were caught specifically for the sale and distribution of banned ganja and tobacco products\nUpdated - June 24, 2026 08:31 am IST - MADURAI In a massive, coordinated crackdown on crime and narcotics across south Tamil Nadu, the Southern Range Police have executed over 2,400 arrest warrants and apprehended 687 offenders under a specialised drive named ‘Operation Shield’.",
+        "The intensive operation, which commenced on May 20, spans 10 districts under the jurisdiction of the southern range: Madurai, Theni, Dindigul, Ramanathapuram, Sivaganga, Virudhunagar, Tirunelveli, Thoothukudi, Tenkasi, and Kanniyakumari.",
+        "According to Inspector General of Police (IG) Vijayendra Bidari, the initiative—digitally tracked under the hashtag #OperationSHIELDNET—was launched to heavily bolster crime prevention and dismantle illegal drug networks in the region.",
+        "A primary focus of the operation has been the eradication of banned substances.",
+        "Police registered 497 cases, leading to the arrest of 687 drug offenders.",
+        "Among these, 682 individuals were caught specifically for the sale and distribution of banned ganja and tobacco products.The localised raids yielded massive contraband seizures, including 401 kg of ganja and 4,458 kg of illegal tobacco products.",
+        "In a bid to tighten the legal noose around habitual offenders, the police did not just make fresh arrests but also targeted those out on bail, said police sources.",
+        "A total of 694 petitions were filed in court seeking the cancellation of bail for non-compliant individuals.Further, 2,441 pending arrest warrants were successfully executed during this period.",
+        "To ensure long-term public tranquility, the police have actively invoked preventive clauses.",
+        "Good conduct bonds were secured from 365 individuals identified as potential threats to public peace, legally binding them to maintain order.",
+        "The scope of Operation Shield also extended into civic discipline and local grievances.",
+        "Regional traffic enforcement saw a massive surge, resulting in the seizure of 55,336 two-wheelers for various motor vehicle violations.",
+        "Additionally, addressing root causes of local violence, the police initiated 127 legal actions under Section 164 of the Bharatiya Nagarik Suraksha Sanhita (BNSS) to resolve escalating property disputes before they turned into law-and-order issues.",
+        "Mr. Vijayendra Bidari emphasised that these intensive crime-prevention measures are being continuously maintained to ensure absolute safety and public order across all 10 southern districts."
+      ],
+      "image": "/uploads/upload_1782278983522.png",
+      "tags_en": [
+        "Greater Chennai Police",
+        "Traffic",
+        "Crime Prevention",
+        "Arrest",
+        "Drugs",
+        "Police"
+      ],
+      "tags_ta": [],
+      "section": "event",
+      "published": 1,
+      "featured": 0,
+      "breaking": 0,
+      "latest": 1,
+      "homepage_visible": 1,
+      "views_count": 412,
+      "language": "Both",
+      "date": "June 24, 2026",
+      "author_en": "Greater Chennai Police Media Desk",
+      "author_ta": "சென்னை பெருநகர காவல் ஊடகப் பிரிவு",
+      "sourceName": "Greater Chennai Police Desk",
+      "sourceUrl": "https://www.thehindu.com/news/cities/Madurai/over-2400-warrants-executed-687-arrested-in-south-tn-operation-shield/article71137362.ece",
+      "updated_at": "2026-06-24T05:33:17.654Z",
+      "created_at": "2026-06-24T05:33:17.654Z"
+    },
+    {
+      "id": 20,
+      "slug": "new-police-commissioners-for-madurai-tirupur-salem-",
+      "title_en": "New police commissioners for Madurai, Tirupur, Salem;",
+      "title_ta": "",
+      "category_en": "Government Updates",
+      "category_ta": "அரசு அறிவிப்புகள்",
+      "summary_en": "",
+      "summary_ta": "",
+      "content_en": [
+        "New police commissioners for Madurai, Tirupur, Salem; new officers posted in Chennai police's top level According to official orders, Inspector General of Police (IGP) Kapilkumar C. Saratkar has been appointed Additional Commissioner of Police (North), Greater Chennai Police. He succeeds IGP Pravesh Kumar, who has been posted as IGP, Coastal Security Group-CID The Tamil Nadu government on Monday transferred and posted 14 senior IPS officers in a major reshuffle across the State police department, affecting key positions in the Greater Chennai Police, city commissionerates and specialised wings, as per an order from home department.",
+        "According to official orders, Inspector General of Police (IGP) Kapilkumar C. Saratkar has been appointed Additional Commissioner of Police (North), Greater Chennai Police. He succeeds IGP Pravesh Kumar, who has been posted as IGP, Coastal Security Group-CID.",
+        "IGP P.C. Thenmozhi has been appointed Additional Commissioner of Police, Central Crime Branch, Chennai. She replaces IGP A. Radhika, who has been posted as IGP (Administration) in the office of the Director General of Police.",
+        "IGP B. Shamoondeshwari has been named Additional Commissioner of Police (Traffic), Greater Chennai Police, replacing IGP F. Karthikeyan. Karthikeyan has been transferred as IGP, Social Justice and Human Rights Wing.",
+        "In another significant posting, IGP A.G. Babu has been appointed Additional Commissioner of Police (Headquarters), Greater Chennai Police. The incumbent, IGP Joshi Nirmal Kumar, has been posted as Commissioner of Police, Salem City.",
+        "The government has also appointed IGP S. Rajeswari as Commissioner of Police, Tiruppur City. Former Tiruppur City Commissioner S. Rajendran has been transferred as Commissioner of Police, Madurai City.",
+        "Among other changes, Additional Director General of Police (ADGP) Ayush Mani Tiwari has been posted as ADGP (Headquarters) in the office of the Director General of Police. IGP Anil Kumar Giri has been appointed as IGP, Idol Wing-CID, Chennai."
+      ],
+      "content_ta": [
+        "மதுரை, திருப்பூர், சேலம் ஆகியவற்றுக்கு புதிய காவல் ஆணையர்கள்; சென்னை காவல்துறையின் உயர் மட்டத்தில் புதிய அதிகாரிகள் நியமனம். அதிகாரப்பூர்வ உத்தரவுகளின்படி, காவல் துறை இன்ஸ்பெக்டர் ஜெனரல் (ஐஜிபி) கபில்குமார் சி. சரத்கர், பெருநகர சென்னை காவல்துறையின் கூடுதல் காவல் ஆணையராக (வடக்கு) நியமிக்கப்பட்டுள்ளார். கடலோரப் பாதுகாப்புப் பிரிவு-சிஐடி-யின் ஐஜிபியாக நியமிக்கப்பட்டுள்ள ஐஜிபி பிரவேஷ் குமாருக்குப் பதிலாக இவர் நியமிக்கப்பட்டுள்ளார். உள்துறை அமைச்சகத்தின் உத்தரவின்படி, தமிழக அரசு திங்களன்று மாநில காவல்துறை முழுவதும் ஒரு பெரிய இடமாற்றத்தை மேற்கொண்டது. இதில் பெருநகர சென்னை காவல்துறை, நகர ஆணையரகங்கள் மற்றும் சிறப்புப் பிரிவுகளில் உள்ள முக்கிய பதவிகள் பாதிக்கப்பட்டுள்ளன.",
+        "அதிகாரப்பூர்வ உத்தரவுகளின்படி, காவல் துறை இன்ஸ்பெக்டர் ஜெனரல் (ஐஜிபி) கபில்குமார் சி. சரத்கர், பெருநகர சென்னை காவல்துறையின் கூடுதல் காவல் ஆணையராக (வடக்கு) நியமிக்கப்பட்டுள்ளார். கடலோரப் பாதுகாப்புப் பிரிவு-சிஐடி-யின் ஐஜிபியாக நியமிக்கப்பட்டுள்ள ஐஜிபி பிரவேஷ் குமாருக்குப் பதிலாக இவர் நியமிக்கப்பட்டுள்ளார்.",
+        "ஐஜிபி பி.சி. தென்மொழி, சென்னை மத்திய குற்றப் பிரிவின் கூடுதல் காவல் ஆணையராக நியமிக்கப்பட்டுள்ளார். காவல்துறை தலைமை இயக்குநரக அலுவலகத்தில் ஐஜிபி (நிர்வாகம்) ஆகப் பணியிட மாற்றம் செய்யப்பட்டுள்ள ஐஜிபி ஏ. ராதிகாவிற்குப் பதிலாக இவர் நியமிக்கப்பட்டுள்ளார்.",
+        "ஐஜிபி எஃப். கார்த்திகேயனுக்குப் பதிலாக, ஐஜிபி பி. ஷமூண்டேஸ்வரி பெருநகர சென்னை காவல்துறையின் கூடுதல் காவல் ஆணையராக (போக்குவரத்து) நியமிக்கப்பட்டுள்ளார். கார்த்திகேயன் சமூக நீதி மற்றும் மனித உரிமைகள் பிரிவின் ஐஜிபியாக மாற்றப்பட்டுள்ளார்.",
+        "மற்றொரு முக்கிய பணியிட மாற்றத்தில், ஐஜிபி ஏ.ஜி. பாபு பெருநகர சென்னை காவல்துறையின் கூடுதல் காவல் ஆணையராக (தலைமையகம்) நியமிக்கப்பட்டுள்ளார். தற்போதைய ஐஜிபி ஜோஷி நிர்மல் குமார், சேலம் நகர காவல் ஆணையராகப் பணியிட மாற்றம் செய்யப்பட்டுள்ளார்.",
+        "மேலும், ஐஜிபி எஸ். ராஜேஸ்வரியை திருப்பூர் நகர காவல் ஆணையராக அரசு நியமித்துள்ளது. திருப்பூர் நகரத்தின் முன்னாள் ஆணையர் எஸ். ராஜேந்திரன், மதுரை நகர காவல் ஆணையராக மாற்றப்பட்டுள்ளார்.",
+        "மற்ற மாற்றங்களில், கூடுதல் காவல்துறை தலைமை இயக்குநர் (ADGP) ஆயுஷ் மணி திவாரி, காவல்துறை தலைமை இயக்குநர் அலுவலகத்தில் ADGP (தலைமையகம்) ஆகப் பணியிட மாற்றம் செய்யப்பட்டுள்ளார். காவல்துறை தலைமை இயக்குநர் அனில் குமார் கிரி, சென்னை, சிலைப்பிரிவு-சிஐடி-யின் காவல்துறை தலைமை இயக்குநராக நியமிக்கப்பட்டுள்ளார்."
+      ],
+      "image": "/uploads/upload_1782196536369.png",
+      "tags_en": [],
+      "tags_ta": [],
+      "section": "press",
+      "published": 1,
+      "featured": 0,
+      "breaking": 0,
+      "latest": 1,
+      "homepage_visible": 1,
+      "views_count": 0,
+      "language": "Both",
+      "date": "June 23, 2026",
+      "author_en": "Greater Chennai Police Media Desk",
+      "author_ta": "சென்னை பெருநகர காவல் ஊடகப் பிரிவு",
+      "sourceUrl": "https://www.dtnext.in/news/tamilnadu/14-senior-ips-officers-transferred-in-tamil-nadu-police-reshuffle",
+      "updated_at": "2026-06-23T06:37:52.886Z",
+      "created_at": "2026-06-23T06:37:52.886Z"
+    },
+    {
+      "id": 19,
+      "slug": "chennai-police-takes-strict-action-against-traffic-violators",
+      "title_en": "Chennai Police takes strict action against traffic violators",
+      "title_ta": "",
+      "category_en": "Chennai Police takes strict action against traffic violators",
+      "category_ta": "",
+      "summary_en": "",
+      "summary_ta": "",
+      "content_en": [
+        "Chennai Police takes strict action against traffic violators"
+      ],
+      "content_ta": [
+        "போக்குவரத்து விதிகளை மீறுபவர்கள் மீது சென்னை காவல்துறை கடும் நடவடிக்கை"
+      ],
+      "image": "/uploads/upload_1782192400720.png",
+      "tags_en": [],
+      "tags_ta": [],
+      "section": "latest",
+      "published": 1,
+      "featured": 0,
+      "breaking": 0,
+      "latest": 1,
+      "homepage_visible": 1,
+      "views_count": 0,
+      "language": "Both",
+      "date": "June 23, 2026",
+      "author_en": "Greater Chennai Police Media Desk",
+      "author_ta": "சென்னை பெருநகர காவல் ஊடகப் பிரிவு",
+      "updated_at": "2026-06-23T05:34:47.268Z",
+      "created_at": "2026-06-23T05:34:47.268Z"
+    },
     {
       "id": 1,
       "slug": "police-medal-award-ceremony",
@@ -663,30 +1024,25 @@
     {
       "id": 11,
       "slug": "modern-traffic-intersections",
-      "category_en": "Traffic Tech",
-      "category_ta": "போக்குவரத்து தொழில்நுட்பம்",
-      "title_en": "Commissioner inspects modern traffic intersections in Central Chennai.",
-      "title_ta": "மத்திய சென்னையில் நவீன போக்குவரத்து சந்திப்புகளை ஆணையர் ஆய்வு செய்தார்",
-      "summary_en": "Commissioner inspects modern traffic intersections in Central Chennai to review smart signal operations and pedestrian safety protocols.",
-      "summary_ta": "ஸ்மார்ட் சிக்னல் செயல்பாடுகள் மற்றும் பாதசாரிகள் பாதுகாப்பு நெறிமுறைகளை ஆய்வு செய்ய மத்திய சென்னையில் நவீன போக்குவரத்து சந்திப்புகளை ஆணையர் ஆய்வு செய்தார்.",
+      "category_en": "Mahesh Kumar Aggarwal takes charge as Tamil Nadu DGP/HoPF",
+      "category_ta": "தமிழக டிஜிபி/காவல்துறைத் தலைவர் (HoPF) ஆக மகேஷ் குமார் அகர்வால் பொறுப்பேற்றார்.",
+      "title_en": "After a long wait, Tamil Nadu police get regular DGP as Mahesh Kumar Aggarwal takes charge",
+      "title_ta": "நீண்ட காத்திருப்புக்குப் பிறகு, மகேஷ் குமார் அகர்வால் பொறுப்பேற்றதன் மூலம் தமிழ்நாடு காவல்துறைக்கு நிரந்தர டிஜிபி (DGP) கிடைத்துள்ளார்.",
+      "summary_en": "",
+      "summary_ta": "",
       "content_en": [
-        "Commissioner Dr. A. Amalraj IPS conducted a site inspection of several key traffic intersections in Central Chennai equipped with automated signals and pedestrian sensors.",
-        "The department is upgrading intersections to utilize AI-driven traffic optimization systems, which automatically adjust signal timings based on vehicle density.",
-        "Special emphasis was placed on creating accessible walkways, clear lane markings, and countdown timers to aid senior citizens and disabled pedestrians crossing busy routes.",
-        "Digital enforcement cameras have also been deployed to catch signal violations automatically and generate instant e-challans."
+        "After a long wait, Tamil Nadu police get regular DGP as Mahesh Kumar Aggarwal takes charge\nThe run-up to the top post saw many twists and turns over 10 months  After months of delays caused by litigation and repeated postponements, Tamil Nadu has finally got a regular Director General of Police and Head of Police Force (DGP/HoPF).",
+        ""
       ],
       "content_ta": [
-        "காவல் ஆணையர் டாக்டர் ஏ.அமல்ராஜ் ஐபிஎஸ் மத்திய சென்னையில் தானியங்கி சிக்னல்கள் மற்றும் பாதசாரி சென்சார்கள் பொருத்தப்பட்ட பல முக்கிய போக்குவரத்து சந்திப்புகளை ஆய்வு செய்தார்.",
-        "வாகனங்களின் அடர்த்திக்கு ஏற்ப சிக்னல் நேரங்களைத் தானாகவே சரிசெய்யும் AI-ஆல் இயக்கப்படும் போக்குவரத்து அமைப்புகளைப் பயன்படுத்த இந்தத் துறை சந்திப்புகளை மேம்படுத்தி வருகிறது.",
-        "முதியவர்கள் மற்றும் மாற்றுத்திறனாளி பாதசாரிகள் கடப்பதற்கு ஏதுவாக அணுகக்கூடிய நடைபாதைகள், தெளிவான வழித்தடக் குறியீடுகள் மற்றும் கவுண்ட்டவுன் டைமர்களை உருவாக்குவதில் சிறப்பு கவனம் செலுத்தப்பட்டது.",
-        "சிக்னல் விதிமீறல்களைத் தானாகவே கண்டறிந்து உடனடியாக இ-சல்லான்களை உருவாக்க டிஜிட்டல் அமலாக்க கேமராக்களும் பயன்படுத்தப்பட்டுள்ளன."
+        "நீண்ட காத்திருப்புக்குப் பிறகு, மகேஷ் குமார் அகர்வால் பொறுப்பேற்றதன் மூலம் தமிழகக் காவல்துறைக்கு முழுநேர டிஜிபி (DGP) கிடைத்துள்ளார். இந்தப் பதவியை அடைவதற்கான நிகழ்வுகள் கடந்த 10 மாதங்களாகப் பல்வேறு திருப்பங்களைக் கண்டன; வழக்குகள் மற்றும் தொடர் ஒத்திவைப்புகள் காரணமாக ஏற்பட்ட மாதக்கணக்கிலான தாமதங்களுக்குப் பிறகு, தமிழகத்திற்கு இறுதியாக ஒரு முழுநேரக் காவல்துறைத் தலைவர் (DGP/HoPF) கிடைத்துள்ளார்."
       ],
-      "image": "/images/control-center.png",
+      "image": "/uploads/upload_1782113104734.png",
       "gallery": [
         "/images/control-center.png",
         "/images/night_patrol.png"
       ],
-      "date": "June 14, 2026",
+      "date": " June 3, 2026",
       "author_en": "Greater Chennai Police Media Desk",
       "author_ta": "சென்னை பெருநகர காவல் ஊடகப் பிரிவு",
       "tags_en": [
@@ -713,7 +1069,10 @@
         "மேம்படுத்தப்பட்ட பாதசாரி நடைபாதைகள் மற்றும் மின்னணு வழிகாட்டிகள்."
       ],
       "lastUpdated": "June 14, 2026, 03:00 PM",
-      "published": 1
+      "published": 1,
+      "breaking": 1,
+      "homepage_visible": 0,
+      "updated_at": "2026-06-22T07:28:57.588Z"
     },
     {
       "id": 12,
@@ -770,116 +1129,6 @@
       "lastUpdated": "June 12, 2026, 02:00 PM",
       "sourceName": "Indian Express",
       "sourceUrl": "https://indianexpress.com/article/cities/chennai/chennai-cyber-crime-cell-awareness-drive-students-936214/",
-      "published": 1
-    },
-    {
-      "id": 13,
-      "slug": "kaaval-karangal-reunite-abandoned",
-      "category_en": "Community Support",
-      "category_ta": "சமூக ஆதரவு",
-      "title_en": "Kaaval Karangal teams reunite 14 abandoned senior citizens with families.",
-      "title_ta": "ஆதரவற்ற 14 முதியவர்களை காவல் கரங்கள் குழுவினர் குடும்பத்தினருடன் இணைத்தனர்",
-      "summary_en": "Kaaval Karangal teams reunite 14 abandoned senior citizens with families during a weekly outreach campaign.",
-      "summary_ta": "வாராந்திர விழிப்புணர்வு மற்றும் மீட்புப் பிரச்சாரத்தின் போது கைவிடப்பட்ட 14 முதியவர்களை காவல் கரங்கள் குழுக்கள் அவர்களது குடும்பத்தினருடன் இணைத்தன.",
-      "content_en": [
-        "In a major social outreach drive, the Kaaval Karangal division of the Chennai Police successfully traced the families of 14 abandoned senior citizens.",
-        "These individuals, who had been staying at government-run and private shelters, were reunited with their relatives after a systematic mapping and counseling process.",
-        "The division continues to operate shelter rehabilitation and health outreach services for homeless and vulnerable citizens across metropolitan Chennai.",
-        "Coordination with municipal health centers ensures medical services are available immediately upon rescue."
-      ],
-      "content_ta": [
-        "ஒரு முக்கிய சமூக விழிப்புணர்வுப் பணியில், சென்னை காவல்துறையின் காவல் கரங்கள் பிரிவு கைவிடப்பட்ட 14 முதியவர்களின் குடும்பங்களை வெற்றிகரமாகக் கண்டறிந்தது.",
-        "அரசு மற்றும் தனியார் காப்பகங்களில் தங்கியிருந்த இந்த நபர்கள், முறையான அடையாள வரைபடம் மற்றும் ஆலோசனைகளுக்குப் பிறகு தங்கள் உறவினர்களுடன் இணைக்கப்பட்டனர்.",
-        "இப்பிரிவு பெருநகர சென்னை முழுவதும் வீடற்ற மற்றும் நலிந்த குடிமக்களுக்குக் காப்பக மறுவாழ்வு மற்றும் சுகாதாரச் சேவைகளைத் தொடர்ந்து வழங்கி வருகிறது.",
-        "மாநகராட்சி சுகாதார மையங்களுடன் ஒருங்கிணைப்பதன் மூலம் மீட்புக்குப் பின் உடனடியாக மருத்துவ சேவைகள் கிடைப்பது உறுதி செய்யப்படுகிறது."
-      ],
-      "image": "/images/community_outreach.png",
-      "gallery": [
-        "/images/community_outreach.png",
-        "/images/reunion_gujarat.png"
-      ],
-      "date": "June 10, 2026",
-      "author_en": "Greater Chennai Police Media Desk",
-      "author_ta": "சென்னை பெருநகர காவல் ஊடகப் பிரிவு",
-      "tags_en": [
-        "Kaaval Karangal",
-        "Rehab Services",
-        "Elderly Support",
-        "Chennai Outreach"
-      ],
-      "tags_ta": [
-        "காவல் கரங்கள்",
-        "மறுவாழ்வு சேவைகள்",
-        "முதியோர் ஆதரவு",
-        "சென்னை விழிப்புணர்வு"
-      ],
-      "section": "latest",
-      "highlights_en": [
-        "14 homeless senior citizens reunited with families.",
-        "Counseling and identity mapping used to locate relatives.",
-        "Integrated health support provided during rehab phase."
-      ],
-      "highlights_ta": [
-        "வீடற்ற 14 முதியவர்கள் தங்களது குடும்பங்களுடன் இணைக்கப்பட்டனர்.",
-        "உறவினர்களைக் கண்டறிய ஆலோசனை மற்றும் அடையாளத் தேடல் பயன்படுத்தப்பட்டது.",
-        "மறுவாழ்வு கட்டத்தில் ஒருங்கிணைந்த சுகாதார ஆதரவு வழங்கப்பட்டது."
-      ],
-      "lastUpdated": "June 10, 2026, 01:00 PM",
-      "published": 1
-    },
-    {
-      "id": 14,
-      "slug": "patrol-force-density",
-      "category_en": "Women Safety",
-      "category_ta": "பெண்கள் பாதுகாப்பு",
-      "title_en": "Patrol force density increased around women colleges and transit zones.",
-      "title_ta": "பெண்கள் கல்லூரிகள் மற்றும் போக்குவரத்து பகுதிகளில் ரோந்துப் பணி தீவிரம்",
-      "summary_en": "Patrol force density increased around women colleges and transit zones to ensure secure commutes for women.",
-      "summary_ta": "பெண்களின் பாதுகாப்பான பயணத்தை உறுதி செய்வதற்காக பெண்கள் கல்லூரிகள் மற்றும் முக்கிய போக்குவரத்துப் பகுதிகளில் ரோந்து வாகனங்களின் அடர்த்தி அதிகரிக்கப்பட்டுள்ளது.",
-      "content_en": [
-        "Greater Chennai Police has increased the presence of patrol units, including Pink Patrol vehicles, near women's colleges, IT corridors, and major transit stations.",
-        "This deployment is intended to prevent instances of eve-teasing, harassment, and to ensure emergency help is always within minutes of reach.",
-        "Women are encouraged to download the Kaaval Uthavi app and report any security concerns directly to the dispatch team.",
-        "Local wardens are also integrated into the reporting network to keep areas surrounding campuses safe."
-      ],
-      "content_ta": [
-        "சென்னை பெருநகர காவல்துறை பெண்கள் கல்லூரிகள், ஐடி காரிடார்கள் மற்றும் முக்கிய போக்குவரத்து நிலையங்களுக்கு அருகில் பிங்க் ரோந்து (Pink Patrol) வாகனங்கள் உள்ளிட்ட ரோந்துப் பிரிவுகளின் எண்ணிக்கையை அதிகரித்துள்ளது.",
-        "பெண்களுக்கு எதிரான வம்புகள், துன்புறுத்தல்களைத் தடுக்கவும், அவசர உதவி எப்போதும் சில நிமிடங்களில் கிடைப்பதை உறுதி செய்யவும் இந்த ரோந்துகள் தீவிரப்படுத்தப்பட்டுள்ளன.",
-        "பெண்கள் 'காவல் உதவி' (Kaaval Uthavi) செயலியைப் பதிவிறக்கம் செய்து தங்களின் பாதுகாப்புப் புகார்களை நேரடியாகத் தெரிவிக்க ஊக்குவிக்கப்படுகிறார்கள்.",
-        "வளாகங்களைச் சுற்றியுள்ள பகுதிகளைப் பாதுகாப்பாக வைத்திருக்க உள்ளூர் கண்காணிப்பாளர்களும் இந்த பாதுகாப்பு நெட்வொர்க்கில் ஒருங்கிணைக்கப்பட்டுள்ளனர்."
-      ],
-      "image": "/images/night_patrol.png",
-      "gallery": [
-        "/images/night_patrol.png",
-        "/images/singapen_special_force.png"
-      ],
-      "date": "June 08, 2026",
-      "author_en": "Greater Chennai Police Media Desk",
-      "author_ta": "சென்னை பெருநகர காவல் ஊடகப் பிரிவு",
-      "tags_en": [
-        "Pink Patrol",
-        "Womens Safety",
-        "Collegiate Security",
-        "Kaaval Uthavi"
-      ],
-      "tags_ta": [
-        "பிங்க் ரோந்து",
-        "பெண்கள் பாதுகாப்பு",
-        "கல்லூரி பாதுகாப்பு",
-        "காவல் உதவி"
-      ],
-      "section": "latest",
-      "highlights_en": [
-        "Increased patrols in high-risk zones, colleges, and transit points.",
-        "Coordination with Pink Patrol vehicles for immediate response.",
-        "Kaaval Uthavi App promoted for instant location sharing."
-      ],
-      "highlights_ta": [
-        "அதிக ஆபத்துள்ள பகுதிகள், கல்லூரிகள் மற்றும் போக்குவரத்து நிலையங்களில் ரோந்து அதிகரிப்பு.",
-        "உடனடி பதிலுக்காக பிங்க் ரோந்து வாகனங்களுடன் ஒருங்கிணைப்பு.",
-        "உடனடி இருப்பிடப் பகிர்வுக்காக காவல் உதவி செயலி மேம்படுத்தப்பட்டது."
-      ],
-      "lastUpdated": "June 08, 2026, 11:00 AM",
       "published": 1
     },
     {
@@ -993,63 +1242,6 @@
       "published": 1
     },
     {
-      "id": 17,
-      "slug": "udhayanidhi-law-order-meeting",
-      "category_en": "Law and Order",
-      "category_ta": "சட்டம் ஒழுங்கு",
-      "title_en": "Udhayanidhi Demands High-Level Police Meeting to Discuss Law and Order in Tamil Nadu",
-      "title_ta": "தமிழ்நாட்டின் சட்டம் ஒழுங்கு குறித்து விவாதிக்க உயர்மட்ட காவல் கூட்டத்திற்கு உதயநிதி கோரிக்கை",
-      "summary_en": "Mr. Udhayanidhi Stalin urged the Tamil Nadu Chief Minister to convene a high-level meeting of police officers and issue directions to regional and district-level officers.",
-      "summary_ta": "தமிழ்நாட்டின் பிராந்திய சட்டம் ஒழுங்கு நிலை குறித்து விவாதிக்க காவல்துறை அதிகாரிகளின் உயர்மட்டக் கூட்டத்தைக் கூட்டுமாறு துணை முதலமைச்சர் திரு. உதயநிதி ஸ்டாலின் கேட்டுக்கொண்டார்.",
-      "content_en": [
-        "Deputy Chief Minister Udhayanidhi Stalin requested a high-level security meeting at the Secretariat to discuss the regional law and order situation in Tamil Nadu.",
-        "The review aims to evaluate patrolling protocols, anti-social containment measures, and the implementation of special task forces in sensitive districts.",
-        "Senior police leadership presented current statistics, security grids, and action plans to optimize surveillance and public safety administration.",
-        "Further guidelines were set to coordinate crime database sharing between district command centers."
-      ],
-      "content_ta": [
-        "தமிழ்நாட்டில் சட்டம் ஒழுங்கு நிலை குறித்து விவாதிப்பதற்காகத் தலைமைச் செயலகத்தில் உயர்மட்டப் பாதுகாப்பு ஆலோசனைக் கூட்டத்திற்குத் துணை முதலமைச்சர் உதயநிதி ஸ்டாலின் வேண்டுகோள் விடுத்தார்.",
-        "இந்த ஆய்வானது ரோந்து நெறிமுறைகள், சமூக விரோத ஒடுக்குமுறை நடவடிக்கைகள் மற்றும் உணர்திறன் மிக்க மாவட்டங்களில் சிறப்புப் படைகளைச் செயல்படுத்துவதை மதிப்பிடுவதை நோக்கமாகக் கொண்டுள்ளது.",
-        "கண்காணிப்பு மற்றும் பொதுப் பாதுகாப்பு நிர்வாகத்தை மேம்படுத்துவதற்கான தற்போதைய புள்ளிவிவரங்கள், பாதுகாப்பு அமைப்புகள் மற்றும் செயல் திட்டங்களை மூத்த காவல்துறைத் தலைமை சமர்ப்பித்தது.",
-        "மாவட்டக் கட்டுப்பாட்டு மையங்களுக்கு இடையே குற்றத் தரவுத்தளப் பகிர்வை ஒருங்கிணைக்க கூடுதல் வழிகாட்டுதல்கள் அமைக்கப்பட்டன."
-      ],
-      "image": "/images/udhayanidhi.png",
-      "gallery": [
-        "/images/udhayanidhi.png",
-        "/images/vijay.png"
-      ],
-      "date": "June 14, 2026",
-      "author_en": "Greater Chennai Police Media Desk",
-      "author_ta": "சென்னை பெருநகர காவல் ஊடகப் பிரிவு",
-      "tags_en": [
-        "Law and Order",
-        "Secretariat Meeting",
-        "IPS Review",
-        "Tamil Nadu Govt"
-      ],
-      "tags_ta": [
-        "சட்டம் ஒழுங்கு",
-        "தலைமைச் செயலகக் கூட்டம்",
-        "ஐபிஎஸ் ஆய்வு",
-        "தமிழ்நாடு அரசு"
-      ],
-      "section": "event",
-      "highlights_en": [
-        "Law and order high-level review proposed at the Secretariat.",
-        "Coordination of district patrol divisions and data sharing reviewed.",
-        "Commitment to modernizing surveillance infrastructure reaffirmed."
-      ],
-      "highlights_ta": [
-        "தலைமைச் செயலகத்தில் சட்டம் ஒழுங்கு குறித்து உயர்மட்ட ஆய்வு முன்மொழியப்பட்டது.",
-        "மாவட்ட ரோந்துப் பிரிவுகளின் ஒருங்கிணைப்பு மற்றும் தரவுப் பகிர்வு ஆய்வு செய்யப்பட்டது.",
-        "கண்காணிப்புக் கட்டமைப்பை நவீனமயமாக்குவதற்கான அர்ப்பணிப்பு மீண்டும் உறுதி செய்யப்பட்டது."
-      ],
-      "lastUpdated": "June 14, 2026, 06:00 PM",
-      "sourceName": "The Hindu",
-      "sourceUrl": "https://www.thehindu.com/news/national/tamil-nadu/udhayanidhi-stalin-chairs-law-and-order-review-meeting-in-chennai/article68221040.ece",
-      "published": 1
-    },
-    {
       "id": 18,
       "slug": "police-quarters-cleaning",
       "category_en": "Clean Campus",
@@ -1108,46 +1300,13 @@
   "ticker": [
     {
       "id": 1,
-      "text_en": "TN Chief Minister's Police Medal Ceremony Awarded to GCP Personnel.",
-      "text_ta": "சென்னை பெருநகர காவல் பணியாளர்களுக்கு தமிழ்நாடு முதலமைச்சரின் காவல் பதக்க விழா வழங்கப்பட்டது.",
+      "text_en": " Chief Minister C Joseph Vijay, senior IPS officer, A. Amalraj was on Thursday appointed as the new Commissioner of the Greater Chennai Police (GCP)",
+      "text_ta": "",
       "order_num": 1,
-      "active": 1
-    },
-    {
-      "id": 2,
-      "text_en": "Singapen Women's Safety Awareness Special Initiative launched in Chennai.",
-      "text_ta": "சென்னை பெருநகர காவல் துறையின் சிங்கப்பெண் பெண்கள் பாதுகாப்பு விழிப்புணர்வு சிறப்புத் திட்டம் தொடங்கப்பட்டது.",
-      "order_num": 2,
-      "active": 1
-    },
-    {
-      "id": 3,
-      "text_en": "Clean Campus maintenance operations successfully conducted in Police Quarters.",
-      "text_ta": "காவலர் குடியிருப்புகளில் சுத்தமான வளாக பராமரிப்புப் பணிகள் வெற்றிகரமாக நடத்தப்பட்டன.",
-      "order_num": 3,
-      "active": 1
-    },
-    {
-      "id": 4,
-      "text_en": "Kaaval Karangal rescues senior citizens and reunites missing persons.",
-      "text_ta": "காவல் கரங்கள் ஆதரவற்ற முதியவர்களை மீட்டு காணாமல் போனவர்களை குடும்பத்தினருடன் சேர்க்கிறது.",
-      "order_num": 4,
       "active": 1
     }
   ],
   "slider": [
-    {
-      "id": 1,
-      "src": "/images/slider_6.jpg",
-      "category_en": "POLICE ADMINISTRATION",
-      "category_ta": "காவல் நிர்வாகம்",
-      "title_en": "Felicitation and Greeting to Senior Police Officers",
-      "title_ta": "உயர் காவல் அதிகாரிகளுக்கு வாழ்த்து மற்றும் மரியாதை",
-      "desc_en": "Greetings and commendations were presented to the newly appointed officers in Greater Chennai Police.",
-      "desc_ta": "சென்னை பெருநகர காவல்துறையில் புதிதாக பொறுப்பேற்ற அதிகாரிகளுக்கு வாழ்த்துக்கள் மற்றும் பாராட்டுக்கள் வழங்கப்பட்டது.",
-      "order_num": 1,
-      "active": 1
-    },
     {
       "id": 3,
       "src": "/images/slider_4.jpg",
@@ -1161,8 +1320,20 @@
       "active": 1
     },
     {
-      "id": 4,
-      "src": "/uploads/upload_1781865717368.png",
+      "id": 5,
+      "src": "/uploads/upload_1781865742082.png",
+      "title_en": "",
+      "title_ta": "",
+      "desc_en": "",
+      "desc_ta": "",
+      "category_en": "",
+      "category_ta": "",
+      "order_num": 1,
+      "active": 1
+    },
+    {
+      "id": 9,
+      "src": "/uploads/upload_1782285477484.png",
       "title_en": "",
       "title_ta": "",
       "desc_en": "",
@@ -1173,8 +1344,20 @@
       "active": 1
     },
     {
-      "id": 5,
-      "src": "/uploads/upload_1781865742082.png",
+      "id": 10,
+      "src": "/uploads/upload_1782285632960.png",
+      "title_en": "",
+      "title_ta": "",
+      "desc_en": "",
+      "desc_ta": "",
+      "category_en": "",
+      "category_ta": "",
+      "order_num": 2,
+      "active": 1
+    },
+    {
+      "id": 11,
+      "src": "/uploads/upload_1782285750226.png",
       "title_en": "",
       "title_ta": "",
       "desc_en": "",
@@ -1185,20 +1368,8 @@
       "active": 1
     },
     {
-      "id": 6,
-      "src": "/uploads/upload_1781865781364.png",
-      "title_en": "",
-      "title_ta": "",
-      "desc_en": "",
-      "desc_ta": "",
-      "category_en": "",
-      "category_ta": "",
-      "order_num": 5,
-      "active": 1
-    },
-    {
-      "id": 7,
-      "src": "/uploads/upload_1781865800171.png",
+      "id": 12,
+      "src": "/uploads/upload_1782285932912.png",
       "title_en": "",
       "title_ta": "",
       "desc_en": "",
@@ -1206,30 +1377,6 @@
       "category_en": "",
       "category_ta": "",
       "order_num": 6,
-      "active": 1
-    },
-    {
-      "id": 8,
-      "src": "/uploads/upload_1781865813960.png",
-      "title_en": "",
-      "title_ta": "",
-      "desc_en": "",
-      "desc_ta": "",
-      "category_en": "",
-      "category_ta": "",
-      "order_num": 7,
-      "active": 1
-    },
-    {
-      "id": 9,
-      "src": "/uploads/upload_1781865829273.png",
-      "title_en": "",
-      "title_ta": "",
-      "desc_en": "",
-      "desc_ta": "",
-      "category_en": "",
-      "category_ta": "",
-      "order_num": 8,
       "active": 1
     }
   ],
@@ -1262,7 +1409,8 @@
       "accent_color": "#c5a059",
       "logo_path": "/images/gcp_logo.png",
       "footer_logo_path": "/images/gcp_logo.png",
-      "favicon_path": "/favicon.ico"
+      "favicon_path": "/favicon.ico",
+      "ticker_speed": "slow"
     }
   ],
   "menu_items": [
@@ -1420,13 +1568,13 @@
     },
     {
       "id": 5,
-      "youtube_id": "e_VGTPIBJSQ",
-      "title": "காவல் ஆணையர் அமல்ராஜ் விடுத்த எச்சரிக்கை | Chennai Police News",
-      "category": "Chennai Police News",
-      "date": "June 14, 2026",
-      "order_num": 3,
+      "youtube_id": "nll2EX_wQrc",
+      "title": "TN Govt | TN Police | IPS | Transfer | 14 ஐ.பி.எஸ் அதிகாரிகள் இடமாற்றம்",
+      "category": "Media Gallery",
+      "date": "June 24, 2026",
+      "order_num": 5,
       "active": 1,
-      "section": "bottom"
+      "section": "main"
     }
   ],
   "alert_settings": [
@@ -1434,13 +1582,145 @@
       "id": 1,
       "auto_fetch": 1,
       "require_approval": 1,
-      "last_fetched_at": "2026-06-22T07:05:30.878Z",
+      "last_fetched_at": "2026-06-24T17:03:01.440Z",
       "live_feed_enabled": 1,
       "approved_sources": "tnpolice.gov.in, gcp.tn.gov.in, greaterchennaipolice.in, tn.gov.in, pib.gov.in",
       "refresh_interval": 15
     }
   ],
   "alerts": [
+    {
+      "id": 64,
+      "title": "Tamil Nadu Forest Department |",
+      "category": "LAW & ORDER",
+      "source": "Tamil Nadu Forest Department |",
+      "url": "https://www.forests.tn.gov.in/",
+      "published_at": "2017-05-17T07:22:34.000Z",
+      "approved": 1,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-06-24T15:56:28.790Z"
+    },
+    {
+      "id": 65,
+      "title": "1 Chennai City SI Tmt. Sujatha 9444472458 WPC:49075 Tmt.Ramya 8667886685 2 Kancheepuram SI Tr. Dhanraj 9498150959/ 9500466411 Gr",
+      "category": "LAW & ORDER",
+      "source": "eservices.tnpolice.gov.in",
+      "url": "https://eservices.tnpolice.gov.in/pdf/contactlistofnodalofficers.pdf",
+      "published_at": "2021-03-29T13:14:41.000Z",
+      "approved": 0,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-06-24T15:56:28.791Z"
+    },
+    {
+      "id": 61,
+      "title": "TAMIL NADU UNIFORMED SERVICES RECRUITMENT BOARD",
+      "category": "LAW & ORDER",
+      "source": "TNUSRB",
+      "url": "https://tnusrb.tn.gov.in/pdfs/SI(TK,%20AR)%202025%20Notification_n.pdf",
+      "published_at": "2025-04-04T07:00:00.000Z",
+      "approved": 0,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-06-24T04:54:54.173Z"
+    },
+    {
+      "id": 62,
+      "title": "TAMIL NADU Request For Proposal for Hiring of vehicles (on contract basis) for officers and officia",
+      "category": "LAW & ORDER",
+      "source": "National Health Mission Tamil Nadu",
+      "url": "https://nhm.tn.gov.in/sites/default/files/documents/HiringOfVehicles2023.pdf",
+      "published_at": "2023-01-19T08:00:00.000Z",
+      "approved": 0,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-06-24T04:54:54.174Z"
+    },
+    {
+      "id": 63,
+      "title": "Public (Election) Department || Ethical Video",
+      "category": "LAW & ORDER",
+      "source": "Government of Tamil Nadu",
+      "url": "https://www.elections.tn.gov.in/VoterId_Citizens.aspx",
+      "published_at": "2022-08-23T04:48:54.000Z",
+      "approved": 0,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-06-24T04:54:54.174Z"
+    },
+    {
+      "id": 60,
+      "title": "Home - TNTA - Kalanjiyam",
+      "category": "LAW & ORDER",
+      "source": "TNTA - Kalanjiyam",
+      "url": "https://www.karuvoolam.tn.gov.in/",
+      "published_at": "2018-08-24T18:12:40.000Z",
+      "approved": 0,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-06-23T04:42:57.984Z"
+    },
+    {
+      "id": 59,
+      "title": "NHRC, India takes suo motu cognizance of the reported death of two women and several others falling sick after ammonia leak at a shrimp processing factory in the Tiruvallur district of Tamil Nadu",
+      "category": "WOMEN & CHILD SAFETY",
+      "source": "PIB",
+      "url": "https://www.pib.gov.in/PressReleasePage.aspx?PRID=2276716&reg=3&lang=1",
+      "published_at": "2026-06-22T11:53:00.000Z",
+      "approved": 0,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-06-22T17:53:02.702Z"
+    },
+    {
+      "id": 57,
+      "title": "ELCOT Angadi",
+      "category": "LAW & ORDER",
+      "source": "Government of Tamil Nadu",
+      "url": "https://elcotangadi.tn.gov.in/",
+      "published_at": "2025-08-12T15:30:44.000Z",
+      "approved": 0,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-06-22T17:36:17.857Z"
+    },
+    {
+      "id": 58,
+      "title": "FINANCE [Pay Cell] DEPARTMENT G.O.Ms.No.303, Dated 11th October 2017.",
+      "category": "LAW & ORDER",
+      "source": "Government of Tamil Nadu",
+      "url": "https://www.tnurbantree.tn.gov.in/nagercoil/wp-content/uploads/sites/36/2021/04/GO_Ms_No_303_Finance-_Pay-Cell__Dated_11_10_2017_FC-Final-2.pdf",
+      "published_at": "2017-10-11T07:00:00.000Z",
+      "approved": 0,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-06-22T17:36:17.858Z"
+    },
+    {
+      "id": 56,
+      "title": "Home Page:Press Information Bureau",
+      "category": "LAW & ORDER",
+      "source": "PIB",
+      "url": "https://www.pib.gov.in/index.aspx?reg=3&lang=1",
+      "published_at": "2026-06-19T07:00:00.000Z",
+      "approved": 0,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-06-22T11:08:18.180Z"
+    },
+    {
+      "id": 55,
+      "title": "Tamil Nadu Police - Citizen Portal",
+      "category": "LAW & ORDER",
+      "source": "police.tn.gov.in",
+      "url": "https://www.police.tn.gov.in/",
+      "published_at": "2025-08-08T06:38:47.000Z",
+      "approved": 0,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-06-22T09:26:38.642Z"
+    },
     {
       "id": 54,
       "title": "Search Treasury - TNTA",
@@ -2088,6 +2368,310 @@
       "pinned": 0,
       "removed": 0,
       "created_at": "2026-06-19T16:17:43.000Z"
+    }
+  ],
+  "seo_settings": [
+    {
+      "id": 1,
+      "site_title": "Chennai Guardian | Greater Chennai Police",
+      "site_description": "Official executive leadership portal and smart public safety dashboard of Dr. A. Amalraj IPS, Commissioner of Greater Chennai Police.",
+      "default_keywords": "Greater Chennai Police, Chennai Police, Dr. A. Amalraj IPS, Tamil Nadu Police, Public Safety, Crime Prevention",
+      "organization_name": "Greater Chennai Police",
+      "organization_logo": "/images/gcp_logo.png",
+      "contact_number": "044-23452300",
+      "address": "Commissioner Office, Vepery, Chennai - 600007, Tamil Nadu, India",
+      "site_url": "https://chennaiguardian.in",
+      "social_facebook": "https://www.facebook.com/Chennai.Police/",
+      "social_twitter": "https://x.com/chennaipolice_",
+      "social_instagram": "https://www.instagram.com/greater_chennai_police_/",
+      "social_youtube": "",
+      "google_analytics_id": "",
+      "google_tag_manager_id": "",
+      "google_search_console": "",
+      "bing_verification": "",
+      "default_robots": "index, follow",
+      "default_og_image": "/images/gcp_logo.png",
+      "publisher_name": "Greater Chennai Police",
+      "publisher_logo": "/images/gcp_logo.png"
+    }
+  ],
+  "article_seo": [],
+  "asset_metadata": [
+    {
+      "id": 1,
+      "filename": "upload_1781858056198.png",
+      "url": "/uploads/upload_1781858056198.png",
+      "title": "Upload 1781858056198",
+      "category": "Police Update",
+      "show_in_stories": 1,
+      "associated_news_id": null,
+      "created_at": "2026-06-19T08:34:16.195Z"
+    },
+    {
+      "id": 2,
+      "filename": "upload_1781858985396.png",
+      "url": "/uploads/upload_1781858985396.png",
+      "title": "Upload 1781858985396",
+      "category": "Police Update",
+      "show_in_stories": 1,
+      "associated_news_id": null,
+      "created_at": "2026-06-19T08:49:45.393Z"
+    },
+    {
+      "id": 3,
+      "filename": "upload_1781861046444.png",
+      "url": "/uploads/upload_1781861046444.png",
+      "title": "Upload 1781861046444",
+      "category": "Police Update",
+      "show_in_stories": 1,
+      "associated_news_id": null,
+      "created_at": "2026-06-19T09:24:06.446Z"
+    },
+    {
+      "id": 4,
+      "filename": "upload_1781861187798.png",
+      "url": "/uploads/upload_1781861187798.png",
+      "title": "Upload 1781861187798",
+      "category": "Police Update",
+      "show_in_stories": 1,
+      "associated_news_id": null,
+      "created_at": "2026-06-19T09:26:27.803Z"
+    },
+    {
+      "id": 5,
+      "filename": "upload_1781861260860.png",
+      "url": "/uploads/upload_1781861260860.png",
+      "title": "Upload 1781861260860",
+      "category": "Police Update",
+      "show_in_stories": 1,
+      "associated_news_id": null,
+      "created_at": "2026-06-19T09:27:40.860Z"
+    },
+    {
+      "id": 6,
+      "filename": "upload_1781865717368.png",
+      "url": "/uploads/upload_1781865717368.png",
+      "title": "Upload 1781865717368",
+      "category": "Police Update",
+      "show_in_stories": 1,
+      "associated_news_id": null,
+      "created_at": "2026-06-19T10:41:57.370Z"
+    },
+    {
+      "id": 7,
+      "filename": "upload_1781865742082.png",
+      "url": "/uploads/upload_1781865742082.png",
+      "title": "Upload 1781865742082",
+      "category": "Police Update",
+      "show_in_stories": 1,
+      "associated_news_id": null,
+      "created_at": "2026-06-19T10:42:22.083Z"
+    },
+    {
+      "id": 8,
+      "filename": "upload_1781865781364.png",
+      "url": "/uploads/upload_1781865781364.png",
+      "title": "Upload 1781865781364",
+      "category": "Police Update",
+      "show_in_stories": 1,
+      "associated_news_id": null,
+      "created_at": "2026-06-19T10:43:01.363Z"
+    },
+    {
+      "id": 9,
+      "filename": "upload_1781865800171.png",
+      "url": "/uploads/upload_1781865800171.png",
+      "title": "Upload 1781865800171",
+      "category": "Police Update",
+      "show_in_stories": 1,
+      "associated_news_id": null,
+      "created_at": "2026-06-19T10:43:20.168Z"
+    },
+    {
+      "id": 10,
+      "filename": "upload_1781865813960.png",
+      "url": "/uploads/upload_1781865813960.png",
+      "title": "Upload 1781865813960",
+      "category": "Police Update",
+      "show_in_stories": 1,
+      "associated_news_id": null,
+      "created_at": "2026-06-19T10:43:33.956Z"
+    },
+    {
+      "id": 11,
+      "filename": "upload_1781865829273.png",
+      "url": "/uploads/upload_1781865829273.png",
+      "title": "Upload 1781865829273",
+      "category": "Police Update",
+      "show_in_stories": 1,
+      "associated_news_id": null,
+      "created_at": "2026-06-19T10:43:49.273Z"
+    },
+    {
+      "id": 12,
+      "filename": "upload_1782109823678.png",
+      "url": "/uploads/upload_1782109823678.png",
+      "title": "Upload 1782109823678",
+      "category": "Police Update",
+      "show_in_stories": 1,
+      "associated_news_id": null,
+      "created_at": "2026-06-22T06:30:23.679Z"
+    },
+    {
+      "id": 13,
+      "filename": "upload_1782113104734.png",
+      "url": "/uploads/upload_1782113104734.png",
+      "title": "Upload 1782113104734",
+      "category": "Police Update",
+      "show_in_stories": 1,
+      "associated_news_id": null,
+      "created_at": "2026-06-22T07:25:04.737Z"
+    },
+    {
+      "id": 14,
+      "filename": "upload_1782192400720.png",
+      "url": "/uploads/upload_1782192400720.png",
+      "title": "Upload 1782192400720",
+      "category": "Police Update",
+      "show_in_stories": 1,
+      "associated_news_id": null,
+      "created_at": "2026-06-23T05:26:40.717Z"
+    },
+    {
+      "id": 15,
+      "filename": "upload_1782196536369.png",
+      "url": "/uploads/upload_1782196536369.png",
+      "title": "Upload 1782196536369",
+      "category": "Police Update",
+      "show_in_stories": 1,
+      "associated_news_id": null,
+      "created_at": "2026-06-23T06:35:36.374Z"
+    },
+    {
+      "id": 16,
+      "filename": "upload_1782278983522.png",
+      "url": "/uploads/upload_1782278983522.png",
+      "title": "Upload 1782278983522",
+      "category": "Police Update",
+      "show_in_stories": 1,
+      "associated_news_id": null,
+      "created_at": "2026-06-24T05:29:43.523Z"
+    },
+    {
+      "id": 17,
+      "filename": "upload_1782279404303.png",
+      "url": "/uploads/upload_1782279404303.png",
+      "title": "Upload 1782279404303",
+      "category": "Police Update",
+      "show_in_stories": 1,
+      "associated_news_id": null,
+      "created_at": "2026-06-24T05:36:44.305Z"
+    },
+    {
+      "id": 18,
+      "filename": "upload_1782279603052.png",
+      "url": "/uploads/upload_1782279603052.png",
+      "title": "Upload 1782279603052",
+      "category": "Police Update",
+      "show_in_stories": 1,
+      "associated_news_id": null,
+      "created_at": "2026-06-24T05:40:03.053Z"
+    },
+    {
+      "id": 19,
+      "filename": "upload_1782279899278.png",
+      "url": "/uploads/upload_1782279899278.png",
+      "title": "Upload 1782279899278",
+      "category": "Police Update",
+      "show_in_stories": 1,
+      "associated_news_id": null,
+      "created_at": "2026-06-24T05:44:59.278Z"
+    },
+    {
+      "id": 20,
+      "filename": "upload_1782280201704.png",
+      "url": "/uploads/upload_1782280201704.png",
+      "title": "Upload 1782280201704",
+      "category": "Police Update",
+      "show_in_stories": 1,
+      "associated_news_id": null,
+      "created_at": "2026-06-24T05:50:01.710Z"
+    },
+    {
+      "id": 21,
+      "filename": "upload_1782280437177.png",
+      "url": "/uploads/upload_1782280437177.png",
+      "title": "Upload 1782280437177",
+      "category": "Police Update",
+      "show_in_stories": 1,
+      "associated_news_id": null,
+      "created_at": "2026-06-24T05:53:57.185Z"
+    },
+    {
+      "id": 22,
+      "filename": "upload_1782285477484.png",
+      "url": "/uploads/upload_1782285477484.png",
+      "title": "Upload 1782285477484",
+      "category": "Police Update",
+      "show_in_stories": 1,
+      "associated_news_id": null,
+      "created_at": "2026-06-24T07:17:57.487Z"
+    },
+    {
+      "id": 23,
+      "filename": "upload_1782285632960.png",
+      "url": "/uploads/upload_1782285632960.png",
+      "title": "Upload 1782285632960",
+      "category": "Police Update",
+      "show_in_stories": 1,
+      "associated_news_id": null,
+      "created_at": "2026-06-24T07:20:32.961Z"
+    },
+    {
+      "id": 24,
+      "filename": "upload_1782285750226.png",
+      "url": "/uploads/upload_1782285750226.png",
+      "title": "Upload 1782285750226",
+      "category": "Police Update",
+      "show_in_stories": 1,
+      "associated_news_id": null,
+      "created_at": "2026-06-24T07:22:30.229Z"
+    },
+    {
+      "id": 25,
+      "filename": "upload_1782285932912.png",
+      "url": "/uploads/upload_1782285932912.png",
+      "title": "Upload 1782285932912",
+      "category": "Police Update",
+      "show_in_stories": 1,
+      "associated_news_id": null,
+      "created_at": "2026-06-24T07:25:32.913Z"
+    }
+  ],
+  "activity_logs": [
+    {
+      "id": 4,
+      "username": "admin",
+      "action": "Deleted user account: test",
+      "timestamp": "2026-06-24T15:58:06.223Z"
+    },
+    {
+      "id": 3,
+      "username": "admin",
+      "action": "Deleted user account: content",
+      "timestamp": "2026-06-24T15:58:02.088Z"
+    },
+    {
+      "id": 2,
+      "username": "admin",
+      "action": "Deleted user account: editor",
+      "timestamp": "2026-06-24T15:57:58.290Z"
+    },
+    {
+      "id": 1,
+      "username": "admin",
+      "action": "Deleted news article: Udhayanidhi Demands High-Level Police Meeting to Discuss Law and Order in Tamil Nadu",
+      "timestamp": "2026-06-24T07:23:32.622Z"
     }
   ]
 }

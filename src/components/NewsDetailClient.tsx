@@ -19,7 +19,7 @@ import {
   Square,
   ExternalLink
 } from "lucide-react";
-import { NewsItem, newsData } from "@/data/newsData";
+import { NewsItem } from "@/data/newsData";
 import { useTranslation } from "@/context/LanguageContext";
 
 // Custom SVG Icons for Social Share
@@ -50,8 +50,23 @@ export default function NewsDetailClient({ article }: { article: NewsItem }) {
   const [searchFocused, setSearchFocused] = useState(false);
   const [currentUrl, setCurrentUrl] = useState("");
   const [showShareOptions, setShowShareOptions] = useState(true);
+  // Live news from DB for related/recommended/sidebar/search
+  const [liveNews, setLiveNews] = useState<NewsItem[]>([]);
 
   const searchRef = useRef<HTMLDivElement>(null);
+
+  // Fetch live news once on mount for sidebar, related, search widgets
+  useEffect(() => {
+    fetch("/api/admin/crud/news")
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          // Only show published articles in related/sidebar sections
+          setLiveNews(data.filter((n: any) => n.published === 1));
+        }
+      })
+      .catch(() => {}); // Silent fail — widgets simply stay empty
+  }, []);
 
   // Get localized content paragraphs
   const contentParagraphs = language === "ta" ? article.content_ta : article.content_en;
@@ -538,9 +553,9 @@ export default function NewsDetailClient({ article }: { article: NewsItem }) {
     }
   };
 
-  // Filter suggestion results in real-time
+  // Filter suggestion results in real-time using live DB news
   const suggestions = searchQuery.trim() 
-    ? newsData.filter(
+    ? liveNews.filter(
         (item) => {
           const matchTitle = (language === "ta" ? item.title_ta : item.title_en).toLowerCase().includes(searchQuery.toLowerCase());
           const matchCategory = (language === "ta" ? item.category_ta : item.category_en).toLowerCase().includes(searchQuery.toLowerCase());
@@ -551,18 +566,18 @@ export default function NewsDetailClient({ article }: { article: NewsItem }) {
       ).slice(0, 5)
     : [];
 
-  // Smart related stories (category match, max 4, exclude current)
-  const relatedStories = newsData
+  // Smart related stories from live DB (category match, max 4, exclude current)
+  const relatedStories = liveNews
     .filter((item) => item.category_en === article.category_en && item.id !== article.id)
     .slice(0, 4);
 
   // Fallback to general stories if no category match
   const fallbackStories = relatedStories.length > 0 
     ? relatedStories 
-    : newsData.filter((item) => item.id !== article.id).slice(0, 4);
+    : liveNews.filter((item) => item.id !== article.id).slice(0, 4);
 
-  // Recommended premium articles (max 3, exclude current)
-  const recommendedStories = newsData
+  // Recommended premium articles from live DB (max 3, exclude current)
+  const recommendedStories = liveNews
     .filter((item) => item.id !== article.id)
     .slice(0, 3);
 
@@ -1112,7 +1127,7 @@ export default function NewsDetailClient({ article }: { article: NewsItem }) {
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 </div>
                 <div className="p-3 divide-y divide-stone-100 dark:divide-stone-800/80 text-left">
-                  {newsData.slice(0, 5).map((item) => (
+                  {liveNews.slice(0, 5).map((item) => (
                     <Link
                       key={item.id}
                       href={`/news/${item.slug}`}

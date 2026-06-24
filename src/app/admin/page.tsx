@@ -1,10 +1,17 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import AdminLogin from "@/components/admin/AdminLogin";
 import AdminDashboard from "@/components/admin/AdminDashboard";
 
 export default function AdminPage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    router.replace("/controller");
+  }, [router]);
+
   const [session, setSession] = useState<{ username: string; role: string } | null>(null);
   const [loading, setLoading] = useState(true);
 

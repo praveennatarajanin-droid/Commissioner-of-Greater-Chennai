@@ -1,10 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { Search, Share2, Menu, X, Landmark, Sun, Moon, ShieldCheck } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Search, Menu, X, Sun, Moon } from "lucide-react";
 import { useTheme } from "@/components/ThemeProvider";
 import { useTranslation } from "@/context/LanguageContext";
+import { motion, AnimatePresence } from "framer-motion";
 
 const FacebookIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
@@ -38,143 +41,195 @@ interface NavbarProps {
 
 export default function Navbar({ customMenuItems }: NavbarProps = {}) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [searchVal, setSearchVal] = useState("");
   const { theme, toggleTheme } = useTheme();
   const { t, language, changeLanguage } = useTranslation();
+  const [news, setNews] = useState<any[]>([]);
+  const router = useRouter();
 
-  const menuItems = customMenuItems && customMenuItems.length > 0
-    ? customMenuItems.map(i => ({ label: language === "ta" ? i.label_ta : i.label_en, href: i.href }))
-    : [
-        { label: t("navbar.home"), href: "/" },
-        { label: t("navbar.about"), href: "/#about" },
-        { label: t("navbar.constituency"), href: "/#vision" },
-        { label: t("navbar.initiatives"), href: "/#initiatives" },
-        { label: t("navbar.achievements"), href: "/#achievements" },
-        { label: t("navbar.news"), href: "/#media" },
-        { label: t("navbar.gallery"), href: "/#gallery" },
-        { label: t("navbar.contact"), href: "/#resources" },
-      ];
+  useEffect(() => {
+    fetch("/api/admin/crud/news")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setNews(data);
+        }
+      })
+      .catch((err) => console.error("Failed to load news for categories:", err));
+  }, []);
+
+  const getCount = (categoryId: string) => {
+    const normalizedId = categoryId.toLowerCase();
+    return news.filter((n) => {
+      if (n.published === 0) return false;
+      const cat = (n.category_en || "").toLowerCase();
+      const title = (n.title_en || "").toLowerCase();
+      
+      const exactMatch = (normalizedId === "crime" && (cat === "crime" || cat === "crime prevention")) ||
+                         (normalizedId === "cyber-safety" && cat === "cyber safety") ||
+                         (normalizedId === "women-safety" && (cat === "women safety" || cat === "women's safety")) ||
+                         (normalizedId === "public-safety" && cat === "public safety") ||
+                         (normalizedId === "outreach" && (cat === "outreach" || cat === "community outreach"));
+      
+      if (exactMatch) return true;
+
+      const keywords = normalizedId === "crime" ? ["crime", "arrest", "painkiller", "dvac", "bribery", "cheat", "theft", "seizure", "corruption", "law and order"] :
+                       normalizedId === "cyber-safety" ? ["cyber", "online", "scam", "phishing", "hacker", "fraud", "password"] :
+                       normalizedId === "women-safety" ? ["women", "harassment", "singappen", "gender", "ssf", "girls", "harass"] :
+                       normalizedId === "public-safety" ? ["safety", "patrol", "beach", "audit", "cctv", "third eye", "surveillance", "clean campus"] :
+                       normalizedId === "outreach" ? ["community", "outreach", "karangal", "rescue", "welfare", "pledge", "labour", "students", "legal", "social awareness", "community support"] :
+                       [];
+
+      return keywords.some(k => cat.includes(k) || title.includes(k));
+    }).length;
+  };
+
+  const categoryLinks = [
+    { label: language === "ta" ? "குற்றம்" : "Crime",          href: "/category/crime", id: "crime" },
+    { label: language === "ta" ? "இணைய பாதுகாப்பு" : "Cyber Safety", href: "/category/cyber-safety", id: "cyber-safety" },
+    { label: language === "ta" ? "பெண்கள் பாதுகாப்பு" : "Women Safety",   href: "/category/women-safety", id: "women-safety" },
+    { label: language === "ta" ? "பொது பாதுகாப்பு" : "Public Safety",   href: "/category/public-safety", id: "public-safety" },
+    { label: language === "ta" ? "சமூக உதவி" : "Outreach",    href: "/category/outreach", id: "outreach" },
+  ].filter(item => {
+    if (news.length === 0) return true; 
+    return getCount(item.id) > 0;
+  });
+
+  const finalNavItems = [
+    { label: language === "ta" ? "முகப்பு" : "Home",         href: "/" },
+    ...categoryLinks,
+    { label: language === "ta" ? "வீடியோக்கள்" : "Videos",    href: "/videos" },
+    { label: language === "ta" ? "மனு சமர்ப்பிப்பு" : "Grievance Form", href: "/citizen-outreach" },
+    { label: language === "ta" ? "ஆணையர் சுயவிவரம்" : "CP Profile", href: "/commissioner-profile" },
+  ];
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchVal.trim()) {
+      router.push(`/?search=${encodeURIComponent(searchVal.trim())}`);
+      setMobileSearchOpen(false);
+    }
+  };
 
   return (
-    <header className="w-full z-50 flex flex-col shadow-md">
-      {/* 1. Maroon Top Header Bar */}
-      <div className="w-full bg-brand-maroon text-white py-3 px-6 border-b-2 border-brand-gold">
-        <div className="max-w-[1700px] mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+    <header className="sticky top-0 w-full z-50 flex flex-col shadow-md">
+      {/* 1. Red Top Header Bar */}
+      <div className="w-full bg-brand-maroon text-white py-2 md:py-3.5 px-4 md:px-6">
+        <div className="max-w-[1700px] mx-auto flex items-center justify-between gap-2 md:gap-4">
           
-          {/* Left Block: Government Crest / Brand Logo */}
-          <a href="/" className="flex items-center gap-4">
-            <div className="relative w-16 h-16 sm:w-20 sm:h-20 shrink-0 bg-white rounded-full p-1 border border-brand-gold/45 shadow-sm">
+          {/* Left Block: Logo + Brand Title */}
+          <Link href="/" className="flex items-center gap-2 md:gap-4 shrink-1 min-w-0">
+            <div className="relative w-14 h-14 md:w-20 md:h-20 shrink-0 bg-white rounded-full p-1 border border-white/20 shadow-md">
               <Image
                 src="/images/gcp_logo.png"
-                alt="Greater Chennai Police Logo"
+                alt="Logo"
                 fill
-                className="object-contain"
+                className="object-contain p-0.5"
+                sizes="(max-width: 768px) 56px, 80px"
               />
             </div>
-            <div>
-              <h1 className="font-display font-black text-lg sm:text-xl md:text-2xl tracking-wider uppercase leading-tight">
-                {t("footer.title")}
+            <div className="text-left min-w-0">
+              <h1 className="font-display font-black text-sm md:text-xl tracking-wider uppercase leading-tight text-white truncate">
+                {language === "ta" ? "சென்னை கார்டியன்" : "CHENNAI GUARDIAN"}
               </h1>
-              <p className="text-[10px] sm:text-xs text-amber-200 font-extrabold tracking-widest uppercase mt-0.5">
-                {t("footer.subtitle")}
+              <p className="text-[8px] md:text-[10px] text-brand-blue font-black tracking-wider uppercase mt-0.5 md:mt-1 hidden xs:block">
+                {language === "ta" ? "24/7 தமிழ் செய்தித் தொலைக்காட்சி" : "24/7 TAMIL NEWS CHANNEL"}
               </p>
             </div>
-          </a>
+          </Link>
 
-          {/* Central Block: Portal Search */}
-          <div className="relative w-full max-w-xs hidden sm:block print:hidden">
+          {/* Central Block: Desktop Search (Hidden on Mobile) */}
+          <form onSubmit={handleSearchSubmit} className="relative w-full max-w-md hidden md:block print:hidden">
             <input
               type="text"
-              placeholder={t("navbar.search")}
-              className="w-full bg-white/15 border border-white/50 rounded-md py-1.5 pl-3 pr-10 text-xs placeholder:text-white/90 text-white focus:outline-none focus:bg-white/25 focus:border-brand-gold transition"
+              value={searchVal}
+              onChange={(e) => setSearchVal(e.target.value)}
+              placeholder={language === "ta" ? "செய்திகளைத் தேடுங்கள்..." : "Search news stories..."}
+              className="w-full bg-white/10 border border-white/20 rounded-md py-2 pl-4 pr-10 text-xs placeholder:text-white/70 text-white focus:outline-none focus:bg-white/20 focus:border-white/40 transition"
             />
-            <Search className="w-4 h-4 text-white/90 absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer hover:text-brand-gold transition" />
-          </div>
+            <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2 text-white/70 hover:text-white transition cursor-pointer p-1">
+              <Search className="w-4 h-4" />
+            </button>
+          </form>
 
-          {/* Right Block: Social Links & Switchers */}
-          <div className="flex items-center gap-4 print:hidden">
-            <div className="flex items-center gap-2">
-              <a 
-                href="https://www.facebook.com/Chennai.Police/" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/25 border border-white/20 hover:border-white/40 text-white hover:text-white hover:scale-110 hover:shadow-[0_0_8px_rgba(255,255,255,0.45)] active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-offset-2 focus-visible:ring-offset-brand-maroon transition-all duration-300 flex items-center justify-center"
-              >
-                <FacebookIcon className="w-4 h-4 text-white" />
+          {/* Right Block: Actions, Switches, Toggles, Drawer Toggle */}
+          <div className="flex items-center gap-3 md:gap-4 shrink-0 print:hidden">
+            
+            {/* Desktop Social Links (Hidden on Mobile) */}
+            <div className="hidden lg:flex items-center gap-2">
+              <a href="https://www.facebook.com/Chennai.Police/" target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/25 border border-white/20 text-white flex items-center justify-center transition">
+                <FacebookIcon className="w-4 h-4" />
               </a>
-              <a 
-                href="https://x.com/chennaipolice_?lang=en" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/25 border border-white/20 hover:border-white/40 text-white hover:text-white hover:scale-110 hover:shadow-[0_0_8px_rgba(255,255,255,0.45)] active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-offset-2 focus-visible:ring-offset-brand-maroon transition-all duration-300 flex items-center justify-center"
-              >
-                <TwitterIcon className="w-4 h-4 text-white" />
+              <a href="https://x.com/chennaipolice_?lang=en" target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/25 border border-white/20 text-white flex items-center justify-center transition">
+                <TwitterIcon className="w-4 h-4" />
               </a>
-              <a 
-                href="https://www.instagram.com/greater_chennai_police_/?hl=en" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/25 border border-white/20 hover:border-white/40 text-white hover:text-white hover:scale-110 hover:shadow-[0_0_8px_rgba(255,255,255,0.45)] active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-offset-2 focus-visible:ring-offset-brand-maroon transition-all duration-300 flex items-center justify-center"
-              >
-                <InstagramIcon className="w-4 h-4 text-white" />
+              <a href="https://www.instagram.com/greater_chennai_police_/?hl=en" target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/25 border border-white/20 text-white flex items-center justify-center transition">
+                <InstagramIcon className="w-4 h-4" />
               </a>
-              <a 
-                href="https://www.youtube.com/channel/UCLvvfVRsqeVIPI3MO_VlLKw" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/25 border border-white/20 hover:border-white/40 text-white hover:text-white hover:scale-110 hover:shadow-[0_0_8px_rgba(255,255,255,0.45)] active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-offset-2 focus-visible:ring-offset-brand-maroon transition-all duration-300 flex items-center justify-center"
-              >
-                <YoutubeIcon className="w-4 h-4 text-white" />
+              <a href="https://www.youtube.com/channel/UCLvvfVRsqeVIPI3MO_VlLKw" target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/25 border border-white/20 text-white flex items-center justify-center transition">
+                <YoutubeIcon className="w-4 h-4" />
               </a>
             </div>
 
-            {/* Language Switcher */}
-            <div className="flex items-center border border-white/25 bg-white/10 rounded-md p-0.5 text-[9px] font-black tracking-wider text-white">
+            {/* Language Switcher (Compact/Hidden on Mobile - inside drawer) */}
+            <div className="hidden md:flex items-center border border-white/20 bg-white/10 rounded-md p-0.5 text-[9px] font-black tracking-wider text-white">
               <button
                 onClick={() => changeLanguage("en")}
-                className={`px-2 py-0.5 rounded cursor-pointer transition-all ${
-                  language === "en" ? "bg-brand-gold text-slate-900" : "hover:bg-white/10 text-white"
+                className={`px-2 py-1 rounded cursor-pointer transition-all ${
+                  language === "en" ? "bg-[#c5a059] text-black" : "hover:bg-white/10 text-white"
                 }`}
               >
-                ENGLISH
+                EN
               </button>
               <span className="text-white/30 px-0.5 select-none">|</span>
               <button
                 onClick={() => changeLanguage("ta")}
-                className={`px-2 py-0.5 rounded cursor-pointer transition-all ${
-                  language === "ta" ? "bg-brand-gold text-slate-900" : "hover:bg-white/10 text-white"
+                className={`px-2 py-1 rounded cursor-pointer transition-all ${
+                  language === "ta" ? "bg-[#c5a059] text-black" : "hover:bg-white/10 text-white"
                 }`}
               >
                 தமிழ்
               </button>
             </div>
 
-            {/* Theme Toggle Button */}
+            {/* Mobile Search Toggle Icon */}
             <button
-              onClick={toggleTheme}
-              className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/25 border border-white/20 hover:border-white/40 text-white hover:text-white hover:scale-110 hover:shadow-[0_0_8px_rgba(255,255,255,0.45)] active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-offset-2 focus-visible:ring-offset-brand-maroon transition-all duration-300 flex items-center justify-center cursor-pointer shrink-0"
-              title={theme === "light" ? "Switch to Dark Mode" : "Switch to Light Mode"}
+              onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
+              className="md:hidden w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center cursor-pointer"
+              title="Search"
             >
-              {theme === "light" ? (
-                <Moon className="w-4 h-4 text-white" />
-              ) : (
-                <Sun className="w-4 h-4 text-white" />
-              )}
+              <Search className="w-4.5 h-4.5" />
             </button>
 
-            {/* Admin Portal Button */}
-            <a
-              href="/admin"
-              className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/25 border border-white/20 hover:border-white/40 text-white hover:text-brand-gold hover:scale-110 hover:shadow-[0_0_10px_rgba(197,160,89,0.5)] active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-offset-2 focus-visible:ring-offset-brand-maroon transition-all duration-300 flex items-center justify-center cursor-pointer shrink-0"
-              title="Admin Login"
-              aria-label="Admin Login"
+            {/* Theme Toggle (Touch optimized target 44px on mobile via padding) */}
+            <button
+              onClick={toggleTheme}
+              className="w-10 h-10 md:w-8 md:h-8 rounded-full bg-white/10 hover:bg-white/25 border border-white/20 text-white flex items-center justify-center cursor-pointer transition shrink-0"
+              title="Theme Toggle"
             >
-              <ShieldCheck className="w-4 h-4 text-white" />
-            </a>
+              {theme === "light" ? <Moon className="w-4.5 h-4.5 md:w-4 md:h-4" /> : <Sun className="w-4.5 h-4.5 md:w-4 md:h-4" />}
+            </button>
+
+            {/* Circular Profile Avatar — matched to logo size */}
+            <div
+              className="relative w-14 h-14 md:w-20 md:h-20 shrink-0 rounded-full border-2 border-white/90 shadow-md overflow-hidden bg-white"
+            >
+              <Image
+                src="/images/vijay_profile.png"
+                alt="CM Vijay Profile"
+                fill
+                sizes="(max-width: 768px) 56px, 80px"
+                className="object-cover"
+                style={{ objectFit: "cover", objectPosition: "center 15%", transform: "scale(1.12)", transformOrigin: "center top" }}
+                priority
+              />
+            </div>
             
-            {/* Mobile menu toggle */}
+            {/* Hamburger menu toggle (min touch target 44px) */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-1 bg-white/10 border border-white/25 rounded hover:bg-white/15 text-white cursor-pointer shrink-0"
+              className="md:hidden w-10 h-10 flex items-center justify-center bg-white/10 border border-white/20 rounded hover:bg-white/15 text-white cursor-pointer shrink-0"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -183,53 +238,127 @@ export default function Navbar({ customMenuItems }: NavbarProps = {}) {
         </div>
       </div>
 
-      {/* 2. Secondary Menu Bar */}
-      <div className="w-full bg-brand-blue text-white py-1 px-6 border-b border-brand-gold/30 print:hidden">
-        <div className="max-w-[1700px] mx-auto flex items-center justify-between">
+      {/* Mobile Search Bar Expansion Panel */}
+      {mobileSearchOpen && (
+        <form onSubmit={handleSearchSubmit} className="md:hidden w-full bg-brand-maroon-dark px-4 py-2 border-t border-white/10 flex items-center gap-2">
+          <input
+            type="text"
+            value={searchVal}
+            onChange={(e) => setSearchVal(e.target.value)}
+            placeholder={language === "ta" ? "செய்திகளைத் தேடுங்கள்..." : "Search news stories..."}
+            className="flex-grow bg-white/15 border border-white/25 outline-none rounded-lg py-2 px-3 text-xs text-white placeholder:text-white/60"
+            autoFocus
+          />
+          <button type="submit" className="px-3.5 py-2 bg-brand-gold hover:bg-amber-600 text-stone-950 font-bold rounded-lg text-xs uppercase tracking-wider">
+            GO
+          </button>
+        </form>
+      )}
+
+      {/* 2. Secondary Navigation Bar (Desktop Only) */}
+      <div className="w-full bg-brand-blue text-white print:hidden hidden md:block" style={{ minHeight: "48px" }}>
+        <div className="max-w-[1700px] mx-auto flex items-stretch justify-between h-full">
           
-          {/* Navigation Items */}
-          <nav className="hidden md:flex items-center gap-1">
-            {menuItems.map((item, idx) => (
-              <a
+          <div className="flex items-center px-4 border-r border-white/15 shrink-0 bg-red-600 hover:bg-red-700 transition cursor-pointer">
+            <span className="flex items-center gap-1.5 text-xs font-black text-white uppercase tracking-widest animate-pulse">
+              <span className="w-2.5 h-2.5 rounded-full bg-white" />
+              LIVE TV
+            </span>
+          </div>
+
+          <nav className="flex items-stretch flex-grow overflow-x-auto" style={{ scrollbarWidth: "none" }}>
+            {finalNavItems.map((item, idx) => (
+              <Link
                 key={idx}
                 href={item.href}
-                className="px-4 py-3 text-xs lg:text-sm uppercase font-black tracking-wide hover:text-brand-gold hover:bg-white/5 transition"
+                className="flex items-center px-4 text-[10px] sm:text-xs uppercase font-black tracking-wider hover:bg-[#1e2060] transition border-r border-white/10 whitespace-nowrap"
+                style={{ minHeight: "48px" }}
               >
                 {item.label}
-              </a>
+              </Link>
             ))}
           </nav>
 
-          {/* Citizen Helpdesk Info */}
-          <div className="hidden lg:flex items-center gap-2 text-xs font-black text-brand-gold tracking-wide">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            {language === "ta" ? "நேரடி உதவி எண்: 1930 / 112" : "Direct Helpline: 1930 / 112"}
+          <div className="hidden lg:flex items-center gap-2 text-xs font-black text-[#c5a059] tracking-wide px-5 shrink-0 border-l border-white/15">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#10b981] animate-pulse" />
+            {language === "ta" ? "உதவி எண்: 1930 / 112" : "Helpline: 1930 / 112"}
           </div>
 
         </div>
       </div>
 
-      {/* Mobile Nav Slide Drawer */}
-      {mobileMenuOpen && (
-        <div className="md:hidden w-full bg-brand-blue border-b border-brand-gold/30">
-          <nav className="flex flex-col p-4">
-            {menuItems.map((item, idx) => (
-              <a
-                key={idx}
-                href={item.href}
-                onClick={() => setMobileMenuOpen(false)}
-                className="py-2.5 px-4 text-xs uppercase font-bold tracking-wider hover:bg-white/5 hover:text-brand-gold border-b border-white/5 text-slate-200"
-              >
-                {item.label}
-              </a>
-            ))}
-            <div className="py-3 px-4 text-xs font-bold text-brand-gold flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              {language === "ta" ? "உதவி எண்: 1930 / 112" : "Helpline: 1930 / 112"}
-            </div>
-          </nav>
-        </div>
-      )}
+      {/* Mobile Drawer Menu (Mobile/Tablet Only, Off-canvas layout) */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="md:hidden w-full bg-brand-blue border-t border-white/10 overflow-hidden shadow-2xl"
+          >
+            <nav className="flex flex-col p-4 space-y-1">
+              
+              {/* Helpdesk badge */}
+              <div className="py-2.5 px-4 bg-white/5 rounded-lg text-xs font-bold text-[#c5a059] flex items-center gap-2 mb-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#10b981] animate-pulse" />
+                {language === "ta" ? "உதவி எண்: 1930 / 112" : "Helpline: 1930 / 112"}
+              </div>
+
+              {/* Navigation Items (Touch targets optimized to >= 44px) */}
+              {finalNavItems.map((item, idx) => (
+                <Link
+                  key={idx}
+                  href={item.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center py-3.5 px-4 text-[13px] uppercase font-bold tracking-wider hover:bg-[#1e2060]/70 rounded-lg text-stone-100 transition border-b border-white/5 last:border-b-0 text-left min-h-[44px]"
+                >
+                  {item.label}
+                </Link>
+              ))}
+
+              {/* Mobile Language Switcher (Expanded touch targets) */}
+              <div className="flex items-center justify-between border-t border-white/10 pt-4 mt-3 pb-2">
+                <span className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Select Language</span>
+                <div className="flex items-center border border-white/20 bg-white/5 rounded-lg p-0.5 text-xs font-black tracking-wider text-white">
+                  <button
+                    onClick={() => { changeLanguage("en"); setMobileMenuOpen(false); }}
+                    className={`px-4 py-2 rounded-md cursor-pointer transition-all ${
+                      language === "en" ? "bg-[#c5a059] text-black" : "hover:bg-white/10 text-white"
+                    }`}
+                  >
+                    ENGLISH
+                  </button>
+                  <button
+                    onClick={() => { changeLanguage("ta"); setMobileMenuOpen(false); }}
+                    className={`px-4 py-2 rounded-md cursor-pointer transition-all ${
+                      language === "ta" ? "bg-[#c5a059] text-black" : "hover:bg-white/10 text-white"
+                    }`}
+                  >
+                    தமிழ்
+                  </button>
+                </div>
+              </div>
+
+              {/* Social icons row in Drawer (Touch optimized) */}
+              <div className="flex items-center justify-center gap-4 pt-4 border-t border-white/10 mt-3 pb-2">
+                <a href="https://www.facebook.com/Chennai.Police/" target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-full bg-white/10 flex items-center justify-center text-white text-base">
+                  <FacebookIcon className="w-5 h-5" />
+                </a>
+                <a href="https://x.com/chennaipolice_?lang=en" target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-full bg-white/10 flex items-center justify-center text-white text-base">
+                  <TwitterIcon className="w-5 h-5" />
+                </a>
+                <a href="https://www.instagram.com/greater_chennai_police_/?hl=en" target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-full bg-white/10 flex items-center justify-center text-white text-base">
+                  <InstagramIcon className="w-5 h-5" />
+                </a>
+                <a href="https://www.youtube.com/channel/UCLvvfVRsqeVIPI3MO_VlLKw" target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-full bg-white/10 flex items-center justify-center text-white text-base">
+                  <YoutubeIcon className="w-5 h-5" />
+                </a>
+              </div>
+
+            </nav>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 }

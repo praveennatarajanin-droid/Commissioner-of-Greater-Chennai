@@ -8,7 +8,7 @@ const CATEGORY_RULES: [string[], string, string][] = [
   [["traffic", "road", "signal", "helmet", "vehicle", "drunk drive"], "TRAFFIC MANAGEMENT", "போக்குவரத்து மேலாண்மை"],
   [["crime", "arrest", "nabbed", "accused", "criminal", "gang", "seized"], "CRIME PREVENTION", "குற்றத் தடுப்பு"],
   [["community", "outreach", "public", "citizen", "school", "college", "awareness"], "COMMUNITY OUTREACH", "சமுக தொடர்பு"],
-  [["operation", "special", "task force", "crackdown", "drive"], "SPECIAL OPERATIONS", "சிறப்பு நடவடிக்கை"],
+  [["operation", "special", "task force", "crackdown", "drive"], "CRIME PREVENTION", "குற்றத் தடுப்பு"],
   [["mounted", "equestrian", "dog squad", "bomb", "commando"], "POLICE ACHIEVEMENT", "காவல் துறை சாதனை"],
   [["law", "order", "bandobust", "security", "patrol", "deployment"], "LAW & ORDER", "சட்டம் & ஒழுங்கு"],
   [["commissioner", "ips", "officer", "superintendent", "director"], "POLICE ACHIEVEMENT", "காவல் துறை சாதனை"],
@@ -46,7 +46,7 @@ Input Description: "${descriptionEn}"
 Generate:
 1. category_en: A short ALL-CAPS category (2-4 words) from this list or similar:
    POLICE ACHIEVEMENT, LAW & ORDER, CYBER SAFETY, WOMEN SAFETY, COMMUNITY OUTREACH,
-   AWARDS & RECOGNITION, TRAFFIC MANAGEMENT, SPECIAL OPERATIONS, CRIME PREVENTION, PUBLIC SAFETY
+   AWARDS & RECOGNITION, TRAFFIC MANAGEMENT, CRIME PREVENTION, PUBLIC SAFETY
 2. title_en: A short professional English headline (6-10 words, government news style, title case)
 3. category_ta: The Tamil translation of category_en
 4. title_ta: The Tamil translation of title_en (natural, fluent Tamil)

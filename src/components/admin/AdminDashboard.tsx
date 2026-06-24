@@ -33,7 +33,8 @@ import {
   Globe,
   Calendar,
   FolderOpen,
-  RefreshCw
+  RefreshCw,
+  Menu
 } from "lucide-react";
 import { DBUser, DBNewsItem, DBTickerItem, DBSliderItem, DBCommissionerProfile, DBThemeSettings, DBMenuItem, DBContact, DBTtsSettings, DBVideoItem, DBAlertItem, DBAlertSettings } from "@/lib/db";
 
@@ -88,6 +89,7 @@ const ADMIN_LIGHT_CSS = `
   #adm-root select,
   #adm-root input[type="text"],
   #adm-root input[type="password"],
+  #adm-root input[type="email"],
   #adm-root input[type="number"],
   #adm-root textarea {
     background-color: #f8fafc !important;
@@ -127,17 +129,35 @@ const ADMIN_LIGHT_CSS = `
 
   /* Focus border */
   #adm-root .focus\\:border-brand-gold\\/50:focus { border-color: rgba(46,49,146,0.45) !important; }
+
+  /* Force white text on maroon colored buttons/icons for accessibility */
+  #adm-root .bg-brand-maroon,
+  #adm-root .bg-brand-maroon *,
+  #adm-root .bg-brand-maroon-dark,
+  #adm-root .bg-brand-maroon-dark * {
+    color: #ffffff !important;
+  }
 `;
 
 interface AdminDashboardProps {
   user: { username: string; role: string };
   onLogout: () => void;
+  activeTab?: TabType;
+  onTabChange?: (tab: TabType) => void;
 }
 
 type TabType = "dashboard" | "news" | "ticker" | "slider" | "profile" | "theme" | "settings" | "videos" | "alerts" | "media";
 
-export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) {
-  const [activeTab, setActiveTab] = useState<TabType>("dashboard");
+export default function AdminDashboard({ user, onLogout, activeTab: propActiveTab, onTabChange }: AdminDashboardProps) {
+  const [localActiveTab, setLocalActiveTab] = useState<TabType>("dashboard");
+  const activeTab = propActiveTab !== undefined ? propActiveTab : localActiveTab;
+  const setActiveTab = (tab: TabType) => {
+    if (onTabChange) {
+      onTabChange(tab);
+    } else {
+      setLocalActiveTab(tab);
+    }
+  };
 
   // Inject permanent light mode CSS after Tailwind loads
   useEffect(() => {
@@ -177,7 +197,16 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
   const [languageFilter, setLanguageFilter] = useState("");
   const [previewItem, setPreviewItem] = useState<DBNewsItem | null>(null);
   const [previewLang, setPreviewLang] = useState<"en" | "ta">("en");
-  const [deleteConfirmItem, setDeleteConfirmItem] = useState<DBNewsItem | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{ mod: string; id: number; title: string; message: string } | null>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  // User Management Form States
+  const [showUserModal, setShowUserModal] = useState(false);
+  const [userFormUsername, setUserFormUsername] = useState("");
+  const [userFormPassword, setUserFormPassword] = useState("");
+  const [userFormRole, setUserFormRole] = useState("editor");
+  const [userFormEmail, setUserFormEmail] = useState("");
+  const [editingUser, setEditingUser] = useState<DBUser | null>(null);
   
   // Media Library States
   const [mediaFiles, setMediaFiles] = useState<{ name: string; url: string; size: number; updatedAt: string }[]>([]);
@@ -507,23 +536,81 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
     }
   };
 
-  // General delete
-  const handleDelete = async (mod: string, id: number) => {
-    if (!confirm("Are you sure you want to delete this record? This action is irreversible.")) return;
+  // User creation/editing handler
+  const handleSaveUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!userFormUsername.trim()) {
+      triggerAlert("error", "Username is required.");
+      return;
+    }
+    if (!editingUser && !userFormPassword) {
+      triggerAlert("error", "Password is required for new users.");
+      return;
+    }
+
+    const payload = {
+      id: editingUser ? editingUser.id : undefined,
+      username: userFormUsername.trim(),
+      password: userFormPassword ? userFormPassword : undefined,
+      role: userFormRole,
+      email: userFormEmail.trim() || `${userFormUsername.trim()}@chennaiguardian.in`,
+      status: "active"
+    };
+
+    const url = "/api/admin/crud/users";
+    const method = editingUser ? "PUT" : "POST";
+
     try {
-      const res = await fetch(`/api/admin/crud/${mod}?id=${id}`, {
-        method: "DELETE"
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
       });
+
       if (res.ok) {
-        triggerAlert("success", "Record deleted from the database.");
+        triggerAlert("success", editingUser ? `User Account [${userFormUsername}] updated.` : `User Account [${userFormUsername}] created.`);
+        setShowUserModal(false);
         fetchData();
       } else {
         const data = await res.json();
-        triggerAlert("error", data.error || "Failed to delete.");
+        triggerAlert("error", data.error || `Failed to ${editingUser ? "update" : "create"} user.`);
       }
     } catch {
-      triggerAlert("error", "Connection error deleting record.");
+      triggerAlert("error", "Network connection failure.");
     }
+  };
+
+  // General delete
+  const handleDelete = (mod: string, id: number) => {
+    let title = "Confirm Delete";
+    let msg = "Are you sure you want to delete this record? This action is irreversible.";
+    
+    if (mod === "slider") {
+      title = "Delete Hero Banner Slide";
+      msg = "Are you sure you want to delete this hero slide banner? This action is irreversible.";
+    } else if (mod === "ticker") {
+      title = "Delete Ticker Announcement";
+      msg = "Are you sure you want to delete this ticker announcement? This action is irreversible.";
+    } else if (mod === "videos") {
+      title = "Delete Video Gallery Item";
+      msg = "Are you sure you want to delete this video gallery item? This action is irreversible.";
+    } else if (mod === "alerts") {
+      title = "Delete Official Alert";
+      msg = "Are you sure you want to delete this official alert? This action is irreversible.";
+    } else if (mod === "users") {
+      title = "Delete System User Account";
+      msg = "Are you sure you want to delete this system user account? This action is irreversible.";
+    } else if (mod === "news") {
+      title = "Delete News Article";
+      msg = "Are you sure you want to delete this news article? This action is irreversible.";
+    }
+
+    setDeleteConfirm({
+      mod,
+      id,
+      title,
+      message: msg
+    });
   };
 
   // Direct Settings savers
@@ -623,32 +710,41 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
       style={{ background: "#f0f4f8", color: "#1e293b" }}
     >
 
+      {/* Mobile Sidebar Overlay Backdrop */}
+      {isSidebarOpen && (
+        <div
+          onClick={() => setIsSidebarOpen(false)}
+          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm lg:hidden animate-fadeIn"
+        />
+      )}
+
       {/* ==================== LEFT SIDEBAR ==================== */}
       <aside
-        className="w-72 flex flex-col justify-between shrink-0"
-        style={{ background: "#ffffff", borderRight: "1px solid rgba(0,0,0,0.09)" }}
+        className={`fixed inset-y-0 left-0 z-50 w-72 flex flex-col justify-between shrink-0 bg-white border-r border-stone-200/80 transition-transform duration-300 transform lg:translate-x-0 lg:static lg:inset-auto ${
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+        style={{ background: "#ffffff" }}
       >
         <div>
-          {/* Logo Brand Header */}
+          {/* Logo Brand Header - Aligned h-12 */}
           <div
-            className="p-6 flex items-center gap-3"
-            style={{ borderBottom: "1px solid rgba(0,0,0,0.09)" }}
+            className="h-12 px-4 flex items-center gap-3 border-b border-stone-200/80 shrink-0"
           >
-            <div className="relative w-10 h-10 rounded-full bg-white p-1 border border-brand-gold/30">
+            <div className="relative w-8 h-8 rounded-full bg-white p-0.5 border border-brand-gold/30 shrink-0">
               <Image src="/images/gcp_logo.png" alt="" fill className="object-contain" />
             </div>
-            <div>
-              <h3 className="font-display font-black text-xs tracking-wider uppercase" style={{ color: "#1e293b" }}>
+            <div className="flex flex-col justify-center gap-0.5">
+              <h3 className="font-display font-black text-[10px] tracking-wider uppercase text-slate-800 dark:text-white leading-none">
                 GCP CONTROL PANEL
               </h3>
-              <span className="text-[9px] font-black text-brand-gold uppercase tracking-widest block">
+              <span className="text-[8px] font-black text-brand-gold uppercase tracking-widest block leading-none">
                 ADMIN CONSOLE
               </span>
             </div>
           </div>
 
           {/* Navigation Links */}
-          <nav className="p-4 space-y-1">
+          <nav className="p-3 space-y-1">
             {([
               { tab: "dashboard", icon: <LayoutDashboard className="w-4 h-4" />, label: "Overview" },
               { tab: "news",      icon: <FileText className="w-4 h-4" />,        label: "News Articles" },
@@ -663,8 +759,8 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
             ] as { tab: TabType; icon: React.ReactNode; label: string }[]).map(({ tab, icon, label }) => (
               <button
                 key={tab}
-                onClick={() => { setActiveTab(tab); setEditingItem(null); setIsAdding(false); }}
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs uppercase font-black tracking-wider transition cursor-pointer"
+                onClick={() => { setActiveTab(tab); setEditingItem(null); setIsAdding(false); setIsSidebarOpen(false); }}
+                className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs uppercase font-black tracking-wider transition cursor-pointer"
                 style={{
                   background: activeTab === tab ? "#2e3192" : "transparent",
                   color: activeTab === tab ? "#ffffff" : "#64748b",
@@ -691,7 +787,7 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
 
         {/* User Card & Logout */}
         <div
-          className="p-4"
+          className="p-3"
           style={{ borderTop: "1px solid rgba(0,0,0,0.09)", background: "#f8fafc" }}
         >
           <div className="flex items-center justify-between">
@@ -716,53 +812,65 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
       {/* ==================== MAIN PANEL FRAME ==================== */}
       <main className="flex-grow flex flex-col overflow-hidden" style={{ background: "#f0f4f8" }}>
         
-        {/* Header Ribbon */}
+        {/* Header Ribbon - Compact h-12, Aligned with Sidebar Header */}
         <header
-          className="h-16 flex items-center justify-between px-6"
+          className="h-12 flex items-center justify-between px-4 lg:px-6 sticky top-0 z-30 shrink-0"
           style={{
             background: "#ffffff",
-            borderBottom: "1px solid rgba(0,0,0,0.09)",
-            boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
+            borderBottom: "1px solid rgba(0,0,0,0.08)",
           }}
         >
-          <h2 className="font-display font-black text-sm uppercase tracking-widest" style={{ color: "#1e293b" }}>
-            {activeTab} Management Dashboard
-          </h2>
+          <div className="flex items-center gap-3">
+            {/* Hamburger Menu Toggle Button */}
+            <button
+              type="button"
+              onClick={() => setIsSidebarOpen(true)}
+              className="p-1.5 -ml-1 text-slate-500 hover:text-slate-800 hover:bg-stone-105 dark:hover:bg-stone-800 rounded-lg lg:hidden cursor-pointer flex items-center justify-center"
+              title="Toggle Menu"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+            <h2 className="font-display font-black text-xs sm:text-sm uppercase tracking-widest text-slate-800 dark:text-white leading-none">
+              {activeTab === "dashboard" ? "DASHBOARD MANAGEMENT DASHBOARD" : `${activeTab.toUpperCase()} MANAGEMENT DASHBOARD`}
+            </h2>
+          </div>
           <div className="flex items-center gap-3">
             <a
               href="/"
               target="_blank"
-              className="text-[10px] font-black uppercase text-brand-gold hover:text-amber-600 tracking-widest border border-brand-gold/30 px-3 py-1.5 rounded-lg transition"
+              className="text-[9px] font-black uppercase text-brand-gold hover:text-amber-600 tracking-widest border border-brand-gold/30 px-2.5 py-1.5 rounded-lg transition"
             >
               Launch Live Portal
             </a>
           </div>
         </header>
 
-        {/* Alert Notifications */}
-        <div className="px-6 pt-4 space-y-2">
-          {successMsg && (
-            <div
-              className="flex items-center gap-2 p-3 rounded-lg text-xs"
-              style={{ background: "#f0fdf4", border: "1px solid rgba(16,185,129,0.2)", color: "#065f46" }}
-            >
-              <CheckCircle className="w-4.5 h-4.5 shrink-0" />
-              <span>{successMsg}</span>
-            </div>
-          )}
-          {errorMsg && (
-            <div
-              className="flex items-center gap-2 p-3 rounded-lg text-xs"
-              style={{ background: "#fff1f2", border: "1px solid rgba(239,68,68,0.2)", color: "#be123c" }}
-            >
-              <AlertTriangle className="w-4.5 h-4.5 shrink-0" />
-              <span>{errorMsg}</span>
-            </div>
-          )}
-        </div>
+        {/* Alert Notifications - Only rendered when there are active messages */}
+        {(successMsg || errorMsg) && (
+          <div className="px-6 pt-3 space-y-2">
+            {successMsg && (
+              <div
+                className="flex items-center gap-2 p-3 rounded-lg text-xs"
+                style={{ background: "#f0fdf4", border: "1px solid rgba(16,185,129,0.2)", color: "#065f46" }}
+              >
+                <CheckCircle className="w-4.5 h-4.5 shrink-0" />
+                <span>{successMsg}</span>
+              </div>
+            )}
+            {errorMsg && (
+              <div
+                className="flex items-center gap-2 p-3 rounded-lg text-xs"
+                style={{ background: "#fff1f2", border: "1px solid rgba(239,68,68,0.2)", color: "#be123c" }}
+              >
+                <AlertTriangle className="w-4.5 h-4.5 shrink-0" />
+                <span>{errorMsg}</span>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Content Body container */}
-        <div className="flex-grow overflow-y-auto p-6">
+        <div className="flex-grow overflow-y-auto p-3 sm:p-4 pt-3 sm:pt-4">
           
           {/* ==================== TAB: OVERVIEW - COMMAND CENTER ==================== */}
           {activeTab === "dashboard" && (() => {
@@ -1331,7 +1439,7 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
                                     <Copy className="w-3.5 h-3.5" />
                                   </button>
                                   <button
-                                    onClick={() => setDeleteConfirmItem(item)}
+                                    onClick={() => handleDelete("news", item.id)}
                                     className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-lg transition cursor-pointer"
                                     title="Delete Permanently"
                                   >
@@ -2036,18 +2144,74 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
             <div className="space-y-6">
               
               {!editingItem && (
-                <div className="flex justify-between items-center bg-stone-900 p-4 rounded-xl border border-stone-850">
-                  <span className="text-xs text-stone-400 font-bold uppercase tracking-wider">News Ticker Registry</span>
-                  <button
-                    onClick={() => {
-                      setIsAdding(true);
-                      setEditingItem({ text_en: "", text_ta: "", order_num: ticker.length + 1, active: 1 });
-                    }}
-                    className="flex items-center gap-1.5 px-4 py-2 bg-brand-maroon hover:bg-brand-maroon-dark text-white rounded-lg text-xs font-black uppercase tracking-widest transition cursor-pointer border border-brand-maroon-dark"
-                  >
-                    <Plus className="w-4 h-4" /> Add Item
-                  </button>
-                </div>
+                <>
+                  {/* Ticker Status Panel */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-stone-900 border border-stone-850 p-4 rounded-xl flex flex-col items-start shadow-sm">
+                      <span className="text-[10px] uppercase font-black tracking-wider text-emerald-500">Active Tickers</span>
+                      <span className="text-2xl font-black text-white mt-1">
+                        {ticker.filter(t => t.active === 1 || (t.active as any) === true).length}
+                      </span>
+                    </div>
+                    <div className="bg-stone-900 border border-stone-850 p-4 rounded-xl flex flex-col items-start shadow-sm">
+                      <span className="text-[10px] uppercase font-black tracking-wider text-rose-500">Disabled Tickers</span>
+                      <span className="text-2xl font-black text-white mt-1">
+                        {ticker.filter(t => t.active === 0 || (t.active as any) === false).length}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Ticker Settings Configuration Panel */}
+                  {theme && (
+                    <div className="bg-stone-900 p-5 rounded-2xl border border-stone-850 space-y-4">
+                      <div className="flex justify-between items-center border-b border-stone-850 pb-2">
+                        <div className="flex items-center gap-2">
+                          <Sliders className="w-4.5 h-4.5 text-brand-gold" />
+                          <span className="text-xs font-black text-white uppercase tracking-wider">Marquee Ticker Controls</span>
+                        </div>
+                        <button
+                          onClick={saveTheme}
+                          className="px-3 py-1.5 bg-brand-gold hover:bg-brand-gold-dark text-stone-950 rounded-lg text-[10px] font-black uppercase tracking-wider transition border border-brand-gold-dark cursor-pointer animate-pulse hover:animate-none"
+                        >
+                          Save Speed Settings
+                        </button>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                          <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider font-mono">Breaking News Ticker Speed</label>
+                          <select
+                            value={theme.ticker_speed || "normal"}
+                            onChange={(e) => setTheme({ ...theme, ticker_speed: e.target.value })}
+                            className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl cursor-pointer font-bold"
+                          >
+                            <option value="slow">Slow (TV Reading Speed - comfortable 50s-70s)</option>
+                            <option value="normal">Normal (Standard Speed - comfortable 40s-50s)</option>
+                            <option value="fast">Fast (Rapid Alerts Speed - rapid 20s-30s)</option>
+                          </select>
+                        </div>
+                        <div className="flex items-center px-4 py-3 bg-stone-955 border border-stone-850 rounded-xl">
+                          <p className="text-[10px] text-stone-500 leading-normal font-medium">
+                            Adjusts the scrolling speed of the Breaking News bar on the frontend. A slower speed is highly recommended for readability of long announcements.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex justify-between items-center bg-stone-900 p-4 rounded-xl border border-stone-850">
+                    <span className="text-xs text-stone-400 font-bold uppercase tracking-wider">News Ticker Registry</span>
+                    <button
+                      onClick={() => {
+                        setIsAdding(true);
+                        setEditingItem({ text_en: "", text_ta: "", order_num: ticker.length + 1, active: 1 });
+                      }}
+                      className="flex items-center gap-1.5 px-4 py-2 bg-brand-maroon hover:bg-brand-maroon-dark text-white rounded-lg text-xs font-black uppercase tracking-widest transition cursor-pointer border border-brand-maroon-dark"
+                    >
+                      <Plus className="w-4 h-4" /> Add Item
+                    </button>
+                  </div>
+                </>
               )}
 
               {/* Edit Form */}
@@ -4010,41 +4174,46 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
                         <div>
                           <p className="font-bold text-white">{u.username}</p>
                           <span className="text-[9px] font-bold text-brand-gold uppercase tracking-wider">{u.role}</span>
+                          {u.email && <span className="text-[9px] text-stone-500 ml-2">({u.email})</span>}
                         </div>
-                        {u.id !== 1 && (
+                        <div className="flex items-center gap-1">
                           <button
-                            onClick={() => handleDelete("users", u.id)}
-                            className="p-1.5 text-stone-500 hover:text-rose-400 hover:bg-stone-850 rounded transition"
+                            onClick={() => {
+                              setEditingUser(u);
+                              setUserFormUsername(u.username);
+                              setUserFormPassword("");
+                              setUserFormRole(u.role);
+                              setUserFormEmail(u.email || "");
+                              setShowUserModal(true);
+                            }}
+                            className="p-1.5 text-stone-500 hover:text-brand-gold hover:bg-stone-850 rounded transition cursor-pointer"
+                            title="Edit User Role/Password"
                           >
-                            <Trash className="w-4 h-4" />
+                            <Edit className="w-4 h-4" />
                           </button>
-                        )}
+                          {u.id !== 1 && (
+                            <button
+                              onClick={() => handleDelete("users", u.id)}
+                              className="p-1.5 text-stone-500 hover:text-rose-400 hover:bg-stone-850 rounded transition cursor-pointer"
+                              title="Delete System User Account"
+                            >
+                              <Trash className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>
 
-                  {/* Add user simple form snippet */}
+                  {/* Add user button */}
                   <button
                     onClick={() => {
-                      const username = prompt("Enter new username:");
-                      if (!username) return;
-                      const password = prompt("Enter new user password:");
-                      if (!password) return;
-                      const role = prompt("Enter role (superadmin, contentadmin, editor):", "editor");
-                      if (!role) return;
-
-                      fetch("/api/admin/crud/users", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ username, password, role })
-                      }).then((res) => {
-                        if (res.ok) {
-                          triggerAlert("success", `User Account [${username}] created.`);
-                          fetchData();
-                        } else {
-                          triggerAlert("error", "Failed to create user.");
-                        }
-                      });
+                      setEditingUser(null);
+                      setUserFormUsername("");
+                      setUserFormPassword("");
+                      setUserFormRole("editor");
+                      setUserFormEmail("");
+                      setShowUserModal(true);
                     }}
                     className="flex items-center gap-1.5 px-3 py-1.5 bg-stone-950 border border-stone-800 hover:border-brand-gold/30 rounded-lg text-[10px] font-black uppercase tracking-wider text-white transition shadow cursor-pointer mt-2"
                   >
@@ -4169,46 +4338,45 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
             </div>
           )}
 
-          {/* Delete Confirmation Modal */}
-          {deleteConfirmItem && (
+          {/* Custom Delete Confirmation Modal */}
+          {deleteConfirm && (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
               <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl w-full max-w-md overflow-hidden flex flex-col shadow-2xl p-6 space-y-4">
                 <div className="flex items-center gap-3 text-rose-500 text-left">
-                  <AlertTriangle className="w-8 h-8 shrink-0" />
-                  <h3 className="font-display font-black text-sm uppercase tracking-wider">
-                    Are you sure you want to delete this article?
+                  <AlertTriangle className="w-8 h-8 shrink-0 text-rose-600 animate-pulse" />
+                  <h3 className="font-display font-black text-sm uppercase tracking-wider text-slate-800 dark:text-white">
+                    {deleteConfirm.title}
                   </h3>
                 </div>
-                <p className="text-xs text-stone-500 dark:text-stone-400 text-left">
-                  This action is irreversible. It will permanently remove:
+                <p className="text-xs text-stone-500 dark:text-stone-400 text-left leading-relaxed">
+                  {deleteConfirm.message}
                 </p>
-                <div className="p-3 bg-stone-50 dark:bg-stone-950 rounded-xl border border-stone-200 dark:border-stone-850 text-left">
-                  <p className="text-xs font-bold text-slate-905 dark:text-white line-clamp-2">
-                    {deleteConfirmItem.title_en}
-                  </p>
-                </div>
                 <div className="flex gap-3 justify-end pt-2">
                   <button
-                    onClick={() => setDeleteConfirmItem(null)}
-                    className="px-4 py-2 bg-stone-200 hover:bg-stone-300 dark:bg-stone-800 dark:hover:bg-stone-750 text-slate-805 dark:text-white text-xs font-bold rounded-lg transition cursor-pointer"
+                    type="button"
+                    onClick={() => setDeleteConfirm(null)}
+                    className="px-4 py-2 bg-stone-200 hover:bg-stone-300 dark:bg-stone-800 dark:hover:bg-stone-750 text-slate-800 dark:text-white text-xs font-bold rounded-lg transition cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button
+                    type="button"
                     onClick={async () => {
-                      const item = deleteConfirmItem;
-                      setDeleteConfirmItem(null);
+                      const { mod, id } = deleteConfirm;
+                      setDeleteConfirm(null);
                       try {
-                        const res = await fetch(`/api/admin/crud/news?id=${item.id}`, { method: "DELETE" });
+                        const res = await fetch(`/api/admin/crud/${mod}?id=${id}`, {
+                          method: "DELETE"
+                        });
                         if (res.ok) {
-                          triggerAlert("success", "Article deleted from database and website.");
+                          triggerAlert("success", `${mod.charAt(0).toUpperCase() + mod.slice(1)} record deleted from the database.`);
                           fetchData();
                         } else {
                           const data = await res.json();
-                          triggerAlert("error", data.error || "Failed to delete article.");
+                          triggerAlert("error", data.error || "Failed to delete.");
                         }
                       } catch {
-                        triggerAlert("error", "Network error during delete.");
+                        triggerAlert("error", "Connection error deleting record.");
                       }
                     }}
                     className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-lg transition cursor-pointer"
@@ -4357,6 +4525,187 @@ export default function AdminDashboard({ user, onLogout }: AdminDashboardProps) 
               </div>
             </div>
           )}
+
+          {/* System User Creation & Editing Modal */}
+          {showUserModal && (() => {
+            const rbac = (() => {
+              switch (userFormRole) {
+                case "superadmin":
+                  return {
+                    title: "Super Administrator",
+                    desc: "Full administrative access. Can configure system settings, voice engines, themes, and manage other console user accounts.",
+                    badge: "Full Access",
+                    color: "text-emerald-600 bg-emerald-500/10 border-emerald-500/20"
+                  };
+                case "admin":
+                  return {
+                    title: "Portal Administrator",
+                    desc: "Can manage all database content including news articles, banners, tickers, videos, emergency helplines, and SEO settings. Cannot view configuration settings or user accounts.",
+                    badge: "Content Manager",
+                    color: "text-brand-blue bg-brand-blue/10 border-brand-blue/20"
+                  };
+                case "contentadmin":
+                  return {
+                    title: "Content Administrator",
+                    desc: "Dedicated to the press desk. Can view, create, edit, publish, and delete news articles and media files. Cannot access system settings.",
+                    badge: "News Manager",
+                    color: "text-brand-maroon bg-brand-maroon/10 border-brand-maroon/20"
+                  };
+                case "editor":
+                  return {
+                    title: "Content Editor",
+                    desc: "Can draft news articles and upload media. Cannot publish to the live site or delete content.",
+                    badge: "Drafts Only",
+                    color: "text-amber-600 bg-amber-500/10 border-amber-500/20"
+                  };
+                case "reporter":
+                  return {
+                    title: "Reporter / Contributor",
+                    desc: "Can write news drafts, upload media, and manage draft items in the video gallery. Cannot publish or delete items.",
+                    badge: "Contributor",
+                    color: "text-purple-600 bg-purple-500/10 border-purple-500/20"
+                  };
+                case "mediamanager":
+                  return {
+                    title: "Media Manager",
+                    desc: "Dedicated access to manage video galleries and upload media files. Cannot view or edit news articles.",
+                    badge: "Media Only",
+                    color: "text-blue-600 bg-blue-500/10 border-blue-500/20"
+                  };
+                case "seomanager":
+                  return {
+                    title: "SEO Specialist",
+                    desc: "Can view and configure search engine optimization metadata, tags, sitemaps, and indexing preferences. Cannot modify main content.",
+                    badge: "SEO Only",
+                    color: "text-cyan-600 bg-cyan-500/10 border-cyan-500/20"
+                  };
+                case "viewer":
+                default:
+                  return {
+                    title: "Read-only Viewer",
+                    desc: "Read-only dashboard access. Can audit contents, logs, and sitemaps. Cannot make any changes or create records.",
+                    badge: "Read Only",
+                    color: "text-stone-600 bg-stone-500/10 border-stone-500/20"
+                  };
+              }
+            })();
+
+            return (
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+                <form
+                  onSubmit={handleSaveUser}
+                  className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl w-full max-w-lg overflow-hidden flex flex-col shadow-2xl p-6 space-y-4 text-slate-800 dark:text-stone-200"
+                >
+                  {/* Modal Header */}
+                  <div className="flex items-center justify-between border-b border-stone-200 dark:border-stone-850 pb-3">
+                    <div className="flex items-center gap-2">
+                      <Users className="w-5 h-5 text-brand-gold" />
+                      <h3 className="font-display font-black text-sm uppercase tracking-wider text-slate-800 dark:text-white">
+                        {editingUser ? `Edit System User: ${editingUser.username}` : "Create System User"}
+                      </h3>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowUserModal(false)}
+                      className="p-1 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-500 dark:text-stone-400 transition cursor-pointer"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  {/* Form Body */}
+                  <div className="space-y-4 py-2 overflow-y-auto max-h-[60vh]">
+                    {/* Username Field */}
+                    <div className="space-y-1">
+                      <label className="block text-[10px] font-black uppercase text-stone-400 tracking-wider">Username</label>
+                      <input
+                        type="text"
+                        required
+                        disabled={!!editingUser}
+                        placeholder="Enter user log in name"
+                        value={userFormUsername}
+                        onChange={(e) => setUserFormUsername(e.target.value)}
+                        className="w-full bg-stone-50 dark:bg-stone-955 border border-stone-200 dark:border-stone-850 p-2.5 rounded-lg text-xs outline-none focus:border-brand-gold/50 disabled:opacity-50 font-bold"
+                      />
+                    </div>
+
+                    {/* Email Field */}
+                    <div className="space-y-1">
+                      <label className="block text-[10px] font-black uppercase text-stone-400 tracking-wider">Email Address</label>
+                      <input
+                        type="email"
+                        placeholder="e.g. user@chennaiguardian.in"
+                        value={userFormEmail}
+                        onChange={(e) => setUserFormEmail(e.target.value)}
+                        className="w-full bg-stone-50 dark:bg-stone-955 border border-stone-200 dark:border-stone-850 p-2.5 rounded-lg text-xs outline-none focus:border-brand-gold/50 font-bold"
+                      />
+                    </div>
+
+                    {/* Password Field */}
+                    <div className="space-y-1">
+                      <label className="block text-[10px] font-black uppercase text-stone-400 tracking-wider">
+                        {editingUser ? "Reset Password (Optional)" : "Security Password"}
+                      </label>
+                      <input
+                        type="password"
+                        required={!editingUser}
+                        placeholder={editingUser ? "Leave blank to keep existing password" : "Enter security password"}
+                        value={userFormPassword}
+                        onChange={(e) => setUserFormPassword(e.target.value)}
+                        className="w-full bg-stone-50 dark:bg-stone-955 border border-stone-200 dark:border-stone-850 p-2.5 rounded-lg text-xs outline-none focus:border-brand-gold/50 font-bold font-mono"
+                      />
+                    </div>
+
+                    {/* Role Selection Field */}
+                    <div className="space-y-1">
+                      <label className="block text-[10px] font-black uppercase text-stone-400 tracking-wider">Access Control Role</label>
+                      <select
+                        value={userFormRole}
+                        onChange={(e) => setUserFormRole(e.target.value)}
+                        className="w-full bg-stone-50 dark:bg-stone-955 border border-stone-200 dark:border-stone-850 p-2.5 rounded-lg text-xs outline-none focus:border-brand-gold/50 cursor-pointer font-bold text-slate-800 dark:text-stone-300"
+                      >
+                        <option value="superadmin">Superadmin (All Permissions)</option>
+                        <option value="admin">Admin (Content Manager)</option>
+                        <option value="contentadmin">Content Admin (News Manager)</option>
+                        <option value="editor">Editor (Drafts Only)</option>
+                        <option value="reporter">Reporter (Contributor)</option>
+                        <option value="mediamanager">Media Manager (Videos & Files)</option>
+                        <option value="seomanager">SEO Manager (Metadata Specialist)</option>
+                        <option value="viewer">Viewer (Read-only)</option>
+                      </select>
+                    </div>
+
+                    {/* Dynamic Permissions Summary card */}
+                    <div className="border border-stone-150 dark:border-stone-850 rounded-xl p-3 bg-stone-50 dark:bg-stone-955 space-y-1">
+                      <div className="flex justify-between items-center">
+                        <span className="text-[10px] font-black uppercase text-stone-450 dark:text-stone-550 tracking-wider">Role Permissions Details</span>
+                        <span className={`text-[8px] font-black px-1.5 py-0.5 rounded-full border ${rbac.color}`}>{rbac.badge}</span>
+                      </div>
+                      <h4 className="text-xs font-bold text-slate-800 dark:text-white mt-1">{rbac.title}</h4>
+                      <p className="text-[10px] text-stone-500 dark:text-stone-400 leading-relaxed font-medium">{rbac.desc}</p>
+                    </div>
+                  </div>
+
+                  {/* Form Actions Footer */}
+                  <div className="flex gap-3 justify-end pt-3 border-t border-stone-200 dark:border-stone-850">
+                    <button
+                      type="button"
+                      onClick={() => setShowUserModal(false)}
+                      className="px-4 py-2.5 bg-stone-200 hover:bg-stone-300 dark:bg-stone-800 dark:hover:bg-stone-750 text-slate-800 dark:text-white text-xs font-bold rounded-lg transition cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-4 py-2.5 bg-brand-maroon hover:bg-brand-maroon-dark text-white text-xs font-black uppercase tracking-wider rounded-lg transition cursor-pointer"
+                    >
+                      {editingUser ? "Save Changes" : "Create Account"}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            );
+          })()}
       </main>
 
     </div>

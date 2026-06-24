@@ -14,6 +14,17 @@ export interface DBUser {
   username: string;
   passwordHash: string;
   role: string;
+  email: string;
+  status: "active" | "disabled";
+  lastLogin?: string | null;
+  createdAt?: string | null;
+}
+
+export interface DBActivityLog {
+  id: number;
+  username: string;
+  action: string;
+  timestamp: string; // ISO date-time string
 }
 
 export interface DBNewsItem {
@@ -47,6 +58,7 @@ export interface DBNewsItem {
   breaking?: number; // 0 or 1
   latest?: number; // 0 or 1
   homepage_visible?: number; // 0 or 1
+  image_locked?: number; // 0 or 1 (Hero News image lock)
   updated_at?: string;
   created_at?: string;
   language?: string;
@@ -116,6 +128,7 @@ export interface DBThemeSettings {
   logo_path: string;
   footer_logo_path: string;
   favicon_path: string;
+  ticker_speed?: string;
 }
 
 export interface DBMenuItem {
@@ -177,6 +190,77 @@ export interface DBAlertSettings {
   refresh_interval?: number;
 }
 
+export interface DBSeoSettings {
+  id: number;
+  site_title: string;
+  site_description: string;
+  default_keywords: string;
+  organization_name: string;
+  organization_logo: string;
+  contact_number: string;
+  address: string;
+  site_url: string;
+  social_facebook: string;
+  social_twitter: string;
+  social_instagram: string;
+  social_youtube: string;
+  google_analytics_id: string;
+  google_tag_manager_id: string;
+  google_search_console: string;
+  bing_verification: string;
+  default_robots: string;
+  default_og_image: string;
+  publisher_name: string;
+  publisher_logo: string;
+}
+
+export interface DBAssetMetadata {
+  id: number;
+  filename: string;
+  url: string;
+  title: string;
+  category: string;
+  show_in_stories: number; // 0 or 1
+  associated_news_id?: number | null; // linked news article id
+  created_at: string;
+  updated_at?: string;
+}
+
+export interface DBArticleSeo {
+  id: number;
+  article_id: number;
+  content_type: string; // 'news' | 'slider' | 'video' | 'alert' | 'profile' | 'category' | 'homepage'
+  seo_title: string;
+  meta_description: string;
+  meta_keywords: string;
+  seo_slug: string;
+  canonical_url: string;
+  focus_keyword: string;
+  secondary_keywords: string;
+  article_tags: string;
+  robots: string;
+  og_title: string;
+  og_description: string;
+  og_image: string;
+  og_url: string;
+  og_type: string;
+  twitter_title: string;
+  twitter_description: string;
+  twitter_image: string;
+  twitter_card: string;
+  image_alt: string;
+  image_caption: string;
+  image_title: string;
+  image_description: string;
+  news_category: string;
+  author_name: string;
+  schema_json: string;
+  hreflang_en: string;
+  hreflang_ta: string;
+  seo_score: number;
+  updated_at: string;
+}
+
 // Flat JSON Database File Path
 const JSON_DB_PATH = path.join(process.cwd(), "src/data/db.json");
 
@@ -194,6 +278,10 @@ class JSONDatabaseManager {
     videos: DBVideoItem[];
     alerts: DBAlertItem[];
     alert_settings: DBAlertSettings[];
+    seo_settings: DBSeoSettings[];
+    article_seo: DBArticleSeo[];
+    asset_metadata: DBAssetMetadata[];
+    activity_logs: DBActivityLog[];
   };
 
   constructor() {
@@ -210,6 +298,10 @@ class JSONDatabaseManager {
       videos: [],
       alerts: [],
       alert_settings: [],
+      seo_settings: [],
+      article_seo: [],
+      asset_metadata: [],
+      activity_logs: [],
     };
     this.init();
   }
@@ -225,6 +317,65 @@ class JSONDatabaseManager {
       try {
         const raw = fs.readFileSync(JSON_DB_PATH, "utf8");
         this.data = JSON.parse(raw);
+
+        // Auto-migrate: check if new SEO tables are missing from an existing database file
+        let modified = false;
+        if (!this.data.seo_settings) {
+          this.data.seo_settings = [
+            {
+              id: 1,
+              site_title: "Chennai Guardian | Greater Chennai Police",
+              site_description: "Official executive leadership portal and smart public safety dashboard of Dr. A. Amalraj IPS, Commissioner of Greater Chennai Police.",
+              default_keywords: "Greater Chennai Police, Chennai Police, Dr. A. Amalraj IPS, Tamil Nadu Police, Public Safety, Crime Prevention",
+              organization_name: "Greater Chennai Police",
+              organization_logo: "/images/gcp_logo.png",
+              contact_number: "044-23452300",
+              address: "Commissioner Office, Vepery, Chennai - 600007, Tamil Nadu, India",
+              site_url: "https://chennaiguardian.in",
+              social_facebook: "https://www.facebook.com/Chennai.Police/",
+              social_twitter: "https://x.com/chennaipolice_",
+              social_instagram: "https://www.instagram.com/greater_chennai_police_/",
+              social_youtube: "",
+              google_analytics_id: "",
+              google_tag_manager_id: "",
+              google_search_console: "",
+              bing_verification: "",
+              default_robots: "index, follow",
+              default_og_image: "/images/gcp_logo.png",
+              publisher_name: "Greater Chennai Police",
+              publisher_logo: "/images/gcp_logo.png"
+            }
+          ];
+          modified = true;
+        }
+        if (!this.data.article_seo) {
+          this.data.article_seo = [];
+          modified = true;
+        }
+        if (!this.data.activity_logs) {
+          this.data.activity_logs = [];
+          modified = true;
+        }
+        if (this.data.users && Array.isArray(this.data.users)) {
+          this.data.users.forEach((user: any) => {
+            if (!user.email) {
+              user.email = `${user.username}@chennaiguardian.in`;
+              modified = true;
+            }
+            if (!user.status) {
+              user.status = "active";
+              modified = true;
+            }
+            if (!user.createdAt) {
+              user.createdAt = new Date().toISOString();
+              modified = true;
+            }
+          });
+        }
+        if (modified) {
+          this.save();
+          console.log("JSON Database successfully migrated/seeded for SEO, assets and user tables!");
+        }
         return;
       } catch (e) {
         console.error("Error reading JSON Database, reseeding...", e);
@@ -240,10 +391,11 @@ class JSONDatabaseManager {
   private seed() {
     // 1. Seed default users
     this.data.users = [
-      { id: 1, username: "admin", passwordHash: hashPassword("admin123"), role: "superadmin" },
-      { id: 2, username: "editor", passwordHash: hashPassword("editor123"), role: "editor" },
-      { id: 3, username: "content", passwordHash: hashPassword("content123"), role: "contentadmin" },
+      { id: 1, username: "admin", passwordHash: hashPassword("admin123"), role: "superadmin", email: "admin@chennaiguardian.in", status: "active", createdAt: new Date().toISOString(), lastLogin: null },
+      { id: 2, username: "editor", passwordHash: hashPassword("editor123"), role: "editor", email: "editor@chennaiguardian.in", status: "active", createdAt: new Date().toISOString(), lastLogin: null },
+      { id: 3, username: "content", passwordHash: hashPassword("content123"), role: "contentadmin", email: "content@chennaiguardian.in", status: "active", createdAt: new Date().toISOString(), lastLogin: null },
     ];
+    this.data.activity_logs = [];
 
     // 2. Seed news from hardcoded newsData
     this.data.news = newsData.map((item) => ({
@@ -510,6 +662,36 @@ class JSONDatabaseManager {
       }
     ];
 
+    // 12. Seed default SEO settings
+    this.data.seo_settings = [
+      {
+        id: 1,
+        site_title: "Chennai Guardian | Greater Chennai Police",
+        site_description: "Official executive leadership portal and smart public safety dashboard of Dr. A. Amalraj IPS, Commissioner of Greater Chennai Police.",
+        default_keywords: "Greater Chennai Police, Chennai Police, Dr. A. Amalraj IPS, Tamil Nadu Police, Public Safety, Crime Prevention",
+        organization_name: "Greater Chennai Police",
+        organization_logo: "/images/gcp_logo.png",
+        contact_number: "044-23452300",
+        address: "Commissioner Office, Vepery, Chennai - 600007, Tamil Nadu, India",
+        site_url: "https://chennaiguardian.in",
+        social_facebook: "https://www.facebook.com/Chennai.Police/",
+        social_twitter: "https://x.com/chennaipolice_",
+        social_instagram: "https://www.instagram.com/greater_chennai_police_/",
+        social_youtube: "",
+        google_analytics_id: "",
+        google_tag_manager_id: "",
+        google_search_console: "",
+        bing_verification: "",
+        default_robots: "index, follow",
+        default_og_image: "/images/gcp_logo.png",
+        publisher_name: "Greater Chennai Police",
+        publisher_logo: "/images/gcp_logo.png"
+      }
+    ];
+
+    // 13. Seed empty article SEO (populated on-demand)
+    this.data.article_seo = [];
+
     this.save();
     console.log("JSON Database successfully seeded!");
   }
@@ -689,6 +871,35 @@ class ChennaiGuardianDatabase {
     }
     // SQL queries if DB active
     return [];
+  }
+
+  // 14. Activity Logs Module
+  public async getActivityLogs(): Promise<DBActivityLog[]> {
+    if (this.dbType === "json") {
+      return jsonDb.getTable("activity_logs") as DBActivityLog[];
+    }
+    return [];
+  }
+
+  public async saveActivityLogs(logs: DBActivityLog[]) {
+    if (this.dbType === "json") {
+      jsonDb.setTable("activity_logs", logs);
+    }
+  }
+
+  public async addActivityLog(username: string, action: string) {
+    const logs = await this.getActivityLogs();
+    const id = logs.length > 0 ? Math.max(...logs.map(l => l.id)) + 1 : 1;
+    logs.unshift({
+      id,
+      username,
+      action,
+      timestamp: new Date().toISOString()
+    });
+    if (logs.length > 500) {
+      logs.splice(500);
+    }
+    await this.saveActivityLogs(logs);
   }
 
   public async saveUsers(users: DBUser[]) {
@@ -1113,6 +1324,71 @@ class ChennaiGuardianDatabase {
     } catch (e) {
       console.error("Alert sync failed with error:", e);
       return { success: false, newCount: 0 };
+    }
+  }
+
+  // 12. SEO Settings Module
+  public async getSeoSettings(): Promise<DBSeoSettings> {
+    if (this.dbType === "json") {
+      const items = jsonDb.getTable("seo_settings") as DBSeoSettings[];
+      if (items && items.length > 0) return items[0];
+    }
+    return {
+      id: 1,
+      site_title: "Chennai Guardian | Greater Chennai Police",
+      site_description: "Official executive leadership portal and smart public safety dashboard of Dr. A. Amalraj IPS, Commissioner of Greater Chennai Police.",
+      default_keywords: "Greater Chennai Police, Chennai Police, Dr. A. Amalraj IPS, Tamil Nadu Police, Public Safety, Crime Prevention",
+      organization_name: "Greater Chennai Police",
+      organization_logo: "/images/gcp_logo.png",
+      contact_number: "044-23452300",
+      address: "Commissioner Office, Vepery, Chennai - 600007, Tamil Nadu, India",
+      site_url: "https://chennaiguardian.in",
+      social_facebook: "https://www.facebook.com/Chennai.Police/",
+      social_twitter: "https://x.com/chennaipolice_",
+      social_instagram: "https://www.instagram.com/greater_chennai_police_/",
+      social_youtube: "",
+      google_analytics_id: "",
+      google_tag_manager_id: "",
+      google_search_console: "",
+      bing_verification: "",
+      default_robots: "index, follow",
+      default_og_image: "/images/gcp_logo.png",
+      publisher_name: "Greater Chennai Police",
+      publisher_logo: "/images/gcp_logo.png"
+    };
+  }
+
+  public async saveSeoSettings(settings: DBSeoSettings) {
+    if (this.dbType === "json") {
+      jsonDb.setTable("seo_settings", [settings]);
+    }
+  }
+
+  // 13. Article SEO Module
+  public async getArticleSeo(): Promise<DBArticleSeo[]> {
+    if (this.dbType === "json") {
+      return (jsonDb.getTable("article_seo") as DBArticleSeo[]) || [];
+    }
+    return [];
+  }
+
+  public async saveArticleSeo(items: DBArticleSeo[]) {
+    if (this.dbType === "json") {
+      jsonDb.setTable("article_seo", items);
+    }
+  }
+
+  // 14. Asset Metadata Module
+  public async getAssetMetadata(): Promise<DBAssetMetadata[]> {
+    if (this.dbType === "json") {
+      return (jsonDb.getTable("asset_metadata") as DBAssetMetadata[]) || [];
+    }
+    return [];
+  }
+
+  public async saveAssetMetadata(items: DBAssetMetadata[]) {
+    if (this.dbType === "json") {
+      jsonDb.setTable("asset_metadata", items);
     }
   }
 }

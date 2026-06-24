@@ -2,8 +2,8 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { newsData, NewsItem } from "@/data/newsData";
 import { useTranslation } from "@/context/LanguageContext";
+
 
 interface NewsTickerProps {
   customTickerItems?: { id: number; text_en: string; text_ta: string; url?: string }[];
@@ -15,20 +15,57 @@ export default function NewsTicker({ customTickerItems }: NewsTickerProps = {}) 
 
   useEffect(() => {
     if (customTickerItems && customTickerItems.length > 0) {
-      setFeed(customTickerItems);
+      const filtered = customTickerItems.filter((t: any) => {
+        const isActive = t.active === 1 || t.active === true || t.active === "true" || t.active === undefined;
+        const isEnabled = t.enabled === undefined || t.enabled === true || t.enabled === 1 || t.enabled === "true" || t.enabled === "Enabled";
+        const isStatusActive = t.status === undefined || String(t.status).toLowerCase() === "active" || String(t.status).toLowerCase() === "enabled";
+        return isActive && isEnabled && isStatusActive;
+      });
+      filtered.sort((a: any, b: any) => (a.order_num || 0) - (b.order_num || 0));
+      console.log("NewsTicker (props) - Fetched ticker count:", filtered.length);
+      console.log("NewsTicker (props) - Ticker titles:", filtered.map((t: any) => t.text_en || t.title_en));
+      if (filtered.length > 0) {
+        setFeed(filtered);
+      } else {
+        setFeed([{
+          id: 0,
+          text_en: "No Active Ticker Available",
+          text_ta: "செயலில் உள்ள செய்திகள் எதுவும் இல்லை",
+          url: ""
+        }]);
+      }
     } else {
-      const parseDate = (dateStr: string) => new Date(dateStr).getTime() || 0;
-      const sorted = [...newsData]
-        .sort((a, b) => parseDate(b.date) - parseDate(a.date))
-        .slice(0, 10)
-        .map(i => ({
-          id: i.id,
-          text_en: i.title_en,
-          text_ta: i.title_ta,
-          url: `/news/${i.slug}`,
-          section: i.section
-        }));
-      setFeed(sorted);
+      const fetchTickers = async () => {
+        try {
+          const res = await fetch("/api/admin/crud/ticker");
+          if (!res.ok) return;
+          const allTickers = await res.json();
+          if (Array.isArray(allTickers)) {
+            const filtered = allTickers.filter((t: any) => {
+              const isActive = t.active === 1 || t.active === true || t.active === "true" || t.active === undefined;
+              const isEnabled = t.enabled === undefined || t.enabled === true || t.enabled === 1 || t.enabled === "true" || t.enabled === "Enabled";
+              const isStatusActive = t.status === undefined || String(t.status).toLowerCase() === "active" || String(t.status).toLowerCase() === "enabled";
+              return isActive && isEnabled && isStatusActive;
+            });
+            filtered.sort((a: any, b: any) => (a.order_num || 0) - (b.order_num || 0));
+            console.log("NewsTicker (fetch) - Fetched ticker count:", filtered.length);
+            console.log("NewsTicker (fetch) - Ticker titles:", filtered.map((t: any) => t.text_en));
+            if (filtered.length > 0) {
+              setFeed(filtered);
+            } else {
+              setFeed([{
+                id: 0,
+                text_en: "No Active Ticker Available",
+                text_ta: "செயலில் உள்ள செய்திகள் எதுவும் இல்லை",
+                url: ""
+              }]);
+            }
+          }
+        } catch (err) {
+          console.error("Error fetching tickers in NewsTicker:", err);
+        }
+      };
+      fetchTickers();
     }
   }, [customTickerItems]);
 
@@ -55,14 +92,14 @@ export default function NewsTicker({ customTickerItems }: NewsTickerProps = {}) 
 
       {/* Scrolling Ticker Area */}
       <div className="flex-grow h-full overflow-hidden flex items-center relative bg-stone-50 dark:bg-stone-950/40">
-        <div className="animate-marquee flex items-center gap-8 py-2">
+        <div className="animate-marquee flex items-center py-2">
           
           {/* First loop of headlines */}
           {feed.map((item) => {
             const isBreaking = item.section === "spotlight";
             const isTrending = item.id === 1 || item.id === 10;
             const title = language === "ta" ? (item.text_ta || item.title_ta) : (item.text_en || item.title_en);
-            const href = item.url || (item.slug ? `/news/${item.slug}` : "/");
+            const href = item.id === 0 ? "#" : (item.url || (item.slug ? `/news/${item.slug}` : "/"));
             const hoverTitle = language === "ta" ? `அறிவிப்பு` : `Alert`;
 
             return (
@@ -70,7 +107,9 @@ export default function NewsTicker({ customTickerItems }: NewsTickerProps = {}) 
                 key={`loop-1-${item.id}`}
                 href={href}
                 title={hoverTitle}
+                onClick={(e) => { if (item.id === 0) e.preventDefault(); }}
                 className="flex items-center gap-2.5 text-xs font-bold text-slate-800 dark:text-stone-300 hover:text-brand-maroon dark:hover:text-brand-gold transition-colors duration-200 cursor-pointer whitespace-nowrap"
+                style={{ marginRight: "32px" }}
               >
                 {isBreaking && (
                   <span className="px-1.5 py-0.5 text-[8px] bg-red-600 text-white rounded font-black tracking-widest uppercase">
@@ -93,7 +132,7 @@ export default function NewsTicker({ customTickerItems }: NewsTickerProps = {}) 
             const isBreaking = item.section === "spotlight";
             const isTrending = item.id === 1 || item.id === 10;
             const title = language === "ta" ? (item.text_ta || item.title_ta) : (item.text_en || item.title_en);
-            const href = item.url || (item.slug ? `/news/${item.slug}` : "/");
+            const href = item.id === 0 ? "#" : (item.url || (item.slug ? `/news/${item.slug}` : "/"));
             const hoverTitle = language === "ta" ? `அறிவிப்பு` : `Alert`;
 
             return (
@@ -101,7 +140,9 @@ export default function NewsTicker({ customTickerItems }: NewsTickerProps = {}) 
                 key={`loop-2-${item.id}`}
                 href={href}
                 title={hoverTitle}
+                onClick={(e) => { if (item.id === 0) e.preventDefault(); }}
                 className="flex items-center gap-2.5 text-xs font-bold text-slate-800 dark:text-stone-300 hover:text-brand-maroon dark:hover:text-brand-gold transition-colors duration-200 cursor-pointer whitespace-nowrap"
+                style={{ marginRight: "32px" }}
               >
                 {isBreaking && (
                   <span className="px-1.5 py-0.5 text-[8px] bg-red-600 text-white rounded font-black tracking-widest uppercase">

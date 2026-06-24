@@ -47,6 +47,7 @@
 html {
   scroll-behavior: smooth;
   font-size: 102%; /* Globally boost font size of all rem elements slightly */
+  overflow-x: hidden;
 }
 
 /* Accessibility overrides: scale up custom inline arbitrary font-sizes */
@@ -106,22 +107,47 @@ body {
   background: rgba(122, 28, 28, 0.4);
 }
 
-/* Custom marquee animation for Live News Ticker */
+/* Custom marquee animation for Live News Ticker — TV reading speed */
 @keyframes marquee {
-  0% { transform: translateX(0); }
+  0%   { transform: translateX(0); }
   100% { transform: translateX(-50%); }
 }
 
 .animate-marquee {
   display: flex;
   width: max-content;
-  animation: marquee 140s linear infinite;
+  /* 70s = slow TV news reading speed for NewsTicker component */
+  animation: marquee 70s linear infinite;
   will-change: transform;
 }
 
 .animate-marquee:hover {
   animation-play-state: paused;
 }
+
+/* Alias kept for legacy; same slow speed */
+.animate-marquee-fast {
+  display: flex;
+  width: max-content;
+  animation: marquee 70s linear infinite;
+  will-change: transform;
+}
+
+/* Story card ring animation */
+@keyframes ring-fill {
+  from { width: 0%; }
+  to   { width: 100%; }
+}
+
+/* News card hover lift */
+.news-card-hover {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.news-card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.10);
+}
+
 
 /* Print Styles to fix multi-page pagination and hide unwanted UI clutter */
 @media print {
@@ -233,4 +259,47 @@ body {
   }
 }
 
+/* ============================================================
+   Breaking News TV Ticker — Slow, readable TV news speed
+   Content is DOUBLED in JSX → translateX(-50%) = one full pass
+   ============================================================ */
+@keyframes tickerScroll {
+  0%   { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
 
+/* Shared base styles */
+.ticker-content,
+.breaking-news-track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+  /* Default (desktop) — Normal speed = 60s TV reading pace */
+  animation: tickerScroll var(--marquee-duration, 60s) linear infinite;
+}
+
+/* Pause on hover — desktop only */
+.ticker-content:hover,
+.breaking-news-track:hover {
+  animation-play-state: paused;
+}
+
+/* Tablet */
+@media (max-width: 1023px) and (min-width: 768px) {
+  .ticker-content,
+  .breaking-news-track {
+    animation-duration: var(--marquee-duration-tablet, 50s);
+  }
+}
+
+/* Mobile — no hover pause on touch devices */
+@media (max-width: 767px) {
+  .ticker-content,
+  .breaking-news-track {
+    animation-duration: var(--marquee-duration-mobile, 40s);
+  }
+  .ticker-content:hover,
+  .breaking-news-track:hover {
+    animation-play-state: running;
+  }
+}

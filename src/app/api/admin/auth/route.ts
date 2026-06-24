@@ -17,6 +17,17 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 
+    if (user.status === "disabled") {
+      return NextResponse.json({ error: "Your account has been disabled. Contact system administrator." }, { status: 403 });
+    }
+
+    // Update lastLogin
+    user.lastLogin = new Date().toISOString();
+    await db.saveUsers(users);
+
+    // Add activity log
+    await db.addActivityLog(user.username, "User logged in successfully");
+
     // Set secure cookie
     const cookieStore = await cookies();
     cookieStore.set("admin_session", JSON.stringify({ username: user.username, role: user.role }), {

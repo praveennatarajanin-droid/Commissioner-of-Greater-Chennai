@@ -2,6 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { Landmark, Mail, Phone, MapPin, Globe, ExternalLink } from "lucide-react";
 import { useTranslation } from "@/context/LanguageContext";
 
@@ -19,7 +20,7 @@ export default function Footer({ customProfile }: FooterProps = {}) {
     : null;
 
   return (
-    <footer className="bg-brand-blue-dark text-white/85 pt-16 pb-8 border-t-4 border-brand-gold print:bg-white print:text-slate-900 print:border-t print:border-stone-300 print:pt-6 print:pb-4">
+    <footer className="bg-brand-blue text-white/85 pt-16 pb-8 border-t-4 border-brand-gold print:bg-white print:text-slate-900 print:border-t print:border-stone-300 print:pt-6 print:pb-4">
       <div className="max-w-[1700px] mx-auto px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 print:grid-cols-2 gap-12 mb-12">
         
         {/* Col 1: Brand details */}
@@ -35,44 +36,49 @@ export default function Footer({ customProfile }: FooterProps = {}) {
             </div>
             <div>
               <span className="font-display font-black tracking-wider text-lg text-white uppercase block leading-tight">
-                {t("footer.title")}
+                {language === "ta" ? "சென்னை கார்டியன் செய்திகள்" : "CHENNAI GUARDIAN NEWS"}
               </span>
               <span className="text-xs tracking-widest uppercase font-bold text-brand-gold block mt-0.5">
-                {t("footer.portalSubTitle")}
+                {language === "ta" ? "24/7 தமிழ் செய்தித் தொலைக்காட்சி" : "24/7 News Network"}
               </span>
             </div>
           </div>
           <p className="text-sm text-white/70 font-normal leading-relaxed">
-            {t("footer.authorizedDesc")}
+            {language === "ta"
+              ? "சென்னையின் முன்னணி சட்டம் ஒழுங்கு, குற்றப் புலனாய்வு மற்றும் மக்கள் விழிப்புணர்வு செய்திகளை உடனுக்குடன் வழங்கும் அதிகாரப்பூர்வ செய்தி ஊடகம்."
+              : "Official news platform of Chennai Guardian News, providing 24/7 updates on public safety, cyber alerts, and community-centered policing initiatives."}
           </p>
           <div className="flex items-center gap-2 text-xs uppercase font-black text-brand-gold tracking-wider">
-            <Globe className="w-3.5 h-3.5" /> {t("footer.stateCommand")}
+            <Globe className="w-3.5 h-3.5" /> {language === "ta" ? "தமிழ்நாடு செய்தி வலையமைப்பு" : "Tamil Nadu News Network"}
           </div>
         </div>
 
         {/* Col 2: Directory index */}
         <div className="space-y-4 print:hidden">
           <h4 className="font-display font-black text-sm uppercase tracking-widest text-white border-b border-white/10 pb-2">
-            {t("footer.directory")}
+            {language === "ta" ? "செய்தி பிரிவுகள்" : "News Sections"}
           </h4>
           <ul className="space-y-2.5 text-sm font-normal text-white/80">
             <li>
-              <a href="/#about" className="hover:text-brand-gold transition">{t("footer.dirAbout")}</a>
+              <Link href="/" className="hover:text-brand-gold transition">{language === "ta" ? "முகப்பு" : "Home"}</Link>
             </li>
             <li>
-              <a href="/#vision" className="hover:text-brand-gold transition">{t("footer.dirVision")}</a>
+              <Link href="/category/crime" className="hover:text-brand-gold transition">{language === "ta" ? "குற்றம்" : "Crime News"}</Link>
             </li>
             <li>
-              <a href="/#initiatives" className="hover:text-brand-gold transition">{t("footer.dirInitiatives")}</a>
+              <Link href="/category/cyber-safety" className="hover:text-brand-gold transition">{language === "ta" ? "இணைய பாதுகாப்பு" : "Cyber Safety"}</Link>
             </li>
             <li>
-              <a href="/#dashboard" className="hover:text-brand-gold transition">{t("footer.dirDashboard")}</a>
+              <Link href="/category/women-safety" className="hover:text-brand-gold transition">{language === "ta" ? "பெண்கள் பாதுகாப்பு" : "Women Safety"}</Link>
             </li>
             <li>
-              <a href="/#media" className="hover:text-brand-gold transition">{t("footer.dirMedia")}</a>
+              <Link href="/about" className="hover:text-brand-gold transition">{language === "ta" ? "எங்களைப் பற்றி" : "About Us"}</Link>
             </li>
             <li>
-              <a href="/#gallery" className="hover:text-brand-gold transition">{t("footer.dirGallery")}</a>
+              <Link href="/achievements" className="hover:text-brand-gold transition">{language === "ta" ? "சாதனைகள்" : "Achievements"}</Link>
+            </li>
+            <li>
+              <Link href="/citizen-outreach" className="hover:text-brand-gold transition">{language === "ta" ? "மனுக்கள்" : "Citizen Outreach"}</Link>
             </li>
           </ul>
         </div>
