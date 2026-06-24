@@ -157,42 +157,48 @@ export default function Footer({ customProfile }: FooterProps = {}) {
 
       </div>
 
-      {/* State gateways */}
-      <div className="max-w-[1700px] mx-auto px-6 py-4 border-t border-white/10 border-b border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-white/60 text-xs uppercase font-black tracking-widest print:hidden">
-        <span>{t("footer.gateways")}</span>
-        <div className="flex flex-wrap gap-4 items-center justify-center">
+      {/* ── State Gateways: centered single row ── */}
+      <div className="max-w-[1700px] mx-auto px-6 py-5 border-t border-white/10 print:hidden">
+        <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 text-white/70 text-xs uppercase font-black tracking-widest">
           <a
             href="https://www.tnpolice.gov.in"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-brand-gold transition flex items-center gap-1"
+            className="hover:text-brand-gold transition-colors duration-200 flex items-center gap-1.5"
           >
-            {t("footer.tnPolice")} <ExternalLink className="w-3 h-3" />
+            {t("footer.tnPolice")} <ExternalLink className="w-3 h-3 opacity-70" />
           </a>
+          <span className="text-white/25 select-none hidden sm:inline">|</span>
           <a
             href="https://www.tn.gov.in"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-brand-gold transition flex items-center gap-1"
+            className="hover:text-brand-gold transition-colors duration-200 flex items-center gap-1.5"
           >
-            {t("footer.govTN")} <ExternalLink className="w-3 h-3" />
+            {t("footer.govTN")} <ExternalLink className="w-3 h-3 opacity-70" />
           </a>
+          <span className="text-white/25 select-none hidden sm:inline">|</span>
           <a
             href="https://www.cybercrime.gov.in"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-brand-gold transition flex items-center gap-1"
+            className="hover:text-brand-gold transition-colors duration-200 flex items-center gap-1.5"
           >
-            {t("footer.cyberPortal")} <ExternalLink className="w-3 h-3" />
+            {t("footer.cyberPortal")} <ExternalLink className="w-3 h-3 opacity-70" />
           </a>
         </div>
       </div>
 
-      {/* Copyright */}
-      <div className="max-w-[1700px] mx-auto px-6 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-white/50 text-sm font-normal">
-        <p>© 2026 {t("footer.title")}. {t("footer.referenceStructure")}</p>
-        <p className="italic text-xs">
-          {t("footer.designCredit")}
+      {/* ── Copyright & Designer Credit: centered ── */}
+      <div className="max-w-[1700px] mx-auto px-6 pt-5 pb-2 border-t border-white/10 flex flex-col items-center gap-2 text-center">
+        <p className="text-white/55 text-sm font-normal">
+          © 2026 Chennai Guardian. All Rights Reserved.
+        </p>
+        <p className="text-xs font-bold tracking-wider">
+          Designed &amp; Developed by{" "}
+          <span className="text-brand-gold font-black tracking-widest uppercase">
+            TEKQUORA Team
+          </span>
         </p>
       </div>
     </footer>
