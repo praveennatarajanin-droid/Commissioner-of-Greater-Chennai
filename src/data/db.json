@@ -805,8 +805,7 @@
       "image": "/images/amalraj_portrait.png",
       "gallery": [
         "/images/amalraj_portrait.png",
-        "/images/amalraj_header.png",
-        "/images/amalraj_take_charge.png"
+        "/images/amalraj_header.png"
       ],
       "date": "May 21, 2026",
       "author_en": "Greater Chennai Police Media Desk",
@@ -1398,7 +1397,11 @@
       "email": "cop@gcp.tn.gov.in",
       "phone": "044-23452300",
       "office_address_en": "Commissioner Office, Vepery, Chennai",
-      "office_address_ta": "காவல் ஆணையர் அலுவலகம், வேப்பேரி, சென்னை"
+      "office_address_ta": "காவல் ஆணையர் அலுவலகம், வேப்பேரி, சென்னை",
+      "gallery": [
+        "/images/amalraj_portrait.png",
+        "/images/amalraj_header.png"
+      ]
     }
   ],
   "theme_settings": [
@@ -1582,13 +1585,97 @@
       "id": 1,
       "auto_fetch": 1,
       "require_approval": 1,
-      "last_fetched_at": "2026-06-24T17:03:01.440Z",
+      "last_fetched_at": "2026-06-29T09:10:19.862Z",
       "live_feed_enabled": 1,
       "approved_sources": "tnpolice.gov.in, gcp.tn.gov.in, greaterchennaipolice.in, tn.gov.in, pib.gov.in",
       "refresh_interval": 15
     }
   ],
   "alerts": [
+    {
+      "id": 71,
+      "title": "TAMIL NADU STATE JUDICIAL ACADEMY and (Department of Social Defence, Government of Tamil Nadu) in association with GREATER CHENN",
+      "category": "LAW & ORDER",
+      "source": "TamilNadu Judicial Academy",
+      "url": "https://www.tnsja.tn.gov.in/schedules/2022/2022_59_report.pdf",
+      "published_at": "2022-12-15T14:02:17.000Z",
+      "approved": 0,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-06-29T09:05:06.686Z"
+    },
+    {
+      "id": 72,
+      "title": "Award of the Tamil Nadu Chief Minister’s Police Medal for Outstanding Devotion to Duty on the occasion of",
+      "category": "AWARDS & DECORATIONS",
+      "source": "Government of Tamil Nadu",
+      "url": "https://cms.tn.gov.in/cms_migrated/document/GO/home_e_672_2014.pdf",
+      "published_at": "2024-11-27T03:10:20.000Z",
+      "approved": 0,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-06-29T09:05:06.686Z"
+    },
+    {
+      "id": 70,
+      "title": "PPO Number Search - TNTA",
+      "category": "LAW & ORDER",
+      "source": "TNTA - Kalanjiyam",
+      "url": "https://www.karuvoolam.tn.gov.in/web/tnta/ppo-search",
+      "published_at": "2024-04-10T17:25:05.000Z",
+      "approved": 0,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-06-29T08:51:19.225Z"
+    },
+    {
+      "id": 66,
+      "title": "Exam Results",
+      "category": "LAW & ORDER",
+      "source": "tnpscresults.tn.gov.in",
+      "url": "https://tnpscresults.tn.gov.in/grp4/index.aspx",
+      "published_at": "2025-11-17T12:13:26.000Z",
+      "approved": 0,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-06-29T07:45:17.090Z"
+    },
+    {
+      "id": 67,
+      "title": "FINANCE [Pay Cell] DEPARTMENT G.O.Ms.No.306, Dated 13th October 2017.",
+      "category": "LAW & ORDER",
+      "source": "Government of Tamil Nadu",
+      "url": "https://cms.tn.gov.in/cms_migrated/document/GO/fine_e_306_2017.pdf",
+      "published_at": "2017-10-13T07:00:00.000Z",
+      "approved": 0,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-06-29T07:45:17.090Z"
+    },
+    {
+      "id": 68,
+      "title": "Metropolitan Transport Corporation (Chennai) Ltd",
+      "category": "LAW & ORDER",
+      "source": "Metropolitan Transport Corporation (Chennai) Ltd",
+      "url": "https://mtcbus.tn.gov.in/Home/stagewiseinfo",
+      "published_at": "2020-01-19T19:24:36.000Z",
+      "approved": 0,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-06-29T07:45:17.090Z"
+    },
+    {
+      "id": 69,
+      "title": "Madras High Court",
+      "category": "LAW & ORDER",
+      "source": "Madras High Court",
+      "url": "https://hcmadras.tn.gov.in/calendar.php",
+      "published_at": "2024-02-23T14:12:06.000Z",
+      "approved": 0,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-06-29T07:45:17.090Z"
+    },
     {
       "id": 64,
       "title": "Tamil Nadu Forest Department |",

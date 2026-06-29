@@ -504,8 +504,7 @@ class JSONDatabaseManager {
         ],
         gallery: [
           "/images/amalraj_portrait.png",
-          "/images/amalraj_header.png",
-          "/images/amalraj_take_charge.png"
+          "/images/amalraj_header.png"
         ]
       }
     ];
@@ -1007,8 +1006,7 @@ class ChennaiGuardianDatabase {
           ],
           gallery: p.gallery ?? [
             "/images/amalraj_portrait.png",
-            "/images/amalraj_header.png",
-            "/images/amalraj_take_charge.png"
+            "/images/amalraj_header.png"
           ]
         };
       }

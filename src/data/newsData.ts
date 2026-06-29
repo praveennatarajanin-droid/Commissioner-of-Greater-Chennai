@@ -346,7 +346,7 @@ export const newsData: NewsItem[] = [
       "சென்னை பெருநகரம் முழுவதிலும் உள்ள அதிகாரிகள் இந்த நியமனத்தை வரவேற்று, அவரது ஒருங்கிணைந்த சமூகக் காவல் பற்றிய பார்வைக்குத் தங்கள் ஆதரவை வெளிப்படுத்தினர்."
     ],
     image: "/images/amalraj_portrait.png",
-    gallery: ["/images/amalraj_portrait.png", "/images/amalraj_header.png", "/images/amalraj_take_charge.png"],
+    gallery: ["/images/amalraj_portrait.png", "/images/amalraj_header.png"],
     date: "May 21, 2026",
     author_en: "Greater Chennai Police Media Desk",
     author_ta: "சென்னை பெருநகர காவல் ஊடகப் பிரிவு",

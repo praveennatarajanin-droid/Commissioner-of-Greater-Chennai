@@ -151,111 +151,45 @@ body {
 
 /* Print Styles to fix multi-page pagination and hide unwanted UI clutter */
 @media print {
-  /* Absolute guarantee for hidden elements */
-  .print\:hidden,
-  [class*="print:hidden"],
-  nav.print\:hidden,
-  button,
-  iframe,
-  .share-panel,
-  header,
-  footer,
-  aside,
-  nav,
-  .no-print {
-    display: none !important;
+  body * {
+    visibility: hidden;
+  }
+
+  .print-article,
+  .print-article * {
+    visibility: visible;
+  }
+
+  .print-article {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    background: #fff;
+    padding: 20mm;
+    color: #000;
+    display: block !important;
   }
 
   @page {
     size: A4;
-    margin: 15mm 15mm 15mm 15mm;
+    margin: 15mm;
   }
 
-  html, body {
-    height: auto !important;
-    min-height: 0 !important;
-    overflow: visible !important;
-    overflow-x: visible !important;
-    overflow-y: visible !important;
-    background: white !important;
-    color: black !important;
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
-  
-  /* Reset flex/grid behaviors on wrapper containers for print flow compatibility */
-  main, .flex, .grid, [class*="min-h-"] {
-    display: block !important;
-    height: auto !important;
-    min-height: 0 !important;
-    overflow: visible !important;
-    position: static !important;
+  img {
+    max-width: 100%;
+    height: auto;
+    page-break-inside: avoid;
   }
 
-  /* Header Print Customization: Clean Letterhead Style */
-  header {
-    background: white !important;
-    color: #1c1917 !important;
+  .article-content {
+    page-break-inside: auto;
+    overflow: visible !important;
+  }
+
+  * {
     box-shadow: none !important;
-    border-bottom: 2px solid #c5a059 !important; /* Gold border line */
-  }
-
-  header * {
-    color: #1c1917 !important;
-  }
-
-  header .bg-brand-maroon {
-    background: white !important;
-    color: #1c1917 !important;
-    border-bottom: 1px solid #e5e7eb !important;
-  }
-
-  /* Footer Print Customization: Clean Document Style */
-  footer {
-    background: white !important;
-    color: #1c1917 !important;
-    border-top: 1px solid #c5a059 !important;
-    padding-top: 1.5rem !important;
-    padding-bottom: 1rem !important;
-    margin-top: 3rem !important;
-    page-break-inside: avoid !important;
-  }
-
-  footer * {
-    color: #1c1917 !important;
-  }
-
-  footer .grid {
-    display: grid !important;
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important; /* Force Col 1 and Col 3 side by side */
-    gap: 2rem !important;
-  }
-
-  /* Make the main article take up 100% width on the page */
-  article {
-    width: 100% !important;
-    max-width: 100% !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    color: #000000 !important;
-  }
-
-  /* Perfect alignment and spacing for news article content and images in print */
-  .prose, article p {
-    text-align: justify !important;
-    color: #000000 !important;
-  }
-
-  /* Prevent page-breaks in the middle of headers, images, highlights and quotes */
-  h1, h2, h3, h4, h5, h6, img, blockquote {
-    page-break-inside: avoid;
-  }
-
-  /* Prevent widows and orphans in paragraphs */
-  p {
-    page-break-inside: avoid;
-    orphans: 3;
-    widows: 3;
+    text-shadow: none !important;
   }
 }
 
