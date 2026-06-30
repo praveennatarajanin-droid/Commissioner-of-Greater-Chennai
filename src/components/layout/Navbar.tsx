@@ -101,7 +101,7 @@ export default function Navbar({ customMenuItems }: NavbarProps = {}) {
     ...categoryLinks,
     { label: language === "ta" ? "வீடியோக்கள்" : "Videos",    href: "/videos" },
     { label: language === "ta" ? "மனு சமர்ப்பிப்பு" : "Grievance Form", href: "/citizen-outreach" },
-    { label: language === "ta" ? "ஆணையர் சுயவிவரம்" : "CP Profile", href: "/commissioner-profile" },
+    { label: language === "ta" ? "ஆணையர் சுயவிவரம்" : "Profile", href: "/commissioner-profile" },
   ];
 
   const handleSearchSubmit = (e: React.FormEvent) => {

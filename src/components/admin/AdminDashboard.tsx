@@ -913,7 +913,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
               { tab: "slider",    icon: <ImageIcon className="w-4 h-4" />,       label: "Hero Slider" },
               { tab: "videos",    icon: <Tv className="w-4 h-4" />,             label: "Video & Media" },
               { tab: "alerts",    icon: <AlertTriangle className="w-4 h-4" />,   label: "Official Alerts" },
-              { tab: "profile",   icon: <User className="w-4 h-4" />,            label: "CP Biography" },
+              { tab: "profile",   icon: <User className="w-4 h-4" />,            label: "Profile" },
               { tab: "theme",     icon: <Palette className="w-4 h-4" />,         label: "Branding Theme" },
               { tab: "settings",  icon: <Settings className="w-4 h-4" />,        label: "Console Config" },
             ] as { tab: TabType; icon: React.ReactNode; label: string }[]).map(({ tab, icon, label }) => (

@@ -241,7 +241,7 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
   // Real sidebar videos from DB (active only, up to 4)
   const sidebarVideos = (videos || [])
     .filter(v => v.active === 1)
-    .sort((a, b) => a.order_num - b.order_num)
+    .sort((a, b) => b.id - a.id)
     .slice(0, 4);
 
   if (!heroStory) {

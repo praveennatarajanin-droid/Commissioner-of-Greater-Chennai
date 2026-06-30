@@ -893,7 +893,7 @@ export default function SeoManager({ news, videos, alerts, slider, profile, onAl
                   <option value="slider">🖼️ Hero Slider</option>
                   <option value="video">🎬 Videos</option>
                   <option value="alert">🚨 Official Alerts</option>
-                  <option value="profile">👤 CP Biography</option>
+                  <option value="profile">👤 Profile</option>
                   <option value="category">📂 Category Pages</option>
                   <option value="homepage">🏠 Homepage</option>
                 </select>
