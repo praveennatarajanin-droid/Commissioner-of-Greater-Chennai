@@ -47,13 +47,15 @@ export default function VideoNewsCenter({ customVideos }: VideoNewsCenterProps) 
   const allDbVideos = customVideos || [];
 
   const allVideos: VideoData[] = allDbVideos.length > 0
-    ? allDbVideos.map(v => ({ id: v.youtube_id, title: v.title, category: v.category, date: v.date, section: v.section }))
+    ? [...allDbVideos]
+        .sort((a, b) => b.id - a.id)
+        .map(v => ({ id: v.youtube_id, title: v.title, category: v.category, date: v.date, section: v.section }))
     : defaultVideos;
 
   const mainVideos = allVideos.filter(v => v.section === "main" || !v.section);
   const sideVideos = allVideos.filter(v => v.section === "bottom").length > 0
     ? allVideos.filter(v => v.section === "bottom")
-    : allVideos.slice(1, 5);
+    : allVideos.slice(1, 10);
 
   const [activeVideo, setActiveVideo] = useState<VideoData | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -71,15 +73,15 @@ export default function VideoNewsCenter({ customVideos }: VideoNewsCenterProps) 
   };
 
   const displayVideos = activeTab === "all"
-    ? allVideos.slice(0, 5)
+    ? allVideos.slice(0, 15)
     : allVideos.filter(v =>
         activeTab === "briefing"  ? v.category.toLowerCase().includes("brief") || v.category.toLowerCase().includes("press") :
         activeTab === "interview" ? v.category.toLowerCase().includes("interview") || v.category.toLowerCase().includes("profile") :
         activeTab === "awareness" ? v.category.toLowerCase().includes("aware") || v.category.toLowerCase().includes("safety") :
         true
-      ).slice(0, 5);
+      ).slice(0, 15);
 
-  const sideList = displayVideos.filter(v => v.id !== activeVideo?.id).slice(0, 4);
+  const sideList = displayVideos.filter(v => v.id !== activeVideo?.id).slice(0, 12);
 
   return (
     <section className="w-full py-8 px-4 md:px-6 bg-stone-950">

@@ -2,7 +2,7 @@ import NewsChannelHomepage from "@/components/NewsChannelHomepage";
 import Footer from "@/components/layout/Footer";
 import { db } from "@/lib/db";
 
-export const revalidate = 0;
+export const dynamic = "force-dynamic";
 
 export default async function Home() {
   // Sync alerts in background
