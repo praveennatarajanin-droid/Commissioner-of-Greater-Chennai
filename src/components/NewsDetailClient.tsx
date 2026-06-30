@@ -529,9 +529,94 @@ export default function NewsDetailClient({ article }: { article: NewsItem }) {
 
   // Trigger browser print dialog
   const handlePrint = () => {
-    if (typeof window !== "undefined") {
+    if (typeof window === "undefined") return;
+
+    // Get the HTML of the print-article div
+    const printEl = document.querySelector(".print-article");
+    if (!printEl) {
       window.print();
+      return;
     }
+
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) {
+      // Fallback if popup blocker is active
+      window.print();
+      return;
+    }
+
+    // Get all style sheets to preserve styling in the new window
+    let stylesHtml = "";
+    document.querySelectorAll("link[rel='stylesheet'], style").forEach((node) => {
+      stylesHtml += node.outerHTML;
+    });
+
+    const titleText = language === "ta" ? article.title_ta : article.title_en;
+
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>${titleText}</title>
+          ${stylesHtml}
+          <style>
+            /* Force print styles to be active in the print window */
+            body {
+              background: #fff !important;
+              color: #000 !important;
+              padding: 0 !important;
+              margin: 0 !important;
+            }
+            .print-article {
+              display: block !important;
+              visibility: visible !important;
+              width: 100% !important;
+              max-width: 100% !important;
+              position: static !important;
+              padding: 15mm !important;
+              color: #000 !important;
+            }
+            .print-article * {
+              visibility: visible !important;
+              color: #000 !important;
+            }
+            @page {
+              size: A4;
+              margin: 15mm;
+            }
+            img {
+              max-width: 100%;
+              height: auto;
+              page-break-inside: avoid;
+            }
+            .article-content {
+              page-break-inside: auto;
+              overflow: visible !important;
+            }
+            * {
+              box-shadow: none !important;
+              text-shadow: none !important;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="print-article">
+            ${printEl.innerHTML}
+          </div>
+          <script>
+            // Wait for images to load, then print
+            window.onload = function() {
+              setTimeout(function() {
+                window.focus();
+                window.print();
+                window.close();
+              }, 250);
+            };
+          </script>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
   };
 
   const handleShare = (platform: "facebook" | "twitter" | "whatsapp") => {
@@ -784,21 +869,39 @@ export default function NewsDetailClient({ article }: { article: NewsItem }) {
 
             {/* Newspaper-style Article Body Content */}
             <div className="font-serif text-slate-800 dark:text-stone-200 text-lg leading-relaxed space-y-6 max-w-none prose dark:prose-invert text-left print:text-black print:text-base print:leading-relaxed print:text-justify">
-              {contentParagraphs.map((paragraph, index) => (
-                <p 
-                  key={index} 
-                  ref={(el) => {
-                    paragraphRefs.current[index] = el;
-                  }}
-                  className={`transition-all duration-300 text-left ${
-                    activeParagraphIndex === index 
-                      ? "bg-amber-100/50 dark:bg-amber-955/30 border-l-4 border-brand-gold pl-4 -ml-5 rounded-r-lg" 
-                      : ""
-                  }`}
-                >
-                  {paragraph}
-                </p>
-              ))}
+              {contentParagraphs.map((paragraph, index) => {
+                const isBlock = /^\s*<(blockquote|table|iframe|video|hr|ul|ol|h1|h2|h3|h4|h5|h6|div|p)/i.test(paragraph);
+                if (isBlock) {
+                  return (
+                    <div
+                      key={index}
+                      ref={(el) => {
+                        paragraphRefs.current[index] = el;
+                      }}
+                      className={`transition-all duration-300 text-left my-4 ${
+                        activeParagraphIndex === index 
+                          ? "bg-amber-100/50 dark:bg-amber-955/30 border-l-4 border-brand-gold pl-4 -ml-5 rounded-r-lg" 
+                          : ""
+                      }`}
+                      dangerouslySetInnerHTML={{ __html: paragraph }}
+                    />
+                  );
+                }
+                return (
+                  <p 
+                    key={index} 
+                    ref={(el) => {
+                      paragraphRefs.current[index] = el;
+                    }}
+                    className={`transition-all duration-300 text-left ${
+                      activeParagraphIndex === index 
+                        ? "bg-amber-100/50 dark:bg-amber-955/30 border-l-4 border-brand-gold pl-4 -ml-5 rounded-r-lg" 
+                        : ""
+                    }`}
+                    dangerouslySetInnerHTML={{ __html: paragraph }}
+                  />
+                );
+              })}
             </div>
 
             {/* Custom Blockquote block */}
@@ -1229,21 +1332,86 @@ export default function NewsDetailClient({ article }: { article: NewsItem }) {
       </div>
 
       {/* Dedicated Print Layout (A4 Newspaper style) */}
-      <div className="article-print-container hidden print:block bg-white text-black p-4 font-serif leading-relaxed text-justify max-w-[21cm] mx-auto">
+      <div className="print-article hidden print:block bg-white text-black p-4 font-serif leading-relaxed text-justify max-w-[21cm] mx-auto">
+        <style>{`
+          @media print {
+            body {
+              background: white !important;
+              color: black !important;
+            }
+            .print-article {
+              display: block !important;
+              background: white !important;
+              color: black !important;
+              width: 100% !important;
+              max-w: 21cm !important;
+              margin: 0 auto !important;
+              padding: 20px !important;
+              box-sizing: border-box !important;
+            }
+            .print-header {
+              text-align: center !important;
+              margin-bottom: 20px !important;
+              display: block !important;
+            }
+            .print-logo {
+              width: 60px !important;
+              height: 60px !important;
+              object-fit: contain !important;
+              margin: 0 auto 10px auto !important;
+              display: block !important;
+            }
+            .print-header h1 {
+              font-size: 24px !important;
+              font-weight: 700 !important;
+              text-transform: uppercase !important;
+              margin: 0 !important;
+              letter-spacing: 1px !important;
+              color: black !important;
+            }
+            hr {
+              border: none !important;
+              border-top: 1px solid #000 !important;
+              margin-bottom: 20px !important;
+            }
+            .article-meta {
+              display: grid !important;
+              grid-template-columns: repeat(3, 1fr) !important;
+              gap: 20px !important;
+              border-top: 1px solid #ccc !important;
+              border-bottom: 1px solid #ccc !important;
+              padding: 15px 0 !important;
+              margin-top: 20px !important;
+              margin-bottom: 20px !important;
+              text-align: left !important;
+            }
+            .article-meta div {
+              display: flex !important;
+              flex-direction: column !important;
+            }
+            .article-meta .meta-label {
+              font-size: 10px !important;
+              font-family: sans-serif !important;
+              font-weight: 700 !important;
+              color: #666 !important;
+              text-transform: uppercase !important;
+              letter-spacing: 0.5px !important;
+              margin-bottom: 4px !important;
+            }
+            .article-meta .meta-value {
+              font-size: 12px !important;
+              font-weight: 700 !important;
+              color: black !important;
+            }
+          }
+        `}</style>
+
         {/* Top Header */}
-        <div className="border-b-4 border-double border-stone-800 pb-3.5 mb-6 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <img src="/images/gcp_logo.png" alt="GCP Logo" className="w-16 h-16 object-contain" />
-            <div className="text-left">
-              <h1 className="font-display font-black text-2xl tracking-tight text-black uppercase leading-none">CHENNAI GUARDIAN</h1>
-              <span className="text-[10px] font-sans font-bold text-stone-600 uppercase tracking-widest block mt-1">GREATER CHENNAI POLICE OFFICIAL PORTAL</span>
-            </div>
-          </div>
-          <div className="text-right flex flex-col justify-center items-end">
-            <span className="text-[10px] font-sans font-black uppercase tracking-wider text-stone-500">Official Release</span>
-            <span className="text-[10px] font-sans font-bold text-black uppercase">Government of Tamil Nadu</span>
-          </div>
+        <div className="print-header">
+          <img src="/images/gcp_logo.png" className="print-logo" alt="GCP Logo" />
+          <h1>GREATER CHENNAI POLICE</h1>
         </div>
+        <hr />
 
         {/* Category & Title */}
         <div className="mb-6 text-left">
@@ -1255,10 +1423,19 @@ export default function NewsDetailClient({ article }: { article: NewsItem }) {
           </h2>
           
           {/* Metadata Row */}
-          <div className="border-y border-stone-300 py-2.5 text-[10px] font-sans font-bold text-stone-600 uppercase tracking-wider flex justify-between">
-            <span>Published: {article.date}</span>
-            <span>Author: {language === "ta" ? article.author_ta : article.author_en}</span>
-            {article.sourceName && <span>Source: {article.sourceName}</span>}
+          <div className="article-meta">
+            <div>
+              <span className="meta-label">Published</span>
+              <span className="meta-value">{article.date}</span>
+            </div>
+            <div>
+              <span className="meta-label">Author</span>
+              <span className="meta-value">{language === "ta" ? article.author_ta : article.author_en}</span>
+            </div>
+            <div>
+              <span className="meta-label">Source</span>
+              <span className="meta-value">{article.sourceName || "Greater Chennai Police"}</span>
+            </div>
           </div>
         </div>
 
@@ -1296,12 +1473,18 @@ export default function NewsDetailClient({ article }: { article: NewsItem }) {
         )}
 
         {/* Article Body Content */}
-        <div className="text-xs leading-relaxed space-y-4 text-justify font-serif text-black mb-8">
-          {contentParagraphs.map((paragraph, index) => (
-            <p key={index} className="break-inside-avoid">
-              {paragraph}
-            </p>
-          ))}
+        <div className="article-content text-xs leading-relaxed space-y-4 text-justify font-serif text-black mb-8">
+          {contentParagraphs.map((paragraph, index) => {
+            const isBlock = /^\s*<(blockquote|table|iframe|video|hr|ul|ol|h1|h2|h3|h4|h5|h6|div|p)/i.test(paragraph);
+            if (isBlock) {
+              return (
+                <div key={index} className="break-inside-avoid my-3" dangerouslySetInnerHTML={{ __html: paragraph }} />
+              );
+            }
+            return (
+              <p key={index} className="break-inside-avoid" dangerouslySetInnerHTML={{ __html: paragraph }} />
+            );
+          })}
         </div>
 
         {/* Timeline */}

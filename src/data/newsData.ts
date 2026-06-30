@@ -16,7 +16,7 @@ export interface NewsItem {
   author_ta: string;
   tags_en: string[];
   tags_ta: string[];
-  section: "press" | "event" | "spotlight" | "latest" | "activity" | "media-story";
+  section: string;
   language?: string;
   highlights_en?: string[];
   highlights_ta?: string[];

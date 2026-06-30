@@ -1,19 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
+import fs from "fs";
+import path from "path";
 
 // ─── Category keyword map for rules-based fallback ──────────────────────────
 const CATEGORY_RULES: [string[], string, string][] = [
-  [["award", "medal", "felicitat", "recogni", "honor", "honour", "appreciat", "champion"], "AWARDS & RECOGNITION", "விருதுகள் & அங்கீகாரம்"],
-  [["cyber", "online", "internet", "digital", "fraud", "scam", "hacking", "phishing"], "CYBER SAFETY", "இணைய பாதுகாப்பு"],
-  [["women", "child", "girl", "mahila", "shakti", "domestic", "harassment"], "WOMEN SAFETY", "பெண்கள் பாதுகாப்பு"],
-  [["traffic", "road", "signal", "helmet", "vehicle", "drunk drive", "intersection", "pedestrian"], "TRAFFIC MANAGEMENT", "போக்குவரத்து மேலாண்மை"],
-  [["crime", "arrest", "nabbed", "accused", "criminal", "gang", "seized", "stolen", "robbery"], "CRIME PREVENTION", "குற்றத் தடுப்பு"],
-  [["community", "outreach", "public", "citizen", "school", "college", "awareness", "camp"], "COMMUNITY OUTREACH", "சமுக தொடர்பு"],
-  [["operation", "special", "task force", "crackdown", "drive", "mission"], "CRIME PREVENTION", "குற்றத் தடுப்பு"],
-  [["mounted", "equestrian", "dog squad", "bomb", "commando", "ngo", "sniffer"], "POLICE ACHIEVEMENT", "காவல் துறை சாதனை"],
-  [["law", "order", "bandobust", "security", "patrol", "deployment", "election"], "LAW & ORDER", "சட்டம் & ஒழுங்கு"],
-  [["commissioner", "ips", "officer", "superintendent", "director", "inspect", "review"], "POLICE ACHIEVEMENT", "காவல் துறை சாதனை"],
-  [["drug", "narcotic", "ganja", "contraband", "illicit", "liquor"], "CRIME PREVENTION", "குற்றத் தடுப்பு"],
-  [["fire", "rescue", "disaster", "flood", "relief", "ndr", "ndf"], "PUBLIC SAFETY", "பொது பாதுகாப்பு"],
+  [["award", "medal", "felicitat", "recogni", "honor", "honour", "appreciat", "champion"], "Awards & Recognition", "விருதுகள் & அங்கீகாரம்"],
+  [["cyber", "online", "internet", "digital", "fraud", "scam", "hacking", "phishing"], "Cyber Safety", "இணைய பாதுகாப்பு"],
+  [["women", "child", "girl", "mahila", "shakti", "domestic", "harassment"], "Women Safety", "பெண்கள் பாதுகாப்பு"],
+  [["traffic", "road", "signal", "helmet", "vehicle", "drunk drive", "intersection", "pedestrian"], "Traffic Updates", "போக்குவரத்து தகவல்கள்"],
+  [["crime", "arrest", "nabbed", "accused", "criminal", "gang", "seized", "robbery", "murder", "theft"], "Crime", "குற்றம்"],
+  [["community", "outreach", "public", "citizen", "school", "college", "awareness", "camp"], "Outreach", "சமூக அவுட்ரீச்"],
+  [["missing", "traced", "kidnap", "runaway"], "Missing Persons", "காணாமல் போனவர்கள்"],
+  [["emergency", "alert", "flood", "cyclone", "disaster", "heavy rain"], "Emergency Alerts", "அவசர எச்சரிக்கைகள்"],
+  [["official", "circular", "notification"], "Official Alerts", "அதிகாரப்பூர்வ அறிவிப்புகள்"],
+  [["press", "release", "statement"], "Press Release", "பத்திரிகை வெளியீடு"],
+  [["event", "ceremony", "inauguration", "launch"], "Events", "நிகழ்வுகள்"],
 ];
 
 function rulesBasedCategory(text: string): { en: string; ta: string } {
@@ -21,7 +22,7 @@ function rulesBasedCategory(text: string): { en: string; ta: string } {
   for (const [keywords, en, ta] of CATEGORY_RULES) {
     if (keywords.some((kw) => lower.includes(kw))) return { en, ta };
   }
-  return { en: "PUBLIC SAFETY", ta: "பொது பாதுகாப்பு" };
+  return { en: "General News", ta: "பொதுச் செய்திகள்" };
 }
 
 function rulesBasedTitle(text: string): string {
@@ -58,7 +59,7 @@ function rulesBasedTags(text: string): string[] {
   return found.slice(0, 6);
 }
 
-function rulesBasedSection(text: string): string {
+function rulesBasedSection(text: string): "spotlight" | "latest" | "press" | "event" | "activity" {
   const lower = text.toLowerCase();
   if (lower.includes("award") || lower.includes("medal") || lower.includes("felicitat")) return "spotlight";
   if (lower.includes("press release") || lower.includes("official statement")) return "press";
@@ -67,8 +68,8 @@ function rulesBasedSection(text: string): string {
   return "latest";
 }
 
-// ─── Gemini-powered full news generation ────────────────────────────────────
-async function generateWithGemini(contentEn: string) {
+// ─── Gemini news generation ──────────────────────────────────────────────────
+async function generateWithGemini(contentEn: string, image: string | null) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return null;
 
@@ -77,39 +78,64 @@ async function generateWithGemini(contentEn: string) {
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-    const prompt = `You are a professional bilingual news editor for the Tamil Nadu Police (Greater Chennai Police) media desk.
-Given this English news content from a police press release or report, generate all fields automatically.
+    let imagePart: any = null;
+    if (image && image.startsWith("/uploads/")) {
+      try {
+        const filePath = path.join(process.cwd(), "public", image);
+        if (fs.existsSync(filePath)) {
+          const fileBuffer = fs.readFileSync(filePath);
+          imagePart = {
+            inlineData: {
+              data: fileBuffer.toString("base64"),
+              mimeType: image.endsWith(".png") ? "image/png" : image.endsWith(".gif") ? "image/gif" : image.endsWith(".webp") ? "image/webp" : "image/jpeg"
+            }
+          };
+        }
+      } catch (e) {
+        console.error("Error reading image file for Gemini:", e);
+      }
+    }
 
-English Content:
+    const prompt = `You are a professional bilingual news editor for the Tamil Nadu Police (Greater Chennai Police) media desk.
+Given this news content (could be text or a URL) and an optional uploaded image, generate all database and SEO metadata fields automatically.
+
+English Content / Context:
 """
 ${contentEn}
 """
 
-Generate the following in strict JSON format (no markdown, no extra text):
+Generate the following in strict JSON format (no markdown code blocks, return ONLY valid parsable JSON):
 
 {
-  "title_en": "Professional English headline (6-12 words, Title Case, government news style)",
-  "title_ta": "Tamil headline (natural, fluent Tamil, not literal translation)",
-  "category_en": "ALL CAPS category 2-4 words from: POLICE ACHIEVEMENT | LAW & ORDER | CYBER SAFETY | WOMEN SAFETY | COMMUNITY OUTREACH | AWARDS & RECOGNITION | TRAFFIC MANAGEMENT | CRIME PREVENTION | PUBLIC SAFETY",
-  "category_ta": "Tamil translation of the category",
+  "title_en": "Professional English headline (6-12 words, Title Case, government style)",
+  "title_ta": "Natural Tamil headline (not literal translation)",
+  "category_en": "Select the best category from: Crime | Cyber Safety | Women Safety | Public Safety | Outreach | Official Alerts | Awards & Recognition | Press Release | Traffic Updates | Missing Persons | Events | Emergency Alerts | General News",
+  "category_ta": "Tamil translation of the selected category",
   "summary_en": "2-3 sentence professional English summary of the news (50-80 words)",
-  "summary_ta": "Tamil translation of the summary (natural, fluent Tamil, 50-80 words)",
-  "content_ta": "Full Tamil translation of the entire English content above (natural, paragraph-by-paragraph, fluent Tamil — NOT word-for-word literal)",
-  "tags_en": ["tag1", "tag2", "tag3", "tag4", "tag5"],
+  "summary_ta": "Tamil translation of the summary (natural, fluent Tamil)",
+  "content_ta": ["paragraph 1 in Tamil", "paragraph 2 in Tamil"],
+  "tags_en": ["tag1", "tag2", "tag3", "tag4"],
   "tags_ta": ["குறிச்சொல்1", "குறிச்சொல்2", "குறிச்சொல்3"],
   "section": "one of: spotlight | latest | press | event | activity",
-  "slug": "seo-friendly-url-slug-from-title-en (lowercase, hyphens, no special chars, max 80 chars)"
+  "featured": 1 or 0,
+  "big_story": 1 or 0,
+  "breaking": 1 or 0,
+  "sourceName": "Greater Chennai Police",
+  "author_en": "Greater Chennai Police Media Desk",
+  "author_ta": "சென்னை பெருநகர காவல் ஊடகப் பிரிவு",
+  "meta_description": "SEO meta description in English (max 160 chars)",
+  "meta_keywords": "comma-separated list of SEO keywords",
+  "short_caption": "A single-sentence caption summarizing the event/image",
+  "slug": "lowercase-hyphen-separated-url-slug (derived from title_en, max 80 chars)"
 }
 
 Rules:
-- tags_en: 4-6 relevant English tags like "Greater Chennai Police", "Awards", "Traffic Safety", etc.
-- tags_ta: 3-5 Tamil equivalent tags
-- section: "spotlight" for awards/achievements, "press" for official statements, "event" for events/ceremonies, "activity" for outreach/community, "latest" for general news
-- slug: derived from title_en, URL-safe
+- category_en MUST be one of the specified list.
+- content_ta MUST be an array of strings representing paragraph-by-paragraph translation of the news.
+- Return ONLY the JSON object.`;
 
-Return ONLY the JSON object.`;
-
-    const result = await model.generateContent(prompt);
+    const contents = imagePart ? [prompt, imagePart] : [prompt];
+    const result = await model.generateContent(contents);
     const text = result.response.text().trim();
     const clean = text
       .replace(/^```json\s*/i, "")
@@ -126,21 +152,36 @@ Return ONLY the JSON object.`;
 // ─── Route Handler ───────────────────────────────────────────────────────────
 export async function POST(req: NextRequest) {
   try {
-    const { content_en } = await req.json();
+    const body = await req.json();
+    let { content_en, image } = body;
 
-    if (!content_en || typeof content_en !== "string" || content_en.trim().length < 20) {
-      return NextResponse.json(
-        { error: "Content too short. Paste at least one full paragraph." },
-        { status: 400 }
-      );
+    // Handle URL content fetching
+    if (content_en && content_en.trim().startsWith("http")) {
+      try {
+        const response = await fetch(content_en.trim());
+        if (response.ok) {
+          const html = await response.text();
+          const text = html
+            .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
+            .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, "")
+            .replace(/<[^>]+>/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
+          content_en = text.slice(0, 10000);
+        }
+      } catch (err) {
+        console.error("Failed to fetch content from URL:", err);
+      }
     }
 
-    const trimmed = content_en.trim();
+    const trimmed = (content_en || "").trim();
 
     // Try Gemini first
-    const ai = await generateWithGemini(trimmed);
-    if (ai) {
-      return NextResponse.json({ ...ai, source: "ai" });
+    if (trimmed.length > 5 || image) {
+      const ai = await generateWithGemini(trimmed, image || null);
+      if (ai) {
+        return NextResponse.json({ ...ai, source: "ai" });
+      }
     }
 
     // Rules-based fallback
@@ -157,11 +198,20 @@ export async function POST(req: NextRequest) {
       category_ta,
       summary_en: trimmed.slice(0, 200) + (trimmed.length > 200 ? "..." : ""),
       summary_ta: "",
-      content_ta: "",
+      content_ta: [],
       tags_en,
       tags_ta: [],
       section,
       slug,
+      featured: 0,
+      big_story: 0,
+      breaking: 0,
+      sourceName: "Greater Chennai Police",
+      author_en: "Greater Chennai Police Media Desk",
+      author_ta: "சென்னை பெருநகர காவல் ஊடகப் பிரிவு",
+      meta_description: trimmed.slice(0, 150),
+      meta_keywords: tags_en.join(", "),
+      short_caption: title_en,
       source: "rules",
       hint: "Add GEMINI_API_KEY to .env.local for full bilingual auto-generation.",
     });
@@ -170,3 +220,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Generation failed." }, { status: 500 });
   }
 }
+
+export const dynamic = "force-dynamic";

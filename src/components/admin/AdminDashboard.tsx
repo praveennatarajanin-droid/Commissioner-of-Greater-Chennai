@@ -37,6 +37,44 @@ import {
   Menu
 } from "lucide-react";
 import { DBUser, DBNewsItem, DBTickerItem, DBSliderItem, DBCommissionerProfile, DBThemeSettings, DBMenuItem, DBContact, DBTtsSettings, DBVideoItem, DBAlertItem, DBAlertSettings } from "@/lib/db";
+import RichTextEditor from "@/components/admin/RichTextEditor";
+
+const paragraphsToHtml = (paragraphs: string[] | undefined): string => {
+  if (!paragraphs) return "";
+  return paragraphs.map((p) => {
+    if (/^\s*<[a-z]+/i.test(p) && !p.trim().startsWith("<span") && !p.trim().startsWith("<strong") && !p.trim().startsWith("<em") && !p.trim().startsWith("<u") && !p.trim().startsWith("<a")) {
+      return p;
+    }
+    return `<p>${p}</p>`;
+  }).join("");
+};
+
+const htmlToParagraphs = (html: string): string[] => {
+  if (!html) return [];
+  if (typeof window === "undefined") return [html];
+  const div = document.createElement("div");
+  div.innerHTML = html;
+  const paragraphs: string[] = [];
+  Array.from(div.childNodes).forEach((node) => {
+    if (node.nodeType === Node.ELEMENT_NODE) {
+      const el = node as HTMLElement;
+      if (el.tagName === "P") {
+        paragraphs.push(el.innerHTML);
+      } else {
+        paragraphs.push(el.outerHTML);
+      }
+    } else if (node.nodeType === Node.TEXT_NODE) {
+      const text = node.textContent?.trim();
+      if (text) {
+        paragraphs.push(text);
+      }
+    }
+  });
+  if (paragraphs.length === 0) {
+    return [html];
+  }
+  return paragraphs;
+};
 
 // ─── Permanent Light Mode CSS for Admin Dashboard ────────────────────────────
 const ADMIN_LIGHT_CSS = `
@@ -339,6 +377,119 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
   const autoGenTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+
+  // AI Auto-Fill States & Handlers
+  const [showConfirmAiModal, setShowConfirmAiModal] = useState(false);
+  const [aiLoadingStep, setAiLoadingStep] = useState<number | null>(null);
+
+  const handleAiGenerate = async (forceOverwrite?: boolean) => {
+    if (!editingItem) return;
+
+    const hasInput = (editingItem.content_en?.join("") || "").trim().length > 10 || editingItem.image;
+    if (!hasInput) {
+      triggerAlert("error", "Please provide English content, a News URL, or upload a Featured Image first.");
+      return;
+    }
+
+    const hasExistingData = !!(
+      (editingItem.title_en && editingItem.title_en.trim().length > 0) ||
+      (editingItem.summary_en && editingItem.summary_en.trim().length > 0) ||
+      (editingItem.title_ta && editingItem.title_ta.trim().length > 0) ||
+      (editingItem.summary_ta && editingItem.summary_ta.trim().length > 0)
+    );
+
+    if (hasExistingData && forceOverwrite === undefined) {
+      setShowConfirmAiModal(true);
+      return;
+    }
+
+    setShowConfirmAiModal(false);
+    setAiLoadingStep(0); // 🤖 Analyzing article...
+
+    let simulatedSteps = 0;
+    const interval = setInterval(() => {
+      simulatedSteps += 1;
+      if (simulatedSteps === 1) setAiLoadingStep(1); // 📝 Generating details...
+      else if (simulatedSteps === 2) setAiLoadingStep(2); // 🌐 Translating to Tamil...
+    }, 1200);
+
+    try {
+      const contentText = editingItem.content_en?.join("\n\n") || "";
+      const res = await fetch("/api/admin/generate-news", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          content_en: contentText,
+          image: editingItem.image || null
+        })
+      });
+
+      clearInterval(interval);
+
+      if (res.ok) {
+        const data = await res.json();
+        setAiLoadingStep(3); // ✅ Filling form fields...
+        
+        // Wait a brief moment to show checkmark
+        await new Promise((resolve) => setTimeout(resolve, 800));
+
+        setEditingItem((prev: any) => {
+          const updated = { ...prev };
+          const overwrite = forceOverwrite ?? true;
+          
+          const fill = (key: string, value: any) => {
+            if (value === undefined || value === null) return;
+            const currentVal = updated[key];
+            const isEmpty = !currentVal || 
+              (Array.isArray(currentVal) && currentVal.length === 0) || 
+              (typeof currentVal === "string" && !currentVal.trim()) ||
+              (typeof currentVal === "number" && currentVal === 0);
+            
+            if (overwrite || isEmpty) {
+              updated[key] = value;
+            }
+          };
+
+          fill("title_en", data.title_en);
+          fill("title_ta", data.title_ta);
+          fill("category_en", data.category_en);
+          fill("category_ta", data.category_ta);
+          fill("summary_en", data.summary_en);
+          fill("summary_ta", data.summary_ta);
+          fill("tags_en", data.tags_en);
+          fill("tags_ta", data.tags_ta);
+          fill("sourceName", data.sourceName);
+          fill("author_en", data.author_en);
+          fill("author_ta", data.author_ta);
+          fill("meta_description", data.meta_description);
+          fill("meta_keywords", data.meta_keywords);
+          fill("breaking_headline", data.breaking_headline);
+          fill("short_caption", data.short_caption);
+          fill("slug", data.slug);
+          fill("section", data.section);
+          fill("featured", data.featured);
+          fill("breaking", data.breaking);
+
+          if (data.content_ta && Array.isArray(data.content_ta) && data.content_ta.length > 0) {
+            fill("content_ta", data.content_ta);
+          }
+
+          return updated;
+        });
+
+        triggerAlert("success", "AI Auto-filled form details successfully.");
+      } else {
+        const errorData = await res.json();
+        triggerAlert("error", errorData.error || "AI generation failed. Please try again.");
+      }
+    } catch (e) {
+      clearInterval(interval);
+      console.error(e);
+      triggerAlert("error", "Error connecting to AI service.");
+    } finally {
+      setAiLoadingStep(null);
+    }
+  };
 
   // Fetch all modules
   const fetchData = async () => {
@@ -1541,11 +1692,19 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                         onChange={(e) => setEditingItem({ ...editingItem, section: e.target.value })}
                         className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-850 outline-none text-xs text-slate-850 dark:text-white p-3 rounded-xl focus:border-brand-gold/50"
                       >
-                        <option value="spotlight">Spotlight Highlights</option>
                         <option value="latest">Latest News Feed</option>
-                        <option value="press">Press Releases</option>
-                        <option value="event">District Events</option>
-                        <option value="activity">Official Activities & News</option>
+                        <option value="breaking">Breaking News</option>
+                        <option value="trending">Trending News</option>
+                        <option value="spotlight">Spotlight Updates</option>
+                        <option value="slider">Hero Slider</option>
+                        <option value="big-stories">Big Stories</option>
+                        {news && news.length > 0 && (
+                          <optgroup label="Database Categories" className="text-stone-500 font-bold bg-stone-900">
+                            {Array.from(new Set(news.map((n: any) => n.category_en).filter(Boolean))).sort().map((cat: any) => (
+                              <option key={cat} value={cat}>{cat}</option>
+                            ))}
+                          </optgroup>
+                        )}
                       </select>
                     </div>
 
@@ -1859,25 +2018,32 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                   {/* Body Content Paragraphs */}
                   <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
                     {/* EN */}
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Full Content Paragraphs (English)</label>
-                      <textarea
-                        value={editingItem.content_en?.join("\n\n") || ""}
-                        onChange={(e) => setEditingItem({ ...editingItem, content_en: e.target.value.split("\n\n") })}
-                        rows={8}
+                    <div className="space-y-1.5 flex flex-col">
+                      <div className="flex justify-between items-center mb-1">
+                        <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Full Content Paragraphs (English)</label>
+                        <button
+                          type="button"
+                          onClick={() => handleAiGenerate()}
+                          className="px-3 py-1.5 bg-brand-gold hover:bg-brand-gold-dark text-stone-950 rounded-lg text-[10px] font-black uppercase tracking-wider transition cursor-pointer flex items-center gap-1"
+                        >
+                          ✨ Generate with AI
+                        </button>
+                      </div>
+                      <RichTextEditor
+                        value={paragraphsToHtml(editingItem.content_en)}
+                        onChange={(val) => setEditingItem({ ...editingItem, content_en: htmlToParagraphs(val) })}
                         placeholder="Separate paragraphs with double Enter."
-                        className="w-full bg-stone-55 dark:bg-stone-950 border border-stone-200 dark:border-stone-855 outline-none text-xs text-slate-855 dark:text-white p-3 rounded-xl focus:border-brand-gold/50 resize-y"
+                        className="w-full min-h-[250px]"
                       />
                     </div>
                     {/* TA */}
-                    <div className="space-y-1.5">
+                    <div className="space-y-1.5 flex flex-col">
                       <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">முழு செய்தி உள்ளடக்கம் (தமிழ்)</label>
-                      <textarea
-                        value={editingItem.content_ta?.join("\n\n") || ""}
-                        onChange={(e) => setEditingItem({ ...editingItem, content_ta: e.target.value.split("\n\n") })}
-                        rows={8}
+                      <RichTextEditor
+                        value={paragraphsToHtml(editingItem.content_ta)}
+                        onChange={(val) => setEditingItem({ ...editingItem, content_ta: htmlToParagraphs(val) })}
                         placeholder="Separate paragraphs with double Enter."
-                        className="w-full bg-stone-55 dark:bg-stone-950 border border-stone-200 dark:border-stone-855 outline-none text-xs text-slate-855 dark:text-white p-3 rounded-xl focus:border-brand-gold/50 resize-y"
+                        className="w-full min-h-[250px]"
                       />
                     </div>
                   </div>
@@ -1902,6 +2068,80 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                     >
                       Save Article
                     </button>
+                  </div>
+                </div>
+              )}
+
+              {/* AI Auto-Fill Loading Overlay */}
+              {aiLoadingStep !== null && (
+                <div className="fixed inset-0 z-[100] bg-black/70 flex items-center justify-center p-4">
+                  <div className="bg-stone-900 border border-stone-805 rounded-2xl p-6 w-full max-w-sm text-center shadow-2xl space-y-4">
+                    <div className="relative w-12 h-12 mx-auto flex items-center justify-center">
+                      <div className="absolute inset-0 rounded-full border-4 border-brand-gold border-t-transparent animate-spin" />
+                      <span className="text-lg">🤖</span>
+                    </div>
+                    <h4 className="font-display font-black text-xs uppercase tracking-widest text-brand-gold">AI News Engine</h4>
+                    <div className="space-y-2 text-left bg-stone-950/60 p-4 rounded-xl border border-stone-850">
+                      <div className="flex items-center gap-2 text-xs font-bold transition duration-300">
+                        <span className={aiLoadingStep >= 0 ? "text-brand-gold font-black" : "text-stone-600"}>
+                          {aiLoadingStep > 0 ? "✓" : aiLoadingStep === 0 ? "●" : "○"}
+                        </span>
+                        <span className={aiLoadingStep >= 0 ? "text-white" : "text-stone-500"}>🤖 Analyzing article...</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs font-bold transition duration-300">
+                        <span className={aiLoadingStep >= 1 ? "text-brand-gold font-black" : "text-stone-600"}>
+                          {aiLoadingStep > 1 ? "✓" : aiLoadingStep === 1 ? "●" : "○"}
+                        </span>
+                        <span className={aiLoadingStep >= 1 ? "text-white" : "text-stone-500"}>📝 Generating details...</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs font-bold transition duration-300">
+                        <span className={aiLoadingStep >= 2 ? "text-brand-gold font-black" : "text-stone-600"}>
+                          {aiLoadingStep > 2 ? "✓" : aiLoadingStep === 2 ? "●" : "○"}
+                        </span>
+                        <span className={aiLoadingStep >= 2 ? "text-white" : "text-stone-500"}>🌐 Translating to Tamil...</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs font-bold transition duration-300">
+                        <span className={aiLoadingStep >= 3 ? "text-brand-gold font-black" : "text-stone-600"}>
+                          {aiLoadingStep > 3 ? "✓" : aiLoadingStep === 3 ? "●" : "○"}
+                        </span>
+                        <span className={aiLoadingStep >= 3 ? "text-white animate-pulse" : "text-stone-500"}>✅ Filling form fields...</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* AI Auto-Fill Confirmation Modal */}
+              {showConfirmAiModal && (
+                <div className="fixed inset-0 z-[100] bg-black/70 flex items-center justify-center p-4">
+                  <div className="bg-stone-900 border border-stone-805 rounded-2xl p-6 w-full max-w-sm text-left shadow-2xl space-y-4">
+                    <h4 className="font-display font-black text-sm uppercase tracking-widest text-brand-gold">Replace existing data?</h4>
+                    <p className="text-xs text-stone-300 leading-relaxed">
+                      Some fields in the form already contain data. How would you like the AI Auto-fill to proceed?
+                    </p>
+                    <div className="flex gap-2 justify-end pt-2">
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmAiModal(false)}
+                        className="px-4 py-2 border border-stone-700 hover:bg-stone-800 rounded-xl text-xs font-black uppercase tracking-wider transition text-stone-300 cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleAiGenerate(false)}
+                        className="px-4 py-2 bg-stone-850 hover:bg-stone-800 border border-stone-700 rounded-xl text-xs font-black uppercase tracking-wider transition text-white cursor-pointer"
+                      >
+                        Keep Existing
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleAiGenerate(true)}
+                        className="px-4 py-2 bg-brand-gold hover:bg-brand-gold-dark text-stone-950 rounded-xl text-xs font-black uppercase tracking-wider transition cursor-pointer"
+                      >
+                        Replace
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}

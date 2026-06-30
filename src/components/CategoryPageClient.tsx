@@ -63,36 +63,46 @@ interface CategoryPageClientProps {
   profile: DBCommissionerProfile;
 }
 
-const CATEGORY_MAP: Record<string, { title_en: string; title_ta: string; color: string; keywords: string[] }> = {
+const CATEGORY_MAP: Record<string, { title_en: string; title_ta: string; color: string; keywords: string[]; bgImage?: string; bgGradient?: string }> = {
   crime: {
     title_en: "Crime",
     title_ta: "குற்றச் செய்திகள்",
     color: "#7c3aed",
-    keywords: ["crime", "arrest", "painkiller", "dvac", "bribery", "cheat", "theft", "seizure", "corruption", "law and order"]
+    keywords: ["crime", "arrest", "painkiller", "dvac", "bribery", "cheat", "theft", "seizure", "corruption", "law and order"],
+    bgImage: "/images/crime_banner_bg.png",
+    bgGradient: "linear-gradient(90deg, #1e0b36 0%, rgba(30, 11, 54, 0.95) 30%, rgba(30, 11, 54, 0.5) 65%, rgba(30, 11, 54, 0) 100%)"
   },
   "cyber-safety": {
     title_en: "Cyber Safety",
     title_ta: "இணைய பாதுகாப்பு",
     color: "#0284c7",
-    keywords: ["cyber", "online", "scam", "phishing", "hacker", "fraud", "password"]
+    keywords: ["cyber", "online", "scam", "phishing", "hacker", "fraud", "password"],
+    bgImage: "/images/cyber_safety_banner_bg.png",
+    bgGradient: "linear-gradient(90deg, #091e3a 0%, rgba(9, 30, 58, 0.95) 30%, rgba(9, 30, 58, 0.5) 65%, rgba(9, 30, 58, 0) 100%)"
   },
   "women-safety": {
     title_en: "Women Safety",
     title_ta: "பெண்கள் பாதுகாப்பு",
     color: "#db2777",
-    keywords: ["women", "harassment", "singappen", "gender", "ssf", "girls", "harass"]
+    keywords: ["women", "harassment", "singappen", "gender", "ssf", "girls", "harass"],
+    bgImage: "/images/women_safety_banner_bg.png",
+    bgGradient: "linear-gradient(90deg, #2d0b25 0%, rgba(45, 11, 37, 0.95) 30%, rgba(45, 11, 37, 0.5) 65%, rgba(45, 11, 37, 0) 100%)"
   },
   "public-safety": {
     title_en: "Public Safety",
     title_ta: "பொது பாதுகாப்பு",
     color: "#475569",
-    keywords: ["safety", "patrol", "beach", "audit", "cctv", "third eye", "surveillance", "clean campus"]
+    keywords: ["safety", "patrol", "beach", "audit", "cctv", "third eye", "surveillance", "clean campus"],
+    bgImage: "/images/public_safety_banner_bg.png",
+    bgGradient: "linear-gradient(90deg, #111827 0%, rgba(17, 24, 39, 0.95) 30%, rgba(17, 24, 39, 0.5) 65%, rgba(17, 24, 39, 0) 100%)"
   },
   outreach: {
     title_en: "Outreach",
     title_ta: "சமூக உதவித் திட்டங்கள்",
     color: "#059669",
-    keywords: ["community", "outreach", "karangal", "rescue", "welfare", "pledge", "labour", "students", "legal", "social awareness", "community support"]
+    keywords: ["community", "outreach", "karangal", "rescue", "welfare", "pledge", "labour", "students", "legal", "social awareness", "community support"],
+    bgImage: "/images/outreach_banner_bg.png",
+    bgGradient: "linear-gradient(90deg, #062f22 0%, rgba(6, 47, 34, 0.95) 30%, rgba(6, 47, 34, 0.5) 65%, rgba(6, 47, 34, 0) 100%)"
   }
 };
 
@@ -185,10 +195,29 @@ export default function CategoryPageClient({
         <div 
           className="relative rounded-2xl overflow-hidden p-6 md:p-10 text-white shadow-lg flex flex-col justify-end min-h-[180px] md:min-h-[220px]"
           style={{
-            background: `linear-gradient(135deg, ${catInfo.color} 0%, #171717 100%)`
+            background: catInfo.bgGradient || `linear-gradient(135deg, ${catInfo.color} 0%, #171717 100%)`
           }}
         >
-          <div className="space-y-2">
+          {/* Background image specifically for the category pages */}
+          {catInfo.bgImage && (
+            <div className="absolute inset-0 z-0 select-none pointer-events-none">
+              <Image 
+                src={catInfo.bgImage} 
+                alt={`${currentTitle} Background`}
+                fill
+                priority
+                className="object-cover object-right"
+              />
+              <div 
+                className="absolute inset-0 z-10" 
+                style={{
+                  background: catInfo.bgGradient || "linear-gradient(90deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%)"
+                }}
+              />
+            </div>
+          )}
+
+          <div className="relative z-10 space-y-2">
             <span className="inline-block px-2.5 py-1 rounded bg-white/20 text-[10px] font-black uppercase tracking-widest">
               {language === "ta" ? "செய்தி வகை" : "Category"}
             </span>

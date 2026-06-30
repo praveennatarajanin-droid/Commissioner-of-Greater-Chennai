@@ -7,23 +7,34 @@ import { X, Eye, Calendar, Tag, ExternalLink, ChevronLeft, ChevronRight } from "
 import { motion, AnimatePresence } from "framer-motion";
 
 interface WebStory {
+  id?: number;
   name: string;
   url: string;
+  image?: string;
   size: number;
   updatedAt: string;
   title: string;
   category: string;
-  show_in_stories: number;
-  associated_news_id?: number | null;
+  articleId?: number | null;
+  articleSlug?: string | null;
+  slug?: string | null;
 }
 
 export default function WebStories({ language = "en" }: { language?: "en" | "ta" }) {
   const [stories, setStories] = useState<WebStory[]>([]);
   const [news, setNews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [lightboxStory, setLightboxStory] = useState<WebStory | null>(null);
+  const [activeStoryIdx, setActiveStoryIdx] = useState<number | null>(null);
+  const [isPaused, setIsPaused] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+
+  // Refs for mobile touch gestures and hybrid desktop mouse handling
+  const touchStartXRef = useRef(0);
+  const touchStartYRef = useRef(0);
+  const touchStartTimeRef = useRef(0);
+  const mouseDownTimeRef = useRef(0);
+  const isTouchActiveRef = useRef(false);
 
   // Load dynamic asset stories and articles
   useEffect(() => {
@@ -36,11 +47,74 @@ export default function WebStories({ language = "en" }: { language?: "en" | "ta"
         if (mediaRes.ok && newsRes.ok) {
           const mediaData = await mediaRes.json();
           const newsData = await newsRes.json();
-          setNews(newsData || []);
+          const loadedNews = newsData || [];
+          setNews(loadedNews);
 
-          // Filter by checked (show_in_stories === 1)
-          const filtered = (mediaData.files || []).filter((f: any) => f.show_in_stories === 1);
-          setStories(filtered);
+          // Fallback professional titles
+          const fallbackTitlesEn = [
+            "Cyber Safety Drive",
+            "Clean Campus Initiative",
+            "Commissioner Meeting",
+            "Night Patrol Operation",
+            "Awards Ceremony",
+            "Drug Free Campaign",
+            "Community Outreach",
+            "Women's Safety Awareness"
+          ];
+
+          const fallbackTitlesTa = [
+            "இணைய பாதுகாப்பு பிரச்சாரம்",
+            "தூய்மையான வளாகம் முயற்சி",
+            "ஆணையர் சந்திப்பு",
+            "இரவு ரோந்து பணி",
+            "விருது வழங்கும் விழா",
+            "போதைப்பொருள் இல்லாத பிரச்சாரம்",
+            "சமூக அவுட்ரீச்",
+            "பெண்கள் பாதுகாப்பு விழிப்புணர்வு"
+          ];
+
+          // Automatically use images from the Media Library (Asset Gallery) as Web Stories
+          const allFiles = mediaData.files || [];
+          const imageExtensions = ["png", "jpg", "jpeg", "webp", "gif", "svg", "bmp"];
+          const images = allFiles.filter((f: any) => {
+            const ext = (f.name || f.filename || "").split('.').pop()?.toLowerCase();
+            return imageExtensions.includes(ext || "");
+          });
+          
+          // Use the first 10 uploaded images
+          const storiesList = images.slice(0, 10).map((story: any, idx: number) => {
+            // Find linked news article
+            const article = loadedNews.find(
+              (n: any) =>
+                n.id === story.articleId ||
+                n.id === story.associated_news_id ||
+                n.image === story.url ||
+                (n.gallery && n.gallery.includes(story.url))
+            );
+
+            let title = story.title || story.name;
+            let slug = story.articleSlug || null;
+
+            if (article) {
+              title = language === "ta" && article.title_ta ? article.title_ta : article.title_en;
+              slug = article.slug;
+            } else {
+              // No article linked -> check if title is a raw filename or digit-hash
+              const isRaw = /^(upload|img|photo|image|dsc|file|pic|picture)[_\s-]*\d+/i.test(title) || /^\d+$/.test(title) || title.toUpperCase().startsWith("UPLOAD");
+              if (isRaw) {
+                title = language === "ta" ? fallbackTitlesTa[idx % fallbackTitlesTa.length] : fallbackTitlesEn[idx % fallbackTitlesEn.length];
+              }
+            }
+
+            return {
+              ...story,
+              title,
+              slug,
+              articleId: article ? article.id : null
+            };
+          });
+
+          setStories(storiesList);
         }
       } catch (e) {
         console.error("Failed to load stories data", e);
@@ -48,44 +122,98 @@ export default function WebStories({ language = "en" }: { language?: "en" | "ta"
         setLoading(false);
       }
     })();
-  }, []);
+  }, [language]);
 
   const getStoryTitle = (story: WebStory) => {
-    if (story.associated_news_id) {
-      const article = news.find((n: any) => n.id === story.associated_news_id);
-      if (article) {
-        return language === "ta" && article.title_ta ? article.title_ta : article.title_en;
-      }
-    }
     return story.title || story.name;
   };
 
   const getStoryCategory = (story: WebStory) => {
-    if (story.associated_news_id) {
-      const article = news.find((n: any) => n.id === story.associated_news_id);
-      if (article) {
-        return language === "ta" && article.category_ta ? article.category_ta : article.category_en;
-      }
-    }
     return story.category || "Police Update";
   };
 
   const getStoryArticleUrl = (story: WebStory) => {
-    if (story.associated_news_id) {
-      const article = news.find((n: any) => n.id === story.associated_news_id);
-      if (article) {
-        return `/news/${article.slug}`;
-      }
-    }
-    return null;
+    return story.slug ? `/news/${story.slug}` : null;
   };
 
   const handleStoryClick = (story: WebStory) => {
-    const url = getStoryArticleUrl(story);
-    if (url) {
-      router.push(url);
-    } else {
-      setLightboxStory(story);
+    const idx = stories.findIndex((s) => s.url === story.url);
+    if (idx !== -1) {
+      setActiveStoryIdx(idx);
+      setIsPaused(false);
+    }
+  };
+
+  const handleNextStory = () => {
+    if (activeStoryIdx !== null) {
+      if (activeStoryIdx < stories.length - 1) {
+        setActiveStoryIdx(activeStoryIdx + 1);
+        setIsPaused(false);
+      } else {
+        setActiveStoryIdx(null);
+      }
+    }
+  };
+
+  const handlePrevStory = () => {
+    if (activeStoryIdx !== null) {
+      if (activeStoryIdx > 0) {
+        setActiveStoryIdx(activeStoryIdx - 1);
+        setIsPaused(false);
+      }
+    }
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    isTouchActiveRef.current = true;
+    const touch = e.touches[0];
+    touchStartXRef.current = touch.clientX;
+    touchStartYRef.current = touch.clientY;
+    touchStartTimeRef.current = Date.now();
+    setIsPaused(true);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    setIsPaused(false);
+    const touch = e.changedTouches[0];
+    const diffX = touch.clientX - touchStartXRef.current;
+    const diffY = touch.clientY - touchStartYRef.current;
+    const duration = Date.now() - touchStartTimeRef.current;
+
+    // Swipe left/right
+    if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+      if (diffX < 0) {
+        handleNextStory();
+      } else {
+        handlePrevStory();
+      }
+    } else if (duration < 250) {
+      // Quick tap -> determine left or right side of screen
+      const screenWidth = window.innerWidth;
+      if (touch.clientX < screenWidth * 0.35) {
+        handlePrevStory();
+      } else {
+        handleNextStory();
+      }
+    }
+  };
+
+  const handleMouseDown = () => {
+    if (isTouchActiveRef.current) return;
+    mouseDownTimeRef.current = Date.now();
+    setIsPaused(true);
+  };
+
+  const handleMouseUp = (direction: "prev" | "next") => {
+    if (isTouchActiveRef.current) return;
+    setIsPaused(false);
+    const duration = Date.now() - mouseDownTimeRef.current;
+    if (duration < 250) {
+      if (direction === "prev") {
+        handlePrevStory();
+      } else {
+        handleNextStory();
+      }
     }
   };
 
@@ -200,134 +328,199 @@ export default function WebStories({ language = "en" }: { language?: "en" | "ta"
         )}
       </div>
 
-           {lightboxStory && (() => {
-             const currentIdx = stories.findIndex((s) => s.url === lightboxStory.url);
-             const articleUrl = getStoryArticleUrl(lightboxStory);
+           {activeStoryIdx !== null && (() => {
+             const currentStory = stories[activeStoryIdx];
+             const articleUrl = getStoryArticleUrl(currentStory);
              return (
                <motion.div
                  initial={{ opacity: 0 }}
                  animate={{ opacity: 1 }}
                  exit={{ opacity: 0 }}
-                 className="fixed inset-0 z-[1000] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 select-none"
+                 className="fixed inset-0 z-[1000] bg-black/95 backdrop-blur-sm flex items-center justify-center p-0 md:p-4 select-none"
                >
-                 {/* Click backdrop to close */}
-                 <div className="absolute inset-0 cursor-pointer" onClick={() => setLightboxStory(null)} />
+                 <style>{`
+                   @keyframes gcpStoryProgress {
+                     from { width: 0%; }
+                     to { width: 100%; }
+                   }
+                 `}</style>
 
-                 {/* Lightbox content box */}
+                 {/* Click backdrop to close (desktop only) */}
+                 <div className="absolute inset-0 cursor-pointer hidden md:block" onClick={() => setActiveStoryIdx(null)} />
+
+                 {/* Desktop Left navigation arrow */}
+                 {activeStoryIdx > 0 && (
+                   <button
+                     onClick={(e) => {
+                       e.stopPropagation();
+                       handlePrevStory();
+                     }}
+                     className="absolute left-8 z-50 p-3 rounded-full bg-stone-900/60 hover:bg-stone-900 border border-stone-800 text-white transition hover:scale-105 hidden md:flex items-center justify-center cursor-pointer"
+                     title="Previous Story"
+                   >
+                     <ChevronLeft className="w-6 h-6" />
+                   </button>
+                 )}
+
+                 {/* Story Mobile Container (9:16 aspect ratio) */}
                  <motion.div
                    initial={{ scale: 0.95, opacity: 0 }}
                    animate={{ scale: 1, opacity: 1 }}
                    exit={{ scale: 0.95, opacity: 0 }}
-                   className="relative w-full max-w-2xl bg-stone-900 border border-stone-800 rounded-2xl overflow-hidden shadow-2xl z-10 flex flex-col"
+                   onTouchStart={handleTouchStart}
+                   onTouchEnd={handleTouchEnd}
+                   className="relative w-full max-w-[450px] aspect-[9/16] h-[100dvh] md:h-[90vh] md:max-h-[800px] bg-stone-950 md:border md:border-stone-900 md:rounded-2xl overflow-hidden shadow-2xl z-10 flex flex-col justify-between"
                    onClick={(e) => e.stopPropagation()}
                  >
-                   {/* Close button */}
-                   <button
-                     onClick={() => setLightboxStory(null)}
-                     className="absolute top-4 right-4 z-30 p-2 rounded-full bg-black/60 hover:bg-black text-white cursor-pointer transition hover:scale-105 min-w-[44px] min-h-[44px] flex items-center justify-center"
-                   >
-                     <X className="w-5 h-5" />
-                   </button>
+                   {/* Blurred background image */}
+                   <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none select-none">
+                     <Image
+                       src={currentStory.url}
+                       alt=""
+                       fill
+                       className="object-cover blur-3xl opacity-40 scale-110"
+                       priority
+                     />
+                   </div>
 
-                   {/* Main Image with Navigation Arrows */}
-                   <div className="relative w-full h-[50vh] min-h-[300px] bg-stone-950 flex items-center justify-between group">
-                     {/* Left Navigation Arrow */}
-                     {currentIdx > 0 && (
-                       <button
-                         onClick={() => setLightboxStory(stories[currentIdx - 1])}
-                         className="absolute left-4 z-20 p-2.5 rounded-full bg-black/60 hover:bg-black/95 text-white hover:scale-105 transition cursor-pointer select-none min-w-[44px] min-h-[44px] flex items-center justify-center"
-                         title="Previous Story"
-                       >
-                         <ChevronLeft className="w-5 h-5" />
-                       </button>
-                     )}
-
-                     {/* Image Wrapper (clickable if article exists) */}
-                     <div 
-                       className={`relative w-full h-full ${articleUrl ? "cursor-pointer" : ""}`}
-                       onClick={() => {
-                         if (articleUrl) {
-                           setLightboxStory(null);
-                           router.push(articleUrl);
-                         }
-                       }}
-                     >
+                   {/* Foreground image */}
+                   <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
+                     <div className="relative w-full h-full">
                        <Image
-                         src={lightboxStory.url}
-                         alt={getStoryTitle(lightboxStory)}
+                         src={currentStory.url}
+                         alt={getStoryTitle(currentStory)}
                          fill
                          className="object-contain"
                          priority
                        />
-                       {articleUrl && (
-                         <div className="absolute inset-0 bg-black/30 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
-                           <span className="bg-brand-maroon text-white font-black uppercase text-[10px] tracking-wider px-3.5 py-2 rounded-lg flex items-center gap-1.5 shadow-lg">
-                             Read News Article <ExternalLink className="w-3.5 h-3.5" />
+                     </div>
+                   </div>
+
+                   {/* Top Header Row with Progress Bars & Details */}
+                   <div className="absolute top-0 left-0 right-0 z-40 p-4 bg-gradient-to-b from-black/90 via-black/40 to-transparent flex flex-col gap-3">
+                     {/* Segmented Progress Bars */}
+                     <div className="flex gap-1.5 w-full">
+                       {stories.map((story, idx) => {
+                         let width = "0%";
+                         let animated = false;
+                         if (idx < activeStoryIdx) {
+                           width = "100%";
+                         } else if (idx === activeStoryIdx) {
+                           animated = true;
+                         }
+                         return (
+                           <div key={story.url} className="h-1 flex-1 bg-white/20 rounded-full overflow-hidden">
+                             <div
+                               key={story.url + (animated ? "-active" : "")}
+                               className="h-full bg-white rounded-full"
+                               style={{
+                                 width: animated ? undefined : width,
+                                 animation: animated ? "gcpStoryProgress 5s linear forwards" : undefined,
+                                 animationPlayState: isPaused ? "paused" : "running",
+                               }}
+                               onAnimationEnd={animated ? handleNextStory : undefined}
+                             />
+                           </div>
+                         );
+                       })}
+                     </div>
+
+                     {/* Profile Info & Close Button */}
+                     <div className="flex items-center justify-between w-full">
+                       <div className="flex items-center gap-2">
+                         <div className="relative w-8 h-8 rounded-full overflow-hidden border border-white/20 bg-stone-900 shrink-0">
+                           <Image
+                             src="/images/gcp_logo.png"
+                             alt="GCP Logo"
+                             fill
+                             className="object-cover p-0.5"
+                           />
+                         </div>
+                         <div className="flex flex-col min-w-0">
+                           <span className="text-white text-xs font-black uppercase tracking-wider truncate">
+                             {language === "ta" ? "சென்னை பெருநகர காவல்" : "Greater Chennai Police"}
+                           </span>
+                           <span className="text-white/60 text-[9px] font-bold uppercase tracking-widest truncate">
+                             {getStoryCategory(currentStory)} • {new Date(currentStory.updatedAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short" })}
                            </span>
                          </div>
-                       )}
-                     </div>
-
-                     {/* Right Navigation Arrow */}
-                     {currentIdx < stories.length - 1 && (
-                       <button
-                         onClick={() => setLightboxStory(stories[currentIdx + 1])}
-                         className="absolute right-4 z-20 p-2.5 rounded-full bg-black/60 hover:bg-black/95 text-white hover:scale-105 transition cursor-pointer select-none min-w-[44px] min-h-[44px] flex items-center justify-center"
-                         title="Next Story"
-                       >
-                         <ChevronRight className="w-5 h-5" />
-                       </button>
-                     )}
-                   </div>
-
-                   {/* Details strip */}
-                   <div className="p-6 bg-stone-900 border-t border-stone-800 text-left space-y-3">
-                     <div className="flex flex-wrap items-center gap-3">
-                       <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[8px] font-black uppercase tracking-widest bg-brand-gold text-stone-950">
-                         <Tag className="w-2.5 h-2.5" />
-                         {getStoryCategory(lightboxStory)}
-                       </span>
-                       <span className="inline-flex items-center gap-1 text-[9px] font-bold text-stone-400 uppercase tracking-widest">
-                         <Calendar className="w-3 h-3 text-stone-400" />
-                         {new Date(lightboxStory.updatedAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}
-                       </span>
-                     </div>
-
-                     <h3 className="font-display font-black text-base md:text-lg text-white leading-snug uppercase tracking-wide">
-                       {getStoryTitle(lightboxStory)}
-                     </h3>
-
-                     <p className="text-xs text-stone-400 leading-relaxed">
-                       Published asset update from Chennai Guardian Library.
-                     </p>
-
-                     <div className="pt-2 flex items-center justify-between flex-wrap gap-3">
-                       <span className="text-[9px] text-stone-500 font-bold uppercase tracking-wider">GCP Public Media Console</span>
-                       <div className="flex items-center gap-2">
-                         {articleUrl && (
-                           <button
-                             onClick={() => {
-                               setLightboxStory(null);
-                               router.push(articleUrl);
-                             }}
-                             className="inline-flex items-center gap-1.5 px-3 py-1 bg-brand-maroon hover:bg-red-750 text-white rounded text-[10px] font-black uppercase tracking-wider transition cursor-pointer shadow-md"
-                           >
-                             Read Full Article <ExternalLink className="w-3 h-3" />
-                           </button>
-                         )}
-                         <button 
-                           onClick={() => {
-                             navigator.clipboard.writeText(`${window.location.origin}${lightboxStory.url}`);
-                             alert("Image link copied to clipboard!");
-                           }}
-                           className="inline-flex items-center gap-1 px-3 py-1 bg-stone-800 hover:bg-stone-750 text-white rounded text-[10px] font-black uppercase tracking-wider transition cursor-pointer"
-                         >
-                           <ExternalLink className="w-3 h-3" /> Copy Asset Link
-                         </button>
                        </div>
+
+                       <button
+                         onClick={() => setActiveStoryIdx(null)}
+                         className="p-1.5 rounded-full bg-black/40 hover:bg-black/60 text-white cursor-pointer transition hover:scale-105 flex items-center justify-center min-w-[36px] min-h-[36px] z-50"
+                         title="Close Viewer"
+                       >
+                         <X className="w-5 h-5" />
+                       </button>
+                     </div>
+
+                     {/* Story Title */}
+                     <div className="px-0.5">
+                       <h3 className="text-white text-xs font-bold uppercase tracking-wide leading-tight line-clamp-2 drop-shadow-md">
+                         {getStoryTitle(currentStory)}
+                       </h3>
                      </div>
                    </div>
+
+                   {/* Left Side Hit Target for Previous Story */}
+                   <div
+                     className="absolute left-0 top-16 bottom-24 w-[35%] z-20 cursor-pointer"
+                     onMouseDown={handleMouseDown}
+                     onMouseUp={() => handleMouseUp("prev")}
+                     onMouseLeave={() => setIsPaused(false)}
+                   />
+
+                   {/* Right Side Hit Target for Next Story */}
+                   <div
+                     className="absolute right-0 top-16 bottom-24 w-[65%] z-20 cursor-pointer"
+                     onMouseDown={handleMouseDown}
+                     onMouseUp={() => handleMouseUp("next")}
+                     onMouseLeave={() => setIsPaused(false)}
+                   />
+
+                   {/* Bottom Sheet Details & Action Bar */}
+                   {currentStory.slug ? (
+                     <div className="absolute bottom-6 left-0 right-0 z-30 flex flex-col items-center gap-1.5 p-4 bg-gradient-to-t from-black/90 via-black/40 to-transparent">
+                       <motion.div
+                         animate={{ y: [0, -4, 0] }}
+                         transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+                         className="text-white/80 text-[10px] uppercase font-black tracking-widest drop-shadow-md"
+                       >
+                         ▲
+                       </motion.div>
+                       <button
+                         onClick={(e) => {
+                           e.stopPropagation();
+                           setActiveStoryIdx(null);
+                           router.push(`/news/${currentStory.slug}`);
+                         }}
+                         className="bg-brand-maroon hover:bg-red-750 dark:bg-brand-gold dark:hover:bg-amber-500 text-white dark:text-stone-950 font-black text-[10px] uppercase tracking-wider px-6 py-2.5 rounded-full shadow-lg flex items-center gap-1.5 cursor-pointer transition-all duration-300 transform active:scale-95"
+                       >
+                         {language === "ta" ? "செய்தியைப் பார்க்க" : "View News"} <ExternalLink className="w-3.5 h-3.5" />
+                       </button>
+                     </div>
+                   ) : (
+                     <div className="absolute bottom-4 left-0 right-0 z-30 flex items-center justify-between p-4 bg-gradient-to-t from-black/80 to-transparent text-[9px] text-white/50 font-bold uppercase tracking-widest">
+                       <span>Chennai Guardian Library</span>
+                       <span>Auto-Play Active</span>
+                     </div>
+                   )}
                  </motion.div>
+
+                 {/* Desktop Right navigation arrow */}
+                 {activeStoryIdx < stories.length - 1 && (
+                   <button
+                     onClick={(e) => {
+                       e.stopPropagation();
+                       handleNextStory();
+                     }}
+                     className="absolute right-8 z-50 p-3 rounded-full bg-stone-900/60 hover:bg-stone-900 border border-stone-800 text-white transition hover:scale-105 hidden md:flex items-center justify-center cursor-pointer"
+                     title="Next Story"
+                   >
+                     <ChevronRight className="w-6 h-6" />
+                   </button>
+                 )}
                </motion.div>
              );
            })()}

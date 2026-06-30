@@ -22,12 +22,6 @@ async function checkAuth(requiredRoles?: string[]) {
 }
 
 export async function GET(req: Request) {
-  // 🔐 Security: require valid admin session to list media files
-  const auth = await checkAuth();
-  if (!auth) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   try {
     const uploadDir = path.join(process.cwd(), "public/uploads");
     if (!fs.existsSync(uploadDir)) {
@@ -48,7 +42,7 @@ export async function GET(req: Request) {
           const stats = fs.statSync(filePath);
           if (stats.isFile()) {
             const url = `/uploads/${file}`;
-            let meta = dbMetadata.find((m: any) => m.url === url);
+            let meta = dbMetadata.find((m: any) => m.image === url || m.url === url);
             
             // Auto create metadata if it doesn't exist (e.g. newly uploaded or untracked image)
             if (!meta) {
@@ -60,27 +54,29 @@ export async function GET(req: Request) {
               
               meta = {
                 id: nextId++,
-                filename: file,
-                url: url,
+                image: url,
                 title: prettyTitle,
+                articleId: null,
+                articleSlug: null,
                 category: "Police Update",
-                show_in_stories: 1, // Enabled/Checked in web stories by default
-                associated_news_id: null,
-                created_at: stats.mtime.toISOString()
+                createdAt: stats.mtime.toISOString()
               };
               dbMetadata.push(meta);
               dbMetadataModified = true;
             }
 
             return {
+              id: meta.id,
               name: file,
-              url: url,
+              image: meta.image || url,
+              url: meta.image || url, // keep for backward compatibility
               size: stats.size,
               updatedAt: stats.mtime.toISOString(),
+              createdAt: meta.createdAt || stats.mtime.toISOString(),
               title: meta.title,
               category: meta.category,
-              show_in_stories: meta.show_in_stories,
-              associated_news_id: meta.associated_news_id,
+              articleId: meta.articleId || null,
+              articleSlug: meta.articleSlug || null,
             };
           }
         } catch (e) {
@@ -118,13 +114,18 @@ export async function PUT(req: Request) {
     }
 
     const dbMetadata = await db.getAssetMetadata();
-    const item = dbMetadata.find((m: any) => m.url === data.url);
+    const item = dbMetadata.find((m: any) => m.image === data.url || m.url === data.url);
     if (item) {
       if (data.title !== undefined) item.title = data.title;
       if (data.category !== undefined) item.category = data.category;
-      if (data.show_in_stories !== undefined) item.show_in_stories = data.show_in_stories;
-      if (data.associated_news_id !== undefined) item.associated_news_id = data.associated_news_id;
-      item.updated_at = new Date().toISOString();
+      if (data.articleId !== undefined) item.articleId = data.articleId;
+      if (data.articleSlug !== undefined) item.articleSlug = data.articleSlug;
+      // support backward-compatible updates
+      if (data.associated_news_id !== undefined) item.articleId = data.associated_news_id;
+      if (data.show_in_stories !== undefined) {
+        // no-op, just keep compat
+      }
+      item.createdAt = item.createdAt || new Date().toISOString();
 
       await db.saveAssetMetadata(dbMetadata);
       return NextResponse.json({ success: true, item });
@@ -164,7 +165,7 @@ export async function DELETE(req: Request) {
     // Delete sync: remove corresponding metadata entry
     const url = `/uploads/${safeFilename}`;
     const dbMetadata = await db.getAssetMetadata();
-    const filteredMetadata = dbMetadata.filter((m: any) => m.url !== url);
+    const filteredMetadata = dbMetadata.filter((m: any) => m.image !== url && m.url !== url);
     if (dbMetadata.length !== filteredMetadata.length) {
       await db.saveAssetMetadata(filteredMetadata);
     }

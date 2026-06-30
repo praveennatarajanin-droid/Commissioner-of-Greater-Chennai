@@ -2,6 +2,14 @@ import { NextResponse } from "next/server";
 import { db, hashPassword, DBArticleSeo } from "@/lib/db";
 import { cookies } from "next/headers";
 
+function sanitizeHtml(html: string): string {
+  if (!html) return "";
+  let cleaned = html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "");
+  cleaned = cleaned.replace(/on\w+\s*=\s*["'][^"']*["']/gi, "");
+  cleaned = cleaned.replace(/javascript:/gi, "");
+  return cleaned;
+}
+
 // Authentication Helper
 async function checkAuth(requiredRoles?: string[]) {
   try {
@@ -162,10 +170,19 @@ export async function POST(req: Request, { params }: { params: Promise<{ module:
           publishedVal = 0; // Force draft
         }
 
+        const sanitizedContentEn = Array.isArray(data.content_en) 
+          ? data.content_en.map((p: string) => sanitizeHtml(p))
+          : [];
+        const sanitizedContentTa = Array.isArray(data.content_ta) 
+          ? data.content_ta.map((p: string) => sanitizeHtml(p))
+          : [];
+
         const newItem = { 
           id, 
           slug, 
           ...data, 
+          content_en: sanitizedContentEn,
+          content_ta: sanitizedContentTa,
           published: publishedVal,
           author_en: data.author_en || (auth.role === "reporter" || auth.role === "editor" ? auth.username : "Greater Chennai Police Media Desk")
         };
@@ -330,7 +347,18 @@ export async function PUT(req: Request, { params }: { params: Promise<{ module: 
             }
           }
 
-          items = items.map((i) => (i.id === data.id ? { ...i, ...data, updated_at: new Date().toISOString() } : i));
+          const sanitizedContentEn = Array.isArray(data.content_en) 
+            ? data.content_en.map((p: string) => sanitizeHtml(p))
+            : undefined;
+          const sanitizedContentTa = Array.isArray(data.content_ta) 
+            ? data.content_ta.map((p: string) => sanitizeHtml(p))
+            : undefined;
+
+          const updatedPayload = { ...data };
+          if (sanitizedContentEn !== undefined) updatedPayload.content_en = sanitizedContentEn;
+          if (sanitizedContentTa !== undefined) updatedPayload.content_ta = sanitizedContentTa;
+
+          items = items.map((i) => (i.id === data.id ? { ...i, ...updatedPayload, updated_at: new Date().toISOString() } : i));
           await db.saveNews(items);
 
           if (data.published === 1 && existing.published === 0) {

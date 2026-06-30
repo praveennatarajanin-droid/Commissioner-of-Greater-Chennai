@@ -45,7 +45,7 @@ export interface DBNewsItem {
   author_ta: string;
   tags_en: string[];
   tags_ta: string[];
-  section: "press" | "event" | "spotlight" | "latest" | "activity" | "media-story";
+  section: string;
   published: number; // 0 or 1
   highlights_en?: string[];
   highlights_ta?: string[];
@@ -216,14 +216,12 @@ export interface DBSeoSettings {
 
 export interface DBAssetMetadata {
   id: number;
-  filename: string;
-  url: string;
+  image: string;
   title: string;
+  articleId: number | null;
+  articleSlug: string | null;
   category: string;
-  show_in_stories: number; // 0 or 1
-  associated_news_id?: number | null; // linked news article id
-  created_at: string;
-  updated_at?: string;
+  createdAt: string;
 }
 
 export interface DBArticleSeo {
