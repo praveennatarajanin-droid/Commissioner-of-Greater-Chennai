@@ -6,6 +6,86 @@ import { useRouter } from "next/navigation";
 import { X, Eye, Calendar, Tag, ExternalLink, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
+function findBestMatchingNews(storyTitle: string, newsList: any[]) {
+  if (!storyTitle || !newsList || newsList.length === 0) return null;
+  const titleLower = storyTitle.toLowerCase();
+
+  // 1. Direct match on title
+  let match = newsList.find(n => 
+    (n.title_en && n.title_en.toLowerCase().includes(titleLower)) ||
+    (n.title_ta && n.title_ta.toLowerCase().includes(titleLower))
+  );
+  if (match) return match;
+
+  // 2. Keyword score matching
+  const keywords = titleLower.split(/[\s-_]+/).filter(w => w.length > 3);
+  if (keywords.length > 0) {
+    let bestScore = 0;
+    let bestMatch = null;
+    
+    for (const n of newsList) {
+      let score = 0;
+      const titleEn = (n.title_en || "").toLowerCase();
+      const titleTa = (n.title_ta || "").toLowerCase();
+      const categoryEn = (n.category_en || "").toLowerCase();
+      const categoryTa = (n.category_ta || "").toLowerCase();
+      const contentEn = (n.content_en || []).join(" ").toLowerCase();
+      const contentTa = (n.content_ta || []).join(" ").toLowerCase();
+      const tagsEn = (n.tags_en || []).join(" ").toLowerCase();
+      
+      for (const kw of keywords) {
+        if (titleEn.includes(kw)) score += 10;
+        if (titleTa.includes(kw)) score += 10;
+        if (categoryEn.includes(kw)) score += 5;
+        if (categoryTa.includes(kw)) score += 5;
+        if (tagsEn.includes(kw)) score += 4;
+        if (contentEn.includes(kw)) score += 2;
+        if (contentTa.includes(kw)) score += 2;
+      }
+      
+      if (score > bestScore) {
+        bestScore = score;
+        bestMatch = n;
+      }
+    }
+    
+    if (bestScore > 3) {
+      return bestMatch;
+    }
+  }
+
+  // 3. Category matching fallbacks
+  if (titleLower.includes("cyber") || titleLower.includes("online") || titleLower.includes("scam") || titleLower.includes("fraud")) {
+    match = newsList.find(n => (n.category_en || "").toLowerCase().includes("cyber"));
+    if (match) return match;
+  }
+  if (titleLower.includes("drug") || titleLower.includes("run") || titleLower.includes("marathon") || titleLower.includes("sports")) {
+    match = newsList.find(n => 
+      (n.category_en || "").toLowerCase().includes("award") || 
+      (n.category_en || "").toLowerCase().includes("sport") || 
+      (n.title_en || "").toLowerCase().includes("drug") || 
+      (n.title_en || "").toLowerCase().includes("marathon") || 
+      (n.content_en || []).join(" ").toLowerCase().includes("drug")
+    );
+    if (match) return match;
+  }
+  if (titleLower.includes("women") || titleLower.includes("girl") || titleLower.includes("singappen")) {
+    match = newsList.find(n => (n.category_en || "").toLowerCase().includes("women"));
+    if (match) return match;
+  }
+  if (titleLower.includes("campus") || titleLower.includes("clean")) {
+    match = newsList.find(n => 
+      (n.title_en || "").toLowerCase().includes("clean") || 
+      (n.content_en || []).join(" ").toLowerCase().includes("clean") || 
+      (n.category_en || "").toLowerCase().includes("outreach")
+    );
+    if (match) return match;
+  }
+
+  // 4. Default to latest news article if no match
+  return newsList[0];
+}
+
 interface WebStory {
   id?: number;
   name: string;
@@ -103,6 +183,14 @@ export default function WebStories({ language = "en" }: { language?: "en" | "ta"
               const isRaw = /^(upload|img|photo|image|dsc|file|pic|picture)[_\s-]*\d+/i.test(title) || /^\d+$/.test(title) || title.toUpperCase().startsWith("UPLOAD");
               if (isRaw) {
                 title = language === "ta" ? fallbackTitlesTa[idx % fallbackTitlesTa.length] : fallbackTitlesEn[idx % fallbackTitlesEn.length];
+              }
+            }
+
+            // Fallback matching if there is still no slug associated
+            if (!slug && loadedNews.length > 0) {
+              const matchedArticle = findBestMatchingNews(title, loadedNews);
+              if (matchedArticle) {
+                slug = matchedArticle.slug;
               }
             }
 
@@ -480,32 +568,29 @@ export default function WebStories({ language = "en" }: { language?: "en" | "ta"
                    />
 
                    {/* Bottom Sheet Details & Action Bar */}
-                   {currentStory.slug ? (
-                     <div className="absolute bottom-6 left-0 right-0 z-30 flex flex-col items-center gap-1.5 p-4 bg-gradient-to-t from-black/90 via-black/40 to-transparent">
-                       <motion.div
-                         animate={{ y: [0, -4, 0] }}
-                         transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-                         className="text-white/80 text-[10px] uppercase font-black tracking-widest drop-shadow-md"
-                       >
-                         ▲
-                       </motion.div>
-                       <button
-                         onClick={(e) => {
-                           e.stopPropagation();
-                           setActiveStoryIdx(null);
+                   <div className="absolute bottom-6 left-0 right-0 z-30 flex flex-col items-center gap-1.5 p-4 bg-gradient-to-t from-black/90 via-black/40 to-transparent">
+                     <motion.div
+                       animate={{ y: [0, -4, 0] }}
+                       transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+                       className="text-white/80 text-[10px] uppercase font-black tracking-widest drop-shadow-md"
+                     >
+                       ▲
+                     </motion.div>
+                     <button
+                       onClick={(e) => {
+                         e.stopPropagation();
+                         setActiveStoryIdx(null);
+                         if (currentStory.slug) {
                            router.push(`/news/${currentStory.slug}`);
-                         }}
-                         className="bg-brand-maroon hover:bg-red-750 dark:bg-brand-gold dark:hover:bg-amber-500 text-white dark:text-stone-950 font-black text-[10px] uppercase tracking-wider px-6 py-2.5 rounded-full shadow-lg flex items-center gap-1.5 cursor-pointer transition-all duration-300 transform active:scale-95"
-                       >
-                         {language === "ta" ? "செய்தியைப் பார்க்க" : "View News"} <ExternalLink className="w-3.5 h-3.5" />
-                       </button>
-                     </div>
-                   ) : (
-                     <div className="absolute bottom-4 left-0 right-0 z-30 flex items-center justify-between p-4 bg-gradient-to-t from-black/80 to-transparent text-[9px] text-white/50 font-bold uppercase tracking-widest">
-                       <span>Chennai Guardian Library</span>
-                       <span>Auto-Play Active</span>
-                     </div>
-                   )}
+                         } else {
+                           router.push("/#media");
+                         }
+                       }}
+                       className="bg-brand-maroon hover:bg-red-750 text-white font-black text-[10px] uppercase tracking-wider px-6 py-2.5 rounded-full shadow-lg flex items-center gap-1.5 cursor-pointer transition-all duration-300 transform active:scale-95"
+                     >
+                       {language === "ta" ? "செய்தியைப் படிக்க" : "READ NEWS"} <ExternalLink className="w-3.5 h-3.5" />
+                     </button>
+                   </div>
                  </motion.div>
 
                  {/* Desktop Right navigation arrow */}

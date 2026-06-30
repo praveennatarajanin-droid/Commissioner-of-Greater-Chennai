@@ -1631,7 +1631,7 @@
       "id": 1,
       "auto_fetch": 1,
       "require_approval": 1,
-      "last_fetched_at": "2026-06-30T08:11:39.511Z",
+      "last_fetched_at": "2026-06-30T08:30:45.002Z",
       "live_feed_enabled": 1,
       "approved_sources": "tnpolice.gov.in, gcp.tn.gov.in, greaterchennaipolice.in, tn.gov.in, pib.gov.in",
       "refresh_interval": 15
