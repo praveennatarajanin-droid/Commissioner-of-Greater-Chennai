@@ -303,7 +303,7 @@ export default function NewsChannelHomepage({
 
   // 5. Section 8: Big Stories (Featured news in 2 rows, take 6 cards)
   const bigStories = sortedNews
-    .filter(n => n.featured === 1 || n.section === "spotlight")
+    .filter(n => n.featured === 1 || n.section === "spotlight" || n.section === "big-stories")
     .slice(0, 6);
 
   // 6. Section 11: Latest Grid items (20+ cards)

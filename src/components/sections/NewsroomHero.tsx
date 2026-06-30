@@ -139,21 +139,37 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
     .filter(n => n.id !== heroStory?.id)
     .slice(0, 3);
 
-  // Slides list setup (reusing backend Hero Slider)
-  const slidesToUse = slider && slider.length > 0
-    ? slider
-    : [{
-        id: heroStory?.id || 1,
-        src: heroStory?.image || "/images/police_medal.jpg",
-        title_en: heroStory?.title_en || "",
-        title_ta: heroStory?.title_ta || "",
-        desc_en: heroStory?.summary_en || "",
-        desc_ta: heroStory?.summary_ta || "",
-        category_en: heroStory?.category_en || "",
-        category_ta: heroStory?.category_ta || "",
-        order_num: 1,
-        active: 1
-      }];
+  // Slides list setup (reusing backend Hero Slider + news marked as "slider" section)
+  const newsSlides = (news || [])
+    .filter(n => n.section === "slider")
+    .map(n => ({
+      id: n.id,
+      src: n.image || "/images/police_medal.jpg",
+      title_en: n.title_en || "",
+      title_ta: n.title_ta || n.title_en || "",
+      desc_en: n.summary_en || "",
+      desc_ta: n.summary_ta || "",
+      category_en: n.category_en || "NEWS",
+      category_ta: n.category_ta || "செய்திகள்",
+      order_num: 0,
+      active: 1
+    }));
+
+  const slidesToUse = [...newsSlides, ...(slider || [])].filter(Boolean);
+  if (slidesToUse.length === 0) {
+    slidesToUse.push({
+      id: heroStory?.id || 1,
+      src: heroStory?.image || "/images/police_medal.jpg",
+      title_en: heroStory?.title_en || "",
+      title_ta: heroStory?.title_ta || "",
+      desc_en: heroStory?.summary_en || "",
+      desc_ta: heroStory?.summary_ta || "",
+      category_en: heroStory?.category_en || "",
+      category_ta: heroStory?.category_ta || "",
+      order_num: 1,
+      active: 1
+    });
+  }
 
   // Auto-play slider every 4.5 seconds
   useEffect(() => {
@@ -208,7 +224,12 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
 
   // Right Column Tabs
   const trendingNews = [...news]
-    .sort((a, b) => (b.views_count || 0) - (a.views_count || 0))
+    .sort((a, b) => {
+      const aTrend = a.section === "trending" ? 1 : 0;
+      const bTrend = b.section === "trending" ? 1 : 0;
+      if (aTrend !== bTrend) return bTrend - aTrend;
+      return (b.views_count || 0) - (a.views_count || 0);
+    })
     .filter(n => n.id !== heroStory?.id && !latestHeadlines.some(l => l.id === n.id))
     .slice(0, 6);
 

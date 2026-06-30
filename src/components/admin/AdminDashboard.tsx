@@ -37,7 +37,7 @@ import {
   Menu
 } from "lucide-react";
 import { DBUser, DBNewsItem, DBTickerItem, DBSliderItem, DBCommissionerProfile, DBThemeSettings, DBMenuItem, DBContact, DBTtsSettings, DBVideoItem, DBAlertItem, DBAlertSettings } from "@/lib/db";
-import RichTextEditor from "@/components/admin/RichTextEditor";
+import RichTextEditor from "./RichTextEditor";
 
 const paragraphsToHtml = (paragraphs: string[] | undefined): string => {
   if (!paragraphs) return "";
@@ -382,6 +382,10 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
   const [showConfirmAiModal, setShowConfirmAiModal] = useState(false);
   const [aiLoadingStep, setAiLoadingStep] = useState<number | null>(null);
 
+  // Publish Success Modal
+  const [showPublishSuccessModal, setShowPublishSuccessModal] = useState(false);
+  const [publishedArticleSlug, setPublishedArticleSlug] = useState<string | null>(null);
+
   const handleAiGenerate = async (forceOverwrite?: boolean) => {
     if (!editingItem) return;
 
@@ -676,6 +680,11 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
       const data = await res.json();
       if (res.ok) {
         triggerAlert("success", `${mod.toUpperCase()} records updated successfully.`);
+        if (mod === "news") {
+          const finalSlug = data.item?.slug || payload.slug || payload.title_en.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/-+$/g, "");
+          setPublishedArticleSlug(finalSlug);
+          setShowPublishSuccessModal(true);
+        }
         setIsAdding(false);
         setEditingItem(null);
         fetchData();
@@ -1689,7 +1698,17 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                       <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Homepage Feed Section</label>
                       <select
                         value={editingItem.section}
-                        onChange={(e) => setEditingItem({ ...editingItem, section: e.target.value })}
+                        onChange={(e) => {
+                          const sec = e.target.value;
+                          let extra = {};
+                          if (sec === "breaking") extra = { breaking: 1, homepage_visible: 1, latest: 0, featured: 0 };
+                          else if (sec === "latest") extra = { latest: 1, homepage_visible: 1, breaking: 0, featured: 0 };
+                          else if (sec === "trending") extra = { homepage_visible: 1, latest: 1, breaking: 0, featured: 0 };
+                          else if (sec === "spotlight") extra = { featured: 1, homepage_visible: 1, latest: 0, breaking: 0 };
+                          else if (sec === "big-stories") extra = { featured: 1, homepage_visible: 1, latest: 0, breaking: 0 };
+                          else if (sec === "slider") extra = { featured: 1, homepage_visible: 1, latest: 0, breaking: 0 };
+                          setEditingItem({ ...editingItem, section: sec, ...extra });
+                        }}
                         className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-850 outline-none text-xs text-slate-850 dark:text-white p-3 rounded-xl focus:border-brand-gold/50"
                       >
                         <option value="latest">Latest News Feed</option>
@@ -2016,36 +2035,22 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                   </div>
 
                   {/* Body Content Paragraphs */}
-                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
-                    {/* EN */}
-                    <div className="space-y-1.5 flex flex-col">
-                      <div className="flex justify-between items-center mb-1">
-                        <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Full Content Paragraphs (English)</label>
-                        <button
-                          type="button"
-                          onClick={() => handleAiGenerate()}
-                          className="px-3 py-1.5 bg-brand-gold hover:bg-brand-gold-dark text-stone-950 rounded-lg text-[10px] font-black uppercase tracking-wider transition cursor-pointer flex items-center gap-1"
-                        >
-                          ✨ Generate with AI
-                        </button>
-                      </div>
-                      <RichTextEditor
-                        value={paragraphsToHtml(editingItem.content_en)}
-                        onChange={(val) => setEditingItem({ ...editingItem, content_en: htmlToParagraphs(val) })}
-                        placeholder="Separate paragraphs with double Enter."
-                        className="w-full min-h-[250px]"
-                      />
+                  <div className="space-y-1.5 flex flex-col">
+                    <div className="flex justify-between items-center mb-1">
+                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Full Content Paragraphs (English)</label>
+                      <button
+                        type="button"
+                        onClick={() => handleAiGenerate()}
+                        className="px-3 py-1.5 bg-brand-gold hover:bg-brand-gold-dark text-stone-950 rounded-lg text-[10px] font-black uppercase tracking-wider transition cursor-pointer flex items-center gap-1"
+                      >
+                        ✨ Generate with AI
+                      </button>
                     </div>
-                    {/* TA */}
-                    <div className="space-y-1.5 flex flex-col">
-                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">முழு செய்தி உள்ளடக்கம் (தமிழ்)</label>
-                      <RichTextEditor
-                        value={paragraphsToHtml(editingItem.content_ta)}
-                        onChange={(val) => setEditingItem({ ...editingItem, content_ta: htmlToParagraphs(val) })}
-                        placeholder="Separate paragraphs with double Enter."
-                        className="w-full min-h-[250px]"
-                      />
-                    </div>
+                    <RichTextEditor
+                      value={paragraphsToHtml(editingItem.content_en)}
+                      onChange={(html) => setEditingItem({ ...editingItem, content_en: htmlToParagraphs(html) })}
+                      placeholder="Write your news article here..."
+                    />
                   </div>
 
                   {/* Buttons */}
@@ -2106,6 +2111,42 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                         </span>
                         <span className={aiLoadingStep >= 3 ? "text-white animate-pulse" : "text-stone-500"}>✅ Filling form fields...</span>
                       </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Publish Success Modal */}
+              {showPublishSuccessModal && (
+                <div className="fixed inset-0 z-[100] bg-black/75 flex items-center justify-center p-4">
+                  <div className="bg-stone-900 border border-stone-800 rounded-2xl p-6 w-full max-w-sm text-center shadow-2xl space-y-4">
+                    <div className="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto text-emerald-400">
+                      <Check className="w-8 h-8" />
+                    </div>
+                    <div className="space-y-1">
+                      <h4 className="font-display font-black text-sm uppercase tracking-widest text-emerald-400">Successfully Updated!</h4>
+                      <p className="text-[11px] text-stone-400">Your article has been successfully saved and published.</p>
+                    </div>
+                    <div className="flex flex-col gap-2 pt-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowPublishSuccessModal(false);
+                          if (publishedArticleSlug) {
+                            window.open(`/news/${publishedArticleSlug}`, "_blank");
+                          }
+                        }}
+                        className="w-full py-2.5 bg-brand-gold hover:bg-brand-gold-dark text-stone-950 rounded-xl text-[10px] font-black uppercase tracking-wider transition cursor-pointer flex items-center justify-center gap-1.5"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" /> View Published News
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setShowPublishSuccessModal(false)}
+                        className="w-full py-2.5 bg-stone-800 hover:bg-stone-750 text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition cursor-pointer"
+                      >
+                        Back to Dashboard
+                      </button>
                     </div>
                   </div>
                 </div>

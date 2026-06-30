@@ -702,6 +702,13 @@ class JSONDatabaseManager {
   public setTable(name: keyof typeof this.data, items: any[]) {
     (this.data as any)[name] = items;
     this.save();
+    try {
+      const { revalidatePath } = require("next/cache");
+      revalidatePath("/", "layout");
+      console.log("Successfully revalidated all Next.js paths after database update.");
+    } catch (e) {
+      // Ignore when running outside of Next.js server context (e.g. in seeding/CLI scripts)
+    }
   }
 }
 

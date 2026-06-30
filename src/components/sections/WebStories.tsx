@@ -188,9 +188,14 @@ export default function WebStories({ language = "en" }: { language?: "en" | "ta"
 
             // Fallback matching if there is still no slug associated
             if (!slug && loadedNews.length > 0) {
-              const matchedArticle = findBestMatchingNews(title, loadedNews);
-              if (matchedArticle) {
-                slug = matchedArticle.slug;
+              // Only match if the story has a customized title (i.e., not a raw placeholder/fallback)
+              const originalTitle = story.title || story.name;
+              const isRawOriginal = /^(upload|img|photo|image|dsc|file|pic|picture)[_\s-]*\d+/i.test(originalTitle) || /^\d+$/.test(originalTitle) || originalTitle.toUpperCase().startsWith("UPLOAD");
+              if (!isRawOriginal) {
+                const matchedArticle = findBestMatchingNews(title, loadedNews);
+                if (matchedArticle) {
+                  slug = matchedArticle.slug;
+                }
               }
             }
 
@@ -202,6 +207,7 @@ export default function WebStories({ language = "en" }: { language?: "en" | "ta"
             };
           });
 
+          console.log("Mapped storiesList inside WebStories:", storiesList.map(s => ({ title: s.title, slug: s.slug, articleId: s.articleId, url: s.url })));
           setStories(storiesList);
         }
       } catch (e) {
