@@ -207,7 +207,7 @@ export default function WebStories({ language = "en" }: { language?: "en" | "ta"
             };
           });
 
-          console.log("Mapped storiesList inside WebStories:", storiesList.map(s => ({ title: s.title, slug: s.slug, articleId: s.articleId, url: s.url })));
+          console.log("Mapped storiesList inside WebStories:", storiesList.map((s: any) => ({ title: s.title, slug: s.slug, articleId: s.articleId, url: s.url })));
           setStories(storiesList);
         }
       } catch (e) {

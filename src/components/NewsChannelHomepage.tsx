@@ -7,6 +7,11 @@ import NewsroomHero from "@/components/sections/NewsroomHero";
 import WebStories from "@/components/sections/WebStories";
 import VideoNewsCenter from "@/components/sections/VideoNewsCenter";
 import OfficialAlertsFeed from "@/components/sections/OfficialAlertsFeed";
+import GcpCommissionerMandate from "@/components/sections/GcpCommissionerMandate";
+import GcpBrandingStats from "@/components/sections/GcpBrandingStats";
+import PoliceStationDirectory from "@/components/sections/PoliceStationDirectory";
+import GcpEmergencyHelpline from "@/components/sections/GcpEmergencyHelpline";
+import GcpCitizenServices from "@/components/sections/GcpCitizenServices";
 import { useTranslation } from "@/context/LanguageContext";
 import Image from "next/image";
 import Link from "next/link";
@@ -330,6 +335,21 @@ export default function NewsChannelHomepage({
 
         {/* SECTION 4: WEB STORIES (Instagram-style scroll) */}
         <WebStories language={language} />
+
+        {/* SECTION 4B: GCP COMMISSIONER & CORE MANDATE */}
+        <GcpCommissionerMandate />
+
+        {/* SECTION 4C: GCP BRANDING & STATS */}
+        <GcpBrandingStats />
+
+        {/* SECTION 4D: POLICE STATION DIRECTORY */}
+        <PoliceStationDirectory />
+
+        {/* SECTION 4E: GCP PUBLIC SERVICES & HELPLINES */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+          <GcpCitizenServices />
+          <GcpEmergencyHelpline />
+        </div>
 
         {/* SECTION 5: CATEGORY NEWS (Rows of Crime, Cyber, Women, etc.) */}
         <div className="space-y-12">
