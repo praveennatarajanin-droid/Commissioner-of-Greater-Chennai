@@ -12,8 +12,6 @@ export async function GET() {
 
 User-agent: *
 Allow: /
-Disallow: /admin
-Disallow: /controller
 Disallow: /api/
 
 # Sitemaps

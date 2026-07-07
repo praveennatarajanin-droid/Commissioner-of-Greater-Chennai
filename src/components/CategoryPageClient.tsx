@@ -108,6 +108,15 @@ const CATEGORY_MAP: Record<string, { title_en: string; title_ta: string; color: 
     bgImage: "/images/outreach_banner_bg.png",
     bgGradient: "linear-gradient(90deg, #062f22 0%, rgba(6, 47, 34, 0.95) 30%, rgba(6, 47, 34, 0.5) 65%, rgba(6, 47, 34, 0) 100%)",
     bgPosition: "center 40%"
+  },
+  traffic: {
+    title_en: "Traffic News",
+    title_ta: "போக்குவரத்து செய்திகள்",
+    color: "#2e3192",
+    keywords: ["traffic", "diversion", "road closure", "signal", "congestion", "transport", "accident alert", "traffic police"],
+    bgImage: "/images/public_safety_banner_bg.png",
+    bgGradient: "linear-gradient(90deg, #1e1b4b 0%, rgba(30, 27, 75, 0.95) 30%, rgba(30, 27, 75, 0.5) 65%, rgba(30, 27, 75, 0) 100%)",
+    bgPosition: "center 50%"
   }
 };
 
@@ -158,6 +167,7 @@ export default function CategoryPageClient({
                          (id === "cyber-safety" && catEn === "cyber safety") ||
                          (id === "women-safety" && (catEn === "women safety" || catEn === "women's safety")) ||
                          (id === "public-safety" && catEn === "public safety") ||
+                         (id === "traffic" && (catEn === "traffic" || catEn === "traffic news" || catEn === "traffic advisory")) ||
                          (id === "outreach" && (catEn === "outreach" || catEn === "community outreach"));
       
       if (exactMatch) return true;
@@ -265,7 +275,7 @@ export default function CategoryPageClient({
                         <span className="flex items-center gap-1">
                           <Clock className="w-3 h-3 text-stone-400" /> {timeAgo(n.created_at || n.date, language)}
                         </span>
-                        {n.views_count !== undefined && (
+                        {n.views_count != null && (
                           <span className="flex items-center gap-0.5">
                             <Eye className="w-3 h-3 text-stone-400" /> {n.views_count.toLocaleString()}
                           </span>

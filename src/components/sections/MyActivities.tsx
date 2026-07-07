@@ -39,7 +39,8 @@ export default function MyActivities({ customNews, customAlerts }: MyActivitiesP
   const handleRefresh = async (showLoading = true) => {
     if (showLoading) setLoading(true);
     try {
-      const res = await fetch("/api/alerts", { method: "POST" });
+      const method = showLoading ? "POST" : "GET";
+      const res = await fetch("/api/alerts", { method });
       if (res.ok) {
         const data = await res.json();
         if (data.success && data.alerts) {
@@ -47,8 +48,12 @@ export default function MyActivities({ customNews, customAlerts }: MyActivitiesP
           setLastUpdated(formatTime(new Date()));
         }
       }
-    } catch (err) {
-      console.error("Failed to refresh alerts:", err);
+    } catch (err: any) {
+      if (err instanceof TypeError && err.message === "Failed to fetch") {
+        console.warn("Activities alert refresh: network temporarily unavailable or server recompiling.");
+      } else {
+        console.error("Failed to refresh alerts:", err);
+      }
     } finally {
       if (showLoading) setLoading(false);
     }

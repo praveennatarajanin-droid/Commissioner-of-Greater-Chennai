@@ -99,7 +99,7 @@ export default async function RootLayout({
   };
 
   return (
-    <html lang="en" className="h-full antialiased scroll-smooth">
+    <html lang="en" className="h-full antialiased scroll-smooth" suppressHydrationWarning>
       <head>
         <style dangerouslySetInnerHTML={{ __html: inlineStyles }} />
         <link rel="icon" href="/favicon.ico?v=2" />
@@ -134,7 +134,7 @@ export default async function RootLayout({
           }} />
         )}
       </head>
-      <body className="min-h-full flex flex-col bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans transition-colors duration-300">
+      <body className="min-h-full flex flex-col bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans transition-colors duration-300" suppressHydrationWarning>
         {/* GTM noscript fallback */}
         {seoSettings.google_tag_manager_id && (
           <noscript>

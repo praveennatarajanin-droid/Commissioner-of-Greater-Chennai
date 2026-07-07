@@ -182,7 +182,7 @@ export default function TopStoriesGrid({ news, language = "en" }: TopStoriesGrid
                             {item.date}
                           </span>
                         )}
-                        {item.views_count !== undefined && (
+                        {item.views_count != null && (
                           <span className="flex items-center gap-1 text-[10px] text-stone-400 font-medium">
                             <Eye className="w-3 h-3" />
                             {item.views_count.toLocaleString()}

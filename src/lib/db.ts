@@ -1,9 +1,7 @@
-import fs from "fs";
-import path from "path";
 import crypto from "crypto";
-import { newsData } from "@/data/newsData";
+import { query, transaction, registerMutationCallback } from "./mysql";
 
-// Crytographic hashing helper
+// Cryptographic hashing helper
 export function hashPassword(password: string): string {
   return crypto.createHash("sha256").update(password).digest("hex");
 }
@@ -18,13 +16,26 @@ export interface DBUser {
   status: "active" | "disabled";
   lastLogin?: string | null;
   createdAt?: string | null;
+  locked?: number | null;
+  failed_logins?: number | null;
+  password_expiry?: string | null;
+  permissions_json?: string | null;
+  mobile?: string | null;
+  profile_photo?: string | null;
+  force_password_change?: number | null;
 }
 
 export interface DBActivityLog {
   id: number;
   username: string;
+  role?: string;
+  ip_address?: string;
   action: string;
+  module?: string;
   timestamp: string; // ISO date-time string
+  browser?: string;
+  before_val?: string;
+  after_val?: string;
 }
 
 export interface DBNewsItem {
@@ -62,6 +73,9 @@ export interface DBNewsItem {
   updated_at?: string;
   created_at?: string;
   language?: string;
+  meta_description?: string;
+  meta_keywords?: string;
+  short_caption?: string;
 }
 
 export interface DBTickerItem {
@@ -165,6 +179,7 @@ export interface DBVideoItem {
   order_num: number;
   active: number;
   section: "main" | "bottom";
+  views_count?: number;
 }
 
 export interface DBAlertItem {
@@ -188,6 +203,98 @@ export interface DBAlertSettings {
   live_feed_enabled?: number;
   approved_sources?: string;
   refresh_interval?: number;
+}
+
+export interface DBPoliceStation {
+  id: number;
+  name_en: string;
+  name_ta: string;
+  address_en: string;
+  address_ta: string;
+  phone: string;
+  email?: string;
+  incharge_en?: string;
+  incharge_ta?: string;
+  designation_en?: string;
+  designation_ta?: string;
+  hours_en?: string;
+  hours_ta?: string;
+  lat?: number;
+  lng?: number;
+  zone_en: string;
+  zone_ta: string;
+  division_en: string;
+  division_ta: string;
+  type: string;
+
+  // New database fields
+  station_name?: string;
+  station_code?: string;
+  station_type?: string;
+  zone?: string;
+  division?: string;
+  category?: string;
+  address?: string;
+  landmark?: string;
+  pincode?: string;
+  alternate_phone?: string;
+  latitude?: number;
+  longitude?: number;
+  inspector_name?: string;
+  inspector_mobile?: string;
+  station_image?: string;
+  working_hours?: string;
+  description?: string;
+  jurisdiction_areas?: string;
+  google_map_link?: string;
+  is_active?: number;
+  created_at?: string;
+  updated_at?: string;
+  area_name?: string;
+  locality?: string;
+}
+
+export interface DBServiceRequest {
+  id: number;
+  applicantName: string;
+  mobileNumber: string;
+  email: string;
+  address: string;
+  serviceRequired: string;
+  policeStation: string;
+  message: string;
+  receiptId: string;
+  created_at: string;
+}
+
+export interface DBContactMessage {
+  id: number;
+  name: string;
+  mobile: string;
+  email: string;
+  subject: string;
+  category: string;
+  message: string;
+  status: string;
+  created_at: string;
+}
+
+export interface DBEmergencyContact {
+  id: number;
+  number: string;
+  name_en: string;
+  name_ta: string;
+  desc_en: string;
+  desc_ta: string;
+}
+
+export interface DBDepartmentLink {
+  id: number;
+  name_en: string;
+  name_ta: string;
+  url: string;
+  desc_en: string;
+  desc_ta: string;
 }
 
 export interface DBSeoSettings {
@@ -259,469 +366,12 @@ export interface DBArticleSeo {
   updated_at: string;
 }
 
-// Flat JSON Database File Path
-const JSON_DB_PATH = path.join(process.cwd(), "src/data/db.json");
-
-class JSONDatabaseManager {
-  private data: {
-    users: DBUser[];
-    news: DBNewsItem[];
-    ticker: DBTickerItem[];
-    slider: DBSliderItem[];
-    commissioner_profile: DBCommissionerProfile[];
-    theme_settings: DBThemeSettings[];
-    menu_items: DBMenuItem[];
-    contacts: DBContact[];
-    tts_settings: DBTtsSettings[];
-    videos: DBVideoItem[];
-    alerts: DBAlertItem[];
-    alert_settings: DBAlertSettings[];
-    seo_settings: DBSeoSettings[];
-    article_seo: DBArticleSeo[];
-    asset_metadata: DBAssetMetadata[];
-    activity_logs: DBActivityLog[];
-  };
-
-  constructor() {
-    this.data = {
-      users: [],
-      news: [],
-      ticker: [],
-      slider: [],
-      commissioner_profile: [],
-      theme_settings: [],
-      menu_items: [],
-      contacts: [],
-      tts_settings: [],
-      videos: [],
-      alerts: [],
-      alert_settings: [],
-      seo_settings: [],
-      article_seo: [],
-      asset_metadata: [],
-      activity_logs: [],
-    };
-    this.init();
-  }
-
-  private init() {
-    // Ensure data directory exists
-    const dir = path.dirname(JSON_DB_PATH);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-
-    if (fs.existsSync(JSON_DB_PATH)) {
-      try {
-        const raw = fs.readFileSync(JSON_DB_PATH, "utf8");
-        this.data = JSON.parse(raw);
-
-        // Auto-migrate: check if new SEO tables are missing from an existing database file
-        let modified = false;
-        if (!this.data.seo_settings) {
-          this.data.seo_settings = [
-            {
-              id: 1,
-              site_title: "Chennai Guardian | Greater Chennai Police",
-              site_description: "Official executive leadership portal and smart public safety dashboard of Dr. A. Amalraj IPS, Commissioner of Greater Chennai Police.",
-              default_keywords: "Greater Chennai Police, Chennai Police, Dr. A. Amalraj IPS, Tamil Nadu Police, Public Safety, Crime Prevention",
-              organization_name: "Greater Chennai Police",
-              organization_logo: "/images/gcp_logo.png",
-              contact_number: "044-23452300",
-              address: "Commissioner Office, Vepery, Chennai - 600007, Tamil Nadu, India",
-              site_url: "https://chennaiguardian.in",
-              social_facebook: "https://www.facebook.com/Chennai.Police/",
-              social_twitter: "https://x.com/chennaipolice_",
-              social_instagram: "https://www.instagram.com/greater_chennai_police_/",
-              social_youtube: "",
-              google_analytics_id: "",
-              google_tag_manager_id: "",
-              google_search_console: "",
-              bing_verification: "",
-              default_robots: "index, follow",
-              default_og_image: "/images/gcp_logo.png",
-              publisher_name: "Greater Chennai Police",
-              publisher_logo: "/images/gcp_logo.png"
-            }
-          ];
-          modified = true;
-        }
-        if (!this.data.article_seo) {
-          this.data.article_seo = [];
-          modified = true;
-        }
-        if (!this.data.activity_logs) {
-          this.data.activity_logs = [];
-          modified = true;
-        }
-        if (this.data.users && Array.isArray(this.data.users)) {
-          this.data.users.forEach((user: any) => {
-            if (!user.email) {
-              user.email = `${user.username}@chennaiguardian.in`;
-              modified = true;
-            }
-            if (!user.status) {
-              user.status = "active";
-              modified = true;
-            }
-            if (!user.createdAt) {
-              user.createdAt = new Date().toISOString();
-              modified = true;
-            }
-          });
-        }
-        if (modified) {
-          this.save();
-          console.log("JSON Database successfully migrated/seeded for SEO, assets and user tables!");
-        }
-        return;
-      } catch (e) {
-        console.error("Error reading JSON Database, reseeding...", e);
-      }
-    }
-    this.seed();
-  }
-
-  private save() {
-    fs.writeFileSync(JSON_DB_PATH, JSON.stringify(this.data, null, 2), "utf8");
-  }
-
-  private seed() {
-    // 1. Seed default users
-    this.data.users = [
-      { id: 1, username: "admin", passwordHash: hashPassword("admin123"), role: "superadmin", email: "admin@chennaiguardian.in", status: "active", createdAt: new Date().toISOString(), lastLogin: null },
-      { id: 2, username: "editor", passwordHash: hashPassword("editor123"), role: "editor", email: "editor@chennaiguardian.in", status: "active", createdAt: new Date().toISOString(), lastLogin: null },
-      { id: 3, username: "content", passwordHash: hashPassword("content123"), role: "contentadmin", email: "content@chennaiguardian.in", status: "active", createdAt: new Date().toISOString(), lastLogin: null },
-    ];
-    this.data.activity_logs = [];
-
-    // 2. Seed news from hardcoded newsData
-    this.data.news = newsData.map((item) => ({
-      ...item,
-      published: 1, // Published by default
-    }));
-
-    // 3. Seed ticker items
-    this.data.ticker = [
-      { id: 1, text_en: "TN Chief Minister's Police Medal Ceremony Awarded to GCP Personnel.", text_ta: "சென்னை பெருநகர காவல் பணியாளர்களுக்கு தமிழ்நாடு முதலமைச்சரின் காவல் பதக்க விழா வழங்கப்பட்டது.", order_num: 1, active: 1 },
-      { id: 2, text_en: "Singapen Women's Safety Awareness Special Initiative launched in Chennai.", text_ta: "சென்னை பெருநகர காவல் துறையின் சிங்கப்பெண் பெண்கள் பாதுகாப்பு விழிப்புணர்வு சிறப்புத் திட்டம் தொடங்கப்பட்டது.", order_num: 2, active: 1 },
-      { id: 3, text_en: "Clean Campus maintenance operations successfully conducted in Police Quarters.", text_ta: "காவலர் குடியிருப்புகளில் சுத்தமான வளாக பராமரிப்புப் பணிகள் வெற்றிகரமாக நடத்தப்பட்டன.", order_num: 3, active: 1 },
-      { id: 4, text_en: "Kaaval Karangal rescues senior citizens and reunites missing persons.", text_ta: "காவல் கரங்கள் ஆதரவற்ற முதியவர்களை மீட்டு காணாமல் போனவர்களை குடும்பத்தினருடன் சேர்க்கிறது.", order_num: 4, active: 1 },
-    ];
-
-    // 4. Seed slider items
-    this.data.slider = [
-      {
-        id: 1,
-        src: "/images/slider_6.jpg",
-        category_en: "POLICE ADMINISTRATION",
-        category_ta: "காவல் நிர்வாகம்",
-        title_en: "Felicitation and Greeting to Senior Police Officers",
-        title_ta: "உயர் காவல் அதிகாரிகளுக்கு வாழ்த்து மற்றும் மரியாதை",
-        desc_en: "Greetings and commendations were presented to the newly appointed officers in Greater Chennai Police.",
-        desc_ta: "சென்னை பெருநகர காவல்துறையில் புதிதாக பொறுப்பேற்ற அதிகாரிகளுக்கு வாழ்த்துக்கள் மற்றும் பாராட்டுக்கள் வழங்கப்பட்டது.",
-        order_num: 1,
-        active: 1
-      },
-      {
-        id: 2,
-        src: "/images/slider_2.jpg",
-        category_en: "COMMUNITY SAFETY",
-        category_ta: "சமூக பாதுகாப்பு",
-        title_en: "Launch of Singappen Special Force",
-        title_ta: "சிங்கப்பெண் சிறப்பு அதிரடிப்படை தொடக்கம்",
-        desc_en: "Hon'ble Chief Minister of Tamil Nadu Thiru. S. Joseph Vijay accepted the parade salute of women police personnel.",
-        desc_ta: "மாண்புமிகு தமிழ்நாடு முதலமைச்சர் திரு. ச.ஜோசப் விஜய் அவர்கள் பெண் காவலர்களின் அணிவகுப்பு மரியாதையை ஏற்றுக்கொண்டார்.",
-        order_num: 2,
-        active: 1
-      },
-      {
-        id: 3,
-        src: "/images/slider_4.jpg",
-        category_en: "AWARDS",
-        category_ta: "விருதுகள்",
-        title_en: "Commendation Certificates for Outstanding Service",
-        title_ta: "சிறந்த சேவைக்கான பாராட்டு சான்றிதழ்கள்",
-        desc_en: "Presentation of certificates of appreciation and awards to police officers who rendered outstanding service to the public.",
-        desc_ta: "பொதுமக்களுக்கு சிறப்பான சேவை புரிந்த காவல் அதிகாரிகளுக்கு பாராட்டுச் சான்றிதழ்கள் மற்றும் விருதுகள் வழங்கல்.",
-        order_num: 3,
-        active: 1
-      }
-    ];
-
-    // 5. Seed commissioner profile details
-    this.data.commissioner_profile = [
-      {
-        id: 1,
-        name_en: "Dr. A. Amalraj IPS",
-        name_ta: "டாக்டர் ஏ. அமல்ராஜ் ஐபிஎஸ்",
-        designation_en: "Commissioner of Police, Greater Chennai",
-        designation_ta: "காவல் ஆணையர், சென்னை பெருநகரம்",
-        bio_en1: "Dr. A. Amalraj is a senior Indian Police Service (IPS) officer of the 1996 batch. Hailing from the Kanniyakumari district of Tamil Nadu, his administrative philosophy integrates scientific analytical methods, modern human resource practices, and proactive community engagement.",
-        bio_en2: "His academic credentials include a BSc and MSc in Physics, followed by an MBA in Human Resource Management, and a PhD from Madurai Kamaraj University. He has spent three decades serving across various district, commissionerate, and state-level divisions in Tamil Nadu, including leadership roles in Coimbatore, Salem, Trichy, and Tambaram.",
-        bio_ta1: "டாக்டர் ஏ. அமல்ராஜ் 1996 பேட்ச் மூத்த இந்திய காவல் பணி (IPS) அதிகாரி ஆவார். தமிழ்நாட்டின் கன்னியாகுமரி மாவட்டத்தைப் பூர்வீகமாகக் கொண்ட இவரது நிர்வாகத் தத்துவம் அறிவியல் பகுப்பாய்வு முறைகள், நவீன மனிதவள நடைமுறைகள் மற்றும் செயலூக்கமான சமூக ஈடுபாடு ஆகியவற்றை ஒருங்கிணைக்கிறது.",
-        bio_ta2: "இவரது கல்விச் சான்றுகளில் இயற்பியலில் பிஎஸ்சி மற்றும் எம்எஸ்சி, அதைத் தொடர்ந்து மனிதவள மேலாண்மையில் எம்பிஏ மற்றும் மதுரை காமராஜர் பல்கலைக்கழகத்தில் பிஎச்டி பட்டம் ஆகியவை அடங்கும். கோயம்புத்தூர், சேலம், திருச்சி மற்றும் தாம்பரம் ஆகிய இடங்களில் தலைமைப் பொறுப்புகள் உட்பட தமிழ்நாட்டின் பல்வேறு மாவட்ட, ஆணையர் மற்றும் மாநில அளவிலான பிரிவுகளில் மூன்று தசாப்தங்களாக பணியாற்றியுள்ளார்.",
-        photo: "/images/amalraj_portrait.png",
-        facebook: "https://www.facebook.com/Chennai.Police/",
-        twitter: "https://x.com/chennaipolice_?lang=en",
-        instagram: "https://www.instagram.com/greater_chennai_police_/?hl=en",
-        email: "cop@gcp.tn.gov.in",
-        phone: "044-23452300",
-        office_address_en: "Commissioner Office, Vepery, Chennai",
-        office_address_ta: "காவல் ஆணையர் அலுவலகம், வேப்பேரி, சென்னை",
-        ips_batch: "1996 Batch",
-        years_of_service: "30 Years",
-        motto_en: "Duty, Honor, Community Safety",
-        motto_ta: "கடமை, கண்ணியம், சமூக பாதுகாப்பு",
-        birthplace_en: "Kanniyakumari, Tamil Nadu",
-        birthplace_ta: "கன்னியாகுமரி, தமிழ்நாடு",
-        education_en: "BSc Physics, MSc Physics, MBA HR, PhD from Madurai Kamaraj University",
-        education_ta: "இயற்பியலில் பிஎஸ்சி மற்றும் எம்எஸ்சி, மனிதவள மேலாண்மையில் எம்பிஏ மற்றும் மதுரை காமராஜர் பல்கலைக்கழகத்தில் பிஎச்டி",
-        vision_en: "To establish a technologically advanced, highly responsive, and citizen-friendly police force that ensures safety, protects human rights, and fosters community trust.",
-        vision_ta: "பாதுகாப்பை உறுதிசெய்து, மனித உரிமைகளைப் பேணி, சமூக நம்பிக்கையை வளர்க்கும் வகையில் தொழில்நுட்பரீதியாக மேம்பட்ட, மிகச் சிறந்த முறையில் பதிலளிக்கக்கூடிய மற்றும் மக்கள்-நட்பு கொண்ட காவல் படையை நிறுவுதல்.",
-        timeline: [
-          { year: "1996", event_en: "Joined the Indian Police Service (IPS)", event_ta: "இந்திய காவல் பணியில் (IPS) இணைந்தார்" },
-          { year: "2002", event_en: "District Posting: Served as Superintendent of Police in key districts", event_ta: "மாவட்டப் பணி: முக்கிய மாவட்டங்களில் காவல் கண்காணிப்பாளராகப் பணியாற்றினார்" },
-          { year: "2008", event_en: "Commissionerate Assignment: Led urban policing command units", event_ta: "ஆணையப் பணி: நகர்ப்புற காவல் பிரிவுகளை வழிநடத்தினார்" },
-          { year: "2015", event_en: "Special Administrative Role: Supervised state-level administrative tasks", event_ta: "சிறப்பு நிர்வாகப் பொறுப்பு: மாநில அளவிலான நிர்வாகப் பணிகளைக் கண்காணித்தார்" },
-          { year: "2026", event_en: "Appointed as the Commissioner of Police, Greater Chennai", event_ta: "சென்னை பெருநகர காவல் ஆணையராக நியமிக்கப்பட்டார்" }
-        ],
-        awards: [
-          { title_en: "President's Police Medal", title_ta: "ஜனாதிபதியின் காவல் பதக்கம்", desc_en: "Awarded for Distinguished Service to the Nation.", desc_ta: "தேசத்திற்கான சிறந்த சேவைக்காக வழங்கப்பட்டது." },
-          { title_en: "Chief Minister Commendation Medal", title_ta: "முதலமைச்சரின் பாராட்டுச் பதக்கம்", desc_en: "Recognized for exceptional devotion to duty and administrative excellence.", desc_ta: "கடமை மீதான விதிவிலக்கான பக்தி மற்றும் சிறந்த நிர்வாகத்திற்காக அங்கீகரிக்கப்பட்டது." },
-          { title_en: "Distinguished Service Award", title_ta: "சிறந்த சேவை விருது", desc_en: "Honored for outstanding contributions to public safety and law enforcement.", desc_ta: "பொதுப் பாதுகாப்பு மற்றும் சட்ட அமலாக்கத்திற்கு சிறந்த பங்களிப்புக்காக கௌரவிக்கப்பட்டது." },
-          { title_en: "Administrative Excellence Recognition", title_ta: "நிர்வாக மேன்மைக்கான அங்கீகாரம்", desc_en: "Commended for successful execution of organizational modernization programs.", desc_ta: "நிறுவன நவீனமயமாக்கல் திட்டங்களை வெற்றிகரமாக செயல்படுத்தியதற்காக பாராட்டப்பட்டது." }
-        ],
-        initiatives: [
-          { title_en: "Women's Safety Programs", title_ta: "பெண்கள் பாதுகாப்புத் திட்டங்கள்", desc_en: "Established city-wide help desks, emergency patrols, and gender-sensitization initiatives.", desc_ta: "நகரம் முழுவதும் உதவி மையங்கள், அவசர ரோந்துப் பணிகள் மற்றும் பாலின விழிப்புணர்வு முயற்சிகளை நிறுவினார்." },
-          { title_en: "Singappen Initiative", title_ta: "சிங்கப்பெண் திட்டம்", desc_en: "Launched special women force teams to patrol crime-prone areas and schools.", desc_ta: "குற்றங்கள் நடக்கக்கூடிய பகுதிகள் மற்றும் பள்ளிகளை ரோந்து செய்ய சிறப்பு பெண் காவல் குழுக்களைத் தொடங்கினார்." },
-          { title_en: "Cyber Safety Awareness", title_ta: "இணைய வழி பாதுகாப்பு விழிப்புணர்வு", desc_en: "Conducted seminars across colleges and schools on online financial scams and cybersecurity best practices.", desc_ta: "ஆன்லைன் நிதி மோசடிகள் மற்றும் இணையப் பாதுகாப்பு முறைகள் குறித்து கல்லூரிகள் மற்றும் பள்ளிகளில் கருத்தரங்குகளை நடத்தினார்." },
-          { title_en: "Traffic Modernization", title_ta: "போக்குவரத்து நவீனமயமாக்கல்", desc_en: "Installed speed monitoring camera traps and smart signaling systems on key routes.", desc_ta: "முக்கிய வழிகளில் வேகக் கண்காணிப்பு கேமராக்கள் மற்றும் ஸ்மார்ட் சிக்னலிங் அமைப்புகளை நிறுவினார்." },
-          { title_en: "Community Policing", title_ta: "சமூகக் காவல்", desc_en: "Fostered community patrol programs and public feedback systems for micro-policing.", desc_ta: "நுண் காவலுக்கான சமூக ரோந்து திட்டங்கள் மற்றும் பொது கருத்து அமைப்புகளை வளர்த்தெடுத்தார்." },
-          { title_en: "Kaaval Karangal Programs", title_ta: "காவல் கரங்கள் திட்டம்", desc_en: "Rescued and rehabilitated senior citizens, homeless individuals, and abandoned children.", desc_ta: "முதியவர்கள், ஆதரவற்றோர் மற்றும் கைவிடப்பட்ட குழந்தைகளை மீட்டு மறுவாழ்வு அளித்தார்." }
-        ],
-        gallery: [
-          "/images/amalraj_portrait.png",
-          "/images/amalraj_header.png"
-        ]
-      }
-    ];
-
-    // 6. Seed default theme settings
-    this.data.theme_settings = [
-      {
-        id: 1,
-        primary_color: "#ed1b24",
-        secondary_color: "#2e3192",
-        accent_color: "#c5a059",
-        logo_path: "/images/gcp_logo.png",
-        footer_logo_path: "/images/gcp_logo.png",
-        favicon_path: "/favicon.ico"
-      }
-    ];
-
-    // 7. Seed menu items
-    this.data.menu_items = [
-      { id: 1, label_en: "Home", label_ta: "முகப்பு", href: "/", order_num: 1, position: "header" },
-      { id: 2, label_en: "About Us", label_ta: "எங்களைப் பற்றி", href: "/#about", order_num: 2, position: "header" },
-      { id: 3, label_en: "Activities", label_ta: "செயல்பாடுகள்", href: "/#vision", order_num: 3, position: "header" },
-      { id: 4, label_en: "Initiatives", label_ta: "முயற்சிகள்", href: "/#initiatives", order_num: 4, position: "header" },
-      { id: 5, label_en: "Achievements", label_ta: "சாதனைகள்", href: "/#achievements", order_num: 5, position: "header" },
-      { id: 6, label_en: "Media & News", label_ta: "செய்திகள்", href: "/#media", order_num: 6, position: "header" },
-      { id: 7, label_en: "Gallery", label_ta: "புகைப்படங்கள்", href: "/#gallery", order_num: 7, position: "header" },
-      { id: 8, label_en: "Contact Us", label_ta: "தொடர்புக்கு", href: "/#resources", order_num: 8, position: "header" }
-    ];
-
-    // 8. Seed contacts
-    this.data.contacts = [
-      { id: 1, name_en: "General Helpline", name_ta: "பொது உதவி எண்", value: "100", category: "helpline" },
-      { id: 2, name_en: "Emergency Police", name_ta: "அவசர காவல் உதவி", value: "112", category: "emergency" },
-      { id: 3, name_en: "Women Helpline", name_ta: "பெண்கள் உதவி எண்", value: "1091", category: "helpline" },
-      { id: 4, name_en: "Child Helpline", name_ta: "குழந்தைகள் உதவி எண்", value: "1098", category: "helpline" },
-      { id: 5, name_en: "Cyber Crime", name_ta: "சைபர் குற்றங்கள்", value: "1930", category: "emergency" }
-    ];
-
-    // 9. Seed TTS configuration settings
-    this.data.tts_settings = [
-      { id: 1, enabled: 1, tamil_voice: "ta-IN-PallaviNeural", english_voice: "en-IN-NeerjaNeural", speed: 1.0 }
-    ];
-
-    // 10. Seed default videos
-    this.data.videos = [
-      {
-        id: 1,
-        youtube_id: "WrQduPat2Nw",
-        title: "சென்னை பெருநகர காவல் ஆணையராக அமல்ராஜ் நியமனம் | Appointment Announcement News",
-        category: "Press Briefing & News",
-        date: "May 21, 2026",
-        order_num: 1,
-        active: 1,
-        section: "main"
-      },
-      {
-        id: 2,
-        youtube_id: "e_VGTPIBJSQ",
-        title: "காவல் ஆணையர் அமல்ராஜ் விடுத்த எச்சரிக்கை | Chennai Police News | Commissioner Amalraj",
-        category: "Chennai Police News",
-        date: "June 14, 2026",
-        order_num: 2,
-        active: 1,
-        section: "main"
-      },
-      {
-        id: 3,
-        youtube_id: "vcYsfGt7QqQ",
-        title: "எழுத்தாளர் To தாம்பரம் காவல் ஆணையர்! யார் இந்த அமல்ராஜ் IPS? | TN Government | Tambaram",
-        category: "Profile | ABP Nadu",
-        date: "June 6, 2022",
-        order_num: 1,
-        active: 1,
-        section: "bottom"
-      },
-      {
-        id: 4,
-        youtube_id: "c8YtQzuusMg",
-        title: "Commissioner Amalraj — Latest Update | Greater Chennai Police",
-        category: "Chennai Police News",
-        date: "2026",
-        order_num: 2,
-        active: 1,
-        section: "bottom"
-      },
-      {
-        id: 5,
-        youtube_id: "e_VGTPIBJSQ",
-        title: "காவல் ஆணையர் அமல்ராஜ் விடுத்த எச்சரிக்கை | Chennai Police News",
-        category: "Chennai Police News",
-        date: "June 14, 2026",
-        order_num: 3,
-        active: 1,
-        section: "bottom"
-      }
-    ];
-
-    // 11. Seed default official alerts
-    const twoHoursAgo = new Date();
-    twoHoursAgo.setHours(twoHoursAgo.getHours() - 2);
-    const fiveHoursAgo = new Date();
-    fiveHoursAgo.setHours(fiveHoursAgo.getHours() - 5);
-    const oneDayAgo = new Date();
-    oneDayAgo.setDate(oneDayAgo.getDate() - 1);
-
-    this.data.alert_settings = [
-      {
-        id: 1,
-        auto_fetch: 1,
-        require_approval: 1,
-        last_fetched_at: "",
-        live_feed_enabled: 1,
-        approved_sources: "tnpolice.gov.in, gcp.tn.gov.in, greaterchennaipolice.in, tn.gov.in, pib.gov.in",
-        refresh_interval: 15
-      }
-    ];
-
-    this.data.alerts = [
-      {
-        id: 1,
-        title: "Chennai Traffic Police announces new ECR speed monitoring system.",
-        category: "TRAFFIC UPDATE",
-        source: "Greater Chennai Police",
-        url: "https://www.thehindu.com",
-        published_at: twoHoursAgo.toISOString(),
-        approved: 1,
-        pinned: 1,
-        removed: 0,
-        created_at: new Date().toISOString()
-      },
-      {
-        id: 2,
-        title: "High-level police review meeting conducted regarding public safety.",
-        category: "LAW & ORDER",
-        source: "Tamil Nadu Police",
-        url: "https://www.thehindu.com",
-        published_at: fiveHoursAgo.toISOString(),
-        approved: 1,
-        pinned: 0,
-        removed: 0,
-        created_at: new Date().toISOString()
-      },
-      {
-        id: 3,
-        title: "Kaaval Karangal support line operating 24/7 for homeless shelter assistance.",
-        category: "SAFETY ADVISORY",
-        source: "Government Press Release",
-        url: "https://www.tn.gov.in",
-        published_at: oneDayAgo.toISOString(),
-        approved: 1,
-        pinned: 0,
-        removed: 0,
-        created_at: new Date().toISOString()
-      }
-    ];
-
-    // 12. Seed default SEO settings
-    this.data.seo_settings = [
-      {
-        id: 1,
-        site_title: "Chennai Guardian | Greater Chennai Police",
-        site_description: "Official executive leadership portal and smart public safety dashboard of Dr. A. Amalraj IPS, Commissioner of Greater Chennai Police.",
-        default_keywords: "Greater Chennai Police, Chennai Police, Dr. A. Amalraj IPS, Tamil Nadu Police, Public Safety, Crime Prevention",
-        organization_name: "Greater Chennai Police",
-        organization_logo: "/images/gcp_logo.png",
-        contact_number: "044-23452300",
-        address: "Commissioner Office, Vepery, Chennai - 600007, Tamil Nadu, India",
-        site_url: "https://chennaiguardian.in",
-        social_facebook: "https://www.facebook.com/Chennai.Police/",
-        social_twitter: "https://x.com/chennaipolice_",
-        social_instagram: "https://www.instagram.com/greater_chennai_police_/",
-        social_youtube: "",
-        google_analytics_id: "",
-        google_tag_manager_id: "",
-        google_search_console: "",
-        bing_verification: "",
-        default_robots: "index, follow",
-        default_og_image: "/images/gcp_logo.png",
-        publisher_name: "Greater Chennai Police",
-        publisher_logo: "/images/gcp_logo.png"
-      }
-    ];
-
-    // 13. Seed empty article SEO (populated on-demand)
-    this.data.article_seo = [];
-
-    this.save();
-    console.log("JSON Database successfully seeded!");
-  }
-
-  // API operations
-  public getTable(name: keyof typeof this.data) {
-    this.init(); // Force reload from disk to stay in sync across pages/compiles
-    return this.data[name];
-  }
-
-  public setTable(name: keyof typeof this.data, items: any[]) {
-    (this.data as any)[name] = items;
-    this.save();
-    try {
-      const { revalidatePath } = require("next/cache");
-      revalidatePath("/", "layout");
-      console.log("Successfully revalidated all Next.js paths after database update.");
-    } catch (e) {
-      // Ignore when running outside of Next.js server context (e.g. in seeding/CLI scripts)
-    }
-  }
-}
-
-// Global instances singleton
-const jsonDb = new JSONDatabaseManager();
-
 interface DecodeResult {
   status: boolean;
   decodedUrl?: string;
   message?: string;
 }
 
-// Helper functions to resolve Google News RSS redirect URLs in TypeScript
 async function getBase64Str(sourceUrl: string): Promise<{ status: boolean; base64Str?: string; message?: string }> {
   try {
     const url = new URL(sourceUrl);
@@ -819,340 +469,565 @@ async function decodeGoogleNewsUrl(sourceUrl: string): Promise<DecodeResult> {
   return decodeUrl(paramsRes.signature || '', paramsRes.timestamp || '', paramsRes.base64Str || '');
 }
 
-// Dynamic Database Interface supporting Postgres, MySQL, and JSON fallback
 class ChennaiGuardianDatabase {
-  private dbType: "json" | "postgres" | "mysql" = "json";
-  private pgClient: any = null;
-  private mysqlPool: any = null;
+  private dbType: "mysql" = "mysql";
+  private cache: Record<string, any> = {};
 
   constructor() {
-    this.detectDatabase();
+    this.initDatabaseSchema();
+    registerMutationCallback(() => {
+      this.clearCache();
+    });
   }
 
-  private async detectDatabase() {
-    const dbUrl = process.env.DATABASE_URL;
-    if (dbUrl) {
-      if (dbUrl.startsWith("postgres://") || dbUrl.startsWith("postgresql://")) {
-        try {
-          const { Client } = require("pg");
-          this.pgClient = new Client({ connectionString: dbUrl });
-          await this.pgClient.connect();
-          this.dbType = "postgres";
-          console.log("Connected to PostgreSQL Database dynamically.");
-          await this.setupSQLTables();
-        } catch (e) {
-          console.error("Failed to connect to PostgreSQL. Falling back to Local JSON database.", e);
-          this.dbType = "json";
+  public clearCache() {
+    this.cache = {};
+  }
+
+  private async initDatabaseSchema() {
+    try {
+      // Create superadmin_config table if not exists
+      await query(`
+        CREATE TABLE IF NOT EXISTS \`superadmin_config\` (
+          \`id\` INT AUTO_INCREMENT PRIMARY KEY,
+          \`config_key\` VARCHAR(255) UNIQUE NOT NULL,
+          \`config_value\` LONGTEXT NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+      `);
+
+      // Create custom_roles table if not exists
+      await query(`
+        CREATE TABLE IF NOT EXISTS \`custom_roles\` (
+          \`id\` INT AUTO_INCREMENT PRIMARY KEY,
+          \`role_name\` VARCHAR(255) UNIQUE NOT NULL,
+          \`permissions_json\` LONGTEXT NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+      `);
+
+      // Add missing columns to users table
+      await Promise.all([
+        query("ALTER TABLE \`users\` ADD COLUMN \`locked\` TINYINT DEFAULT 0").catch(() => {}),
+        query("ALTER TABLE \`users\` ADD COLUMN \`failed_logins\` INT DEFAULT 0").catch(() => {}),
+        query("ALTER TABLE \`users\` ADD COLUMN \`password_expiry\` VARCHAR(255) NULL").catch(() => {}),
+        query("ALTER TABLE \`users\` ADD COLUMN \`permissions_json\` LONGTEXT NULL").catch(() => {}),
+        query("ALTER TABLE \`users\` ADD COLUMN \`mobile\` VARCHAR(255) NULL").catch(() => {}),
+        query("ALTER TABLE \`users\` ADD COLUMN \`profile_photo\` LONGTEXT NULL").catch(() => {}),
+        query("ALTER TABLE \`users\` ADD COLUMN \`force_password_change\` TINYINT DEFAULT 0").catch(() => {})
+      ]);
+
+      // Add missing columns to activity_logs table
+      await query(`
+        ALTER TABLE \`activity_logs\`
+        ADD COLUMN IF NOT EXISTS \`role\` VARCHAR(255) NULL,
+        ADD COLUMN IF NOT EXISTS \`ip_address\` VARCHAR(255) NULL,
+        ADD COLUMN IF NOT EXISTS \`module\` VARCHAR(255) NULL
+      `).catch(() => {
+        // Fallback for older MySQL engines that do not support ADD COLUMN IF NOT EXISTS
+        return Promise.all([
+          query("ALTER TABLE \`activity_logs\` ADD COLUMN \`role\` VARCHAR(255) NULL").catch(() => {}),
+          query("ALTER TABLE \`activity_logs\` ADD COLUMN \`ip_address\` VARCHAR(255) NULL").catch(() => {}),
+          query("ALTER TABLE \`activity_logs\` ADD COLUMN \`module\` VARCHAR(255) NULL").catch(() => {})
+        ]);
+      });
+
+      await Promise.all([
+        query("ALTER TABLE \`activity_logs\` ADD COLUMN \`browser\` VARCHAR(255) NULL").catch(() => {}),
+        query("ALTER TABLE \`activity_logs\` ADD COLUMN \`before_val\` LONGTEXT NULL").catch(() => {}),
+        query("ALTER TABLE \`activity_logs\` ADD COLUMN \`after_val\` LONGTEXT NULL").catch(() => {})
+      ]);
+
+      // Seed default SUPER_ADMIN and ADMIN users if not already seeded
+      const users: any = await query("SELECT * FROM \`users\`");
+      if (users && users.length === 0) {
+        await query(
+          "INSERT INTO \`users\` (username, passwordHash, role, email, status, createdAt) VALUES (?, ?, ?, ?, ?, NOW()), (?, ?, ?, ?, ?, NOW())",
+          [
+            "superadmin",
+            hashPassword("admin123"),
+            "SUPER_ADMIN",
+            "superadmin@chennaiguardian.in",
+            "active",
+            "admin",
+            hashPassword("admin123"),
+            "ADMIN",
+            "admin@chennaiguardian.in",
+            "active"
+          ]
+        );
+        console.log("Seeded default SUPER_ADMIN and ADMIN user accounts.");
+      } else {
+        // Ensure standard SUPER_ADMIN and ADMIN roles map correctly
+        const hasSuperadmin = users.some((u: any) => u.username === "superadmin");
+        if (!hasSuperadmin) {
+          await query(
+            "INSERT INTO \`users\` (username, passwordHash, role, email, status, createdAt) VALUES (?, ?, ?, ?, ?, NOW())",
+            ["superadmin", hashPassword("admin123"), "SUPER_ADMIN", "superadmin@chennaiguardian.in", "active"]
+          );
         }
-      } else if (dbUrl.startsWith("mysql://")) {
-        try {
-          const mysql = require("mysql2/promise");
-          this.mysqlPool = mysql.createPool(dbUrl);
-          this.dbType = "mysql";
-          console.log("Connected to MySQL Database dynamically.");
-          await this.setupSQLTables();
-        } catch (e) {
-          console.error("Failed to connect to MySQL. Falling back to Local JSON database.", e);
-          this.dbType = "json";
+        const hasAdmin = users.some((u: any) => u.username === "admin");
+        if (!hasAdmin) {
+          await query(
+            "INSERT INTO \`users\` (username, passwordHash, role, email, status, createdAt) VALUES (?, ?, ?, ?, ?, NOW())",
+            ["admin", hashPassword("admin123"), "ADMIN", "admin@chennaiguardian.in", "active"]
+          );
+        } else {
+          // Force existing admin username to role ADMIN if it was previously superadmin, to conform to standard test roles
+          await query(
+            "UPDATE \`users\` SET \`role\` = 'ADMIN' WHERE \`username\` = 'admin'"
+          );
+        }
+
+        // Add indexes to frequently searched columns
+        await query("ALTER TABLE \`police_stations\` ADD INDEX \`idx_ps_zone\` (\`zone\`)").catch(() => {});
+        await query("ALTER TABLE \`police_stations\` ADD INDEX \`idx_ps_division\` (\`division\`)").catch(() => {});
+        await query("ALTER TABLE \`police_stations\` ADD INDEX \`idx_ps_type\` (\`type\`)").catch(() => {});
+        await query("ALTER TABLE \`news\` ADD INDEX \`idx_news_published\` (\`published\`)").catch(() => {});
+
+        // Seed default footer_config if not exists
+        const existingConfig: any = await query("SELECT * FROM \`superadmin_config\` WHERE \`config_key\` = 'footer_config'");
+        if (!existingConfig || existingConfig.length === 0) {
+          const defaultFooter = {
+            logo: "/images/gcp_logo.png",
+            website_name_en: "CHENNAI GUARDIAN NEWS",
+            website_name_ta: "சென்னை கார்டியன் செய்திகள்",
+            description_en: "Official news platform of Chennai Guardian News, providing 24/7 updates on public safety, cyber alerts, and community-centered policing initiatives.",
+            description_ta: "சென்னையின் முன்னணி சட்டம் ஒழுங்கு, குற்றப் புலனாய்வு மற்றும் மக்கள் விழிப்புணர்வு செய்திகளை உடனுக்குடன் வழங்கும் அதிகாரப்பூர்வ செய்தி ஊடகம்.",
+            copyright_text_en: "© 2026 Chennai Guardian. All Rights Reserved.",
+            copyright_text_ta: "© 2026 சென்னை கார்டியன். அனைத்து உரிமைகளும் பாதுகாக்கப்பட்டவை.",
+            developer_credit_en: "MCC MRF Innovation Park",
+            developer_credit_ta: "எம்சிசி எம்ஆர்எஃப் கண்டுபிடிப்பு பூங்கா",
+            address_en: "Commissioner Office, Greater Chennai Police, Vepery, Chennai - 600007",
+            address_ta: "ஆணையர் அலுவலகம், சென்னை பெருநகர காவல், வேப்பேரி, சென்னை - 600007",
+            phone: "044-23452300 (Office)",
+            email: "cop@gcp.tn.gov.in",
+            google_map_link: "https://maps.google.com/?q=Greater+Chennai+Police+Commissioner+Office+Vepery",
+            social_facebook: "",
+            social_twitter: "",
+            social_youtube: "",
+            social_instagram: "",
+            background_image: "/images/gcp_headquarters.png",
+            background_color: "#1e293b",
+            text_color: "#ffffff",
+            footer_visible: true,
+            quick_links: [
+              { id: "1", label_en: "Home", label_ta: "முகப்பு", url: "/", target_blank: false, active: true, order_index: 1 },
+              { id: "2", label_en: "Crime News", label_ta: "குற்றம்", url: "/category/crime", target_blank: false, active: true, order_index: 2 },
+              { id: "3", label_en: "Cyber Safety", label_ta: "இணைய பாதுகாப்பு", url: "/category/cyber-safety", target_blank: false, active: true, order_index: 3 },
+              { id: "4", label_en: "Women Safety", label_ta: "பெண்கள் பாதுகாப்பு", url: "/category/women-safety", target_blank: false, active: true, order_index: 4 },
+              { id: "5", label_en: "About Us", label_ta: "எங்களைப் பற்றி", url: "/about", target_blank: false, active: true, order_index: 5 },
+              { id: "6", label_en: "Achievements", label_ta: "சாதனைகள்", url: "/achievements", target_blank: false, active: true, order_index: 6 },
+              { id: "7", label_en: "Police Stations", label_ta: "காவல் நிலையங்கள்", url: "/stations", target_blank: false, active: true, order_index: 7 },
+              { id: "8", label_en: "Grievance Form", label_ta: "மனு சமர்ப்பிப்பு", url: "/citizen-outreach", target_blank: false, active: true, order_index: 8 }
+            ],
+            government_links: [
+              { id: "1", label_en: "TN Police", label_ta: "தமிழ்நாடு காவல்துறை", url: "https://www.tnpolice.gov.in", target_blank: true, active: true, order_index: 1 },
+              { id: "2", label_en: "Gov of TN", label_ta: "தமிழ்நாடு அரசு", url: "https://www.tn.gov.in", target_blank: true, active: true, order_index: 2 },
+              { id: "3", label_en: "Cyber Portal", label_ta: "சைபர் போர்டல்", url: "https://www.cybercrime.gov.in", target_blank: true, active: true, order_index: 3 }
+            ]
+          };
+          await query(
+            "INSERT INTO \`superadmin_config\` (config_key, config_value) VALUES (?, ?)",
+            ["footer_config", JSON.stringify(defaultFooter)]
+          );
+          console.log("Seeded default footer_config in superadmin_config.");
         }
       }
-    } else {
-      this.dbType = "json";
+    } catch (err) {
+      console.error("Error in initDatabaseSchema:", err);
     }
   }
 
-  private async setupSQLTables() {
-    // Dynamic SQL table generation and seeding if using dynamic server databases (implemented dynamically on runtime hook if needed)
-    console.log("Setting up SQL schemas and table maps dynamically...");
+  // Helper for generic table queries
+  private async getTable(tableName: string, jsonFields: string[] = []): Promise<any[]> {
+    if (this.cache[tableName]) {
+      return this.cache[tableName];
+    }
+    try {
+      const rows: any = await query(`SELECT * FROM \`${tableName}\` ORDER BY id ASC`);
+      if (!Array.isArray(rows)) return [];
+      
+      const result = rows.map(row => {
+        const item = { ...row };
+        for (const field of jsonFields) {
+          if (item[field] && typeof item[field] === "string") {
+            try {
+              item[field] = JSON.parse(item[field]);
+            } catch (e) {
+              // Ignore parse error
+            }
+          }
+        }
+        return item;
+      });
+      this.cache[tableName] = result;
+      return result;
+    } catch (e) {
+      console.error(`Error fetching table ${tableName}:`, e);
+      return [];
+    }
   }
 
-  // --- CRUD WRAPPERS ---
+  private async saveTable(tableName: string, items: any[]) {
+    try {
+      if (!items || !Array.isArray(items)) return;
+      
+      await transaction(async (connection) => {
+        // Clear existing table records
+        await connection.execute(`DELETE FROM \`${tableName}\``);
+        
+        if (items.length === 0) return;
+        
+        // Fetch valid columns for this table
+        const [columnsInfo]: any = await connection.execute(`DESCRIBE \`${tableName}\``);
+        const validColumns = new Set(columnsInfo.map((col: any) => col.Field));
+        
+        for (const item of items) {
+          const keys = Object.keys(item).filter(k => validColumns.has(k));
+          if (keys.length === 0) continue;
+          
+          const columns = keys.map(k => `\`${k}\``).join(", ");
+          const placeholders = keys.map(() => "?").join(", ");
+          
+          const values = keys.map(k => {
+            const val = item[k];
+            if (val !== null && val !== undefined && typeof val === "object") {
+              return JSON.stringify(val);
+            }
+            return val === undefined ? null : val;
+          });
+          
+          const sql = `INSERT INTO \`${tableName}\` (${columns}) VALUES (${placeholders})`;
+          await connection.execute(sql, values);
+        }
+      });
+    } catch (e) {
+      console.error(`Error saving table ${tableName}:`, e);
+      throw e;
+    }
+  }
 
   // 1. Users Module
   public async getUsers(): Promise<DBUser[]> {
-    if (this.dbType === "json") {
-      return jsonDb.getTable("users") as DBUser[];
-    }
-    // SQL queries if DB active
-    return [];
-  }
-
-  // 14. Activity Logs Module
-  public async getActivityLogs(): Promise<DBActivityLog[]> {
-    if (this.dbType === "json") {
-      return jsonDb.getTable("activity_logs") as DBActivityLog[];
-    }
-    return [];
-  }
-
-  public async saveActivityLogs(logs: DBActivityLog[]) {
-    if (this.dbType === "json") {
-      jsonDb.setTable("activity_logs", logs);
-    }
-  }
-
-  public async addActivityLog(username: string, action: string) {
-    const logs = await this.getActivityLogs();
-    const id = logs.length > 0 ? Math.max(...logs.map(l => l.id)) + 1 : 1;
-    logs.unshift({
-      id,
-      username,
-      action,
-      timestamp: new Date().toISOString()
-    });
-    if (logs.length > 500) {
-      logs.splice(500);
-    }
-    await this.saveActivityLogs(logs);
+    return this.getTable("users") as Promise<DBUser[]>;
   }
 
   public async saveUsers(users: DBUser[]) {
-    if (this.dbType === "json") {
-      jsonDb.setTable("users", users);
-    }
+    await this.saveTable("users", users);
+  }
+
+  // Custom Roles Module
+  public async getCustomRoles(): Promise<any[]> {
+    return this.getTable("custom_roles", ["permissions_json"]);
+  }
+
+  public async saveCustomRoles(roles: any[]) {
+    await this.saveTable("custom_roles", roles);
   }
 
   // 2. News Module
   public async getNews(): Promise<DBNewsItem[]> {
-    if (this.dbType === "json") {
-      return jsonDb.getTable("news") as DBNewsItem[];
-    }
-    return [];
+    const jsonFields = ['content_en', 'content_ta', 'gallery', 'tags_en', 'tags_ta', 'highlights_en', 'highlights_ta', 'quote', 'timeline'];
+    return this.getTable("news", jsonFields) as Promise<DBNewsItem[]>;
   }
 
   public async saveNews(news: DBNewsItem[]) {
-    if (this.dbType === "json") {
-      jsonDb.setTable("news", news);
-    }
+    await this.saveTable("news", news);
   }
 
   // 3. Ticker Module
   public async getTicker(): Promise<DBTickerItem[]> {
-    if (this.dbType === "json") {
-      return jsonDb.getTable("ticker") as DBTickerItem[];
-    }
-    return [];
+    return this.getTable("ticker") as Promise<DBTickerItem[]>;
   }
 
   public async saveTicker(ticker: DBTickerItem[]) {
-    if (this.dbType === "json") {
-      jsonDb.setTable("ticker", ticker);
-    }
+    await this.saveTable("ticker", ticker);
   }
 
   // 4. Slider Module
   public async getSlider(): Promise<DBSliderItem[]> {
-    if (this.dbType === "json") {
-      return jsonDb.getTable("slider") as DBSliderItem[];
-    }
-    return [];
+    return this.getTable("slider") as Promise<DBSliderItem[]>;
   }
 
   public async saveSlider(slider: DBSliderItem[]) {
-    if (this.dbType === "json") {
-      jsonDb.setTable("slider", slider);
-    }
+    await this.saveTable("slider", slider);
   }
 
   // 5. Profile Module
   public async getCommissionerProfile(): Promise<DBCommissionerProfile> {
-    if (this.dbType === "json") {
-      const list = jsonDb.getTable("commissioner_profile") as DBCommissionerProfile[];
-      if (list && list.length > 0) {
-        const p = list[0];
-        return {
-          id: p.id,
-          name_en: p.name_en ?? "Dr. A. Amalraj IPS",
-          name_ta: p.name_ta ?? "டாக்டர் ஏ. அமல்ராஜ் ஐபிஎஸ்",
-          designation_en: p.designation_en ?? "Commissioner of Police, Greater Chennai",
-          designation_ta: p.designation_ta ?? "காவல் ஆணையர், சென்னை பெருநகரம்",
-          bio_en1: p.bio_en1 ?? "",
-          bio_en2: p.bio_en2 ?? "",
-          bio_ta1: p.bio_ta1 ?? "",
-          bio_ta2: p.bio_ta2 ?? "",
-          photo: p.photo ?? "/images/amalraj_portrait.png",
-          facebook: p.facebook ?? "",
-          twitter: p.twitter ?? "",
-          instagram: p.instagram ?? "",
-          email: p.email ?? "cop@gcp.tn.gov.in",
-          phone: p.phone ?? "044-23452300",
-          office_address_en: p.office_address_en ?? "Commissioner Office, Vepery, Chennai",
-          office_address_ta: p.office_address_ta ?? "காவல் ஆணையர் அலுவலகம், வேப்பேரி, சென்னை",
-          ips_batch: p.ips_batch ?? "1996 Batch",
-          years_of_service: p.years_of_service ?? "30 Years",
-          motto_en: p.motto_en ?? "Duty, Honor, Community Safety",
-          motto_ta: p.motto_ta ?? "கடமை, கண்ணியம், சமூக பாதுகாப்பு",
-          birthplace_en: p.birthplace_en ?? "Kanniyakumari, Tamil Nadu",
-          birthplace_ta: p.birthplace_ta ?? "கன்னியாகுமரி, தமிழ்நாடு",
-          education_en: p.education_en ?? "BSc Physics, MSc Physics, MBA HR, PhD from Madurai Kamaraj University",
-          education_ta: p.education_ta ?? "இயற்பியலில் பிஎஸ்சி மற்றும் எம்எஸ்சி, மனிதவள மேலாண்மையில் எம்பிஏ மற்றும் மதுரை காமராஜர் பல்கலைக்கழகத்தில் பிஎச்டி",
-          vision_en: p.vision_en ?? "To establish a technologically advanced, highly responsive, and citizen-friendly police force that ensures safety, protects human rights, and fosters community trust.",
-          vision_ta: p.vision_ta ?? "பாதுகாப்பை உறுதிசெய்து, மனித உரிமைகளைப் பேணி, சமூக நம்பிக்கையை வளர்க்கும் வகையில் தொழில்நுட்பரீதியாக மேம்பட்ட, மிகச் சிறந்த முறையில் பதிலளிக்கக்கூடிய மற்றும் மக்கள்-நட்பு கொண்ட காவல் படையை நிறுவுதல்.",
-          timeline: p.timeline ?? [
-            { year: "1996", event_en: "Joined the Indian Police Service (IPS)", event_ta: "இந்திய காவல் பணியில் (IPS) இணைந்தார்" },
-            { year: "2002", event_en: "District Posting: Served as Superintendent of Police in key districts", event_ta: "மாவட்டப் பணி: முக்கிய மாவட்டங்களில் காவல் கண்காணிப்பாளராகப் பணியாற்றினார்" },
-            { year: "2008", event_en: "Commissionerate Assignment: Led urban policing command units", event_ta: "ஆணையப் பணி: நகர்ப்புற காவல் பிரிவுகளை வழிநடத்தினார்" },
-            { year: "2015", event_en: "Special Administrative Role: Supervised state-level administrative tasks", event_ta: "சிறப்பு நிர்வாகப் பொறுப்பு: மாநில அளவிலான நிர்வாகப் பணிகளைக் கண்காணித்தார்" },
-            { year: "2026", event_en: "Appointed as the Commissioner of Police, Greater Chennai", event_ta: "சென்னை பெருநகர காவல் ஆணையராக நியமிக்கப்பட்டார்" }
-          ],
-          awards: p.awards ?? [
-            { title_en: "President's Police Medal", title_ta: "ஜனாதிபதியின் காவல் பதக்கம்", desc_en: "Awarded for Distinguished Service to the Nation.", desc_ta: "தேசத்திற்கான சிறந்த சேவைக்காக வழங்கப்பட்டது." },
-            { title_en: "Chief Minister Commendation Medal", title_ta: "முதலமைச்சரின் பாராட்டுச் பதக்கம்", desc_en: "Recognized for exceptional devotion to duty and administrative excellence.", desc_ta: "கடமை மீதான விதிவிலக்கான பக்தி மற்றும் சிறந்த நிர்வாகத்திற்காக அங்கீகரிக்கப்பட்டது." },
-            { title_en: "Distinguished Service Award", title_ta: "சிறந்த சேவை விருது", desc_en: "Honored for outstanding contributions to public safety and law enforcement.", desc_ta: "பொதுப் பாதுகாப்பு மற்றும் சட்ட அமலாக்கத்திற்கு சிறந்த பங்களிப்புக்காக கௌரவிக்கப்பட்டது." },
-            { title_en: "Administrative Excellence Recognition", title_ta: "நிர்வாக மேன்மைக்கான அங்கீகாரம்", desc_en: "Commended for successful execution of organizational modernization programs.", desc_ta: "நிறுவன நவீனமயமாக்கல் திட்டங்களை வெற்றிகரமாக செயல்படுத்தியதற்காக பாராட்டப்பட்டது." }
-          ],
-          initiatives: p.initiatives ?? [
-            { title_en: "Women's Safety Programs", title_ta: "பெண்கள் பாதுகாப்புத் திட்டங்கள்", desc_en: "Established city-wide help desks, emergency patrols, and gender-sensitization initiatives.", desc_ta: "நகரம் முழுவதும் உதவி மையங்கள், அவசர ரோந்துப் பணிகள் மற்றும் பாலின விழிப்புணர்வு முயற்சிகளை நிறுவினார்." },
-            { title_en: "Singappen Initiative", title_ta: "சிங்கப்பெண் திட்டம்", desc_en: "Launched special women force teams to patrol crime-prone areas and schools.", desc_ta: "குற்றங்கள் நடக்கக்கூடிய பகுதிகள் மற்றும் பள்ளிகளை ரோந்து செய்ய சிறப்பு பெண் காவல் குழுக்களைத் தொடங்கினார்." },
-            { title_en: "Cyber Safety Awareness", title_ta: "இணைய வழி பாதுகாப்பு விழிப்புணர்வு", desc_en: "Conducted seminars across colleges and schools on online financial scams and cybersecurity best practices.", desc_ta: "ஆன்லைன் நிதி மோசடிகள் மற்றும் இணையப் பாதுகாப்பு முறைகள் குறித்து கல்லூரிகள் மற்றும் பள்ளிகளில் கருத்தரங்குகளை நடத்தினார்." },
-            { title_en: "Traffic Modernization", title_ta: "போக்குவரத்து நவீனமயமாக்கல்", desc_en: "Installed speed monitoring camera traps and smart signaling systems on key routes.", desc_ta: "முக்கிய வழிகளில் வேகக் கண்காணிப்பு கேமராக்கள் மற்றும் ஸ்மார்ட் சிக்னலிங் அமைப்புகளை நிறுவினார்." },
-            { title_en: "Community Policing", title_ta: "சமூகக் காவல்", desc_en: "Fostered community patrol programs and public feedback systems for micro-policing.", desc_ta: "நுண் காவலுக்கான சமூக ரோந்து திட்டங்கள் மற்றும் பொது கருத்து அமைப்புகளை வளர்த்தெடுத்தார்." },
-            { title_en: "Kaaval Karangal Programs", title_ta: "காவல் கரங்கள் திட்டம்", desc_en: "Rescued and rehabilitated senior citizens, homeless individuals, and abandoned children.", desc_ta: "முதியவர்கள், ஆதரவற்றோர் மற்றும் கைவிடப்பட்ட குழந்தைகளை மீட்டு மறுவாழ்வு அளித்தார்." }
-          ],
-          gallery: p.gallery ?? [
-            "/images/amalraj_portrait.png",
-            "/images/amalraj_header.png"
-          ]
-        };
-      }
-    }
-    return {} as DBCommissionerProfile;
+    const jsonFields = ['timeline', 'awards', 'initiatives', 'gallery'];
+    const list = await this.getTable("commissioner_profile", jsonFields);
+    return (list[0] || {}) as DBCommissionerProfile;
   }
 
   public async saveCommissionerProfile(profile: DBCommissionerProfile) {
-    if (this.dbType === "json") {
-      jsonDb.setTable("commissioner_profile", [profile]);
-    }
+    await this.saveTable("commissioner_profile", [profile]);
   }
 
   // 6. Theme Settings
   public async getThemeSettings(): Promise<DBThemeSettings> {
-    if (this.dbType === "json") {
-      return (jsonDb.getTable("theme_settings") as DBThemeSettings[])[0];
-    }
-    return {
-      id: 1,
-      primary_color: "#ed1b24",
-      secondary_color: "#2e3192",
-      accent_color: "#c5a059",
-      logo_path: "/images/gcp_logo.png",
-      footer_logo_path: "/images/gcp_logo.png",
-      favicon_path: "/images/gcp_logo.png"
-    };
+    const list = await this.getTable("theme_settings");
+    return (list[0] || {}) as DBThemeSettings;
   }
 
   public async saveThemeSettings(settings: DBThemeSettings) {
-    if (this.dbType === "json") {
-      jsonDb.setTable("theme_settings", [settings]);
-    }
+    await this.saveTable("theme_settings", [settings]);
   }
 
   // 7. Menu Items
   public async getMenuItems(): Promise<DBMenuItem[]> {
-    if (this.dbType === "json") {
-      return jsonDb.getTable("menu_items") as DBMenuItem[];
-    }
-    return [];
+    return this.getTable("menu_items") as Promise<DBMenuItem[]>;
   }
 
   public async saveMenuItems(items: DBMenuItem[]) {
-    if (this.dbType === "json") {
-      jsonDb.setTable("menu_items", items);
-    }
+    await this.saveTable("menu_items", items);
   }
 
   // 8. Contacts Module
   public async getContacts(): Promise<DBContact[]> {
-    if (this.dbType === "json") {
-      return jsonDb.getTable("contacts") as DBContact[];
-    }
-    return [];
+    return this.getTable("contacts") as Promise<DBContact[]>;
   }
 
   public async saveContacts(contacts: DBContact[]) {
-    if (this.dbType === "json") {
-      jsonDb.setTable("contacts", contacts);
-    }
+    await this.saveTable("contacts", contacts);
   }
 
   // 9. TTS Settings
   public async getTtsSettings(): Promise<DBTtsSettings> {
-    if (this.dbType === "json") {
-      return (jsonDb.getTable("tts_settings") as DBTtsSettings[])[0];
-    }
-    return {
-      id: 1,
-      enabled: 1,
-      tamil_voice: "ta-IN-PallaviNeural",
-      english_voice: "en-IN-NeerjaNeural",
-      speed: 1.0
-    };
+    const list = await this.getTable("tts_settings");
+    return (list[0] || {}) as DBTtsSettings;
   }
 
   public async saveTtsSettings(settings: DBTtsSettings) {
-    if (this.dbType === "json") {
-      jsonDb.setTable("tts_settings", [settings]);
-    }
+    await this.saveTable("tts_settings", [settings]);
   }
 
   // 10. Videos Module
   public async getVideos(): Promise<DBVideoItem[]> {
-    if (this.dbType === "json") {
-      return (jsonDb.getTable("videos") as DBVideoItem[]) || [];
-    }
-    return [];
+    return this.getTable("videos") as Promise<DBVideoItem[]>;
   }
 
   public async saveVideos(videos: DBVideoItem[]) {
-    if (this.dbType === "json") {
-      jsonDb.setTable("videos", videos);
-    }
+    await this.saveTable("videos", videos);
   }
 
   // 11. Alerts Real-Time Synchronization & Moderation
   public async getAlerts(): Promise<DBAlertItem[]> {
-    if (this.dbType === "json") {
-      return (jsonDb.getTable("alerts") as DBAlertItem[]) || [];
-    }
-    return [];
+    return this.getTable("alerts") as Promise<DBAlertItem[]>;
   }
 
   public async saveAlerts(alerts: DBAlertItem[]) {
-    if (this.dbType === "json") {
-      jsonDb.setTable("alerts", alerts);
-    }
+    await this.saveTable("alerts", alerts);
   }
 
   public async getAlertSettings(): Promise<DBAlertSettings> {
-    if (this.dbType === "json") {
-      const items = jsonDb.getTable("alert_settings") as DBAlertSettings[];
-      if (items && items.length > 0) {
-        const item = items[0];
-        return {
-          id: item.id,
-          auto_fetch: item.auto_fetch ?? 1,
-          require_approval: item.require_approval ?? 1,
-          last_fetched_at: item.last_fetched_at ?? "",
-          live_feed_enabled: item.live_feed_enabled ?? 1,
-          approved_sources: item.approved_sources ?? "tnpolice.gov.in, gcp.tn.gov.in, greaterchennaipolice.in, tn.gov.in, pib.gov.in",
-          refresh_interval: item.refresh_interval ?? 15
-        };
-      }
-    }
-    return {
-      id: 1,
-      auto_fetch: 1,
-      require_approval: 1,
-      last_fetched_at: "",
-      live_feed_enabled: 1,
-      approved_sources: "tnpolice.gov.in, gcp.tn.gov.in, greaterchennaipolice.in, tn.gov.in, pib.gov.in",
-      refresh_interval: 15
-    };
+    const list = await this.getTable("alert_settings");
+    return (list[0] || {}) as DBAlertSettings;
   }
 
   public async saveAlertSettings(settings: DBAlertSettings) {
-    if (this.dbType === "json") {
-      jsonDb.setTable("alert_settings", [settings]);
+    await this.saveTable("alert_settings", [settings]);
+  }
+
+  // 12. SEO Settings Module
+  public async getSeoSettings(): Promise<DBSeoSettings> {
+    const list = await this.getTable("seo_settings");
+    return (list[0] || {}) as DBSeoSettings;
+  }
+
+  public async saveSeoSettings(settings: DBSeoSettings) {
+    await this.saveTable("seo_settings", [settings]);
+  }
+
+  // 13. Article SEO Module
+  public async getArticleSeo(): Promise<DBArticleSeo[]> {
+    return this.getTable("article_seo") as Promise<DBArticleSeo[]>;
+  }
+
+  public async saveArticleSeo(items: DBArticleSeo[]) {
+    await this.saveTable("article_seo", items);
+  }
+
+  // 14. Asset Metadata Module
+  public async getAssetMetadata(): Promise<DBAssetMetadata[]> {
+    return this.getTable("asset_metadata") as Promise<DBAssetMetadata[]>;
+  }
+
+  public async saveAssetMetadata(items: DBAssetMetadata[]) {
+    await this.saveTable("asset_metadata", items);
+  }
+
+  // 15. Police Stations Module
+  public async getPoliceStations(): Promise<DBPoliceStation[]> {
+    return this.getTable("police_stations") as Promise<DBPoliceStation[]>;
+  }
+
+  public async savePoliceStations(stations: DBPoliceStation[]) {
+    await this.saveTable("police_stations", stations);
+  }
+
+  // 16. Emergency Contacts Module
+  public async getEmergencyContacts(): Promise<DBEmergencyContact[]> {
+    return this.getTable("emergency_contacts") as Promise<DBEmergencyContact[]>;
+  }
+
+  public async saveEmergencyContacts(contacts: DBEmergencyContact[]) {
+    await this.saveTable("emergency_contacts", contacts);
+  }
+
+  // 17. Department Links Module
+  public async getDepartmentLinks(): Promise<DBDepartmentLink[]> {
+    return this.getTable("department_links") as Promise<DBDepartmentLink[]>;
+  }
+
+  public async saveDepartmentLinks(links: DBDepartmentLink[]) {
+    await this.saveTable("department_links", links);
+  }
+
+  // 18. Service Requests Module
+  public async getServiceRequests(): Promise<DBServiceRequest[]> {
+    return this.getTable("service_requests") as Promise<DBServiceRequest[]>;
+  }
+
+  public async saveServiceRequests(requests: DBServiceRequest[]) {
+    await this.saveTable("service_requests", requests);
+  }
+
+  // 19. Contact Messages Module
+  public async getContactMessages(): Promise<DBContactMessage[]> {
+    return this.getTable("contact_messages") as Promise<DBContactMessage[]>;
+  }
+
+  public async saveContactMessages(messages: DBContactMessage[]) {
+    await this.saveTable("contact_messages", messages);
+  }
+
+  // 20. Activity Logs Module
+  public async getActivityLogs(): Promise<DBActivityLog[]> {
+    return this.getTable("activity_logs") as Promise<DBActivityLog[]>;
+  }
+
+  public async saveActivityLogs(logs: DBActivityLog[]) {
+    await this.saveTable("activity_logs", logs);
+  }
+
+  public async addActivityLog(username: string, action: string) {
+    try {
+      const logs = await this.getActivityLogs();
+      const id = logs.length > 0 ? Math.max(...logs.map(l => l.id)) + 1 : 1;
+      logs.unshift({
+        id,
+        username,
+        action,
+        timestamp: new Date().toISOString()
+      });
+      if (logs.length > 500) {
+        logs.splice(500);
+      }
+      await this.saveActivityLogs(logs);
+    } catch (e) {
+      console.error("Error adding activity log:", e);
+    }
+  }
+
+  public async getSuperadminConfig(): Promise<Record<string, any>> {
+    try {
+      const rows: any = await query("SELECT * FROM \`superadmin_config\`");
+      const config: Record<string, any> = {};
+      (rows || []).forEach((row: any) => {
+        try {
+          config[row.config_key] = JSON.parse(row.config_value);
+        } catch {
+          config[row.config_key] = row.config_value;
+        }
+      });
+      return config;
+    } catch (e) {
+      console.error("Failed to get config:", e);
+      return {};
+    }
+  }
+
+  public async saveSuperadminConfig(key: string, value: any) {
+    try {
+      const serialized = typeof value === "string" ? value : JSON.stringify(value);
+      await query(
+        "INSERT INTO \`superadmin_config\` (config_key, config_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE \`config_value\` = ?",
+        [key, serialized, serialized]
+      );
+    } catch (e) {
+      console.error("Failed to save config:", e);
+      throw e;
+    }
+  }
+
+  public async addRbacAuditLog(
+    username: string,
+    role: string,
+    ip: string,
+    action: string,
+    module: string,
+    browser?: string,
+    beforeVal?: string,
+    afterVal?: string
+  ) {
+    try {
+      const logs = await this.getActivityLogs();
+      const id = logs.length > 0 ? Math.max(...logs.map(l => l.id)) + 1 : 1;
+      const newLog: DBActivityLog = {
+        id,
+        username,
+        role,
+        ip_address: ip,
+        action,
+        module,
+        timestamp: new Date().toISOString(),
+        browser,
+        before_val: beforeVal,
+        after_val: afterVal
+      };
+      logs.unshift(newLog);
+      if (logs.length > 500) {
+        logs.splice(500);
+      }
+      await this.saveActivityLogs(logs);
+    } catch (e) {
+      console.error("Error adding RBAC audit log:", e);
+    }
+  }
+
+  public async backupDatabase(): Promise<string> {
+    try {
+      const tableNames = [
+        "users", "news", "ticker", "slider", "commissioner_profile",
+        "theme_settings", "menu_items", "contacts", "tts_settings", "videos",
+        "alert_settings", "alerts", "seo_settings", "article_seo", "asset_metadata",
+        "activity_logs", "police_stations", "emergency_contacts", "department_links",
+        "service_requests", "contact_messages", "page_contents", "page_sections", "content_versions", "superadmin_config"
+      ];
+      const backupData: Record<string, any[]> = {};
+      for (const name of tableNames) {
+        const rows: any = await query(`SELECT * FROM \`${name}\` ORDER BY id ASC`);
+        backupData[name] = rows || [];
+      }
+      return JSON.stringify(backupData, null, 2);
+    } catch (e) {
+      console.error("Backup failed:", e);
+      throw e;
+    }
+  }
+
+  public async restoreDatabase(backupJson: string): Promise<boolean> {
+    try {
+      const backupData = JSON.parse(backupJson);
+      for (const [name, records] of Object.entries(backupData)) {
+        if (Array.isArray(records)) {
+          await this.saveTable(name, records);
+        }
+      }
+      return true;
+    } catch (e) {
+      console.error("Restore failed:", e);
+      return false;
     }
   }
 
@@ -1164,30 +1039,26 @@ class ChennaiGuardianDatabase {
         return { success: false, newCount: 0 };
       }
 
-      // Check if last fetch was within refresh_interval minutes
       const now = new Date();
       const intervalMinutes = settings.refresh_interval !== undefined ? settings.refresh_interval : 15;
       if (settings.last_fetched_at && !force) {
         const lastFetch = new Date(settings.last_fetched_at);
         const timeDiff = now.getTime() - lastFetch.getTime();
         if (timeDiff < intervalMinutes * 60 * 1000) {
-          // Skip fetch, too fresh
           return { success: true, newCount: 0 };
         }
       }
 
-      // Parse approved sources domains
       const approvedList = settings.approved_sources
         ? settings.approved_sources.split(",").map(s => s.trim().toLowerCase()).filter(Boolean)
         : ["tnpolice.gov.in", "gcp.tn.gov.in", "greaterchennaipolice.in", "tn.gov.in", "pib.gov.in"];
 
-      // Construct Google News search query with domain filters
       const siteFilter = approvedList.map(site => `site:${site}`).join(" OR ");
       const feedUrl = `https://news.google.com/rss/search?q=Tamil+Nadu+Police+OR+Greater+Chennai+Police+(${encodeURIComponent(siteFilter)})&hl=en-IN&gl=IN&ceid=IN:en`;
       
       const res = await fetch(feedUrl, {
         headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" },
-        next: { revalidate: 0 } // bypass next cache
+        next: { revalidate: 0 } 
       });
 
       if (!res.ok) {
@@ -1197,7 +1068,6 @@ class ChennaiGuardianDatabase {
 
       const xml = await res.text();
       
-      // Parse items using regex matching
       const itemRegex = /<item>([\s\S]*?)<\/item>/g;
       const titleRegex = /<title>([\s\S]*?)<\/title>/i;
       const linkRegex = /<link>([\s\S]*?)<\/link>/i;
@@ -1220,7 +1090,6 @@ class ChennaiGuardianDatabase {
           const pubDate = pubDateMatch ? pubDateMatch[1].trim() : new Date().toUTCString();
           const source = sourceMatch ? sourceMatch[1].trim() : "News Source";
 
-          // Clean title: remove " - Source" trailer at the end
           let title = rawTitle;
           const sourceSuffixIndex = title.lastIndexOf(` - ${source}`);
           if (sourceSuffixIndex !== -1) {
@@ -1231,10 +1100,8 @@ class ChennaiGuardianDatabase {
         }
       }
 
-      // Limit to top 15 items to process to avoid rate-limiting and keep response time down
-      const itemsToProcess = rawItems.slice(0, 15);
+      const itemsToProcess = rawItems.slice(0, 10);
       
-      // Resolve intermediate redirect URLs in parallel
       const resolvedItems = await Promise.all(
         itemsToProcess.map(async (item) => {
           try {
@@ -1249,7 +1116,6 @@ class ChennaiGuardianDatabase {
         })
       );
 
-      // Load existing alerts to check duplicates
       const existingAlerts = await this.getAlerts();
       let addedCount = 0;
       let nextId = existingAlerts.length > 0 ? Math.max(...existingAlerts.map(a => a.id)) + 1 : 1;
@@ -1259,7 +1125,6 @@ class ChennaiGuardianDatabase {
       for (const item of resolvedItems) {
         if (!item || !item.resolvedUrl) continue;
 
-        // Strictly verify resolved URL domain is in the approved list
         let isApprovedDomain = false;
         try {
           const urlObj = new URL(item.resolvedUrl);
@@ -1273,13 +1138,11 @@ class ChennaiGuardianDatabase {
           continue;
         }
 
-        // Check duplicate by title or resolved URL
         const isDuplicate = existingAlerts.some(
           a => a.url === item.resolvedUrl || a.title.toLowerCase() === item.title.toLowerCase()
         );
 
         if (!isDuplicate) {
-          // Dynamic categorization
           let category = "LAW & ORDER";
           const titleLower = item.title.toLowerCase();
           if (titleLower.includes("traffic") || titleLower.includes("road") || titleLower.includes("speed") || titleLower.includes("highway")) {
@@ -1302,9 +1165,9 @@ class ChennaiGuardianDatabase {
             title: item.title,
             category,
             source: item.source,
-            url: item.resolvedUrl, // Save original resolved news article URL
+            url: item.resolvedUrl,
             published_at: publishedISO,
-            approved: settings.require_approval ? 0 : 1, // requires approval if config is on
+            approved: settings.require_approval ? 0 : 1,
             pinned: 0,
             removed: 0,
             created_at: new Date().toISOString()
@@ -1314,12 +1177,10 @@ class ChennaiGuardianDatabase {
       }
 
       if (newAlertItems.length > 0) {
-        // Prepended so newest items show up first in pending moderation
         const mergedAlerts = [...newAlertItems, ...existingAlerts];
         await this.saveAlerts(mergedAlerts);
       }
 
-      // Save fetch metadata
       settings.last_fetched_at = now.toISOString();
       await this.saveAlertSettings(settings);
 
@@ -1330,70 +1191,154 @@ class ChennaiGuardianDatabase {
     }
   }
 
-  // 12. SEO Settings Module
-  public async getSeoSettings(): Promise<DBSeoSettings> {
-    if (this.dbType === "json") {
-      const items = jsonDb.getTable("seo_settings") as DBSeoSettings[];
-      if (items && items.length > 0) return items[0];
+  public async getPageContent(pageName: string): Promise<{ seo: any; sections: any[] } | null> {
+    const cacheKey = `page_content_${pageName}`;
+    if (this.cache[cacheKey]) {
+      return this.cache[cacheKey];
     }
-    return {
-      id: 1,
-      site_title: "Chennai Guardian | Greater Chennai Police",
-      site_description: "Official executive leadership portal and smart public safety dashboard of Dr. A. Amalraj IPS, Commissioner of Greater Chennai Police.",
-      default_keywords: "Greater Chennai Police, Chennai Police, Dr. A. Amalraj IPS, Tamil Nadu Police, Public Safety, Crime Prevention",
-      organization_name: "Greater Chennai Police",
-      organization_logo: "/images/gcp_logo.png",
-      contact_number: "044-23452300",
-      address: "Commissioner Office, Vepery, Chennai - 600007, Tamil Nadu, India",
-      site_url: "https://chennaiguardian.in",
-      social_facebook: "https://www.facebook.com/Chennai.Police/",
-      social_twitter: "https://x.com/chennaipolice_",
-      social_instagram: "https://www.instagram.com/greater_chennai_police_/",
-      social_youtube: "",
-      google_analytics_id: "",
-      google_tag_manager_id: "",
-      google_search_console: "",
-      bing_verification: "",
-      default_robots: "index, follow",
-      default_og_image: "/images/gcp_logo.png",
-      publisher_name: "Greater Chennai Police",
-      publisher_logo: "/images/gcp_logo.png"
-    };
+    try {
+      const pageRows: any = await query(
+        "SELECT * FROM \`page_contents\` WHERE \`page_name\` = ?",
+        [pageName]
+      );
+      if (!pageRows || pageRows.length === 0) return null;
+      const page = pageRows[0];
+      const targetVersionId = page.published_version_id;
+      if (!targetVersionId) {
+        const sections: any = await query(
+          "SELECT * FROM \`page_sections\` WHERE \`page_content_id\` = ? ORDER BY \`display_order\` ASC",
+          [page.id]
+        );
+        const result = {
+          seo: {
+            seo_title: page.seo_title,
+            seo_description: page.seo_description,
+            seo_keywords: page.seo_keywords
+          },
+          sections: (sections || []).map((s: any) => {
+            let parsed = s.content_json;
+            if (typeof parsed === "string") {
+              try { parsed = JSON.parse(parsed); } catch {}
+            }
+            return { ...s, content_json: parsed };
+          })
+        };
+        this.cache[cacheKey] = result;
+        return result;
+      }
+
+      const versionResult: any = await query(
+        "SELECT * FROM \`content_versions\` WHERE \`id\` = ?",
+        [targetVersionId]
+      );
+      if (!versionResult || versionResult.length === 0) return null;
+      const ver = versionResult[0];
+      
+      let parsedSeo = ver.seo_data;
+      if (typeof parsedSeo === "string") {
+        try { parsedSeo = JSON.parse(parsedSeo); } catch {}
+      }
+      let parsedSections = ver.sections_data;
+      if (typeof parsedSections === "string") {
+        try { parsedSections = JSON.parse(parsedSections); } catch {}
+      }
+
+      const result = {
+        seo: parsedSeo,
+        sections: parsedSections
+      };
+      this.cache[cacheKey] = result;
+      return result;
+    } catch (e) {
+      console.error("Error in getPageContent:", e);
+      return null;
+    }
   }
 
-  public async saveSeoSettings(settings: DBSeoSettings) {
-    if (this.dbType === "json") {
-      jsonDb.setTable("seo_settings", [settings]);
+  public async getResolvedPermissions(username: string, roleName: string): Promise<Record<string, string[]>> {
+    const r = (roleName || "").toUpperCase().trim().replace(" ", "_");
+    if (r === "SUPER_ADMIN" || r === "SUPERADMIN") {
+      return DEFAULT_ROLE_PERMISSIONS["SUPER_ADMIN"];
     }
-  }
 
-  // 13. Article SEO Module
-  public async getArticleSeo(): Promise<DBArticleSeo[]> {
-    if (this.dbType === "json") {
-      return (jsonDb.getTable("article_seo") as DBArticleSeo[]) || [];
+    const users = await this.getUsers();
+    const user = users.find(u => u.username.toLowerCase() === username.toLowerCase());
+    if (user && user.permissions_json) {
+      try {
+        return JSON.parse(user.permissions_json);
+      } catch {}
     }
-    return [];
-  }
 
-  public async saveArticleSeo(items: DBArticleSeo[]) {
-    if (this.dbType === "json") {
-      jsonDb.setTable("article_seo", items);
+    // Check custom roles table
+    const customRoles = await this.getCustomRoles();
+    const customRole = customRoles.find(cr => cr.role_name.toUpperCase().replace(" ", "_") === r);
+    if (customRole && customRole.permissions_json) {
+      try {
+        return JSON.parse(customRole.permissions_json);
+      } catch {}
     }
-  }
 
-  // 14. Asset Metadata Module
-  public async getAssetMetadata(): Promise<DBAssetMetadata[]> {
-    if (this.dbType === "json") {
-      return (jsonDb.getTable("asset_metadata") as DBAssetMetadata[]) || [];
-    }
-    return [];
-  }
-
-  public async saveAssetMetadata(items: DBAssetMetadata[]) {
-    if (this.dbType === "json") {
-      jsonDb.setTable("asset_metadata", items);
-    }
+    // Fallback to default roles
+    return DEFAULT_ROLE_PERMISSIONS[r] || DEFAULT_ROLE_PERMISSIONS["VIEWER"];
   }
 }
+
+export const DEFAULT_ROLE_PERMISSIONS: Record<string, Record<string, string[]>> = {
+  "SUPER_ADMIN": {
+    "*": ["view", "create", "edit", "delete", "publish", "approve", "upload", "download", "export", "import", "settings", "ai_generate", "preview"]
+  },
+  "ADMINISTRATOR": {
+    "dashboard": ["view", "preview"],
+    "menu-management": ["view", "edit", "publish"],
+    "news": ["view", "create", "edit", "delete", "publish", "approve", "upload", "preview"],
+    "media": ["view", "create", "edit", "delete", "upload"],
+    "ticker": ["view", "create", "edit", "delete", "publish"],
+    "slider": ["view", "create", "edit", "delete", "publish"],
+    "videos": ["view", "create", "edit", "delete", "publish"],
+    "alerts": ["view", "create", "edit", "delete", "publish"],
+    "police-stations": ["view", "create", "edit", "delete", "publish"],
+    "emergency-contacts": ["view", "create", "edit", "delete", "publish"],
+    "department-links": ["view", "create", "edit", "delete", "publish"],
+    "profile": ["view", "edit"],
+    "theme": ["view", "edit"],
+    "footer": ["view", "edit"],
+    "settings": ["view", "edit"]
+  },
+  "CONTENT_MANAGER": {
+    "dashboard": ["view"],
+    "news": ["view", "create", "edit", "delete", "publish", "upload", "preview"],
+    "media": ["view", "create", "upload"],
+    "ticker": ["view", "create", "edit", "publish"],
+    "slider": ["view", "create", "edit", "publish"],
+    "videos": ["view", "create", "edit", "publish"],
+    "alerts": ["view", "create", "edit", "publish"],
+    "police-stations": ["view", "edit"],
+    "profile": ["view", "edit"]
+  },
+  "NEWS_EDITOR": {
+    "dashboard": ["view"],
+    "news": ["view", "create", "edit", "publish", "upload", "preview"],
+    "media": ["view", "create", "upload"],
+    "profile": ["view", "edit"]
+  },
+  "STATION_MANAGER": {
+    "dashboard": ["view"],
+    "police-stations": ["view", "create", "edit", "publish"],
+    "profile": ["view", "edit"]
+  },
+  "MEDIA_MANAGER": {
+    "dashboard": ["view"],
+    "media": ["view", "create", "edit", "delete", "upload"],
+    "profile": ["view", "edit"]
+  },
+  "VIEWER": {
+    "dashboard": ["view"],
+    "news": ["view"],
+    "police-stations": ["view"],
+    "emergency-contacts": ["view"],
+    "department-links": ["view"],
+    "profile": ["view"]
+  }
+};
 
 export const db = new ChennaiGuardianDatabase();

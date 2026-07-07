@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import nodemailer from "nodemailer";
 
 export async function POST(request: Request) {
   try {
@@ -58,7 +59,6 @@ export async function POST(request: Request) {
       <div class="email-card" style="font-family: Arial, sans-serif; width: 100%; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); background-color: #ffffff;">
         <div class="email-header" style="background-color: #7A1C1C; color: white; padding: 24px; text-align: center; border-bottom: 4px solid #C5A059;">
           <!-- Greater Chennai Police Crest Logo -->
-          <img src="/images/gcp_logo.png" alt="Greater Chennai Police Logo" style="width: 70px; height: 70px; margin-bottom: 10px; display: inline-block;" />
           <h2 class="email-title" style="margin: 0; font-size: 18px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;">Greater Chennai Police</h2>
           <p class="email-subtitle" style="margin: 4px 0 0 0; font-size: 10px; color: #FDE047; font-weight: bold; text-transform: uppercase; letter-spacing: 2px;">Administrative Desk Notification</p>
         </div>
@@ -87,27 +87,48 @@ export async function POST(request: Request) {
         </div>
 
         <div style="background-color: #f9fafb; padding: 16px; text-align: center; font-size: 11px; color: #6b7280; border-top: 1px solid #e5e7eb;">
-          <p style="margin: 0;">This outreach message is automatically dispatched to: <strong>prasathragul75@gmail.com</strong>.</p>
+          <p style="margin: 0;">This outreach message is automatically dispatched to: <strong>gcp.itdepartment@gmail.com</strong>.</p>
           <p style="margin: 4px 0 0 0; font-weight: bold; color: #7A1C1C;">© 2026 Chennai Guardian | Greater Chennai Police Executive Desk</p>
         </div>
       </div>
     `;
 
-    // Log the simulated email outbox to the development terminal
-    console.log("\n==================== GCP EMAIL OUTBOX TRANSCRIPT ====================");
-    console.log(`TO: prasathragul75@gmail.com`);
-    console.log(`SUBJECT: New Grievance Registration - ${name}`);
-    console.log("=====================================================================");
-    console.log(emailHtml.trim());
-    console.log("=====================================================================\n");
+    // Only attempt real SMTP delivery if password is set
+    const pass = process.env.GMAIL_APP_PASSWORD;
+    if (pass) {
+      const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: "gcp.itdepartment@gmail.com",
+          pass: pass,
+        },
+      });
+
+      await transporter.sendMail({
+        from: '"Chennai Guardian Portal" <gcp.itdepartment@gmail.com>',
+        to: "gcp.itdepartment@gmail.com",
+        replyTo: email, // Reply goes to the citizen
+        subject: `New Grievance Registration - ${name}`,
+        html: emailHtml,
+      });
+      console.log("Real email dispatched via SMTP to gcp.itdepartment@gmail.com");
+    } else {
+      // Development fallback log
+      console.log("\n==================== GCP EMAIL OUTBOX TRANSCRIPT ====================");
+      console.log("NOTE: Real SMTP is disabled because GMAIL_APP_PASSWORD is not set in .env.local");
+      console.log(`TO: gcp.itdepartment@gmail.com`);
+      console.log(`SUBJECT: New Grievance Registration - ${name}`);
+      console.log("=====================================================================");
+    }
 
     return NextResponse.json({
       success: true,
-      message: "Email sent successfully",
-      recipient: "prasathragul75@gmail.com",
+      message: "Email processed successfully",
+      recipient: "gcp.itdepartment@gmail.com",
       emailHtml: emailHtml
     });
   } catch (err: any) {
+    console.error("Nodemailer error:", err);
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }
 }

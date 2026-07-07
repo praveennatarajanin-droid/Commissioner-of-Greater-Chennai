@@ -110,7 +110,7 @@ export default function ReachLeader() {
                     {language === "ta" 
                       ? "உங்கள் கோரிக்கை விவரங்கள் வெற்றிகரமாகப் பதிவு செய்யப்பட்டு, " 
                       : "Your grievance details have been successfully registered and sent to "}
-                    <strong className="text-brand-maroon dark:text-brand-gold font-bold">prasathragul75@gmail.com</strong>
+                    <strong className="text-brand-maroon dark:text-brand-gold font-bold">gcp.itdepartment@gmail.com</strong>
                     {language === "ta" ? " என்ற மின்னஞ்சல் முகவரிக்கு அனுப்பப்பட்டது." : "."}
                   </p>
                 </div>

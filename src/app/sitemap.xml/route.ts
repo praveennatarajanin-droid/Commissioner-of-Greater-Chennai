@@ -21,6 +21,8 @@ export async function GET() {
     { url: "/category/cyber-safety", priority: "0.7", changefreq: "daily" },
     { url: "/category/women-safety", priority: "0.7", changefreq: "daily" },
     { url: "/category/public-safety", priority: "0.7", changefreq: "daily" },
+    { url: "/category/traffic", priority: "0.7", changefreq: "daily" },
+    { url: "/traffic", priority: "0.8", changefreq: "daily" },
     { url: "/category/outreach", priority: "0.7", changefreq: "daily" },
     { url: "/category/government-updates", priority: "0.7", changefreq: "daily" },
   ];

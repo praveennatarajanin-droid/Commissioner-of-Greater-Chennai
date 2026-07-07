@@ -2,16 +2,31 @@
 
 import React, { useState, useEffect } from "react";
 import Navbar from "@/components/layout/Navbar";
-import BreakingNewsBanner from "@/components/sections/BreakingNewsBanner";
-import NewsroomHero from "@/components/sections/NewsroomHero";
-import WebStories from "@/components/sections/WebStories";
-import VideoNewsCenter from "@/components/sections/VideoNewsCenter";
-import OfficialAlertsFeed from "@/components/sections/OfficialAlertsFeed";
-import GcpCommissionerMandate from "@/components/sections/GcpCommissionerMandate";
-import GcpBrandingStats from "@/components/sections/GcpBrandingStats";
-import PoliceStationDirectory from "@/components/sections/PoliceStationDirectory";
-import GcpEmergencyHelpline from "@/components/sections/GcpEmergencyHelpline";
-import GcpCitizenServices from "@/components/sections/GcpCitizenServices";
+import dynamic from "next/dynamic";
+
+const BreakingNewsBanner = dynamic(() => import("@/components/sections/BreakingNewsBanner"), {
+  loading: () => <div className="h-10 bg-stone-900 dark:bg-stone-950 animate-pulse w-full" />
+});
+const NewsroomHero = dynamic(() => import("@/components/sections/NewsroomHero"), {
+  loading: () => <div className="h-[500px] bg-stone-100 dark:bg-stone-900 animate-pulse w-full rounded-2xl" />
+});
+const WebStories = dynamic(() => import("@/components/sections/WebStories"), {
+  ssr: false,
+  loading: () => <div className="h-48 bg-stone-50 dark:bg-stone-900 animate-pulse w-full rounded-2xl" />
+});
+const VideoNewsCenter = dynamic(() => import("@/components/sections/VideoNewsCenter"), {
+  ssr: false,
+  loading: () => <div className="h-96 bg-stone-50 dark:bg-stone-900 animate-pulse w-full rounded-2xl" />
+});
+const OfficialAlertsFeed = dynamic(() => import("@/components/sections/OfficialAlertsFeed"), {
+  ssr: false,
+  loading: () => <div className="h-[450px] bg-stone-50 dark:bg-stone-900 animate-pulse w-full rounded-2xl" />
+});
+const GcpCommissionerMandate = dynamic(() => import("@/components/sections/GcpCommissionerMandate"), {
+  ssr: false,
+  loading: () => <div className="h-64 bg-stone-50 dark:bg-stone-900 animate-pulse w-full rounded-2xl" />
+});
+
 import { useTranslation } from "@/context/LanguageContext";
 import Image from "next/image";
 import Link from "next/link";
@@ -139,6 +154,13 @@ const NEWS_CATEGORIES = [
     keywords: ["community", "outreach", "karangal", "rescue", "welfare", "pledge", "labour", "students", "legal", "social awareness", "community support"] 
   },
   { 
+    id: "traffic",  
+    title_en: "Traffic Updates", 
+    title_ta: "போக்குவரத்து செய்திகள்", 
+    color: "#2e3192", 
+    keywords: ["traffic", "diversion", "road closure", "signal", "congestion", "transport", "accident alert", "traffic police"] 
+  },
+  { 
     id: "government", 
     title_en: "Government Updates", 
     title_ta: "அரசு அறிவிப்புகள்", 
@@ -237,7 +259,7 @@ const NewsCard = ({ n, lang, idx }: { n: NewsItem; lang: "en" | "ta"; idx: numbe
           <span className="flex items-center gap-1">
             <Clock className="w-3 h-3 text-stone-400" /> {timeAgo(n.created_at || n.date, lang)}
           </span>
-          {n.views_count !== undefined && (
+          {n.views_count != null && (
             <span className="flex items-center gap-0.5">
               <Eye className="w-3 h-3 text-stone-400" /> {n.views_count.toLocaleString()}
             </span>
@@ -293,6 +315,7 @@ export default function NewsChannelHomepage({
                          (catId === "cyber" && cat === "cyber safety") ||
                          (catId === "women" && (cat === "women safety" || cat === "women's safety")) ||
                          (catId === "public" && cat === "public safety") ||
+                         (catId === "traffic" && (cat === "traffic" || cat === "traffic updates" || cat === "traffic news" || cat === "traffic advisory")) ||
                          (catId === "outreach" && (cat === "outreach" || cat === "community outreach")) ||
                          (catId === "government" && cat === "government updates");
       
@@ -321,11 +344,11 @@ export default function NewsChannelHomepage({
   return (
     <div className="min-h-screen bg-stone-50 dark:bg-stone-950 font-sans text-stone-850 dark:text-stone-150 transition-colors">
       
-      {/* SECTION 1: Sticky Header */}
-      <Navbar customMenuItems={menuItems} />
-
       {/* SECTION 2: Breaking News Ticker */}
       <BreakingNewsBanner breakingNews={activeTickerList} language={language} />
+
+      {/* SECTION 1: Sticky Header */}
+      <Navbar customMenuItems={menuItems} stickyOffset="42px" />
 
       {/* Main body wrapper */}
       <main className="w-full max-w-[1700px] mx-auto px-4 py-8 space-y-12">
@@ -339,17 +362,6 @@ export default function NewsChannelHomepage({
         {/* SECTION 4B: GCP COMMISSIONER & CORE MANDATE */}
         <GcpCommissionerMandate />
 
-        {/* SECTION 4C: GCP BRANDING & STATS */}
-        <GcpBrandingStats />
-
-        {/* SECTION 4D: POLICE STATION DIRECTORY */}
-        <PoliceStationDirectory />
-
-        {/* SECTION 4E: GCP PUBLIC SERVICES & HELPLINES */}
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-          <GcpCitizenServices />
-          <GcpEmergencyHelpline />
-        </div>
 
         {/* SECTION 5: CATEGORY NEWS (Rows of Crime, Cyber, Women, etc.) */}
         <div className="space-y-12">
@@ -380,7 +392,7 @@ export default function NewsChannelHomepage({
                 </div>
                 <div className="flex justify-end mt-4">
                   <Link
-                    href={`/category/${routePath}`}
+                    href={routePath === "traffic" ? "/traffic" : `/category/${routePath}`}
                     className="flex items-center gap-1.5 text-[10px] font-black uppercase text-stone-500 hover:text-brand-maroon dark:hover:text-brand-gold transition-colors tracking-widest"
                   >
                     {language === "ta" ? "மேலும் செய்திகள்" : `More ${cat.title_en} News`}

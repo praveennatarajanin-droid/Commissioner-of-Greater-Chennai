@@ -47,7 +47,8 @@ export default function OfficialAlertsFeed({ initialAlerts = [], language = "en"
   const refresh = async (showLoading = true) => {
     if (showLoading) setLoading(true);
     try {
-      const res = await fetch("/api/alerts", { method: "POST" });
+      const method = showLoading ? "POST" : "GET";
+      const res = await fetch("/api/alerts", { method });
       if (res.ok) {
         const data = await res.json();
         if (data.success && data.alerts) {
@@ -55,7 +56,13 @@ export default function OfficialAlertsFeed({ initialAlerts = [], language = "en"
           setLastUpdated(new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true }));
         }
       }
-    } catch (e) { console.error("Alert refresh failed", e); }
+    } catch (e: any) {
+      if (e instanceof TypeError && e.message === "Failed to fetch") {
+        console.warn("Alert refresh: network temporarily unavailable or server recompiling.");
+      } else {
+        console.error("Alert refresh failed", e);
+      }
+    }
     finally { if (showLoading) setLoading(false); }
   };
 

@@ -57,6 +57,9 @@ export default function NewsDetailClient({ article }: { article: NewsItem }) {
 
   // Fetch live news once on mount for sidebar, related, search widgets
   useEffect(() => {
+    if (article && article.id) {
+      fetch(`/api/news/${article.id}/view`, { method: "POST" }).catch(() => {});
+    }
     fetch("/api/admin/crud/news")
       .then(res => res.json())
       .then(data => {
@@ -66,7 +69,7 @@ export default function NewsDetailClient({ article }: { article: NewsItem }) {
         }
       })
       .catch(() => {}); // Silent fail — widgets simply stay empty
-  }, []);
+  }, [article]);
 
   // Get localized content paragraphs
   const contentParagraphs = language === "ta" ? article.content_ta : article.content_en;

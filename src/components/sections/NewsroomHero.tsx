@@ -111,17 +111,39 @@ function getCategoryColor(cat: string): string {
 
 type Tab = "trending" | "most-read" | "videos";
 
+function formatViews(num?: number, lang: "en" | "ta" = "en"): string {
+  if (num === undefined || num === null) return lang === "ta" ? "0 பார்வைகள்" : "0 Views";
+  if (num >= 1000000) {
+    return `${(num / 1000000).toFixed(1).replace(/\.0$/, "")}M ${lang === "ta" ? "பார்வைகள்" : "Views"}`;
+  }
+  if (num >= 1000) {
+    return `${(num / 1000).toFixed(1).replace(/\.0$/, "")}K ${lang === "ta" ? "பார்வைகள்" : "Views"}`;
+  }
+  return `${num} ${lang === "ta" ? "பார்வைகள்" : "Views"}`;
+}
+
 export default function NewsroomHero({ news, slider = [], language = "en", videos = [] }: NewsroomHeroProps) {
   const [activeTab, setActiveTab] = useState<Tab>("trending");
   const [mounted, setMounted] = useState(false);
   const [sliderIndex, setSliderIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
 
+  // Dynamic Views states
+  const [dbTrending, setDbTrending] = useState<NewsItem[]>([]);
+  const [dbMostRead, setDbMostRead] = useState<NewsItem[]>([]);
+  const [dbVideos, setDbVideos] = useState<any[]>([]);
+
   // Touch gestures for swipe support
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    setMounted(true);
+    // Fetch live views stats
+    fetch("/api/news/trending").then(res => res.json()).then(data => Array.isArray(data) && setDbTrending(data)).catch(() => {});
+    fetch("/api/news/most-read").then(res => res.json()).then(data => Array.isArray(data) && setDbMostRead(data)).catch(() => {});
+    fetch("/api/videos/trending").then(res => res.json()).then(data => Array.isArray(data) && setDbVideos(data)).catch(() => {});
+  }, []);
 
   // Center Hero story: Featured or breaking first
   const heroStory = news.find(n => n.breaking === 1) ||
@@ -222,8 +244,8 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
     }
   };
 
-  // Right Column Tabs
-  const trendingNews = [...news]
+  // Right Column Tabs (use dynamically fetched lists if available)
+  const trendingNews = dbTrending.length > 0 ? dbTrending : [...news]
     .sort((a, b) => {
       const aTrend = a.section === "trending" ? 1 : 0;
       const bTrend = b.section === "trending" ? 1 : 0;
@@ -231,18 +253,17 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
       return (b.views_count || 0) - (a.views_count || 0);
     })
     .filter(n => n.id !== heroStory?.id && !latestHeadlines.some(l => l.id === n.id))
-    .slice(0, 6);
+    .slice(0, 5);
 
-  const mostReadNews = [...news]
+  const mostReadNews = dbMostRead.length > 0 ? dbMostRead : [...news]
     .filter(n => n.section === "spotlight" || n.featured === 1)
     .filter(n => n.id !== heroStory?.id && !latestHeadlines.some(l => l.id === n.id))
-    .slice(0, 6);
+    .slice(0, 5);
 
-  // Real sidebar videos from DB (active only, up to 4)
-  const sidebarVideos = (videos || [])
+  const sidebarVideos = dbVideos.length > 0 ? dbVideos : (videos || [])
     .filter(v => v.active === 1)
     .sort((a, b) => b.id - a.id)
-    .slice(0, 4);
+    .slice(0, 5);
 
   if (!heroStory) {
     return (
@@ -490,7 +511,7 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
                         </h4>
                         <div className="flex items-center gap-2 mt-1 text-[9px] text-stone-400 font-semibold">
                           <span>{timeAgo(item.created_at || item.date, language)}</span>
-                          <span className="flex items-center gap-0.5"><Eye className="w-2.5 h-2.5" /> {item.views_count?.toLocaleString()}</span>
+                          <span className="flex items-center gap-0.5"><Eye className="w-2.5 h-2.5" /> {formatViews(item.views_count, language)}</span>
                         </div>
                       </div>
                     </Link>
@@ -527,7 +548,7 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
                         </h4>
                         <div className="flex items-center gap-2 mt-1 text-[9px] text-stone-400 font-semibold">
                           <span>{timeAgo(item.created_at || item.date, language)}</span>
-                          <span className="flex items-center gap-0.5"><Eye className="w-2.5 h-2.5" /> {item.views_count?.toLocaleString()}</span>
+                          <span className="flex items-center gap-0.5"><Eye className="w-2.5 h-2.5" /> {formatViews(item.views_count, language)}</span>
                         </div>
                       </div>
                     </Link>
@@ -538,6 +559,10 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
                   <a
                     key={video.id}
                     href={`/videos`}
+                    onClick={() => {
+                      // Fire increment trigger asynchronously
+                      fetch(`/api/videos/${video.id}/view`, { method: "POST" }).catch(() => {});
+                    }}
                     className="flex items-start gap-2.5 group border-b border-stone-100 dark:border-stone-900 pb-2.5 last:border-0"
                   >
                     <div className="relative w-16 h-10 rounded overflow-hidden shrink-0 bg-stone-200">
@@ -556,7 +581,10 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
                       <h4 className="text-xs font-bold text-stone-850 dark:text-stone-200 line-clamp-2 leading-tight group-hover:text-brand-maroon dark:group-hover:text-brand-gold transition-colors">
                         {video.title}
                       </h4>
-                      <span className="text-[9px] text-stone-400 font-black mt-0.5 block uppercase">{video.category}</span>
+                      <div className="flex items-center gap-2 mt-0.5 text-[9px] font-bold text-stone-400 uppercase">
+                        <span>{video.category}</span>
+                        <span className="flex items-center gap-0.5 font-semibold normal-case"><Eye className="w-2.5 h-2.5 text-stone-400" /> {formatViews(video.views_count, language)}</span>
+                      </div>
                     </div>
                   </a>
                 ))}

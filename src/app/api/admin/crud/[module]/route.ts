@@ -29,73 +29,27 @@ async function checkAuth(requiredRoles?: string[]) {
 }
 
 // RBAC Permissions Enforcement Check
-function hasPermission(role: string, module: string, action: "view" | "create" | "edit" | "delete" | "publish"): boolean {
-  if (role === "superadmin") return true;
+async function hasPermission(
+  username: string,
+  role: string,
+  module: string,
+  action: "view" | "create" | "edit" | "delete" | "publish"
+): Promise<boolean> {
+  const r = (role || "").toUpperCase().trim().replace(" ", "_");
+  if (r === "SUPER_ADMIN" || r === "SUPERADMIN") return true;
 
-  switch (module) {
-    case "news":
-      if (role === "admin" || role === "contentadmin") return true;
-      if (role === "editor") {
-        if (action === "publish" || action === "delete") return false;
-        return true; // Can view/create/edit own
-      }
-      if (role === "reporter") {
-        if (action === "publish" || action === "delete") return false;
-        return true; // Can view/create/edit own
-      }
-      if (role === "viewer") {
-        return action === "view";
-      }
-      return false;
-
-    case "slider":
-    case "ticker":
-      if (role === "admin") return true;
-      if (role === "viewer") return action === "view";
-      return false;
-
-    case "videos":
-      if (role === "admin" || role === "mediamanager") return true;
-      if (role === "reporter") {
-        return action === "view" || action === "create" || action === "edit";
-      }
-      if (role === "viewer") return action === "view";
-      return false;
-
-    case "media":
-      if (role === "admin" || role === "contentadmin" || role === "mediamanager") return true;
-      if (role === "editor" || role === "reporter") {
-        return action === "view" || action === "create" || action === "edit";
-      }
-      if (role === "viewer") return action === "view";
-      return false;
-
-    case "alerts":
-    case "alert_settings":
-      if (role === "admin") return true;
-      if (role === "viewer") return action === "view";
-      return false;
-
-    case "seo_settings":
-    case "article_seo":
-      if (role === "admin" || role === "seomanager") return true;
-      if (role === "viewer") return action === "view";
-      return false;
-
-    case "users":
-    case "activity_logs":
-      return false; // superadmin only
-
-    case "profile":
-    case "theme":
-    case "menu":
-    case "contact":
-    case "tts":
-      return false; // superadmin only
-
-    default:
-      return false;
+  const permissions = await db.getResolvedPermissions(username, role);
+  if (permissions["*"]) {
+    return permissions["*"].includes(action) || permissions["*"].includes("*");
   }
+
+  // Normalize module key mapping
+  let key = module;
+  if (module === "alert_settings") key = "settings";
+  if (module === "seo_settings" || module === "article_seo") key = "settings";
+
+  const modulePerms = permissions[key] || [];
+  return modulePerms.includes(action);
 }
 
 export async function GET(req: Request, { params }: { params: Promise<{ module: string }> }) {
@@ -103,6 +57,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ module: 
   
   // No auth required for GET (so frontend can load them dynamically!)
   switch (module) {
+    case "config":
+      return NextResponse.json(await db.getSuperadminConfig());
     case "news":
       return NextResponse.json(await db.getNews());
     case "ticker":
@@ -139,6 +95,12 @@ export async function GET(req: Request, { params }: { params: Promise<{ module: 
       if (!auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
       return NextResponse.json(await db.getActivityLogs());
     }
+    case "police-stations":
+      return NextResponse.json(await db.getPoliceStations());
+    case "emergency-contacts":
+      return NextResponse.json(await db.getEmergencyContacts());
+    case "department-links":
+      return NextResponse.json(await db.getDepartmentLinks());
     default:
       return NextResponse.json({ error: "Invalid module" }, { status: 400 });
   }
@@ -152,14 +114,29 @@ export async function POST(req: Request, { params }: { params: Promise<{ module:
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  if (!hasPermission(auth.role, module, "create")) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  if (module === "config") {
+    if (!(await hasPermission(auth.username, auth.role, "footer", "edit")) && !(await hasPermission(auth.username, auth.role, "settings", "edit"))) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+  } else {
+    if (!(await hasPermission(auth.username, auth.role, module, "create"))) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
   }
 
   try {
     const data = await req.json();
     
     switch (module) {
+      case "config": {
+        const { key, value } = data;
+        if (!key) {
+          return NextResponse.json({ error: "Missing config key" }, { status: 400 });
+        }
+        await db.saveSuperadminConfig(key, value);
+        await db.addActivityLog(auth.username, `Updated configuration: ${key}`);
+        return NextResponse.json({ success: true });
+      }
       case "news": {
         const items = await db.getNews();
         const id = items.length > 0 ? Math.max(...items.map((i) => i.id)) + 1 : 1;
@@ -278,6 +255,33 @@ export async function POST(req: Request, { params }: { params: Promise<{ module:
         await db.saveArticleSeo(items);
         return NextResponse.json({ success: true, item: newItem });
       }
+      case "police-stations": {
+        const items = await db.getPoliceStations();
+        const id = items.length > 0 ? Math.max(...items.map((i) => i.id)) + 1 : 1;
+        const newItem = { id, ...data };
+        items.push(newItem);
+        await db.savePoliceStations(items);
+        await db.addActivityLog(auth.username, `Created police station: ${newItem.name_en}`);
+        return NextResponse.json({ success: true, item: newItem });
+      }
+      case "emergency-contacts": {
+        const items = await db.getEmergencyContacts();
+        const id = items.length > 0 ? Math.max(...items.map((i) => i.id)) + 1 : 1;
+        const newItem = { id, ...data };
+        items.push(newItem);
+        await db.saveEmergencyContacts(items);
+        await db.addActivityLog(auth.username, `Created emergency contact: ${newItem.number}`);
+        return NextResponse.json({ success: true, item: newItem });
+      }
+      case "department-links": {
+        const items = await db.getDepartmentLinks();
+        const id = items.length > 0 ? Math.max(...items.map((i) => i.id)) + 1 : 1;
+        const newItem = { id, ...data };
+        items.push(newItem);
+        await db.saveDepartmentLinks(items);
+        await db.addActivityLog(auth.username, `Created department link: ${newItem.name_en}`);
+        return NextResponse.json({ success: true, item: newItem });
+      }
       default:
         return NextResponse.json({ error: "Method not supported for module" }, { status: 400 });
     }
@@ -292,18 +296,33 @@ export async function PUT(req: Request, { params }: { params: Promise<{ module: 
   const auth = await checkAuth();
   if (!auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  if (!hasPermission(auth.role, module, "edit")) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  if (module === "config") {
+    if (!(await hasPermission(auth.username, auth.role, "footer", "edit")) && !(await hasPermission(auth.username, auth.role, "settings", "edit"))) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+  } else {
+    if (!(await hasPermission(auth.username, auth.role, module, "edit"))) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
   }
 
   try {
     const data = await req.json();
 
     switch (module) {
+      case "config": {
+        const { key, value } = data;
+        if (!key) {
+          return NextResponse.json({ error: "Missing config key" }, { status: 400 });
+        }
+        await db.saveSuperadminConfig(key, value);
+        await db.addActivityLog(auth.username, `Updated configuration: ${key}`);
+        return NextResponse.json({ success: true });
+      }
       case "news": {
         let items = await db.getNews();
         if (data.ids && Array.isArray(data.ids)) {
-          if (data.published !== undefined && !hasPermission(auth.role, "news", "publish")) {
+          if (data.published !== undefined && !(await hasPermission(auth.username, auth.role, "news", "publish"))) {
             return NextResponse.json({ error: "Forbidden: You do not have permission to publish content" }, { status: 403 });
           }
 
@@ -342,7 +361,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ module: 
           }
 
           if (data.published !== undefined && data.published !== existing.published) {
-            if (!hasPermission(auth.role, "news", "publish")) {
+            if (!(await hasPermission(auth.username, auth.role, "news", "publish"))) {
               return NextResponse.json({ error: "Forbidden: You do not have permission to publish/unpublish content" }, { status: 403 });
             }
           }
@@ -477,6 +496,27 @@ export async function PUT(req: Request, { params }: { params: Promise<{ module: 
 
         return NextResponse.json({ success: true });
       }
+      case "police-stations": {
+        let items = await db.getPoliceStations();
+        items = items.map((i) => (i.id === data.id ? { ...i, ...data } : i));
+        await db.savePoliceStations(items);
+        await db.addActivityLog(auth.username, `Updated police station: ${data.name_en}`);
+        return NextResponse.json({ success: true });
+      }
+      case "emergency-contacts": {
+        let items = await db.getEmergencyContacts();
+        items = items.map((i) => (i.id === data.id ? { ...i, ...data } : i));
+        await db.saveEmergencyContacts(items);
+        await db.addActivityLog(auth.username, `Updated emergency contact: ${data.number}`);
+        return NextResponse.json({ success: true });
+      }
+      case "department-links": {
+        let items = await db.getDepartmentLinks();
+        items = items.map((i) => (i.id === data.id ? { ...i, ...data } : i));
+        await db.saveDepartmentLinks(items);
+        await db.addActivityLog(auth.username, `Updated department link: ${data.name_en}`);
+        return NextResponse.json({ success: true });
+      }
       default:
         return NextResponse.json({ error: "Method not supported for module" }, { status: 400 });
     }
@@ -491,7 +531,7 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ modul
   const auth = await checkAuth();
   if (!auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  if (!hasPermission(auth.role, module, "delete")) {
+  if (!(await hasPermission(auth.username, auth.role, module, "delete"))) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
@@ -579,6 +619,36 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ modul
         items = items.filter((i) => i.id !== id);
         await db.saveUsers(items);
         await db.addActivityLog(auth.username, `Deleted user account: ${target.username}`);
+        return NextResponse.json({ success: true });
+      }
+      case "police-stations": {
+        let items = await db.getPoliceStations();
+        const target = items.find((i) => i.id === id);
+        items = items.filter((i) => i.id !== id);
+        await db.savePoliceStations(items);
+        if (target) {
+          await db.addActivityLog(auth.username, `Deleted police station: ${target.name_en}`);
+        }
+        return NextResponse.json({ success: true });
+      }
+      case "emergency-contacts": {
+        let items = await db.getEmergencyContacts();
+        const target = items.find((i) => i.id === id);
+        items = items.filter((i) => i.id !== id);
+        await db.saveEmergencyContacts(items);
+        if (target) {
+          await db.addActivityLog(auth.username, `Deleted emergency contact: ${target.number}`);
+        }
+        return NextResponse.json({ success: true });
+      }
+      case "department-links": {
+        let items = await db.getDepartmentLinks();
+        const target = items.find((i) => i.id === id);
+        items = items.filter((i) => i.id !== id);
+        await db.saveDepartmentLinks(items);
+        if (target) {
+          await db.addActivityLog(auth.username, `Deleted department link: ${target.name_en}`);
+        }
         return NextResponse.json({ success: true });
       }
       default:

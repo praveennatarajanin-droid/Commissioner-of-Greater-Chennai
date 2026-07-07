@@ -23,6 +23,7 @@ interface DBVideoItemLike {
   order_num: number;
   active: number;
   section: "main" | "bottom";
+  views_count?: number;
 }
 
 interface VideoNewsCenterProps {
@@ -66,6 +67,12 @@ export default function VideoNewsCenter({ customVideos }: VideoNewsCenterProps) 
       setActiveVideo(mainVideos[0]);
     }
   }, [mainVideos.length]);
+
+  useEffect(() => {
+    if (activeVideo && isPlaying) {
+      fetch(`/api/videos/${activeVideo.id}/view`, { method: "POST" }).catch(() => {});
+    }
+  }, [activeVideo, isPlaying]);
 
   const handleSelect = (video: VideoData) => {
     setActiveVideo(video);

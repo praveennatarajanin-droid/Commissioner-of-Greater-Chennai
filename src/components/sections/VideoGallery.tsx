@@ -84,6 +84,7 @@ interface DBVideoItemLike {
   order_num: number;
   active: number;
   section: "main" | "bottom";
+  views_count?: number;
 }
 
 interface VideoGalleryProps {
@@ -121,6 +122,12 @@ export default function VideoGallery({ customVideos }: VideoGalleryProps) {
       setActiveVideo(null);
     }
   }, [videosList, activeVideo]);
+
+  useEffect(() => {
+    if (activeVideo && isPlaying) {
+      fetch(`/api/videos/${activeVideo.id}/view`, { method: "POST" }).catch(() => {});
+    }
+  }, [activeVideo, isPlaying]);
 
   const handleSelectVideo = (video: VideoData) => {
     setActiveVideo(video);

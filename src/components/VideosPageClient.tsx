@@ -18,6 +18,7 @@ interface DBVideoItem {
   order_num: number;
   active: number;
   section: "main" | "bottom";
+  views_count?: number;
 }
 
 interface DBMenuItem {
@@ -81,6 +82,12 @@ export default function VideosPageClient({
       setActiveVideo(videos[0]);
     }
   }, [videos]);
+
+  useEffect(() => {
+    if (activeVideo && activeVideo.id) {
+      fetch(`/api/videos/${activeVideo.id}/view`, { method: "POST" }).catch(() => {});
+    }
+  }, [activeVideo]);
 
   if (!mounted) return null;
 

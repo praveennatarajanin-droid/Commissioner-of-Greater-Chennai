@@ -34,10 +34,37 @@ import {
   Calendar,
   FolderOpen,
   RefreshCw,
-  Menu
+  Menu,
+  MapPin,
+  Shield,
+  ShieldAlert,
+  Crown,
+  Lock,
+  Layout
 } from "lucide-react";
 import { DBUser, DBNewsItem, DBTickerItem, DBSliderItem, DBCommissionerProfile, DBThemeSettings, DBMenuItem, DBContact, DBTtsSettings, DBVideoItem, DBAlertItem, DBAlertSettings } from "@/lib/db";
-import RichTextEditor from "./RichTextEditor";
+import dynamic from "next/dynamic";
+
+const RichTextEditor = dynamic(() => import("./RichTextEditor"), {
+  loading: () => <div className="h-64 bg-stone-50 dark:bg-stone-900 animate-pulse rounded-2xl w-full" />,
+  ssr: false
+});
+const MenuManagement = dynamic(() => import("./MenuManagement"), {
+  loading: () => <div className="h-96 bg-stone-50 dark:bg-stone-900 animate-pulse rounded-2xl w-full" />,
+  ssr: false
+});
+const PageEditor = dynamic(() => import("./PageEditor"), {
+  loading: () => <div className="h-96 bg-stone-50 dark:bg-stone-900 animate-pulse rounded-2xl w-full" />,
+  ssr: false
+});
+const SuperAdminConsole = dynamic(() => import("./SuperAdminConsole"), {
+  loading: () => <div className="h-96 bg-stone-50 dark:bg-stone-900 animate-pulse rounded-2xl w-full" />,
+  ssr: false
+});
+const FooterManagement = dynamic(() => import("./FooterManagement"), {
+  loading: () => <div className="h-96 bg-stone-50 dark:bg-stone-900 animate-pulse rounded-2xl w-full" />,
+  ssr: false
+});
 
 const paragraphsToHtml = (paragraphs: string[] | undefined): string => {
   if (!paragraphs) return "";
@@ -169,11 +196,64 @@ const ADMIN_LIGHT_CSS = `
   #adm-root .focus\\:border-brand-gold\\/50:focus { border-color: rgba(46,49,146,0.45) !important; }
 
   /* Force white text on maroon colored buttons/icons for accessibility */
-  #adm-root .bg-brand-maroon,
-  #adm-root .bg-brand-maroon *,
-  #adm-root .bg-brand-maroon-dark,
-  #adm-root .bg-brand-maroon-dark * {
+  .bg-brand-maroon,
+  .bg-brand-maroon *,
+  .bg-brand-maroon-dark,
+  .bg-brand-maroon-dark *,
+  .bg-brand-blue,
+  .bg-brand-blue *,
+  .bg-\[\#2e3192\],
+  .bg-\[\#2e3192\] *,
+  .text-white-force,
+  .text-white-force * {
     color: #ffffff !important;
+  }
+
+  /* Segmented Nav tabs Visibility & Layout */
+  #adm-root .nav-tab-active {
+    background-color: #2E3192 !important;
+    color: #FFFFFF !important;
+    border: 1px solid #2E3192 !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.5px !important;
+    text-transform: uppercase !important;
+    padding: 12px 22px !important;
+    min-height: 48px !important;
+    border-radius: 14px !important;
+    box-shadow: 0 4px 15px rgba(46,49,146,0.25) !important;
+    transition: all 0.25s ease !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+    cursor: pointer !important;
+  }
+
+  #adm-root .nav-tab-inactive {
+    background-color: #FFFFFF !important;
+    color: #2E3192 !important;
+    border: 1px solid #d8dce8 !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.5px !important;
+    text-transform: uppercase !important;
+    padding: 12px 22px !important;
+    min-height: 48px !important;
+    border-radius: 14px !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08) !important;
+    transition: all 0.25s ease !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+    cursor: pointer !important;
+  }
+
+  #adm-root .nav-tab-inactive:hover {
+    background-color: #f5f7ff !important;
+    border-color: #2E3192 !important;
+    transform: translateY(-2px) !important;
   }
 `;
 
@@ -181,12 +261,13 @@ interface AdminDashboardProps {
   user: { username: string; role: string };
   onLogout: () => void;
   activeTab?: TabType;
-  onTabChange?: (tab: TabType) => void;
+  subPage?: string;
+  onTabChange?: (tab: any) => void;
 }
 
-type TabType = "dashboard" | "news" | "ticker" | "slider" | "profile" | "theme" | "settings" | "videos" | "alerts" | "media";
+type TabType = "dashboard" | "news" | "ticker" | "slider" | "profile" | "theme" | "footer" | "settings" | "videos" | "alerts" | "media" | "police-stations" | "emergency-contacts" | "department-links" | "menu-management" | "page-editor" | "superadmin";
 
-export default function AdminDashboard({ user, onLogout, activeTab: propActiveTab, onTabChange }: AdminDashboardProps) {
+export default function AdminDashboard({ user, onLogout, activeTab: propActiveTab, subPage, onTabChange }: AdminDashboardProps) {
   const [localActiveTab, setLocalActiveTab] = useState<TabType>("dashboard");
   const activeTab = propActiveTab !== undefined ? propActiveTab : localActiveTab;
   const setActiveTab = (tab: TabType) => {
@@ -196,6 +277,34 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
       setLocalActiveTab(tab);
     }
   };
+
+  const hasModulePermission = (moduleName: string, permissionName: string = "view"): boolean => {
+    const r = (user.role || "").toUpperCase().trim().replace(" ", "_");
+    if (r === "SUPER_ADMIN" || r === "SUPERADMIN") return true;
+
+    const perms = (user as any).permissions || {};
+    if (perms["*"]) return perms["*"].includes(permissionName);
+
+    const modulePerms = perms[moduleName] || [];
+    return modulePerms.includes(permissionName);
+  };
+
+  const isMetadataLocked = !hasModulePermission("news", "publish");
+
+  useEffect(() => {
+    const r = (user.role || "").toUpperCase().trim().replace(" ", "_");
+    if (activeTab === "dashboard") {
+      if (r === "CONTENT_MANAGER") {
+        setActiveTab("news");
+      } else if (r === "NEWS_EDITOR") {
+        setActiveTab("news");
+      } else if (r === "MEDIA_MANAGER") {
+        setActiveTab("media");
+      } else if (r === "STATION_MANAGER") {
+        setActiveTab("police-stations");
+      }
+    }
+  }, [user.role]);
 
   // Inject permanent light mode CSS after Tailwind loads
   useEffect(() => {
@@ -222,6 +331,9 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
   const [alertSettings, setAlertSettings] = useState<DBAlertSettings | null>(null);
   const [alertsFilter, setAlertsFilter] = useState<"pending" | "approved" | "removed">("pending");
   const [syncingAlerts, setSyncingAlerts] = useState(false);
+  const [policeStations, setPoliceStations] = useState<any[]>([]);
+  const [emergencyContacts, setEmergencyContacts] = useState<any[]>([]);
+  const [departmentLinks, setDepartmentLinks] = useState<any[]>([]);
   const [activityLog, setActivityLog] = useState<{ icon: string; msg: string; time: string; color: string }[]>([]);
   const [newAnnouncement, setNewAnnouncement] = useState("");
   const [announcements, setAnnouncements] = useState<{ id: number; text: string; time: string; type: string }[]>([]);
@@ -381,12 +493,14 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
   // AI Auto-Fill States & Handlers
   const [showConfirmAiModal, setShowConfirmAiModal] = useState(false);
   const [aiLoadingStep, setAiLoadingStep] = useState<number | null>(null);
-
-  // Publish Success Modal
+  const [aiSuggestions, setAiSuggestions] = useState<any | null>(null);
+  const [showAiReviewModal, setShowAiReviewModal] = useState(false);
+  const [hoveredAiField, setHoveredAiField] = useState<string | null>(null);
+  const [selectedAiSuggestions, setSelectedAiSuggestions] = useState<Record<string, boolean>>({});
   const [showPublishSuccessModal, setShowPublishSuccessModal] = useState(false);
   const [publishedArticleSlug, setPublishedArticleSlug] = useState<string | null>(null);
 
-  const handleAiGenerate = async (forceOverwrite?: boolean) => {
+  const handleAiGenerate = async () => {
     if (!editingItem) return;
 
     const hasInput = (editingItem.content_en?.join("") || "").trim().length > 10 || editingItem.image;
@@ -395,19 +509,6 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
       return;
     }
 
-    const hasExistingData = !!(
-      (editingItem.title_en && editingItem.title_en.trim().length > 0) ||
-      (editingItem.summary_en && editingItem.summary_en.trim().length > 0) ||
-      (editingItem.title_ta && editingItem.title_ta.trim().length > 0) ||
-      (editingItem.summary_ta && editingItem.summary_ta.trim().length > 0)
-    );
-
-    if (hasExistingData && forceOverwrite === undefined) {
-      setShowConfirmAiModal(true);
-      return;
-    }
-
-    setShowConfirmAiModal(false);
     setAiLoadingStep(0); // 🤖 Analyzing article...
 
     let simulatedSteps = 0;
@@ -434,54 +535,21 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
         const data = await res.json();
         setAiLoadingStep(3); // ✅ Filling form fields...
         
-        // Wait a brief moment to show checkmark
         await new Promise((resolve) => setTimeout(resolve, 800));
 
-        setEditingItem((prev: any) => {
-          const updated = { ...prev };
-          const overwrite = forceOverwrite ?? true;
-          
-          const fill = (key: string, value: any) => {
-            if (value === undefined || value === null) return;
-            const currentVal = updated[key];
-            const isEmpty = !currentVal || 
-              (Array.isArray(currentVal) && currentVal.length === 0) || 
-              (typeof currentVal === "string" && !currentVal.trim()) ||
-              (typeof currentVal === "number" && currentVal === 0);
-            
-            if (overwrite || isEmpty) {
-              updated[key] = value;
-            }
-          };
-
-          fill("title_en", data.title_en);
-          fill("title_ta", data.title_ta);
-          fill("category_en", data.category_en);
-          fill("category_ta", data.category_ta);
-          fill("summary_en", data.summary_en);
-          fill("summary_ta", data.summary_ta);
-          fill("tags_en", data.tags_en);
-          fill("tags_ta", data.tags_ta);
-          fill("sourceName", data.sourceName);
-          fill("author_en", data.author_en);
-          fill("author_ta", data.author_ta);
-          fill("meta_description", data.meta_description);
-          fill("meta_keywords", data.meta_keywords);
-          fill("breaking_headline", data.breaking_headline);
-          fill("short_caption", data.short_caption);
-          fill("slug", data.slug);
-          fill("section", data.section);
-          fill("featured", data.featured);
-          fill("breaking", data.breaking);
-
-          if (data.content_ta && Array.isArray(data.content_ta) && data.content_ta.length > 0) {
-            fill("content_ta", data.content_ta);
-          }
-
-          return updated;
-        });
-
-        triggerAlert("success", "AI Auto-filled form details successfully.");
+        if (data.success && data.fields) {
+          setAiSuggestions(data.fields);
+          // Auto select all fields initially
+          const initialSelections: Record<string, boolean> = {};
+          Object.keys(data.fields).forEach(key => {
+            initialSelections[key] = true;
+          });
+          setSelectedAiSuggestions(initialSelections);
+          setShowAiReviewModal(true);
+          triggerAlert("success", "AI extraction completed. Please review suggestions.");
+        } else {
+          triggerAlert("error", "Failed to parse AI suggestions.");
+        }
       } else {
         const errorData = await res.json();
         triggerAlert("error", errorData.error || "AI generation failed. Please try again.");
@@ -493,6 +561,60 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
     } finally {
       setAiLoadingStep(null);
     }
+  };
+
+  const applyAiSuggestions = () => {
+    if (!aiSuggestions || !editingItem) return;
+
+    setEditingItem((prev: any) => {
+      const updated = { ...prev };
+      
+      const copyIfSelected = (fieldKey: string, dbKey: string) => {
+        if (selectedAiSuggestions[fieldKey] && aiSuggestions[fieldKey]) {
+          updated[dbKey] = aiSuggestions[fieldKey].value;
+        }
+      };
+
+      copyIfSelected("title_en", "title_en");
+      copyIfSelected("title_ta", "title_ta");
+      copyIfSelected("category_en", "category_en");
+      copyIfSelected("category_ta", "category_ta");
+      copyIfSelected("summary_en", "summary_en");
+      copyIfSelected("summary_ta", "summary_ta");
+      copyIfSelected("tags_en", "tags_en");
+      copyIfSelected("tags_ta", "tags_ta");
+      copyIfSelected("section", "section");
+      copyIfSelected("author_en", "author_en");
+      copyIfSelected("author_ta", "author_ta");
+      copyIfSelected("sourceName", "sourceName");
+      copyIfSelected("sourceUrl", "sourceUrl");
+      copyIfSelected("date", "date");
+      copyIfSelected("views_count", "views_count");
+
+      // Handle section mapping extra logic
+      if (selectedAiSuggestions["section"] && aiSuggestions["section"]) {
+        const sec = aiSuggestions["section"].value;
+        let extra = {};
+        if (sec === "breaking") extra = { breaking: 1, homepage_visible: 1, latest: 0, featured: 0 };
+        else if (sec === "latest") extra = { latest: 1, homepage_visible: 1, breaking: 0, featured: 0 };
+        else if (sec === "trending") extra = { homepage_visible: 1, latest: 1, breaking: 0, featured: 0 };
+        else if (sec === "spotlight") extra = { featured: 1, homepage_visible: 1, latest: 0, breaking: 0 };
+        else if (sec === "big-stories") extra = { featured: 1, homepage_visible: 1, latest: 0, breaking: 0 };
+        else if (sec === "slider") extra = { featured: 1, homepage_visible: 1, latest: 0, breaking: 0 };
+        Object.assign(updated, extra);
+      }
+
+      // Handle translation paragraphs
+      if (selectedAiSuggestions["content_ta"] && aiSuggestions["content_ta"]) {
+        updated["content_ta"] = aiSuggestions["content_ta"].value;
+      }
+
+      return updated;
+    });
+
+    setShowAiReviewModal(false);
+    setAiSuggestions(null);
+    triggerAlert("success", "AI suggestions applied successfully.");
   };
 
   // Fetch all modules
@@ -520,6 +642,9 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
 
       setVideos(await fetchMod("videos"));
       setAlerts(await fetchMod("alerts"));
+      setPoliceStations(await fetchMod("police-stations"));
+      setEmergencyContacts(await fetchMod("emergency-contacts"));
+      setDepartmentLinks(await fetchMod("department-links"));
       
       const alertsSettingsRes = await fetch("/api/admin/crud/alert_settings");
       if (alertsSettingsRes.ok) setAlertSettings(await alertsSettingsRes.json());
@@ -533,6 +658,38 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
     } catch (e) {
       console.error("Error loading console data", e);
     }
+  };
+
+  const renderHighlightedArticle = () => {
+    const text = editingItem?.content_en?.join("\n\n") || "";
+    if (!hoveredAiField || !aiSuggestions || !aiSuggestions[hoveredAiField]) {
+      return <div className="whitespace-pre-wrap text-xs leading-relaxed text-slate-700 dark:text-stone-300">{text}</div>;
+    }
+
+    const quote = aiSuggestions[hoveredAiField].extracted_from;
+    if (!quote || !quote.trim()) {
+      return <div className="whitespace-pre-wrap text-xs leading-relaxed text-slate-700 dark:text-stone-300">{text}</div>;
+    }
+
+    // Escape regex characters
+    const escapedQuote = quote.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+    const regex = new RegExp(`(${escapedQuote})`, 'gi');
+    const parts = text.split(regex);
+
+    return (
+      <div className="whitespace-pre-wrap text-xs leading-relaxed text-slate-700 dark:text-stone-300">
+        {parts.map((part: string, i: number) => {
+          if (part.toLowerCase() === quote.toLowerCase()) {
+            return (
+              <mark key={i} className="bg-brand-gold/30 text-stone-900 dark:text-brand-gold font-bold px-1.5 py-0.5 rounded border border-brand-gold/50 shadow-sm animate-pulse">
+                {part}
+              </mark>
+            );
+          }
+          return part;
+        })}
+      </div>
+    );
   };
 
   useEffect(() => {
@@ -880,74 +1037,96 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
 
       {/* ==================== LEFT SIDEBAR ==================== */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-72 flex flex-col justify-between shrink-0 bg-white border-r border-stone-200/80 transition-transform duration-300 transform lg:translate-x-0 lg:static lg:inset-auto ${
+        className={`fixed inset-y-0 left-0 z-50 w-72 h-screen flex flex-col justify-between shrink-0 bg-white border-r border-stone-200/80 transition-transform duration-300 transform lg:translate-x-0 lg:static lg:h-screen overflow-hidden ${
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
         style={{ background: "#ffffff" }}
       >
-        <div>
-          {/* Logo Brand Header - Aligned h-12 */}
-          <div
-            className="h-12 px-4 flex items-center gap-3 border-b border-stone-200/80 shrink-0"
-          >
-            <div className="relative w-8 h-8 rounded-full bg-white p-0.5 border border-brand-gold/30 shrink-0">
-              <Image src="/images/gcp_logo.png" alt="" fill className="object-contain" />
-            </div>
-            <div className="flex flex-col justify-center gap-0.5">
-              <h3 className="font-display font-black text-[10px] tracking-wider uppercase text-slate-800 dark:text-white leading-none">
-                GCP CONTROL PANEL
-              </h3>
-              <span className="text-[8px] font-black text-brand-gold uppercase tracking-widest block leading-none">
-                ADMIN CONSOLE
-              </span>
-            </div>
+        {/* Logo Brand Header - Aligned h-12 (shrink-0) */}
+        <div
+          className="h-12 px-4 flex items-center gap-3 border-b border-stone-200/80 shrink-0"
+        >
+          <div className="relative w-8 h-8 rounded-full bg-white p-0.5 border border-brand-gold/30 shrink-0">
+            <Image src="/images/gcp_logo.png" alt="" fill className="object-contain" />
           </div>
+          <div className="flex flex-col justify-center gap-0.5">
+            <h3 className="font-display font-black text-[10px] tracking-wider uppercase text-slate-800 dark:text-white leading-none">
+              GCP CONTROL PANEL
+            </h3>
+            <span className="text-[8px] font-black text-brand-gold uppercase tracking-widest block leading-none">
+              ADMIN CONSOLE
+            </span>
+          </div>
+        </div>
 
-          {/* Navigation Links */}
+        {/* Scrollable Navigation links (flex-1) */}
+        <div className="flex-1 overflow-y-auto min-h-0">
           <nav className="p-3 space-y-1">
             {([
               { tab: "dashboard", icon: <LayoutDashboard className="w-4 h-4" />, label: "Overview" },
+              { tab: "superadmin", icon: <Shield className="w-4 h-4" />,        label: "Access Management Module" },
+              { tab: "menu-management", icon: <Menu className="w-4 h-4" />,      label: "Menu Management" },
               { tab: "news",      icon: <FileText className="w-4 h-4" />,        label: "News Articles" },
               { tab: "media",     icon: <FolderOpen className="w-4 h-4" />,      label: "Media Library" },
               { tab: "ticker",    icon: <Radio className="w-4 h-4" />,           label: "News Ticker" },
               { tab: "slider",    icon: <ImageIcon className="w-4 h-4" />,       label: "Hero Slider" },
               { tab: "videos",    icon: <Tv className="w-4 h-4" />,             label: "Video & Media" },
               { tab: "alerts",    icon: <AlertTriangle className="w-4 h-4" />,   label: "Official Alerts" },
+              { tab: "police-stations", icon: <MapPin className="w-4 h-4" />,    label: "Police Stations" },
+              { tab: "emergency-contacts", icon: <Phone className="w-4 h-4" />,  label: "Helplines Registry" },
+              { tab: "department-links", icon: <ExternalLink className="w-4 h-4" />, label: "Portal Links" },
               { tab: "profile",   icon: <User className="w-4 h-4" />,            label: "Profile" },
               { tab: "theme",     icon: <Palette className="w-4 h-4" />,         label: "Branding Theme" },
+              { tab: "footer",    icon: <Layout className="w-4 h-4" />,          label: "Footer Management" },
               { tab: "settings",  icon: <Settings className="w-4 h-4" />,        label: "Console Config" },
-            ] as { tab: TabType; icon: React.ReactNode; label: string }[]).map(({ tab, icon, label }) => (
-              <button
-                key={tab}
-                onClick={() => { setActiveTab(tab); setEditingItem(null); setIsAdding(false); setIsSidebarOpen(false); }}
-                className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs uppercase font-black tracking-wider transition cursor-pointer"
-                style={{
-                  background: activeTab === tab ? "#2e3192" : "transparent",
-                  color: activeTab === tab ? "#ffffff" : "#64748b",
-                }}
-                onMouseEnter={(e) => {
-                  if (activeTab !== tab) {
-                    e.currentTarget.style.background = "#f1f5f9";
-                    e.currentTarget.style.color = "#1e293b";
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (activeTab !== tab) {
-                    e.currentTarget.style.background = "transparent";
-                    e.currentTarget.style.color = "#64748b";
-                  }
-                }}
-              >
-                {icon}
-                <span>{label}</span>
-              </button>
-            ))}
+            ] as { tab: TabType; icon: React.ReactNode; label: string }[]).map(({ tab, icon, label }) => {
+              const isAllowed = hasModulePermission(tab, "view");
+              return (
+                <button
+                  key={tab}
+                  disabled={!isAllowed}
+                  title={isAllowed ? "" : "You don't have permission to access this module."}
+                  onClick={() => {
+                    if (!isAllowed) return;
+                    setActiveTab(tab);
+                    setEditingItem(null);
+                    setIsAdding(false);
+                    setIsSidebarOpen(false);
+                  }}
+                  className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-xs uppercase font-black tracking-wider transition ${
+                    isAllowed ? "cursor-pointer" : "cursor-not-allowed opacity-40"
+                  }`}
+                  style={{
+                    background: activeTab === tab ? "#2e3192" : "transparent",
+                    color: activeTab === tab ? "#ffffff" : "#64748b",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (isAllowed && activeTab !== tab) {
+                      e.currentTarget.style.background = "#f1f5f9";
+                      e.currentTarget.style.color = "#1e293b";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (isAllowed && activeTab !== tab) {
+                      e.currentTarget.style.background = "transparent";
+                      e.currentTarget.style.color = "#64748b";
+                    }
+                  }}
+                >
+                  <div className="flex items-center gap-3">
+                    {icon}
+                    <span>{label}</span>
+                  </div>
+                  {!isAllowed && <Lock className="w-3.5 h-3.5 text-stone-400" />}
+                </button>
+              );
+            })}
           </nav>
         </div>
 
-        {/* User Card & Logout */}
+        {/* User Card & Logout (shrink-0) */}
         <div
-          className="p-3"
+          className="p-3 shrink-0"
           style={{ borderTop: "1px solid rgba(0,0,0,0.09)", background: "#f8fafc" }}
         >
           <div className="flex items-center justify-between">
@@ -1051,13 +1230,22 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
             const last6 = monthNames.slice(Math.max(0, now2.getMonth() - 5), now2.getMonth() + 1);
             const monthlyData = last6.map(m => ({ month: m, count: monthlyMap[m] || 0 }));
             const maxMonthly = Math.max(...monthlyData.map(m => m.count), 1);
+            const formatViewsCount = (num?: number) => {
+              if (num === undefined || num === null) return "0";
+              if (num >= 1000000) return `${(num / 1000000).toFixed(1).replace(/\.0$/, "")}M`;
+              if (num >= 1000) return `${(num / 1000).toFixed(1).replace(/\.0$/, "")}K`;
+              return num.toString();
+            };
+            const totalNewsViews = news.reduce((acc, item) => acc + (item.views_count || 0), 0);
+            const totalVideoViews = videos.reduce((acc, item) => acc + (item.views_count || 0), 0);
+            const totalViews = totalNewsViews + totalVideoViews;
             const kpiCards = [
               { label: "News Articles", value: news.length, sub: `${publishedNews.length} live · ${draftNews.length} drafts`, icon: <FileText className="w-5 h-5" />, color: "#2e3192", bg: "rgba(46,49,146,0.1)", border: "rgba(46,49,146,0.2)", tab: "news" as TabType },
               { label: "Hero Slider", value: activeSlider.length, sub: `${slider.length} total slides`, icon: <ImageIcon className="w-5 h-5" />, color: "#c5a059", bg: "rgba(197,160,89,0.1)", border: "rgba(197,160,89,0.2)", tab: "slider" as TabType },
               { label: "Live Ticker", value: activeTicker.length, sub: `${ticker.length} total items`, icon: <Radio className="w-5 h-5" />, color: "#ed1b24", bg: "rgba(237,27,36,0.1)", border: "rgba(237,27,36,0.2)", tab: "ticker" as TabType },
               { label: "Videos", value: videos.length, sub: `${activeVideosCount} active in gallery`, icon: <Tv className="w-5 h-5" />, color: "#7c3aed", bg: "rgba(124,58,237,0.1)", border: "rgba(124,58,237,0.2)", tab: "videos" as TabType },
               { label: "Helplines", value: activeContacts.length, sub: `${contacts.length} total contacts`, icon: <Phone className="w-5 h-5" />, color: "#059669", bg: "rgba(5,150,105,0.1)", border: "rgba(5,150,105,0.2)", tab: "settings" as TabType },
-              { label: "Admin Users", value: users.length || 1, sub: `${user.role} session active`, icon: <Users className="w-5 h-5" />, color: "#2e3192", bg: "rgba(46,49,146,0.1)", border: "rgba(46,49,146,0.2)", tab: "settings" as TabType },
+              { label: "Total Views", value: formatViewsCount(totalViews), sub: `${formatViewsCount(totalNewsViews)} news · ${formatViewsCount(totalVideoViews)} videos`, icon: <Eye className="w-5 h-5" />, color: "#0ea5e9", bg: "rgba(14,165,233,0.1)", border: "rgba(14,165,233,0.2)", tab: "dashboard" as TabType },
             ];
             return (
               <div className="space-y-5">
@@ -1221,6 +1409,53 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                         </div>
                       ))}
                       {activityLog.length === 0 && <div className="p-6 text-center text-stone-500 text-xs">Loading activity...</div>}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Row 3.5: Top Viewed Articles & Videos */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                  {/* Top 10 News */}
+                  <div className="bg-stone-900 border border-stone-850 rounded-2xl p-5 space-y-4 text-left">
+                    <div className="flex items-center gap-2 border-b border-stone-850 pb-3">
+                      <Eye className="w-4 h-4 text-brand-gold" />
+                      <h4 className="font-display font-black text-xs uppercase tracking-widest text-white">Top 10 Most Viewed Articles</h4>
+                    </div>
+                    <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1" style={{ scrollbarWidth: "thin" }}>
+                      {news
+                        .slice()
+                        .sort((a, b) => (b.views_count || 0) - (a.views_count || 0))
+                        .slice(0, 10)
+                        .map((item, idx) => (
+                          <div key={item.id} className="flex justify-between items-center text-xs p-2 rounded hover:bg-stone-850/50 bg-stone-950/20 border border-stone-850/40">
+                            <span className="text-stone-400 font-bold w-6 text-center">{idx + 1}</span>
+                            <span className="text-white font-bold truncate flex-grow max-w-[280px]">{item.title_en}</span>
+                            <span className="text-brand-gold font-black uppercase tracking-wider text-[10px] shrink-0 ml-2">{formatViewsCount(item.views_count)} Views</span>
+                          </div>
+                        ))}
+                      {news.length === 0 && <div className="text-stone-500 text-xs py-4 text-center">No news views tracked yet.</div>}
+                    </div>
+                  </div>
+
+                  {/* Top 10 Videos */}
+                  <div className="bg-stone-900 border border-stone-850 rounded-2xl p-5 space-y-4 text-left">
+                    <div className="flex items-center gap-2 border-b border-stone-850 pb-3">
+                      <Tv className="w-4 h-4 text-[#0ea5e9]" />
+                      <h4 className="font-display font-black text-xs uppercase tracking-widest text-white">Top 10 Most Viewed Videos</h4>
+                    </div>
+                    <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1" style={{ scrollbarWidth: "thin" }}>
+                      {videos
+                        .slice()
+                        .sort((a, b) => (b.views_count || 0) - (a.views_count || 0))
+                        .slice(0, 10)
+                        .map((item, idx) => (
+                          <div key={item.id} className="flex justify-between items-center text-xs p-2 rounded hover:bg-stone-850/50 bg-stone-950/20 border border-stone-850/40">
+                            <span className="text-stone-400 font-bold w-6 text-center">{idx + 1}</span>
+                            <span className="text-white font-bold truncate flex-grow max-w-[280px]">{item.title}</span>
+                            <span className="text-[#0ea5e9] font-black uppercase tracking-wider text-[10px] shrink-0 ml-2">{formatViewsCount(item.views_count)} Views</span>
+                          </div>
+                        ))}
+                      {videos.length === 0 && <div className="text-stone-500 text-xs py-4 text-center">No video views tracked yet.</div>}
                     </div>
                   </div>
                 </div>
@@ -1731,9 +1966,10 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                     <div className="space-y-1.5 md:col-span-1 xl:col-span-2">
                       <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Publication Status</label>
                       <select
+                        disabled={isMetadataLocked}
                         value={editingItem.published}
                         onChange={(e) => setEditingItem({ ...editingItem, published: parseInt(e.target.value) })}
-                        className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-850 outline-none text-xs text-slate-850 dark:text-white p-3 rounded-xl focus:border-brand-gold/50"
+                        className={`w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-850 outline-none text-xs text-slate-850 dark:text-white p-3 rounded-xl focus:border-brand-gold/50 ${isMetadataLocked ? "opacity-60 cursor-not-allowed" : ""}`}
                       >
                         <option value={1}>Published</option>
                         <option value={0}>Draft</option>
@@ -1744,9 +1980,10 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                     <div className="space-y-1.5 md:col-span-1 xl:col-span-2">
                       <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Language Coverage</label>
                       <select
+                        disabled={isMetadataLocked}
                         value={editingItem.language || "Both"}
                         onChange={(e) => setEditingItem({ ...editingItem, language: e.target.value })}
-                        className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-850 outline-none text-xs text-slate-850 dark:text-white p-3 rounded-xl focus:border-brand-gold/50"
+                        className={`w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-850 outline-none text-xs text-slate-850 dark:text-white p-3 rounded-xl focus:border-brand-gold/50 ${isMetadataLocked ? "opacity-60 cursor-not-allowed" : ""}`}
                       >
                         <option value="Both">Both (English & Tamil)</option>
                         <option value="English">English</option>
@@ -1759,10 +1996,11 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                       <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Publish Date Display</label>
                       <input
                         type="text"
+                        disabled={isMetadataLocked}
                         value={editingItem.date}
                         onChange={(e) => setEditingItem({ ...editingItem, date: e.target.value })}
                         placeholder="e.g. June 22, 2026"
-                        className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-850 outline-none text-xs text-slate-850 dark:text-white p-3 rounded-xl focus:border-brand-gold/50"
+                        className={`w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-850 outline-none text-xs text-slate-850 dark:text-white p-3 rounded-xl focus:border-brand-gold/50 ${isMetadataLocked ? "opacity-60 cursor-not-allowed" : ""}`}
                       />
                     </div>
 
@@ -1795,9 +2033,10 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                       <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Custom Views Count</label>
                       <input
                         type="number"
+                        disabled={isMetadataLocked}
                         value={editingItem.views_count || 0}
                         onChange={(e) => setEditingItem({ ...editingItem, views_count: parseInt(e.target.value) || 0 })}
-                        className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-850 outline-none text-xs text-slate-850 dark:text-white p-3 rounded-xl focus:border-brand-gold/50"
+                        className={`w-full bg-stone-50 dark:bg-stone-955 border border-stone-200 dark:border-stone-850 outline-none text-xs text-slate-850 dark:text-white p-3 rounded-xl focus:border-brand-gold/50 ${isMetadataLocked ? "opacity-60 cursor-not-allowed" : ""}`}
                       />
                     </div>
 
@@ -1806,9 +2045,10 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                       <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Author (English)</label>
                       <input
                         type="text"
+                        disabled={isMetadataLocked}
                         value={editingItem.author_en}
                         onChange={(e) => setEditingItem({ ...editingItem, author_en: e.target.value })}
-                        className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-850 outline-none text-xs text-slate-850 dark:text-white p-3 rounded-xl focus:border-brand-gold/50"
+                        className={`w-full bg-stone-50 dark:bg-stone-955 border border-stone-200 dark:border-stone-850 outline-none text-xs text-slate-850 dark:text-white p-3 rounded-xl focus:border-brand-gold/50 ${isMetadataLocked ? "opacity-60 cursor-not-allowed" : ""}`}
                       />
                     </div>
 
@@ -1817,9 +2057,10 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                       <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">ஆசிரியர் (தமிழ்)</label>
                       <input
                         type="text"
+                        disabled={isMetadataLocked}
                         value={editingItem.author_ta}
                         onChange={(e) => setEditingItem({ ...editingItem, author_ta: e.target.value })}
-                        className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-850 outline-none text-xs text-slate-850 dark:text-white p-3 rounded-xl focus:border-brand-gold/50"
+                        className={`w-full bg-stone-50 dark:bg-stone-955 border border-stone-200 dark:border-stone-850 outline-none text-xs text-slate-850 dark:text-white p-3 rounded-xl focus:border-brand-gold/50 ${isMetadataLocked ? "opacity-60 cursor-not-allowed" : ""}`}
                       />
                     </div>
 
@@ -2048,7 +2289,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                     </div>
                     <RichTextEditor
                       value={paragraphsToHtml(editingItem.content_en)}
-                      onChange={(html) => setEditingItem({ ...editingItem, content_en: htmlToParagraphs(html) })}
+                      onChange={(html: string) => setEditingItem({ ...editingItem, content_en: htmlToParagraphs(html) })}
                       placeholder="Write your news article here..."
                     />
                   </div>
@@ -2152,37 +2393,227 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                 </div>
               )}
 
-              {/* AI Auto-Fill Confirmation Modal */}
-              {showConfirmAiModal && (
-                <div className="fixed inset-0 z-[100] bg-black/70 flex items-center justify-center p-4">
-                  <div className="bg-stone-900 border border-stone-805 rounded-2xl p-6 w-full max-w-sm text-left shadow-2xl space-y-4">
-                    <h4 className="font-display font-black text-sm uppercase tracking-widest text-brand-gold">Replace existing data?</h4>
-                    <p className="text-xs text-stone-300 leading-relaxed">
-                      Some fields in the form already contain data. How would you like the AI Auto-fill to proceed?
-                    </p>
-                    <div className="flex gap-2 justify-end pt-2">
+              {/* AI Auto-Fill Review & Verification Modal */}
+              {showAiReviewModal && aiSuggestions && (
+                <div className="fixed inset-0 z-[150] bg-stone-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+                  <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-850 rounded-2xl w-full max-w-6xl h-[85vh] overflow-hidden flex flex-col shadow-2xl">
+                    
+                    {/* Modal Header */}
+                    <div className="bg-slate-50 dark:bg-stone-955 p-4 border-b border-stone-200 dark:border-stone-850 flex justify-between items-center shrink-0">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full bg-brand-gold animate-ping" />
+                        <h3 className="font-display font-black text-xs uppercase tracking-widest text-slate-800 dark:text-white">
+                          🤖 AI Auto-Fill Extractor & NER Verification
+                        </h3>
+                      </div>
                       <button
-                        type="button"
-                        onClick={() => setShowConfirmAiModal(false)}
-                        className="px-4 py-2 border border-stone-700 hover:bg-stone-800 rounded-xl text-xs font-black uppercase tracking-wider transition text-stone-300 cursor-pointer"
+                        onClick={() => { setShowAiReviewModal(false); setAiSuggestions(null); }}
+                        className="p-1 hover:bg-slate-100 dark:hover:bg-stone-800 rounded transition cursor-pointer"
                       >
-                        Cancel
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleAiGenerate(false)}
-                        className="px-4 py-2 bg-stone-850 hover:bg-stone-800 border border-stone-700 rounded-xl text-xs font-black uppercase tracking-wider transition text-white cursor-pointer"
-                      >
-                        Keep Existing
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleAiGenerate(true)}
-                        className="px-4 py-2 bg-brand-gold hover:bg-brand-gold-dark text-stone-950 rounded-xl text-xs font-black uppercase tracking-wider transition cursor-pointer"
-                      >
-                        Replace
+                        <X className="w-5 h-5 text-slate-400" />
                       </button>
                     </div>
+
+                    {/* Modal Content */}
+                    <div className="flex-grow grid grid-cols-1 lg:grid-cols-12 overflow-hidden">
+                      
+                      {/* Left: Scrollable Fields Review Panel */}
+                      <div className="lg:col-span-7 flex flex-col h-full overflow-hidden border-r border-stone-200 dark:border-stone-800">
+                        <div className="p-4 bg-slate-50/50 dark:bg-stone-900 border-b border-stone-200 dark:border-stone-800 flex items-center justify-between shrink-0">
+                          <span className="text-[10px] font-black uppercase text-slate-500 tracking-wider">AI Extracted Suggestions</span>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => {
+                                const allKeys = Object.keys(aiSuggestions);
+                                const updated: Record<string, boolean> = {};
+                                const allSelected = allKeys.every(k => selectedAiSuggestions[k]);
+                                allKeys.forEach(k => {
+                                  updated[k] = !allSelected;
+                                });
+                                setSelectedAiSuggestions(updated);
+                              }}
+                              className="text-[9px] font-black uppercase text-brand-gold hover:text-amber-500 tracking-widest cursor-pointer"
+                            >
+                              Toggle All
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Scrollable Fields Grid */}
+                        <div className="flex-grow p-4 overflow-y-auto space-y-4 text-xs font-bold text-slate-650 dark:text-stone-400">
+                          {Object.entries(aiSuggestions).map(([fieldKey, item]: [string, any]) => {
+                            if (fieldKey === "category_ta" || fieldKey === "tags_ta" || fieldKey === "author_ta") return null; // group together with English
+
+                            const isSelected = selectedAiSuggestions[fieldKey];
+                            const confidence = item.confidence || 0;
+                            const isLowConfidence = confidence < 60;
+                            
+                            // HSL tailored color code for confidence badge
+                            const badgeColor = confidence >= 80 
+                              ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800" 
+                              : confidence >= 50
+                              ? "bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-400 border-amber-200 dark:border-amber-800"
+                              : "bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-400 border-rose-200 dark:border-rose-800";
+
+                            return (
+                              <div
+                                key={fieldKey}
+                                onMouseEnter={() => setHoveredAiField(fieldKey)}
+                                onFocus={() => setHoveredAiField(fieldKey)}
+                                className={`p-3 border rounded-xl transition ${
+                                  hoveredAiField === fieldKey 
+                                    ? "bg-stone-50 dark:bg-stone-955/40 border-brand-gold/40 shadow-sm"
+                                    : "border-slate-100 dark:border-stone-850 bg-white dark:bg-stone-900"
+                                }`}
+                              >
+                                <div className="flex items-center justify-between gap-3 mb-1.5">
+                                  <label className="flex items-center gap-2 cursor-pointer">
+                                    <input
+                                      type="checkbox"
+                                      checked={isSelected}
+                                      onChange={() => setSelectedAiSuggestions(prev => ({ ...prev, [fieldKey]: !prev[fieldKey] }))}
+                                      className="w-4 h-4 rounded text-brand-gold border-stone-300 dark:border-stone-800 cursor-pointer bg-white"
+                                    />
+                                    <span className="text-[10px] font-black uppercase text-slate-700 dark:text-stone-300 tracking-wider">
+                                      {fieldKey.replace("_en", "").replace("_ta", "").toUpperCase()}
+                                    </span>
+                                  </label>
+                                  <span className={`px-2 py-0.5 border rounded-lg text-[9px] font-black ${badgeColor}`}>
+                                    Confidence: {confidence}%
+                                  </span>
+                                </div>
+
+                                {/* Render field input(s) based on key */}
+                                <div className="space-y-2">
+                                  {fieldKey === "content_ta" ? (
+                                    <textarea
+                                      value={item.value?.join("\n\n") || ""}
+                                      onChange={(e) => setAiSuggestions({
+                                        ...aiSuggestions,
+                                        content_ta: { ...item, value: e.target.value.split("\n\n").filter(Boolean) }
+                                      })}
+                                      rows={3}
+                                      className="w-full bg-slate-55 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 outline-none text-xs text-slate-800 dark:text-white p-2.5 rounded-xl"
+                                    />
+                                  ) : fieldKey === "section" ? (
+                                    <select
+                                      value={item.value || "latest"}
+                                      onChange={(e) => setAiSuggestions({
+                                        ...aiSuggestions,
+                                        section: { ...item, value: e.target.value }
+                                      })}
+                                      className="w-full bg-slate-55 dark:bg-stone-955 border border-stone-200 dark:border-stone-800 outline-none text-xs text-slate-800 dark:text-white p-2.5 rounded-xl bg-white"
+                                    >
+                                      <option value="latest">Latest News Feed</option>
+                                      <option value="breaking">Breaking News</option>
+                                      <option value="spotlight">Spotlight Updates</option>
+                                    </select>
+                                  ) : fieldKey === "views_count" ? (
+                                    <input
+                                      type="number"
+                                      value={item.value || 0}
+                                      onChange={(e) => setAiSuggestions({
+                                        ...aiSuggestions,
+                                        views_count: { ...item, value: parseInt(e.target.value) || 0 }
+                                      })}
+                                      className="w-full bg-slate-55 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 outline-none text-xs text-slate-800 dark:text-white p-2.5 rounded-xl"
+                                    />
+                                  ) : (
+                                    /* Normal Text fields: EN and matching TA side-by-side or stacked */
+                                    <div className="space-y-2">
+                                      <div className="flex gap-2">
+                                        <span className="text-[9px] font-black uppercase text-stone-400 shrink-0 w-8 pt-2">EN:</span>
+                                        <input
+                                          type="text"
+                                          value={item.value || ""}
+                                          onChange={(e) => setAiSuggestions({
+                                            ...aiSuggestions,
+                                            [fieldKey]: { ...item, value: e.target.value }
+                                          })}
+                                          className="flex-grow bg-slate-55 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 outline-none text-xs text-slate-800 dark:text-white p-2 rounded-xl"
+                                        />
+                                      </div>
+                                      
+                                      {/* Tamil match fields translation preview (if exists) */}
+                                      {aiSuggestions[fieldKey + "_ta"] && (
+                                        <div className="flex gap-2">
+                                          <span className="text-[9px] font-black uppercase text-stone-400 shrink-0 w-8 pt-2">TA:</span>
+                                          <input
+                                            type="text"
+                                            value={aiSuggestions[fieldKey + "_ta"].value || ""}
+                                            onChange={(e) => setAiSuggestions({
+                                              ...aiSuggestions,
+                                              [fieldKey + "_ta"]: { ...aiSuggestions[fieldKey + "_ta"], value: e.target.value }
+                                            })}
+                                            className="flex-grow bg-slate-55 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 outline-none text-xs text-slate-800 dark:text-white p-2 rounded-xl"
+                                          />
+                                        </div>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+
+                                {/* Low confidence warnings / validation alerts */}
+                                {isLowConfidence && (
+                                  <div className="mt-2 text-[10px] text-rose-600 dark:text-rose-450 font-bold bg-rose-50 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/35 p-2 rounded-xl flex items-start gap-1">
+                                    <span className="shrink-0">⚠️</span>
+                                    <span>
+                                      Low confidence in {fieldKey.replace("_en", "").replace("_ta", "")}. Please verify manually. 
+                                      {item.extracted_from ? ` (AI match quote: "${item.extracted_from}")` : ""}
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Right: scrollable Context Analyzer panel */}
+                      <div className="lg:col-span-5 flex flex-col h-full overflow-hidden bg-slate-50 dark:bg-stone-955/40 p-4">
+                        <div className="flex items-center gap-2 border-b border-stone-250 dark:border-stone-800 pb-2.5 shrink-0">
+                          <span className="text-lg">🔍</span>
+                          <div>
+                            <h4 className="font-display font-black text-[10px] uppercase tracking-wider text-slate-700 dark:text-white">Article Context Analyzer</h4>
+                            <p className="text-[9px] text-stone-400 uppercase font-bold tracking-wider">Hover over a field to highlight its origin</p>
+                          </div>
+                        </div>
+                        <div className="flex-grow overflow-y-auto mt-4 p-4 bg-white dark:bg-stone-900 border dark:border-stone-850 rounded-2xl shadow-sm">
+                          {renderHighlightedArticle()}
+                        </div>
+                      </div>
+
+                    </div>
+
+                    {/* Modal Footer */}
+                    <div className="bg-slate-50 dark:bg-stone-955 p-4 border-t border-stone-200 dark:border-stone-800 flex flex-col sm:flex-row justify-between items-center gap-4 shrink-0">
+                      <div className="flex items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={() => { setShowAiReviewModal(false); setAiSuggestions(null); }}
+                          className="px-4 py-2 border border-stone-200 dark:border-stone-800 text-stone-500 rounded-xl hover:bg-slate-100 dark:hover:bg-stone-800 uppercase tracking-widest text-[9px] font-black transition cursor-pointer"
+                        >
+                          Reject Suggestions
+                        </button>
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => { setShowAiReviewModal(false); handleAiGenerate(); }}
+                          className="px-4 py-2 bg-stone-900 hover:bg-stone-850 text-white rounded-xl uppercase tracking-widest text-[9px] font-black transition cursor-pointer"
+                        >
+                          Regenerate
+                        </button>
+                        <button
+                          type="button"
+                          onClick={applyAiSuggestions}
+                          className="px-5 py-2 bg-brand-gold hover:bg-brand-gold-dark text-stone-950 rounded-xl uppercase tracking-widest text-[9px] font-black transition cursor-pointer border border-brand-gold-dark"
+                        >
+                          Accept Selected Fields
+                        </button>
+                      </div>
+                    </div>
+
                   </div>
                 </div>
               )}
@@ -4507,6 +4938,612 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
             </div>
           )}
 
+          {/* ==================== TAB: SUPER ADMIN CONSOLE ==================== */}
+          {activeTab === "superadmin" && (
+            (() => {
+              const isAllowedConsole = hasModulePermission("superadmin", "view");
+              if (!isAllowedConsole) {
+                return (
+                  <div className="flex flex-col items-center justify-center p-12 text-center bg-white border border-slate-200 rounded-2xl shadow-sm min-h-[450px]">
+                    <ShieldAlert className="w-16 h-16 text-rose-600 mb-4 animate-bounce" />
+                    <h2 className="text-xl font-black uppercase text-slate-800 tracking-wider">403 - Access Denied</h2>
+                    <p className="text-xs text-slate-500 mt-2 max-w-md leading-relaxed">
+                      You do not have permission to view the Access Management Module. This action has been logged for security audit.
+                    </p>
+                    <button
+                      onClick={() => setActiveTab("dashboard")}
+                      className="mt-6 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition cursor-pointer"
+                    >
+                      Return to Overview
+                    </button>
+                  </div>
+                );
+              }
+              return <SuperAdminConsole user={user} onTabChange={setActiveTab} />;
+            })()
+          )}
+
+          {/* ==================== TAB: POLICE STATIONS ==================== */}
+          {activeTab === "police-stations" && (
+            <div className="space-y-6">
+              {!editingItem && (
+                <>
+                  {/* Stations Status Panel */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    <div className="bg-stone-900 border border-stone-850 p-4 rounded-xl flex flex-col items-start shadow-sm">
+                      <span className="text-[10px] uppercase font-black tracking-wider text-brand-gold">Total Stations</span>
+                      <span className="text-2xl font-black text-white mt-1">{policeStations.length}</span>
+                    </div>
+                    <div className="bg-stone-900 border border-stone-850 p-4 rounded-xl flex flex-col items-start shadow-sm">
+                      <span className="text-[10px] uppercase font-black tracking-wider text-brand-blue-light">Law & Order</span>
+                      <span className="text-2xl font-black text-white mt-1">
+                        {policeStations.filter(s => s.type === "Law & Order").length}
+                      </span>
+                    </div>
+                    <div className="bg-stone-900 border border-stone-850 p-4 rounded-xl flex flex-col items-start shadow-sm">
+                      <span className="text-[10px] uppercase font-black tracking-wider text-[#c5a059]">Traffic Control</span>
+                      <span className="text-2xl font-black text-white mt-1">
+                        {policeStations.filter(s => s.type === "Traffic").length}
+                      </span>
+                    </div>
+                    <div className="bg-stone-900 border border-stone-850 p-4 rounded-xl flex flex-col items-start shadow-sm">
+                      <span className="text-[10px] uppercase font-black tracking-wider text-pink-500">AWPS</span>
+                      <span className="text-2xl font-black text-white mt-1">
+                        {policeStations.filter(s => s.type === "AWPS").length}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between items-center bg-stone-900 p-4 rounded-xl border border-stone-850">
+                    <span className="text-xs text-stone-400 font-bold uppercase tracking-wider">Police Stations Directory Registry</span>
+                    <button
+                      onClick={() => {
+                        setIsAdding(true);
+                        setEditingItem({
+                          name_en: "",
+                          name_ta: "",
+                          address_en: "",
+                          address_ta: "",
+                          phone: "",
+                          email: "",
+                          incharge_en: "",
+                          incharge_ta: "",
+                          designation_en: "Inspector of Police (L&O)",
+                          designation_ta: "காவல் ஆய்வாளர் (சட்டம் & ஒழுங்கு)",
+                          hours_en: "24 Hours / 7 Days",
+                          hours_ta: "24 மணிநேரம் / 7 நாட்கள்",
+                          lat: 13.0879,
+                          lng: 80.2592,
+                          zone_en: "North Zone",
+                          zone_ta: "வடக்கு மண்டலம்",
+                          division_en: "",
+                          division_ta: "",
+                          type: "Law & Order"
+                        });
+                      }}
+                      className="flex items-center gap-1.5 px-4 py-2 bg-brand-maroon hover:bg-brand-maroon-dark text-white rounded-lg text-xs font-black uppercase tracking-widest transition cursor-pointer border border-brand-maroon-dark"
+                    >
+                      <Plus className="w-4 h-4" /> Add Station
+                    </button>
+                  </div>
+                </>
+              )}
+
+              {/* Edit/Add Form */}
+              {editingItem && (
+                <div className="bg-stone-900 border border-stone-850 rounded-2xl p-6 space-y-4 w-full text-left">
+                  <h3 className="font-display font-black text-sm uppercase tracking-widest text-brand-gold border-b border-stone-850 pb-2">
+                    {isAdding ? "Add Police Station Profile" : "Edit Police Station Profile"}
+                  </h3>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Station Name English */}
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Station Name (English)</label>
+                      <input
+                        type="text"
+                        value={editingItem.name_en}
+                        onChange={(e) => setEditingItem({ ...editingItem, name_en: e.target.value })}
+                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                      />
+                    </div>
+                    {/* Station Name Tamil */}
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">காவல் நிலையம் பெயர் (தமிழ்)</label>
+                      <input
+                        type="text"
+                        value={editingItem.name_ta}
+                        onChange={(e) => setEditingItem({ ...editingItem, name_ta: e.target.value })}
+                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                      />
+                    </div>
+
+                    {/* Address English */}
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Complete Address (English)</label>
+                      <textarea
+                        value={editingItem.address_en}
+                        onChange={(e) => setEditingItem({ ...editingItem, address_en: e.target.value })}
+                        rows={2}
+                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                      />
+                    </div>
+                    {/* Address Tamil */}
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">காவல் நிலைய முகவரி (தமிழ்)</label>
+                      <textarea
+                        value={editingItem.address_ta}
+                        onChange={(e) => setEditingItem({ ...editingItem, address_ta: e.target.value })}
+                        rows={2}
+                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                      />
+                    </div>
+
+                    {/* Phone */}
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Contact Phone Number</label>
+                      <input
+                        type="text"
+                        value={editingItem.phone}
+                        onChange={(e) => setEditingItem({ ...editingItem, phone: e.target.value })}
+                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                      />
+                    </div>
+                    {/* Email */}
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Official Email Address</label>
+                      <input
+                        type="text"
+                        value={editingItem.email ?? ""}
+                        onChange={(e) => setEditingItem({ ...editingItem, email: e.target.value })}
+                        placeholder="e.g. ps@gcp.tn.gov.in"
+                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                      />
+                    </div>
+
+                    {/* Officer In-Charge English */}
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Inspector In-Charge Name (English)</label>
+                      <input
+                        type="text"
+                        value={editingItem.incharge_en ?? ""}
+                        onChange={(e) => setEditingItem({ ...editingItem, incharge_en: e.target.value })}
+                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                      />
+                    </div>
+                    {/* Officer In-Charge Tamil */}
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">பொறுப்பு அதிகாரி பெயர் (தமிழ்)</label>
+                      <input
+                        type="text"
+                        value={editingItem.incharge_ta ?? ""}
+                        onChange={(e) => setEditingItem({ ...editingItem, incharge_ta: e.target.value })}
+                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                      />
+                    </div>
+
+                    {/* Designation English */}
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Officer Designation (English)</label>
+                      <input
+                        type="text"
+                        value={editingItem.designation_en ?? ""}
+                        onChange={(e) => setEditingItem({ ...editingItem, designation_en: e.target.value })}
+                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                      />
+                    </div>
+                    {/* Designation Tamil */}
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">அதிகாரி பதவி விளக்கம் (தமிழ்)</label>
+                      <input
+                        type="text"
+                        value={editingItem.designation_ta ?? ""}
+                        onChange={(e) => setEditingItem({ ...editingItem, designation_ta: e.target.value })}
+                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                      />
+                    </div>
+
+                    {/* Zone English */}
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Area Zone (English)</label>
+                      <input
+                        type="text"
+                        value={editingItem.zone_en}
+                        onChange={(e) => setEditingItem({ ...editingItem, zone_en: e.target.value })}
+                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                      />
+                    </div>
+                    {/* Zone Tamil */}
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">காவல் மண்டலம் (தமிழ்)</label>
+                      <input
+                        type="text"
+                        value={editingItem.zone_ta}
+                        onChange={(e) => setEditingItem({ ...editingItem, zone_ta: e.target.value })}
+                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                      />
+                    </div>
+
+                    {/* Division English */}
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Division Name (English)</label>
+                      <input
+                        type="text"
+                        value={editingItem.division_en}
+                        onChange={(e) => setEditingItem({ ...editingItem, division_en: e.target.value })}
+                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                      />
+                    </div>
+                    {/* Division Tamil */}
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">காவல் கோட்டம் (தமிழ்)</label>
+                      <input
+                        type="text"
+                        value={editingItem.division_ta}
+                        onChange={(e) => setEditingItem({ ...editingItem, division_ta: e.target.value })}
+                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                      />
+                    </div>
+
+                    {/* Type Dropdown */}
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Station Category Type</label>
+                      <select
+                        value={editingItem.type}
+                        onChange={(e) => setEditingItem({ ...editingItem, type: e.target.value })}
+                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl cursor-pointer"
+                      >
+                        <option value="Law & Order">Law & Order</option>
+                        <option value="Traffic">Traffic</option>
+                        <option value="AWPS">AWPS (All Women Police Station)</option>
+                      </select>
+                    </div>
+
+                    {/* Hours English */}
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Operational Hours (English)</label>
+                      <input
+                        type="text"
+                        value={editingItem.hours_en ?? ""}
+                        onChange={(e) => setEditingItem({ ...editingItem, hours_en: e.target.value })}
+                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                      />
+                    </div>
+                    {/* Hours Tamil */}
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">செயல்பாட்டு நேரம் (தமிழ்)</label>
+                      <input
+                        type="text"
+                        value={editingItem.hours_ta ?? ""}
+                        onChange={(e) => setEditingItem({ ...editingItem, hours_ta: e.target.value })}
+                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                      />
+                    </div>
+
+                    {/* Coordinates */}
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Latitude Coordinate</label>
+                      <input
+                        type="number"
+                        step="0.0001"
+                        value={editingItem.lat ?? ""}
+                        onChange={(e) => setEditingItem({ ...editingItem, lat: parseFloat(e.target.value) })}
+                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Longitude Coordinate</label>
+                      <input
+                        type="number"
+                        step="0.0001"
+                        value={editingItem.lng ?? ""}
+                        onChange={(e) => setEditingItem({ ...editingItem, lng: parseFloat(e.target.value) })}
+                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                      />
+                    </div>
+
+                  </div>
+
+                  <div className="flex gap-3 justify-end pt-4 border-t border-stone-855">
+                    <button onClick={() => { setEditingItem(null); setIsAdding(false); }} className="px-4 py-2 bg-stone-950 hover:bg-stone-850 border border-stone-800 rounded-lg text-xs font-black uppercase tracking-wider transition">
+                      Cancel
+                    </button>
+                    <button onClick={() => handleSave("police-stations")} className="px-4 py-2 bg-brand-gold hover:bg-brand-gold-dark text-stone-950 rounded-lg text-xs font-black uppercase tracking-wider transition border border-brand-gold-dark">
+                      Save Station
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Station registry list */}
+              {!editingItem && (
+                <div className="bg-stone-900 border border-stone-850 rounded-2xl overflow-hidden text-left">
+                  <div className="divide-y divide-stone-850">
+                    {policeStations.map((item) => (
+                      <div key={item.id} className="p-4 flex justify-between items-center hover:bg-stone-955/20 transition">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-[9px] font-black text-brand-gold uppercase tracking-wider border border-brand-gold/30 px-1.5 py-0.5 rounded bg-brand-gold/10">
+                              {item.type}
+                            </span>
+                            <span className="text-[9px] font-bold text-stone-500">
+                              {item.zone_en} - {item.division_en}
+                            </span>
+                          </div>
+                          <h4 className="font-bold text-xs text-white mt-1.5">{item.name_en}</h4>
+                          <p className="text-[10px] text-stone-400">{item.name_ta}</p>
+                          <p className="text-[10px] text-stone-500 mt-1">Incharge: {item.incharge_en} | Phone: {item.phone}</p>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <button onClick={() => { setEditingItem(item); setIsAdding(false); }} className="p-2 text-stone-400 hover:text-brand-gold hover:bg-stone-855 rounded-lg transition cursor-pointer">
+                            <Edit className="w-4 h-4" />
+                          </button>
+                          <button onClick={() => handleDelete("police-stations", item.id)} className="p-2 text-stone-500 hover:text-rose-400 hover:bg-stone-855 rounded-lg transition cursor-pointer">
+                            <Trash className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+            </div>
+          )}
+
+          {/* ==================== TAB: EMERGENCY HELPLINES ==================== */}
+          {activeTab === "emergency-contacts" && (
+            <div className="space-y-6">
+              {!editingItem && (
+                <div className="flex justify-between items-center bg-stone-900 p-4 rounded-xl border border-stone-850">
+                  <span className="text-xs text-stone-400 font-bold uppercase tracking-wider">Emergency Helplines Registry</span>
+                  <button
+                    onClick={() => {
+                      setIsAdding(true);
+                      setEditingItem({ number: "", name_en: "", name_ta: "", desc_en: "", desc_ta: "" });
+                    }}
+                    className="flex items-center gap-1.5 px-4 py-2 bg-brand-maroon hover:bg-brand-maroon-dark text-white rounded-lg text-xs font-black uppercase tracking-widest transition cursor-pointer border border-brand-maroon-dark"
+                  >
+                    <Plus className="w-4 h-4" /> Add Helpline
+                  </button>
+                </div>
+              )}
+
+              {/* Edit/Add Form */}
+              {editingItem && (
+                <div className="bg-stone-900 border border-stone-850 rounded-2xl p-6 space-y-4 w-full text-left">
+                  <h3 className="font-display font-black text-sm uppercase tracking-widest text-brand-gold border-b border-stone-850 pb-2">
+                    {isAdding ? "Add Emergency Helpline" : "Edit Emergency Helpline"}
+                  </h3>
+
+                  <div className="space-y-3">
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Helpline Number / Hotline</label>
+                      <input
+                        type="text"
+                        value={editingItem.number}
+                        onChange={(e) => setEditingItem({ ...editingItem, number: e.target.value })}
+                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Helpline Label (English)</label>
+                        <input
+                          type="text"
+                          value={editingItem.name_en}
+                          onChange={(e) => setEditingItem({ ...editingItem, name_en: e.target.value })}
+                          className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">உதவி மையம் பெயர் (தமிழ்)</label>
+                        <input
+                          type="text"
+                          value={editingItem.name_ta}
+                          onChange={(e) => setEditingItem({ ...editingItem, name_ta: e.target.value })}
+                          className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Description (English)</label>
+                        <input
+                          type="text"
+                          value={editingItem.desc_en}
+                          onChange={(e) => setEditingItem({ ...editingItem, desc_en: e.target.value })}
+                          className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">விளக்கம் (தமிழ்)</label>
+                        <input
+                          type="text"
+                          value={editingItem.desc_ta}
+                          onChange={(e) => setEditingItem({ ...editingItem, desc_ta: e.target.value })}
+                          className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3 justify-end pt-4 border-t border-stone-855">
+                    <button onClick={() => { setEditingItem(null); setIsAdding(false); }} className="px-4 py-2 bg-stone-950 hover:bg-stone-850 border border-stone-800 rounded-lg text-xs font-black uppercase tracking-wider transition">
+                      Cancel
+                    </button>
+                    <button onClick={() => handleSave("emergency-contacts")} className="px-4 py-2 bg-brand-gold hover:bg-brand-gold-dark text-stone-950 rounded-lg text-xs font-black uppercase tracking-wider transition border border-brand-gold-dark">
+                      Save Helpline
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Helplines List */}
+              {!editingItem && (
+                <div className="bg-stone-900 border border-stone-850 rounded-2xl overflow-hidden text-left">
+                  <div className="divide-y divide-stone-850">
+                    {emergencyContacts.map((item) => (
+                      <div key={item.id} className="p-4 flex justify-between items-center hover:bg-stone-955/20 transition">
+                        <div>
+                          <span className="text-xs font-black text-brand-gold tracking-tight">{item.number}</span>
+                          <h4 className="font-bold text-xs text-white mt-1">{item.name_en}</h4>
+                          <p className="text-[10px] text-stone-400">{item.name_ta}</p>
+                          <p className="text-[10px] text-stone-500 mt-1">{item.desc_en}</p>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <button onClick={() => { setEditingItem(item); setIsAdding(false); }} className="p-2 text-stone-400 hover:text-brand-gold hover:bg-stone-855 rounded-lg transition cursor-pointer">
+                            <Edit className="w-4 h-4" />
+                          </button>
+                          <button onClick={() => handleDelete("emergency-contacts", item.id)} className="p-2 text-stone-500 hover:text-rose-400 hover:bg-stone-855 rounded-lg transition cursor-pointer">
+                            <Trash className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ==================== TAB: PORTAL LINKS ==================== */}
+          {activeTab === "department-links" && (
+            <div className="space-y-6">
+              {!editingItem && (
+                <div className="flex justify-between items-center bg-stone-900 p-4 rounded-xl border border-stone-850">
+                  <span className="text-xs text-stone-400 font-bold uppercase tracking-wider">Official Portal Links Registry</span>
+                  <button
+                    onClick={() => {
+                      setIsAdding(true);
+                      setEditingItem({ name_en: "", name_ta: "", url: "", desc_en: "", desc_ta: "" });
+                    }}
+                    className="flex items-center gap-1.5 px-4 py-2 bg-brand-maroon hover:bg-brand-maroon-dark text-white rounded-lg text-xs font-black uppercase tracking-widest transition cursor-pointer border border-brand-maroon-dark"
+                  >
+                    <Plus className="w-4 h-4" /> Add Portal Link
+                  </button>
+                </div>
+              )}
+
+              {/* Edit/Add Form */}
+              {editingItem && (
+                <div className="bg-stone-900 border border-stone-850 rounded-2xl p-6 space-y-4 w-full text-left">
+                  <h3 className="font-display font-black text-sm uppercase tracking-widest text-brand-gold border-b border-stone-850 pb-2">
+                    {isAdding ? "Add Department Portal Link" : "Edit Department Portal Link"}
+                  </h3>
+
+                  <div className="space-y-3">
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">External Redirect URL</label>
+                      <input
+                        type="text"
+                        value={editingItem.url}
+                        onChange={(e) => setEditingItem({ ...editingItem, url: e.target.value })}
+                        placeholder="e.g. https://cybercrime.gov.in"
+                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Link Title (English)</label>
+                        <input
+                          type="text"
+                          value={editingItem.name_en}
+                          onChange={(e) => setEditingItem({ ...editingItem, name_en: e.target.value })}
+                          className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">இணைப்புத் தலைப்பு (தமிழ்)</label>
+                        <input
+                          type="text"
+                          value={editingItem.name_ta}
+                          onChange={(e) => setEditingItem({ ...editingItem, name_ta: e.target.value })}
+                          className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Description (English)</label>
+                        <input
+                          type="text"
+                          value={editingItem.desc_en}
+                          onChange={(e) => setEditingItem({ ...editingItem, desc_en: e.target.value })}
+                          className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">பயன்பாட்டு விளக்கம் (தமிழ்)</label>
+                        <input
+                          type="text"
+                          value={editingItem.desc_ta}
+                          onChange={(e) => setEditingItem({ ...editingItem, desc_ta: e.target.value })}
+                          className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3 justify-end pt-4 border-t border-stone-855">
+                    <button onClick={() => { setEditingItem(null); setIsAdding(false); }} className="px-4 py-2 bg-stone-950 hover:bg-stone-850 border border-stone-800 rounded-lg text-xs font-black uppercase tracking-wider transition">
+                      Cancel
+                    </button>
+                    <button onClick={() => handleSave("department-links")} className="px-4 py-2 bg-brand-gold hover:bg-brand-gold-dark text-stone-950 rounded-lg text-xs font-black uppercase tracking-wider transition border border-brand-gold-dark">
+                      Save Portal Link
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Portal Links Registry */}
+              {!editingItem && (
+                <div className="bg-stone-900 border border-stone-850 rounded-2xl overflow-hidden text-left">
+                  <div className="divide-y divide-stone-850">
+                    {departmentLinks.map((item) => (
+                      <div key={item.id} className="p-4 flex justify-between items-center hover:bg-stone-955/20 transition">
+                        <div>
+                          <a href={item.url} target="_blank" rel="noopener noreferrer" className="text-xs font-black text-brand-gold hover:text-amber-500 transition flex items-center gap-1 w-max">
+                            {item.name_en} <ExternalLink className="w-3 h-3" />
+                          </a>
+                          <p className="text-[10px] text-stone-400 mt-1">{item.name_ta}</p>
+                          <p className="text-[10px] text-stone-500 mt-0.5">{item.desc_en}</p>
+                          <p className="text-[9px] font-mono text-stone-550 mt-1">{item.url}</p>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <button onClick={() => { setEditingItem(item); setIsAdding(false); }} className="p-2 text-stone-400 hover:text-brand-gold hover:bg-stone-855 rounded-lg transition cursor-pointer">
+                            <Edit className="w-4 h-4" />
+                          </button>
+                          <button onClick={() => handleDelete("department-links", item.id)} className="p-2 text-stone-500 hover:text-rose-400 hover:bg-stone-855 rounded-lg transition cursor-pointer">
+                            <Trash className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ==================== TAB: DYNAMIC MENU & PAGE BUILDER ==================== */}
+          {activeTab === "menu-management" && (
+            <MenuManagement user={user} onTabChange={setActiveTab} />
+          )}
+
+          {/* ==================== TAB: WORDPRESS-STYLE PAGE EDITOR ==================== */}
+          {activeTab === "page-editor" && (
+            <PageEditor user={user} subPage={subPage} onTabChange={(path: string) => setActiveTab(path as any)} />
+          )}
+
+          {/* ==================== TAB: FOOTER MANAGEMENT ==================== */}
+          {activeTab === "footer" && (
+            <FooterManagement onAlert={triggerAlert} />
+          )}
+
         </div>
 
           {/* Live Preview Modal */}
@@ -4992,4 +6029,3 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
     </div>
   );
 }
-export const dynamic = "force-dynamic";

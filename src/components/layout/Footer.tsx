@@ -78,7 +78,12 @@ export default function Footer({ customProfile }: FooterProps = {}) {
               <Link href="/achievements" className="hover:text-brand-gold transition">{language === "ta" ? "சாதனைகள்" : "Achievements"}</Link>
             </li>
             <li>
-              <Link href="/citizen-outreach" className="hover:text-brand-gold transition">{language === "ta" ? "மனுக்கள்" : "Citizen Outreach"}</Link>
+              <Link href="/stations" className="hover:text-brand-gold transition">{language === "ta" ? "காவல் நிலையங்கள்" : "Police Stations"}</Link>
+            </li>
+            <li>
+              <Link href="/citizen-outreach" className="hover:text-brand-gold transition">
+                {language === "ta" ? "மனு சமர்ப்பிப்பு" : "Grievance Form"}
+              </Link>
             </li>
           </ul>
         </div>
@@ -197,7 +202,7 @@ export default function Footer({ customProfile }: FooterProps = {}) {
         <p className="text-xs font-bold tracking-wider">
           Designed &amp; Developed by{" "}
           <span className="text-brand-gold font-black tracking-widest uppercase">
-            TEKQUORA Team
+            MCC MRF Innovation Park
           </span>
         </p>
       </div>

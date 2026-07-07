@@ -136,7 +136,7 @@ export default function BreakingNewsBanner({ breakingNews = [], language = "en" 
   const loopItems = getLoopItems();
 
   return (
-    <div className="w-full select-none" style={{ background: "#0f0f0f" }}>
+    <div className="w-full select-none sticky top-0 z-[60]" style={{ background: "#0f0f0f" }}>
       {/* Breaking News Bar */}
       <div className="w-full flex items-stretch" style={{ minHeight: "42px" }}>
         {/* BREAKING label */}

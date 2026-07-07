@@ -9,26 +9,13 @@ interface PageProps {
   params: Promise<{ tab?: string[] }>;
 }
 
-// Helper to define allowed tabs based on role permissions
 function getAllowedTabs(role: string): string[] {
-  switch (role) {
-    case "superadmin":
-      return ["dashboard", "news", "ticker", "slider", "profile", "theme", "settings", "videos", "alerts", "media", "seo", "users", "logs"];
-    case "admin":
-      return ["dashboard", "news", "ticker", "slider", "videos", "alerts", "media", "seo"];
-    case "editor":
-    case "contentadmin":
-    case "reporter":
-      return ["dashboard", "news", "media"];
-    case "seomanager":
-      return ["dashboard", "seo"];
-    case "mediamanager":
-      return ["dashboard", "media", "videos"];
-    case "viewer":
-      return ["dashboard"];
-    default:
-      return ["dashboard"];
-  }
+  return [
+    "dashboard", "superadmin", "news", "ticker", "slider", "profile", 
+    "theme", "settings", "videos", "alerts", "media", "seo", "users", 
+    "logs", "police-stations", "emergency-contacts", "department-links", 
+    "menu-management", "page-editor", "footer"
+  ];
 }
 
 export default function ControllerPage({ params }: PageProps) {
@@ -141,6 +128,7 @@ export default function ControllerPage({ params }: PageProps) {
         router.replace("/controller");
       }}
       activeTab={currentTab}
+      subPage={tab && tab.length > 1 ? tab[1] : undefined}
       onTabChange={(newTab) => {
         router.push("/controller/" + newTab);
       }}

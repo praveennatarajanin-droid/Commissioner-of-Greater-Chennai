@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { Search, Menu, X, Sun, Moon } from "lucide-react";
 import { useTheme } from "@/components/ThemeProvider";
 import { useTranslation } from "@/context/LanguageContext";
@@ -37,9 +37,10 @@ const YoutubeIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 interface NavbarProps {
   customMenuItems?: { label_en: string; label_ta: string; href: string }[];
+  stickyOffset?: string;
 }
 
-export default function Navbar({ customMenuItems }: NavbarProps = {}) {
+export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = {}) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [searchVal, setSearchVal] = useState("");
@@ -47,6 +48,7 @@ export default function Navbar({ customMenuItems }: NavbarProps = {}) {
   const { t, language, changeLanguage } = useTranslation();
   const [news, setNews] = useState<any[]>([]);
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     fetch("/api/admin/crud/news")
@@ -70,6 +72,7 @@ export default function Navbar({ customMenuItems }: NavbarProps = {}) {
                          (normalizedId === "cyber-safety" && cat === "cyber safety") ||
                          (normalizedId === "women-safety" && (cat === "women safety" || cat === "women's safety")) ||
                          (normalizedId === "public-safety" && cat === "public safety") ||
+                         (normalizedId === "traffic" && (cat === "traffic" || cat === "traffic news" || cat === "traffic advisory")) ||
                          (normalizedId === "outreach" && (cat === "outreach" || cat === "community outreach"));
       
       if (exactMatch) return true;
@@ -78,6 +81,7 @@ export default function Navbar({ customMenuItems }: NavbarProps = {}) {
                        normalizedId === "cyber-safety" ? ["cyber", "online", "scam", "phishing", "hacker", "fraud", "password"] :
                        normalizedId === "women-safety" ? ["women", "harassment", "singappen", "gender", "ssf", "girls", "harass"] :
                        normalizedId === "public-safety" ? ["safety", "patrol", "beach", "audit", "cctv", "third eye", "surveillance", "clean campus"] :
+                       normalizedId === "traffic" ? ["traffic", "diversion", "road closure", "signal", "congestion", "transport", "accident alert", "traffic police"] :
                        normalizedId === "outreach" ? ["community", "outreach", "karangal", "rescue", "welfare", "pledge", "labour", "students", "legal", "social awareness", "community support"] :
                        [];
 
@@ -85,24 +89,59 @@ export default function Navbar({ customMenuItems }: NavbarProps = {}) {
     }).length;
   };
 
+  const [dbMenus, setDbMenus] = useState<any[]>([]);
+  const [expandedMobileItems, setExpandedMobileItems] = useState<{ [key: number]: boolean }>({});
+
+  useEffect(() => {
+    fetch("/api/menus")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setDbMenus(data);
+        }
+      })
+      .catch((err) => console.error("Failed to load menus from DB:", err));
+  }, []);
+
+  const toggleMobileItem = (idx: number) => {
+    setExpandedMobileItems(prev => ({ ...prev, [idx]: !prev[idx] }));
+  };
+
   const categoryLinks = [
     { label: language === "ta" ? "குற்றம்" : "Crime",          href: "/category/crime", id: "crime" },
     { label: language === "ta" ? "இணைய பாதுகாப்பு" : "Cyber Safety", href: "/category/cyber-safety", id: "cyber-safety" },
     { label: language === "ta" ? "பெண்கள் பாதுகாப்பு" : "Women Safety",   href: "/category/women-safety", id: "women-safety" },
     { label: language === "ta" ? "பொது பாதுகாப்பு" : "Public Safety",   href: "/category/public-safety", id: "public-safety" },
+    { label: language === "ta" ? "போக்குவரத்து" : "Traffic",   href: "/category/traffic", id: "traffic" },
     { label: language === "ta" ? "சமூக உதவி" : "Outreach",    href: "/category/outreach", id: "outreach" },
   ].filter(item => {
     if (news.length === 0) return true; 
     return getCount(item.id) > 0;
   });
 
-  const finalNavItems = [
+  const fallbackNavItems = [
     { label: language === "ta" ? "முகப்பு" : "Home",         href: "/" },
+    { label: language === "ta" ? "எங்களைப் பற்றி" : "About Us", href: "/about" },
     ...categoryLinks,
+    { label: language === "ta" ? "காவல் நிலையங்கள்" : "Stations", href: "/stations" },
     { label: language === "ta" ? "வீடியோக்கள்" : "Videos",    href: "/videos" },
-    { label: language === "ta" ? "மனு சமர்ப்பிப்பு" : "Grievance Form", href: "/citizen-outreach" },
     { label: language === "ta" ? "ஆணையர் சுயவிவரம்" : "Profile", href: "/commissioner-profile" },
+    { label: language === "ta" ? "தொடர்பு கொள்ளுங்கள்" : "Contact Us", href: "/contact-us" },
   ];
+
+  const finalNavItems = dbMenus.length > 0
+    ? dbMenus.map((m: any) => ({
+        label: language === "ta" ? m.name_ta : m.name_en,
+        href: m.url,
+        openInNewTab: m.open_in_new_tab === 1,
+        subMenus: (m.subMenus || []).map((sub: any) => ({
+          label: language === "ta" ? sub.name_ta : sub.name_en,
+          href: sub.url,
+          openInNewTab: sub.open_in_new_tab === 1
+        }))
+      }))
+    : fallbackNavItems.map(item => ({ ...item, subMenus: [] }));
+
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -113,7 +152,10 @@ export default function Navbar({ customMenuItems }: NavbarProps = {}) {
   };
 
   return (
-    <header className="sticky top-0 w-full z-50 flex flex-col shadow-md">
+    <header 
+      className="sticky w-full z-50 flex flex-col shadow-md"
+      style={{ top: stickyOffset || 0 }}
+    >
       {/* 1. Red Top Header Bar */}
       <div className="w-full bg-brand-maroon text-white py-2 md:py-3.5 px-4 md:px-6">
         <div className="max-w-[1700px] mx-auto flex items-center justify-between gap-2 md:gap-4">
@@ -212,8 +254,9 @@ export default function Navbar({ customMenuItems }: NavbarProps = {}) {
             </button>
 
             {/* Circular Profile Avatar — matched to logo size */}
-            <div
-              className="relative w-14 h-14 md:w-20 md:h-20 shrink-0 rounded-full border-2 border-white/90 shadow-md overflow-hidden bg-white"
+            <Link
+              href="/chief-minister"
+              className="relative w-14 h-14 md:w-20 md:h-20 shrink-0 rounded-full border-2 border-white/90 shadow-md overflow-hidden bg-white cursor-pointer hover:border-brand-gold hover:scale-105 transition-all duration-300 block"
             >
               <Image
                 src="/images/vijay_profile.png"
@@ -224,7 +267,7 @@ export default function Navbar({ customMenuItems }: NavbarProps = {}) {
                 style={{ objectFit: "cover", objectPosition: "center 15%", transform: "scale(1.12)", transformOrigin: "center top" }}
                 priority
               />
-            </div>
+            </Link>
             
             {/* Hamburger menu toggle (min touch target 44px) */}
             <button
@@ -267,16 +310,38 @@ export default function Navbar({ customMenuItems }: NavbarProps = {}) {
           </div>
 
           <nav className="flex items-stretch flex-grow overflow-x-auto" style={{ scrollbarWidth: "none" }}>
-            {finalNavItems.map((item, idx) => (
-              <Link
-                key={idx}
-                href={item.href}
-                className="flex items-center px-4 text-[10px] sm:text-xs uppercase font-black tracking-wider hover:bg-[#1e2060] transition border-r border-white/10 whitespace-nowrap"
-                style={{ minHeight: "48px" }}
-              >
-                {item.label}
-              </Link>
-            ))}
+            {finalNavItems.map((item: any, idx) => {
+              const isActive = pathname === item.href;
+              const hasSub = item.subMenus && item.subMenus.length > 0;
+              return (
+                <div key={idx} className="relative group flex items-stretch">
+                  <Link
+                    href={item.href}
+                    target={item.openInNewTab ? "_blank" : undefined}
+                    className={`flex items-center px-4 text-[10px] sm:text-xs uppercase font-black tracking-wider hover:bg-[#1e2060] transition border-r border-white/10 whitespace-nowrap ${
+                      isActive ? "bg-[#1e2060] text-[#c5a059] border-b-2 border-[#c5a059]" : ""
+                    }`}
+                    style={{ minHeight: "48px" }}
+                  >
+                    {item.label}
+                  </Link>
+                  {hasSub && (
+                    <div className="absolute left-0 top-[48px] hidden group-hover:flex flex-col bg-brand-blue border-t-2 border-[#c5a059] shadow-xl min-w-[220px] z-50">
+                      {item.subMenus.map((sub: any, sIdx: number) => (
+                        <Link
+                          key={sIdx}
+                          href={sub.href}
+                          target={sub.openInNewTab ? "_blank" : undefined}
+                          className="px-4 py-3 text-[10px] sm:text-xs uppercase font-black tracking-wider text-white hover:bg-[#1e2060] hover:text-[#c5a059] border-b border-white/5 transition whitespace-nowrap text-left block"
+                        >
+                          {sub.label}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </nav>
 
           <div className="hidden lg:flex items-center gap-2 text-xs font-black text-[#c5a059] tracking-wide px-5 shrink-0 border-l border-white/15">
@@ -305,16 +370,51 @@ export default function Navbar({ customMenuItems }: NavbarProps = {}) {
               </div>
 
               {/* Navigation Items (Touch targets optimized to >= 44px) */}
-              {finalNavItems.map((item, idx) => (
-                <Link
-                  key={idx}
-                  href={item.href}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center py-3.5 px-4 text-[13px] uppercase font-bold tracking-wider hover:bg-[#1e2060]/70 rounded-lg text-stone-100 transition border-b border-white/5 last:border-b-0 text-left min-h-[44px]"
-                >
-                  {item.label}
-                </Link>
-              ))}
+              {finalNavItems.map((item: any, idx) => {
+                const isActive = pathname === item.href;
+                const hasSub = item.subMenus && item.subMenus.length > 0;
+                const isExpanded = expandedMobileItems[idx];
+                
+                return (
+                  <div key={idx} className="flex flex-col border-b border-white/5 last:border-b-0">
+                    <div className="flex items-center justify-between w-full">
+                      <Link
+                        href={item.href}
+                        target={item.openInNewTab ? "_blank" : undefined}
+                        onClick={() => !hasSub && setMobileMenuOpen(false)}
+                        className={`flex-grow flex items-center py-3.5 px-4 text-[13px] uppercase font-bold tracking-wider hover:bg-[#1e2060]/70 rounded-lg transition text-left min-h-[44px] ${
+                          isActive ? "bg-[#1e2060] text-[#c5a059]" : "text-stone-100"
+                        }`}
+                      >
+                        {item.label}
+                      </Link>
+                      {hasSub && (
+                        <button
+                          onClick={() => toggleMobileItem(idx)}
+                          className="px-4 py-3.5 hover:bg-[#1e2060]/70 text-white rounded-lg transition min-h-[44px] cursor-pointer flex items-center justify-center font-bold text-lg"
+                        >
+                          {isExpanded ? "−" : "+"}
+                        </button>
+                      )}
+                    </div>
+                    {hasSub && isExpanded && (
+                      <div className="pl-6 flex flex-col bg-[#0b0c24]/30 rounded-lg mb-2">
+                        {item.subMenus.map((sub: any, sIdx: number) => (
+                          <Link
+                            key={sIdx}
+                            href={sub.href}
+                            target={sub.openInNewTab ? "_blank" : undefined}
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="py-2.5 px-4 text-[12px] uppercase font-bold text-stone-300 hover:text-[#c5a059] text-left border-b border-white/5 last:border-b-0 min-h-[44px] flex items-center"
+                          >
+                            {sub.label}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
 
               {/* Mobile Language Switcher (Expanded touch targets) */}
               <div className="flex items-center justify-between border-t border-white/10 pt-4 mt-3 pb-2">
