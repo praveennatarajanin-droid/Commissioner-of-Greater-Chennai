@@ -40,29 +40,19 @@ import {
   ShieldAlert,
   Crown,
   Lock,
-  Layout
+  Layout,
+  BookOpen
 } from "lucide-react";
 import { DBUser, DBNewsItem, DBTickerItem, DBSliderItem, DBCommissionerProfile, DBThemeSettings, DBMenuItem, DBContact, DBTtsSettings, DBVideoItem, DBAlertItem, DBAlertSettings } from "@/lib/db";
 import dynamic from "next/dynamic";
+import SuperAdminConsole from "./SuperAdminConsole";
+import FooterManagement from "./FooterManagement";
+import MenuManagement from "./MenuManagement";
+import PageEditor from "./PageEditor";
+import WebStoriesManagement from "./WebStoriesManagement";
 
 const RichTextEditor = dynamic(() => import("./RichTextEditor"), {
   loading: () => <div className="h-64 bg-stone-50 dark:bg-stone-900 animate-pulse rounded-2xl w-full" />,
-  ssr: false
-});
-const MenuManagement = dynamic(() => import("./MenuManagement"), {
-  loading: () => <div className="h-96 bg-stone-50 dark:bg-stone-900 animate-pulse rounded-2xl w-full" />,
-  ssr: false
-});
-const PageEditor = dynamic(() => import("./PageEditor"), {
-  loading: () => <div className="h-96 bg-stone-50 dark:bg-stone-900 animate-pulse rounded-2xl w-full" />,
-  ssr: false
-});
-const SuperAdminConsole = dynamic(() => import("./SuperAdminConsole"), {
-  loading: () => <div className="h-96 bg-stone-50 dark:bg-stone-900 animate-pulse rounded-2xl w-full" />,
-  ssr: false
-});
-const FooterManagement = dynamic(() => import("./FooterManagement"), {
-  loading: () => <div className="h-96 bg-stone-50 dark:bg-stone-900 animate-pulse rounded-2xl w-full" />,
   ssr: false
 });
 
@@ -196,16 +186,42 @@ const ADMIN_LIGHT_CSS = `
   #adm-root .focus\\:border-brand-gold\\/50:focus { border-color: rgba(46,49,146,0.45) !important; }
 
   /* Force white text on maroon colored buttons/icons for accessibility */
-  .bg-brand-maroon,
-  .bg-brand-maroon *,
-  .bg-brand-maroon-dark,
-  .bg-brand-maroon-dark *,
-  .bg-brand-blue,
-  .bg-brand-blue *,
-  .bg-\[\#2e3192\],
-  .bg-\[\#2e3192\] *,
-  .text-white-force,
-  .text-white-force * {
+  #adm-root .bg-brand-maroon,
+  #adm-root .bg-brand-maroon *,
+  #adm-root .bg-brand-maroon-dark,
+  #adm-root .bg-brand-maroon-dark *,
+  #adm-root .bg-brand-blue,
+  #adm-root .bg-brand-blue *,
+  #adm-root .bg-brand-blue-dark,
+  #adm-root .bg-brand-blue-dark *,
+  #adm-root .bg-brand-blue-light,
+  #adm-root .bg-brand-blue-light *,
+  #adm-root .bg-emerald-600,
+  #adm-root .bg-emerald-600 *,
+  #adm-root .bg-emerald-700,
+  #adm-root .bg-emerald-700 *,
+  #adm-root .bg-rose-600,
+  #adm-root .bg-rose-600 *,
+  #adm-root .bg-rose-700,
+  #adm-root .bg-rose-700 *,
+  #adm-root .bg-red-600,
+  #adm-root .bg-red-600 *,
+  #adm-root .bg-red-700,
+  #adm-root .bg-red-700 *,
+  #adm-root .text-white-force,
+  #adm-root .text-white-force * {
+    color: #ffffff !important;
+  }
+
+  /* Force white text for custom arbitrary bg color hex codes (escaped properly for JS strings) */
+  #adm-root .bg-\\[\\#2e3192\\],
+  #adm-root .bg-\\[\\#2e3192\\] *,
+  #adm-root .bg-\\[\\#2E3192\\],
+  #adm-root .bg-\\[\\#2E3192\\] *,
+  #adm-root .bg-\\[\\#1e2060\\],
+  #adm-root .bg-\\[\\#1e2060\\] *,
+  #adm-root .bg-\\[\\#1d206f\\],
+  #adm-root .bg-\\[\\#1d206f\\] * {
     color: #ffffff !important;
   }
 
@@ -265,7 +281,7 @@ interface AdminDashboardProps {
   onTabChange?: (tab: any) => void;
 }
 
-type TabType = "dashboard" | "news" | "ticker" | "slider" | "profile" | "theme" | "footer" | "settings" | "videos" | "alerts" | "media" | "police-stations" | "emergency-contacts" | "department-links" | "menu-management" | "page-editor" | "superadmin";
+type TabType = "dashboard" | "news" | "ticker" | "slider" | "profile" | "theme" | "footer" | "settings" | "videos" | "alerts" | "media" | "police-stations" | "emergency-contacts" | "department-links" | "menu-management" | "page-editor" | "superadmin" | "web-stories";
 
 export default function AdminDashboard({ user, onLogout, activeTab: propActiveTab, subPage, onTabChange }: AdminDashboardProps) {
   const [localActiveTab, setLocalActiveTab] = useState<TabType>("dashboard");
@@ -349,6 +365,14 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
   const [previewLang, setPreviewLang] = useState<"en" | "ta">("en");
   const [deleteConfirm, setDeleteConfirm] = useState<{ mod: string; id: number; title: string; message: string } | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  // News Pagination States
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 15;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, categoryFilter, dateFilter, statusFilter, languageFilter]);
 
   // User Management Form States
   const [showUserModal, setShowUserModal] = useState(false);
@@ -477,7 +501,8 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
   };
 
   const getViewsCount = (item: DBNewsItem) => {
-    return item.views_count !== undefined ? item.views_count : (item.id * 18 + 42);
+    // Return a valid number even if views_count is null or undefined
+    return typeof item.views_count === "number" ? item.views_count : (item.id * 18 + 42);
   };
 
   // Form active items
@@ -619,41 +644,57 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
 
   // Fetch all modules
   const fetchData = async () => {
-    try {
-      const fetchMod = async (mod: string) => {
+    const fetchMod = async (mod: string) => {
+      try {
         const res = await fetch(`/api/admin/crud/${mod}`);
-        return res.ok ? res.json() : [];
-      };
+        if (!res.ok) return [];
+        return await res.json();
+      } catch (err) {
+        console.error(`Error fetching module ${mod}:`, err);
+        return [];
+      }
+    };
 
-      setNews(await fetchMod("news"));
-      setTicker(await fetchMod("ticker"));
-      setSlider(await fetchMod("slider"));
-      
-      const profRes = await fetch("/api/admin/crud/profile");
-      if (profRes.ok) setProfile(await profRes.json());
-      
-      const themeRes = await fetch("/api/admin/crud/theme");
-      if (themeRes.ok) setTheme(await themeRes.json());
-
-      setContacts(await fetchMod("contact"));
-
-      const ttsRes = await fetch("/api/admin/crud/tts");
-      if (ttsRes.ok) setTts(await ttsRes.json());
-
-      setVideos(await fetchMod("videos"));
-      setAlerts(await fetchMod("alerts"));
-      setPoliceStations(await fetchMod("police-stations"));
-      setEmergencyContacts(await fetchMod("emergency-contacts"));
-      setDepartmentLinks(await fetchMod("department-links"));
-      
-      const alertsSettingsRes = await fetch("/api/admin/crud/alert_settings");
-      if (alertsSettingsRes.ok) setAlertSettings(await alertsSettingsRes.json());
+    try {
+      const promises: Promise<any>[] = [
+        fetchMod("news"),
+        fetchMod("ticker"),
+        fetchMod("slider"),
+        fetch("/api/admin/crud/profile").then(res => res.ok ? res.json() : null).catch(() => null),
+        fetch("/api/admin/crud/theme").then(res => res.ok ? res.json() : null).catch(() => null),
+        fetchMod("contact"),
+        fetch("/api/admin/crud/tts").then(res => res.ok ? res.json() : null).catch(() => null),
+        fetchMod("videos"),
+        fetchMod("alerts"),
+        fetchMod("police-stations"),
+        fetchMod("emergency-contacts"),
+        fetchMod("department-links"),
+        fetch("/api/admin/crud/alert_settings").then(res => res.ok ? res.json() : null).catch(() => null),
+      ];
 
       if (user.role === "superadmin") {
-        setUsers(await fetchMod("users"));
+        promises.push(fetchMod("users"));
       }
-      
-      // Also load Media Library files
+
+      const results = await Promise.all(promises);
+
+      setNews(results[0] || []);
+      setTicker(results[1] || []);
+      setSlider(results[2] || []);
+      if (results[3]) setProfile(results[3]);
+      if (results[4]) setTheme(results[4]);
+      setContacts(results[5] || []);
+      if (results[6]) setTts(results[6]);
+      setVideos(results[7] || []);
+      setAlerts(results[8] || []);
+      setPoliceStations(results[9] || []);
+      setEmergencyContacts(results[10] || []);
+      setDepartmentLinks(results[11] || []);
+      if (results[12]) setAlertSettings(results[12]);
+      if (user.role === "superadmin" && results[13]) {
+        setUsers(results[13]);
+      }
+
       await fetchMedia();
     } catch (e) {
       console.error("Error loading console data", e);
@@ -1071,6 +1112,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
               { tab: "ticker",    icon: <Radio className="w-4 h-4" />,           label: "News Ticker" },
               { tab: "slider",    icon: <ImageIcon className="w-4 h-4" />,       label: "Hero Slider" },
               { tab: "videos",    icon: <Tv className="w-4 h-4" />,             label: "Video & Media" },
+              { tab: "web-stories", icon: <BookOpen className="w-4 h-4" />,      label: "Web Stories" },
               { tab: "alerts",    icon: <AlertTriangle className="w-4 h-4" />,   label: "Official Alerts" },
               { tab: "police-stations", icon: <MapPin className="w-4 h-4" />,    label: "Police Stations" },
               { tab: "emergency-contacts", icon: <Phone className="w-4 h-4" />,  label: "Helplines Registry" },
@@ -1094,24 +1136,10 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                     setIsSidebarOpen(false);
                   }}
                   className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-xs uppercase font-black tracking-wider transition ${
-                    isAllowed ? "cursor-pointer" : "cursor-not-allowed opacity-40"
+                    isAllowed
+                      ? `cursor-pointer ${activeTab === tab ? "bg-[#2e3192] text-white" : "hover:bg-slate-100 hover:text-slate-900 text-[#64748b]"}`
+                      : "cursor-not-allowed opacity-40 text-[#64748b]"
                   }`}
-                  style={{
-                    background: activeTab === tab ? "#2e3192" : "transparent",
-                    color: activeTab === tab ? "#ffffff" : "#64748b",
-                  }}
-                  onMouseEnter={(e) => {
-                    if (isAllowed && activeTab !== tab) {
-                      e.currentTarget.style.background = "#f1f5f9";
-                      e.currentTarget.style.color = "#1e293b";
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (isAllowed && activeTab !== tab) {
-                      e.currentTarget.style.background = "transparent";
-                      e.currentTarget.style.color = "#64748b";
-                    }
-                  }}
                 >
                   <div className="flex items-center gap-3">
                     {icon}
@@ -1751,7 +1779,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                       </thead>
                       <tbody className="divide-y divide-stone-200 dark:divide-stone-850">
                         {filteredNews.length > 0 ? (
-                          filteredNews.map((item) => (
+                          filteredNews.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((item) => (
                             <tr key={item.id} className="hover:bg-slate-50/50 dark:hover:bg-stone-950/20 transition text-slate-800 dark:text-stone-200">
                               <td className="p-4 text-left">
                                 <div className="relative w-12 h-9 rounded-lg overflow-hidden bg-stone-105 dark:bg-stone-800 border border-stone-200 dark:border-stone-750 flex items-center justify-center">
@@ -1854,6 +1882,30 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                       </tbody>
                     </table>
                   </div>
+                  {/* Pagination Controls */}
+                  {filteredNews.length > itemsPerPage && (
+                    <div className="flex items-center justify-between p-4 border-t border-stone-200 dark:border-stone-850 bg-stone-50 dark:bg-stone-900/40">
+                      <span className="text-[10px] uppercase font-black tracking-wider text-stone-400">
+                        Showing {Math.min(filteredNews.length, (currentPage - 1) * itemsPerPage + 1)} - {Math.min(filteredNews.length, currentPage * itemsPerPage)} of {filteredNews.length}
+                      </span>
+                      <div className="flex gap-2">
+                        <button
+                          disabled={currentPage === 1}
+                          onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                          className="px-3 py-1.5 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 text-[10px] font-black uppercase tracking-wider rounded-lg disabled:opacity-30 disabled:cursor-not-allowed hover:bg-stone-50 cursor-pointer text-slate-800 dark:text-stone-300"
+                        >
+                          Prev
+                        </button>
+                        <button
+                          disabled={currentPage * itemsPerPage >= filteredNews.length}
+                          onClick={() => setCurrentPage(p => p + 1)}
+                          className="px-3 py-1.5 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 text-[10px] font-black uppercase tracking-wider rounded-lg disabled:opacity-30 disabled:cursor-not-allowed hover:bg-stone-50 cursor-pointer text-slate-800 dark:text-stone-300"
+                        >
+                          Next
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -1886,24 +1938,85 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                       />
                     </div>
 
-                    {/* Category English */}
+                    {/* Category Selection Dropdown */}
                     <div className="space-y-1.5 xl:col-span-2">
                       <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Category (English)</label>
-                      <input
-                        type="text"
-                        value={editingItem.category_en}
-                        onChange={(e) => setEditingItem({ ...editingItem, category_en: e.target.value })}
-                        className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-850 outline-none text-xs text-slate-850 dark:text-white p-3 rounded-xl focus:border-brand-gold/50"
-                      />
+                      <select
+                        value={editingItem.category_en || "General News"}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          const defaults = [
+                            { en: "Crime", ta: "குற்றம்" },
+                            { en: "Cyber Safety", ta: "இணைய பாதுகாப்பு" },
+                            { en: "Women Safety", ta: "பெண்கள் பாதுகாப்பு" },
+                            { en: "Public Safety", ta: "பொது பாதுகாப்பு" },
+                            { en: "Outreach", ta: "சமூக அவுட்ரீச்" },
+                            { en: "Traffic Updates", ta: "போக்குவரத்து தகவல்கள்" },
+                            { en: "Awards & Recognition", ta: "விருதுகள் & அங்கீகாரம்" },
+                            { en: "Official Alerts", ta: "அதிகாரப்பூர்வ அறிவிப்புகள்" },
+                            { en: "General News", ta: "பொதுச் செய்திகள்" }
+                          ];
+                          
+                          const map = new Map<string, string>();
+                          if (news && Array.isArray(news)) {
+                            news.forEach((n: any) => {
+                              if (n.category_en) {
+                                map.set(n.category_en, n.category_ta || n.category_en);
+                              }
+                            });
+                          }
+                          defaults.forEach(d => {
+                            if (!map.has(d.en)) {
+                              map.set(d.en, d.ta);
+                            }
+                          });
+                          
+                          const list = Array.from(map.entries()).map(([en, ta]) => ({ en, ta }));
+                          const found = list.find(c => c.en === val) || { en: "General News", ta: "பொதுச் செய்திகள்" };
+                          setEditingItem({ ...editingItem, category_en: found.en, category_ta: found.ta });
+                        }}
+                        className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-850 outline-none text-xs text-slate-850 dark:text-white p-3 rounded-xl focus:border-brand-gold/50 cursor-pointer"
+                      >
+                        {(() => {
+                          const defaults = [
+                            { en: "Crime", ta: "குற்றம்" },
+                            { en: "Cyber Safety", ta: "இணைய பாதுகாப்பு" },
+                            { en: "Women Safety", ta: "பெண்கள் பாதுகாப்பு" },
+                            { en: "Public Safety", ta: "பொது பாதுகாப்பு" },
+                            { en: "Outreach", ta: "சமூக அவுட்ரீச்" },
+                            { en: "Traffic Updates", ta: "போக்குவரத்து தகவல்கள்" },
+                            { en: "Awards & Recognition", ta: "விருதுகள் & அங்கீகாரம்" },
+                            { en: "Official Alerts", ta: "அதிகாரப்பூர்வ அறிவிப்புகள்" },
+                            { en: "General News", ta: "பொதுச் செய்திகள்" }
+                          ];
+                          const map = new Map<string, string>();
+                          if (news && Array.isArray(news)) {
+                            news.forEach((n: any) => {
+                              if (n.category_en) {
+                                map.set(n.category_en, n.category_ta || n.category_en);
+                              }
+                            });
+                          }
+                          defaults.forEach(d => {
+                            if (!map.has(d.en)) {
+                              map.set(d.en, d.ta);
+                            }
+                          });
+                          return Array.from(map.entries()).map(([en, ta]) => (
+                            <option key={en} value={en}>{en}</option>
+                          ));
+                        })()}
+                      </select>
                     </div>
-                    {/* Category Tamil */}
+
+                    {/* Category Tamil Display (Syncs automatically) */}
                     <div className="space-y-1.5 xl:col-span-2">
-                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">பிரிவு (தமிழ்)</label>
+                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">பிரிவு (தமிழ் - தானியங்கி)</label>
                       <input
                         type="text"
-                        value={editingItem.category_ta}
-                        onChange={(e) => setEditingItem({ ...editingItem, category_ta: e.target.value })}
-                        className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-850 outline-none text-xs text-slate-850 dark:text-white p-3 rounded-xl focus:border-brand-gold/50"
+                        disabled
+                        value={editingItem.category_ta || "பொதுச் செய்திகள்"}
+                        className="w-full bg-stone-100 dark:bg-stone-900 border border-stone-250 dark:border-stone-800 outline-none text-xs text-stone-500 p-3 rounded-xl cursor-not-allowed"
                       />
                     </div>
 
@@ -1968,7 +2081,13 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                       <select
                         disabled={isMetadataLocked}
                         value={editingItem.published}
-                        onChange={(e) => setEditingItem({ ...editingItem, published: parseInt(e.target.value) })}
+                        onChange={(e) => {
+                          const pubVal = parseInt(e.target.value);
+                          const dateVal = pubVal === 1 
+                            ? new Date().toLocaleDateString("en-US", { month: "long", day: "2-digit", year: "numeric" }) 
+                            : editingItem.date;
+                          setEditingItem({ ...editingItem, published: pubVal, date: dateVal });
+                        }}
                         className={`w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-850 outline-none text-xs text-slate-850 dark:text-white p-3 rounded-xl focus:border-brand-gold/50 ${isMetadataLocked ? "opacity-60 cursor-not-allowed" : ""}`}
                       >
                         <option value={1}>Published</option>
@@ -5542,6 +5661,11 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
           {/* ==================== TAB: FOOTER MANAGEMENT ==================== */}
           {activeTab === "footer" && (
             <FooterManagement onAlert={triggerAlert} />
+          )}
+
+          {/* ==================== TAB: WEB STORIES ==================== */}
+          {activeTab === "web-stories" && (
+            <WebStoriesManagement user={user} onTabChange={setActiveTab} />
           )}
 
         </div>

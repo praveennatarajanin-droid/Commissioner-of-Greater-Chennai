@@ -82,6 +82,16 @@ export default function NewsDetailClient({ article }: { article: NewsItem }) {
     subIndex: number;
   }
 
+  const stripHtml = (html: string): string => {
+    if (!html) return "";
+    return html
+      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
+      .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, "")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  };
+
   const segments: SpeechSegment[] = React.useMemo(() => {
     const list: SpeechSegment[] = [];
     let id = 0;
@@ -89,14 +99,14 @@ export default function NewsDetailClient({ article }: { article: NewsItem }) {
     // 1. Headline
     const headlineText = language === "ta" ? article.title_ta : article.title_en;
     if (headlineText) {
-      list.push({ id: id++, text: headlineText, type: "headline", subIndex: 0 });
+      list.push({ id: id++, text: stripHtml(headlineText), type: "headline", subIndex: 0 });
     }
 
     // 2. Highlights
     const activeHighlights = language === "ta" ? article.highlights_ta : article.highlights_en;
     if (activeHighlights && activeHighlights.length > 0) {
       activeHighlights.forEach((highlight, idx) => {
-        list.push({ id: id++, text: highlight, type: "highlight", subIndex: idx });
+        list.push({ id: id++, text: stripHtml(highlight), type: "highlight", subIndex: idx });
       });
     }
 
@@ -104,7 +114,7 @@ export default function NewsDetailClient({ article }: { article: NewsItem }) {
     const activeParagraphs = language === "ta" ? article.content_ta : article.content_en;
     if (activeParagraphs && activeParagraphs.length > 0) {
       activeParagraphs.forEach((para, idx) => {
-        list.push({ id: id++, text: para, type: "paragraph", subIndex: idx });
+        list.push({ id: id++, text: stripHtml(para), type: "paragraph", subIndex: idx });
       });
     }
 
@@ -112,7 +122,7 @@ export default function NewsDetailClient({ article }: { article: NewsItem }) {
     if (article.quote) {
       const quoteText = language === "ta" ? article.quote.text_ta : article.quote.text_en;
       if (quoteText) {
-        list.push({ id: id++, text: quoteText, type: "quote", subIndex: 0 });
+        list.push({ id: id++, text: stripHtml(quoteText), type: "quote", subIndex: 0 });
       }
     }
 

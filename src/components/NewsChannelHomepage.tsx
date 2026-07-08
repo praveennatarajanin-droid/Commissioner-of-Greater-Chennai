@@ -27,6 +27,7 @@ const GcpCommissionerMandate = dynamic(() => import("@/components/sections/GcpCo
   loading: () => <div className="h-64 bg-stone-50 dark:bg-stone-900 animate-pulse w-full rounded-2xl" />
 });
 
+import { useSearchParams } from "next/navigation";
 import { useTranslation } from "@/context/LanguageContext";
 import Image from "next/image";
 import Link from "next/link";
@@ -101,6 +102,7 @@ interface NewsChannelHomepageProps {
   ticker: TickerItem[];
   menuItems: { label_en: string; label_ta: string; href: string }[];
   slider: SliderItem[];
+  stories?: any[];
 }
 
 // ─── Time Ago Helper ────────────────────────────────────────────────────────
@@ -281,29 +283,45 @@ export default function NewsChannelHomepage({
   ticker,
   menuItems,
   slider,
+  stories = [],
 }: NewsChannelHomepageProps) {
   const { language } = useTranslation();
   const [mounted, setMounted] = useState(false);
   const [visibleCount, setVisibleCount] = useState(20);
+  const searchParams = useSearchParams();
+  const searchQ = searchParams?.get("search") || "";
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  if (!mounted) return null;
+  const sortedNews = React.useMemo(() => {
+    return [...news].sort((a, b) => {
+      const da = a.created_at || a.date || "";
+      const db = b.created_at || b.date || "";
+      return db.localeCompare(da);
+    });
+  }, [news]);
 
-  // 1. Breaking ticker items
-  const breakingList = news.filter((n) => n.breaking === 1);
-  const activeTickerList = breakingList.length > 0 
-    ? breakingList.map(n => ({ id: n.id, title_en: n.title_en, title_ta: n.title_ta, slug: n.slug }))
-    : ticker.map(t => ({ id: t.id, title_en: t.text_en, title_ta: t.text_ta, slug: "" }));
-
-  // 2. Sort all news stories by created date desc
-  const sortedNews = [...news].sort((a, b) => {
-    const da = a.created_at || a.date || "";
-    const db = b.created_at || b.date || "";
-    return db.localeCompare(da);
-  });
+  const filteredSearchNews = React.useMemo(() => {
+    if (!searchQ.trim()) return [];
+    const q = searchQ.toLowerCase().trim();
+    return sortedNews.filter(n => {
+      const titleEn = (n.title_en || "").toLowerCase();
+      const titleTa = (n.title_ta || "").toLowerCase();
+      const summaryEn = (n.summary_en || "").toLowerCase();
+      const summaryTa = (n.summary_ta || "").toLowerCase();
+      const categoryEn = (n.category_en || "").toLowerCase();
+      const categoryTa = (n.category_ta || "").toLowerCase();
+      
+      return titleEn.includes(q) || 
+             titleTa.includes(q) || 
+             summaryEn.includes(q) || 
+             summaryTa.includes(q) || 
+             categoryEn.includes(q) || 
+             categoryTa.includes(q);
+    });
+  }, [sortedNews, searchQ]);
 
   // 3. Category matching logic
   const getCategoryNews = (catId: string, keywords: string[]) => {
@@ -341,6 +359,14 @@ export default function NewsChannelHomepage({
     setVisibleCount(prev => Math.min(prev + 12, sortedNews.length));
   };
 
+  if (!mounted) return null;
+
+  // 1. Breaking ticker items
+  const breakingList = news.filter((n) => n.breaking === 1);
+  const activeTickerList = breakingList.length > 0 
+    ? breakingList.map(n => ({ id: n.id, title_en: n.title_en, title_ta: n.title_ta, slug: n.slug }))
+    : ticker.map(t => ({ id: t.id, title_en: t.text_en, title_ta: t.text_ta, slug: "" }));
+
   return (
     <div className="min-h-screen bg-stone-50 dark:bg-stone-950 font-sans text-stone-850 dark:text-stone-150 transition-colors">
       
@@ -353,11 +379,47 @@ export default function NewsChannelHomepage({
       {/* Main body wrapper */}
       <main className="w-full max-w-[1700px] mx-auto px-4 py-8 space-y-12">
 
+        {/* Search Results Zone */}
+        {searchQ && (
+          <section className="w-full bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-850 p-6 rounded-2xl shadow-sm text-left scroll-mt-24 space-y-6">
+            <div className="flex items-center justify-between pb-2 border-b border-stone-200 dark:border-stone-850">
+              <div className="flex items-center gap-2">
+                <Newspaper className="w-5 h-5 text-brand-maroon dark:text-brand-gold" />
+                <h2 className="font-display font-black text-sm sm:text-base uppercase tracking-widest text-stone-900 dark:text-white">
+                  {language === "ta" 
+                    ? `"${searchQ}" தேடல் முடிவுகள் (${filteredSearchNews.length})` 
+                    : `Search Results for "${searchQ}" (${filteredSearchNews.length})`}
+                </h2>
+              </div>
+              <Link
+                href="/"
+                className="px-3 py-1 bg-stone-100 hover:bg-stone-200 dark:bg-stone-850 dark:hover:bg-stone-800 text-[10px] font-black uppercase tracking-widest rounded-lg text-slate-800 dark:text-stone-300 transition"
+              >
+                {language === "ta" ? "தெளிவுபடுத்துக" : "Clear Search"}
+              </Link>
+            </div>
+            
+            {filteredSearchNews.length === 0 ? (
+              <p className="text-xs text-stone-550 py-6 text-center font-bold">
+                {language === "ta" 
+                  ? "தேடலுக்குரிய செய்திகள் எதுவும் கிடைக்கவில்லை." 
+                  : "No news articles found matching your search query."}
+              </p>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {filteredSearchNews.map((n, idx) => (
+                  <NewsCard key={`search-${n.id}`} n={n} lang={language} idx={idx} />
+                ))}
+              </div>
+            )}
+          </section>
+        )}
+
         {/* SECTION 3: TOP NEWS ZONE (3-column layout) */}
         <NewsroomHero news={news} slider={slider} language={language} videos={videos} />
 
         {/* SECTION 4: WEB STORIES (Instagram-style scroll) */}
-        <WebStories language={language} />
+        <WebStories language={language} stories={stories} />
 
         {/* SECTION 4B: GCP COMMISSIONER & CORE MANDATE */}
         <GcpCommissionerMandate />

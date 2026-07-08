@@ -2,619 +2,311 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { X, Eye, Calendar, Tag, ExternalLink, ChevronLeft, ChevronRight } from "lucide-react";
+import { X, Play, Pause, Globe, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-function findBestMatchingNews(storyTitle: string, newsList: any[]) {
-  if (!storyTitle || !newsList || newsList.length === 0) return null;
-  const titleLower = storyTitle.toLowerCase();
+export default function WebStories({ language = "en", stories = [] }: { language?: "en" | "ta"; stories?: any[] }) {
+  const [activeStoryIndex, setActiveStoryIndex] = useState<number | null>(null);
+  const [activeSlideIndex, setActiveSlideIndex] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [progress, setProgress] = useState(0);
+  const [storyLang, setStoryLang] = useState(language);
 
-  // 1. Direct match on title
-  let match = newsList.find(n => 
-    (n.title_en && n.title_en.toLowerCase().includes(titleLower)) ||
-    (n.title_ta && n.title_ta.toLowerCase().includes(titleLower))
-  );
-  if (match) return match;
-
-  // 2. Keyword score matching
-  const keywords = titleLower.split(/[\s-_]+/).filter(w => w.length > 3);
-  if (keywords.length > 0) {
-    let bestScore = 0;
-    let bestMatch = null;
-    
-    for (const n of newsList) {
-      let score = 0;
-      const titleEn = (n.title_en || "").toLowerCase();
-      const titleTa = (n.title_ta || "").toLowerCase();
-      const categoryEn = (n.category_en || "").toLowerCase();
-      const categoryTa = (n.category_ta || "").toLowerCase();
-      const contentEn = (n.content_en || []).join(" ").toLowerCase();
-      const contentTa = (n.content_ta || []).join(" ").toLowerCase();
-      const tagsEn = (n.tags_en || []).join(" ").toLowerCase();
-      
-      for (const kw of keywords) {
-        if (titleEn.includes(kw)) score += 10;
-        if (titleTa.includes(kw)) score += 10;
-        if (categoryEn.includes(kw)) score += 5;
-        if (categoryTa.includes(kw)) score += 5;
-        if (tagsEn.includes(kw)) score += 4;
-        if (contentEn.includes(kw)) score += 2;
-        if (contentTa.includes(kw)) score += 2;
-      }
-      
-      if (score > bestScore) {
-        bestScore = score;
-        bestMatch = n;
-      }
-    }
-    
-    if (bestScore > 3) {
-      return bestMatch;
-    }
-  }
-
-  // 3. Category matching fallbacks
-  if (titleLower.includes("cyber") || titleLower.includes("online") || titleLower.includes("scam") || titleLower.includes("fraud")) {
-    match = newsList.find(n => (n.category_en || "").toLowerCase().includes("cyber"));
-    if (match) return match;
-  }
-  if (titleLower.includes("drug") || titleLower.includes("run") || titleLower.includes("marathon") || titleLower.includes("sports")) {
-    match = newsList.find(n => 
-      (n.category_en || "").toLowerCase().includes("award") || 
-      (n.category_en || "").toLowerCase().includes("sport") || 
-      (n.title_en || "").toLowerCase().includes("drug") || 
-      (n.title_en || "").toLowerCase().includes("marathon") || 
-      (n.content_en || []).join(" ").toLowerCase().includes("drug")
-    );
-    if (match) return match;
-  }
-  if (titleLower.includes("women") || titleLower.includes("girl") || titleLower.includes("singappen")) {
-    match = newsList.find(n => (n.category_en || "").toLowerCase().includes("women"));
-    if (match) return match;
-  }
-  if (titleLower.includes("campus") || titleLower.includes("clean")) {
-    match = newsList.find(n => 
-      (n.title_en || "").toLowerCase().includes("clean") || 
-      (n.content_en || []).join(" ").toLowerCase().includes("clean") || 
-      (n.category_en || "").toLowerCase().includes("outreach")
-    );
-    if (match) return match;
-  }
-
-  // 4. Default to latest news article if no match
-  return newsList[0];
-}
-
-interface WebStory {
-  id?: number;
-  name: string;
-  url: string;
-  image?: string;
-  size: number;
-  updatedAt: string;
-  title: string;
-  category: string;
-  articleId?: number | null;
-  articleSlug?: string | null;
-  slug?: string | null;
-}
-
-export default function WebStories({ language = "en" }: { language?: "en" | "ta" }) {
-  const [stories, setStories] = useState<WebStory[]>([]);
-  const [news, setNews] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [activeStoryIdx, setActiveStoryIdx] = useState<number | null>(null);
-  const [isPaused, setIsPaused] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const router = useRouter();
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const startTimeRef = useRef(0);
 
-  // Refs for mobile touch gestures and hybrid desktop mouse handling
-  const touchStartXRef = useRef(0);
-  const touchStartYRef = useRef(0);
-  const touchStartTimeRef = useRef(0);
-  const mouseDownTimeRef = useRef(0);
-  const isTouchActiveRef = useRef(false);
-
-  // Load dynamic asset stories and articles
+  // Sync translation state
   useEffect(() => {
-    (async () => {
-      try {
-        const [mediaRes, newsRes] = await Promise.all([
-          fetch("/api/admin/media"),
-          fetch("/api/admin/crud/news")
-        ]);
-        if (mediaRes.ok && newsRes.ok) {
-          const mediaData = await mediaRes.json();
-          const newsData = await newsRes.json();
-          const loadedNews = newsData || [];
-          setNews(loadedNews);
+    setStoryLang(language);
+  }, [language, activeStoryIndex]);
 
-          // Fallback professional titles
-          const fallbackTitlesEn = [
-            "Cyber Safety Drive",
-            "Clean Campus Initiative",
-            "Commissioner Meeting",
-            "Night Patrol Operation",
-            "Awards Ceremony",
-            "Drug Free Campaign",
-            "Community Outreach",
-            "Women's Safety Awareness"
-          ];
+  const currentStory = activeStoryIndex !== null ? stories[activeStoryIndex] : null;
+  const activeSlides = currentStory
+    ? (Array.isArray(currentStory.slides_json)
+        ? currentStory.slides_json
+        : (typeof currentStory.slides_json === "string" ? JSON.parse(currentStory.slides_json) : []))
+    : [];
 
-          const fallbackTitlesTa = [
-            "இணைய பாதுகாப்பு பிரச்சாரம்",
-            "தூய்மையான வளாகம் முயற்சி",
-            "ஆணையர் சந்திப்பு",
-            "இரவு ரோந்து பணி",
-            "விருது வழங்கும் விழா",
-            "போதைப்பொருள் இல்லாத பிரச்சாரம்",
-            "சமூக அவுட்ரீச்",
-            "பெண்கள் பாதுகாப்பு விழிப்புணர்வு"
-          ];
+  // Stories slide cycle timer
+  useEffect(() => {
+    if (activeStoryIndex === null || activeSlides.length === 0 || !isPlaying) {
+      if (timerRef.current) clearInterval(timerRef.current);
+      return;
+    }
 
-          // Automatically use images from the Media Library (Asset Gallery) as Web Stories
-          const allFiles = mediaData.files || [];
-          const imageExtensions = ["png", "jpg", "jpeg", "webp", "gif", "svg", "bmp"];
-          const images = allFiles.filter((f: any) => {
-            const ext = (f.name || f.filename || "").split('.').pop()?.toLowerCase();
-            return imageExtensions.includes(ext || "");
-          });
-          
-          // Use the first 10 uploaded images
-          const storiesList = images.slice(0, 10).map((story: any, idx: number) => {
-            // Find linked news article
-            const article = loadedNews.find(
-              (n: any) =>
-                n.id === story.articleId ||
-                n.id === story.associated_news_id ||
-                n.image === story.url ||
-                (n.gallery && n.gallery.includes(story.url))
-            );
+    const duration = 5000; // 5 seconds per slide
+    const intervalTime = 50;
+    
+    startTimeRef.current = Date.now() - (progress / 100) * duration;
 
-            let title = story.title || story.name;
-            let slug = story.articleSlug || null;
+    timerRef.current = setInterval(() => {
+      const elapsed = Date.now() - startTimeRef.current;
+      const currentProgress = Math.min((elapsed / duration) * 100, 100);
+      setProgress(currentProgress);
 
-            if (article) {
-              title = language === "ta" && article.title_ta ? article.title_ta : article.title_en;
-              slug = article.slug;
-            } else {
-              // No article linked -> check if title is a raw filename or digit-hash
-              const isRaw = /^(upload|img|photo|image|dsc|file|pic|picture)[_\s-]*\d+/i.test(title) || /^\d+$/.test(title) || title.toUpperCase().startsWith("UPLOAD");
-              if (isRaw) {
-                title = language === "ta" ? fallbackTitlesTa[idx % fallbackTitlesTa.length] : fallbackTitlesEn[idx % fallbackTitlesEn.length];
-              }
-            }
-
-            // Fallback matching if there is still no slug associated
-            if (!slug && loadedNews.length > 0) {
-              // Only match if the story has a customized title (i.e., not a raw placeholder/fallback)
-              const originalTitle = story.title || story.name;
-              const isRawOriginal = /^(upload|img|photo|image|dsc|file|pic|picture)[_\s-]*\d+/i.test(originalTitle) || /^\d+$/.test(originalTitle) || originalTitle.toUpperCase().startsWith("UPLOAD");
-              if (!isRawOriginal) {
-                const matchedArticle = findBestMatchingNews(title, loadedNews);
-                if (matchedArticle) {
-                  slug = matchedArticle.slug;
-                }
-              }
-            }
-
-            return {
-              ...story,
-              title,
-              slug,
-              articleId: article ? article.id : null
-            };
-          });
-
-          console.log("Mapped storiesList inside WebStories:", storiesList.map((s: any) => ({ title: s.title, slug: s.slug, articleId: s.articleId, url: s.url })));
-          setStories(storiesList);
+      if (currentProgress >= 100) {
+        clearInterval(timerRef.current!);
+        // Go to next slide
+        if (activeSlideIndex < activeSlides.length - 1) {
+          setActiveSlideIndex(prev => prev + 1);
+          setProgress(0);
+        } else {
+          // Go to next story or close
+          handleNextStory();
         }
-      } catch (e) {
-        console.error("Failed to load stories data", e);
-      } finally {
-        setLoading(false);
       }
-    })();
-  }, [language]);
+    }, intervalTime);
 
-  const getStoryTitle = (story: WebStory) => {
-    return story.title || story.name;
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [activeStoryIndex, activeSlideIndex, isPlaying]);
+
+  const handleOpenStory = (index: number) => {
+    setActiveStoryIndex(index);
+    setActiveSlideIndex(0);
+    setProgress(0);
+    setIsPlaying(true);
   };
 
-  const getStoryCategory = (story: WebStory) => {
-    return story.category || "Police Update";
+  const handleCloseStory = () => {
+    setActiveStoryIndex(null);
+    setActiveSlideIndex(0);
+    setProgress(0);
   };
 
-  const getStoryArticleUrl = (story: WebStory) => {
-    return story.slug ? `/news/${story.slug}` : null;
+  const handleNextSlide = () => {
+    if (activeSlideIndex < activeSlides.length - 1) {
+      setActiveSlideIndex(prev => prev + 1);
+      setProgress(0);
+    } else {
+      handleNextStory();
+    }
   };
 
-  const handleStoryClick = (story: WebStory) => {
-    const idx = stories.findIndex((s) => s.url === story.url);
-    if (idx !== -1) {
-      setActiveStoryIdx(idx);
-      setIsPaused(false);
+  const handlePrevSlide = () => {
+    if (activeSlideIndex > 0) {
+      setActiveSlideIndex(prev => prev - 1);
+      setProgress(0);
+    } else {
+      // Go to previous story
+      if (activeStoryIndex !== null && activeStoryIndex > 0) {
+        handleOpenStory(activeStoryIndex - 1);
+      }
     }
   };
 
   const handleNextStory = () => {
-    if (activeStoryIdx !== null) {
-      if (activeStoryIdx < stories.length - 1) {
-        setActiveStoryIdx(activeStoryIdx + 1);
-        setIsPaused(false);
-      } else {
-        setActiveStoryIdx(null);
-      }
+    if (activeStoryIndex !== null && activeStoryIndex < stories.length - 1) {
+      handleOpenStory(activeStoryIndex + 1);
+    } else {
+      handleCloseStory();
     }
   };
 
-  const handlePrevStory = () => {
-    if (activeStoryIdx !== null) {
-      if (activeStoryIdx > 0) {
-        setActiveStoryIdx(activeStoryIdx - 1);
-        setIsPaused(false);
-      }
+  const handleScroll = (dir: "left" | "right") => {
+    if (scrollRef.current) {
+      const offset = dir === "left" ? -240 : 240;
+      scrollRef.current.scrollBy({ left: offset, behavior: "smooth" });
     }
   };
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-    isTouchActiveRef.current = true;
-    const touch = e.touches[0];
-    touchStartXRef.current = touch.clientX;
-    touchStartYRef.current = touch.clientY;
-    touchStartTimeRef.current = Date.now();
-    setIsPaused(true);
-  };
-
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    setIsPaused(false);
-    const touch = e.changedTouches[0];
-    const diffX = touch.clientX - touchStartXRef.current;
-    const diffY = touch.clientY - touchStartYRef.current;
-    const duration = Date.now() - touchStartTimeRef.current;
-
-    // Swipe left/right
-    if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
-      if (diffX < 0) {
-        handleNextStory();
-      } else {
-        handlePrevStory();
-      }
-    } else if (duration < 250) {
-      // Quick tap -> determine left or right side of screen
-      const screenWidth = window.innerWidth;
-      if (touch.clientX < screenWidth * 0.35) {
-        handlePrevStory();
-      } else {
-        handleNextStory();
-      }
-    }
-  };
-
-  const handleMouseDown = () => {
-    if (isTouchActiveRef.current) return;
-    mouseDownTimeRef.current = Date.now();
-    setIsPaused(true);
-  };
-
-  const handleMouseUp = (direction: "prev" | "next") => {
-    if (isTouchActiveRef.current) return;
-    setIsPaused(false);
-    const duration = Date.now() - mouseDownTimeRef.current;
-    if (duration < 250) {
-      if (direction === "prev") {
-        handlePrevStory();
-      } else {
-        handleNextStory();
-      }
-    }
-  };
-
-  if (loading) {
-    return (
-      <section className="w-full py-6 px-4 md:px-6 bg-white dark:bg-stone-950 border-b border-stone-200 dark:border-stone-850">
-        <div className="max-w-[1700px] mx-auto flex items-center justify-center py-6 gap-2">
-          <div className="w-5 h-5 rounded-full border-2 border-brand-maroon border-t-transparent animate-spin" />
-          <span className="text-[11px] text-stone-400 font-bold uppercase tracking-wider">Loading Web Stories...</span>
-        </div>
-      </section>
-    );
-  }
+  if (!stories || stories.length === 0) return null;
 
   return (
-    <section className="w-full py-6 px-4 md:px-6 bg-white dark:bg-stone-955 border-b border-stone-200 dark:border-stone-850">
-      <div className="max-w-[1700px] mx-auto space-y-4">
-        {/* Section Header */}
-        <div className="flex items-center justify-between pb-2 border-b border-stone-100 dark:border-stone-850">
-          <div className="flex items-center gap-2">
-            <span className="flex h-2.5 w-2.5 relative">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-maroon opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-brand-maroon"></span>
-            </span>
-            <h2 className="font-display font-black text-sm uppercase tracking-wider text-stone-900 dark:text-white">
-              {language === "ta" ? "வலை செய்திகள்" : "Web Stories"}
-            </h2>
-          </div>
+    <section className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-850 p-5 rounded-2xl shadow-sm text-left relative">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <span className="w-2.5 h-2.5 rounded-full bg-rose-600 animate-pulse" />
+          <h3 className="font-display font-black text-sm uppercase tracking-wider text-slate-800 dark:text-white">
+            {language === "ta" ? "நேரடி வலைக் கதைகள்" : "LIVE WEB STORIES"}
+          </h3>
         </div>
-
-        {/* Fallback empty state check */}
-        {stories.length === 0 ? (
-          <div className="py-10 text-center flex flex-col items-center justify-center">
-            <span className="text-stone-400 dark:text-stone-500 font-bold text-xs uppercase tracking-wider">
-              {language === "ta" ? "வலை கதைகள் எதுவும் இல்லை" : "No Web Stories Available"}
-            </span>
-          </div>
-        ) : (
-          /* Horizontal Swipable Stories Row Wrapper */
-          <div className="relative group/carousel w-full">
-            {/* Carousel Left Navigation Arrow (desktop only) */}
-            <button
-              onClick={() => {
-                if (scrollRef.current) {
-                  scrollRef.current.scrollBy({ left: -240, behavior: "smooth" });
-                }
-              }}
-              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-white/95 dark:bg-stone-900/95 border border-stone-200 dark:border-stone-800 shadow-md hover:bg-brand-maroon hover:text-white dark:hover:bg-brand-gold dark:hover:text-stone-950 text-stone-700 dark:text-stone-300 flex items-center justify-center transition hover:scale-105 cursor-pointer opacity-0 group-hover/carousel:opacity-100 hidden md:flex"
-              title="Scroll Left"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-
-            <div
-              ref={scrollRef}
-              className="flex items-stretch gap-5 py-3 overflow-x-auto select-none no-scrollbar scroll-smooth"
-              style={{
-                scrollbarWidth: "none",
-                msOverflowStyle: "none",
-                WebkitOverflowScrolling: "touch"
-              }}
-            >
-              {stories.map((story) => {
-                const title = getStoryTitle(story);
-                const hasArticle = !!getStoryArticleUrl(story);
-                return (
-                  <button
-                    key={story.url}
-                    onClick={() => handleStoryClick(story)}
-                    className="flex flex-col items-center gap-2 shrink-0 group focus:outline-none cursor-pointer"
-                    style={{ width: "90px" }}
-                  >
-                    {/* Circular Avatar Ring */}
-                    <div className="relative w-18 h-18 rounded-full p-0.5 border-2 border-brand-maroon dark:border-brand-gold bg-white dark:bg-stone-950 group-hover:scale-105 active:scale-95 transition-all duration-300 shadow-md">
-                      <div className="relative w-full h-full rounded-full overflow-hidden">
-                        <Image
-                          src={story.url}
-                          alt={title}
-                          fill
-                          sizes="72px"
-                          className="object-cover"
-                          loading="lazy"
-                        />
-                      </div>
-                      {/* Live Indicator or Action Badge */}
-                      <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-brand-maroon text-white font-black tracking-widest px-1.5 py-0.5 rounded text-[7px] uppercase scale-90 group-hover:scale-100 transition-transform">
-                        {hasArticle ? (language === "ta" ? "படிக்க" : "READ") : (language === "ta" ? "லைவ்" : "LIVE")}
-                      </span>
-                    </div>
-                    {/* Story Title */}
-                    <span className="text-[10px] font-black text-stone-850 dark:text-stone-300 text-center leading-tight line-clamp-2 uppercase tracking-wide group-hover:text-brand-maroon dark:group-hover:text-brand-gold transition-colors w-full break-words">
-                      {title}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Carousel Right Navigation Arrow (desktop only) */}
-            <button
-              onClick={() => {
-                if (scrollRef.current) {
-                  scrollRef.current.scrollBy({ left: 240, behavior: "smooth" });
-                }
-              }}
-              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-white/95 dark:bg-stone-900/95 border border-stone-200 dark:border-stone-800 shadow-md hover:bg-brand-maroon hover:text-white dark:hover:bg-brand-gold dark:hover:text-stone-950 text-stone-700 dark:text-stone-300 flex items-center justify-center transition hover:scale-105 cursor-pointer opacity-0 group-hover/carousel:opacity-100 hidden md:flex"
-              title="Scroll Right"
-            >
-              <ChevronRight className="w-5 h-5" />
-            </button>
-          </div>
-        )}
+        
+        {/* Navigation scroll arrows */}
+        <div className="flex gap-1">
+          <button 
+            onClick={() => handleScroll("left")}
+            className="p-1 border border-stone-200 dark:border-stone-800 hover:bg-stone-50 rounded-lg transition cursor-pointer"
+          >
+            <ChevronLeft className="w-4 h-4 text-stone-600 dark:text-stone-400" />
+          </button>
+          <button 
+            onClick={() => handleScroll("right")}
+            className="p-1 border border-stone-200 dark:border-stone-800 hover:bg-stone-50 rounded-lg transition cursor-pointer"
+          >
+            <ChevronRight className="w-4 h-4 text-stone-600 dark:text-stone-400" />
+          </button>
+        </div>
       </div>
 
-           {activeStoryIdx !== null && (() => {
-             const currentStory = stories[activeStoryIdx];
-             const articleUrl = getStoryArticleUrl(currentStory);
-             return (
-               <motion.div
-                 initial={{ opacity: 0 }}
-                 animate={{ opacity: 1 }}
-                 exit={{ opacity: 0 }}
-                 className="fixed inset-0 z-[1000] bg-black/95 backdrop-blur-sm flex items-center justify-center p-0 md:p-4 select-none"
-               >
-                 <style>{`
-                   @keyframes gcpStoryProgress {
-                     from { width: 0%; }
-                     to { width: 100%; }
-                   }
-                 `}</style>
+      {/* Circle list container */}
+      <div 
+        ref={scrollRef}
+        className="flex items-center gap-6 overflow-x-auto no-scrollbar py-2"
+        style={{ scrollbarWidth: "none" }}
+      >
+        {stories.map((story, idx) => (
+          <div
+            key={story.id}
+            onClick={() => handleOpenStory(idx)}
+            className="flex flex-col items-center gap-2 cursor-pointer group shrink-0 select-none"
+          >
+            {/* Visual Ring */}
+            <div className="relative w-16 h-16 rounded-full p-[3px] bg-gradient-to-tr from-[#2e3192] to-[#c5a059] group-hover:rotate-12 transition-all duration-300">
+              <div className="w-full h-full rounded-full bg-white dark:bg-stone-900 p-0.5">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={story.cover_image || "/images/news_fallback.jpg"}
+                  alt={story.title_en}
+                  className="w-full h-full object-cover rounded-full"
+                />
+              </div>
+            </div>
+            
+            {/* Short Caption */}
+            <span className="text-[10px] font-black uppercase text-stone-600 dark:text-stone-400 tracking-wider max-w-[70px] truncate text-center group-hover:text-[#2e3192] dark:group-hover:text-[#c5a059]">
+              {language === "ta" ? story.title_ta : story.title_en}
+            </span>
+          </div>
+        ))}
+      </div>
 
-                 {/* Click backdrop to close (desktop only) */}
-                 <div className="absolute inset-0 cursor-pointer hidden md:block" onClick={() => setActiveStoryIdx(null)} />
+      {/* FULLSCREEN STORY PLAYER PORTAL */}
+      <AnimatePresence>
+        {activeStoryIndex !== null && currentStory && activeSlides.length > 0 && (
+          <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex items-center justify-center select-none animate-fadeIn">
+            
+            {/* Close Button */}
+            <button 
+              onClick={handleCloseStory}
+              className="absolute top-6 right-6 z-55 p-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition cursor-pointer border border-white/15 animate-fadeIn"
+            >
+              <X className="w-5 h-5" />
+            </button>
 
-                 {/* Desktop Left navigation arrow */}
-                 {activeStoryIdx > 0 && (
-                   <button
-                     onClick={(e) => {
-                       e.stopPropagation();
-                       handlePrevStory();
-                     }}
-                     className="absolute left-8 z-50 p-3 rounded-full bg-stone-900/60 hover:bg-stone-900 border border-stone-800 text-white transition hover:scale-105 hidden md:flex items-center justify-center cursor-pointer"
-                     title="Previous Story"
-                   >
-                     <ChevronLeft className="w-6 h-6" />
-                   </button>
-                 )}
+            {/* Previous slide control (Desktop) */}
+            <button
+              onClick={handlePrevSlide}
+              className="hidden md:flex absolute left-8 top-1/2 -translate-y-1/2 p-3 bg-white/5 hover:bg-white/10 text-white rounded-full transition cursor-pointer z-40"
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </button>
 
-                 {/* Story Mobile Container (9:16 aspect ratio) */}
-                 <motion.div
-                   initial={{ scale: 0.95, opacity: 0 }}
-                   animate={{ scale: 1, opacity: 1 }}
-                   exit={{ scale: 0.95, opacity: 0 }}
-                   onTouchStart={handleTouchStart}
-                   onTouchEnd={handleTouchEnd}
-                   className="relative w-full max-w-[450px] aspect-[9/16] h-[100dvh] md:h-[90vh] md:max-h-[800px] bg-stone-950 md:border md:border-stone-900 md:rounded-2xl overflow-hidden shadow-2xl z-10 flex flex-col justify-between"
-                   onClick={(e) => e.stopPropagation()}
-                 >
-                   {/* Blurred background image */}
-                   <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none select-none">
-                     <Image
-                       src={currentStory.url}
-                       alt=""
-                       fill
-                       className="object-cover blur-3xl opacity-40 scale-110"
-                       priority
-                     />
-                   </div>
+            {/* Mobile chassis frame */}
+            <div className="relative w-full max-w-sm h-full md:h-[90vh] md:max-h-[720px] bg-stone-950 md:rounded-3xl overflow-hidden flex flex-col justify-between shadow-2xl border border-stone-800">
+              
+              {/* Media rendering */}
+              <div className="absolute inset-0 z-10 bg-black">
+                {activeSlides[activeSlideIndex]?.image && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={activeSlides[activeSlideIndex].image}
+                    alt="Active slide view"
+                    className="w-full h-full object-cover animate-fadeIn"
+                  />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/25 to-black/55" />
+              </div>
 
-                   {/* Foreground image */}
-                   <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
-                     <div className="relative w-full h-full">
-                       <Image
-                         src={currentStory.url}
-                         alt={getStoryTitle(currentStory)}
-                         fill
-                         className="object-contain"
-                         priority
-                       />
-                     </div>
-                   </div>
+              {/* Progress and indicators header */}
+              <div className="relative z-20 pt-6 px-4 space-y-3">
+                
+                {/* Visual lines */}
+                <div className="flex gap-1 justify-center">
+                  {activeSlides.map((_: any, idx: number) => (
+                    <div key={idx} className="h-1 bg-white/20 rounded-full flex-grow overflow-hidden">
+                      <div 
+                        className="h-full bg-white transition-all duration-75"
+                        style={{
+                          width: idx === activeSlideIndex 
+                            ? `${progress}%` 
+                            : (idx < activeSlideIndex ? "100%" : "0%")
+                        }}
+                      />
+                    </div>
+                  ))}
+                </div>
 
-                   {/* Top Header Row with Progress Bars & Details */}
-                   <div className="absolute top-0 left-0 right-0 z-40 p-4 bg-gradient-to-b from-black/90 via-black/40 to-transparent flex flex-col gap-3">
-                     {/* Segmented Progress Bars */}
-                     <div className="flex gap-1.5 w-full">
-                       {stories.map((story, idx) => {
-                         let width = "0%";
-                         let animated = false;
-                         if (idx < activeStoryIdx) {
-                           width = "100%";
-                         } else if (idx === activeStoryIdx) {
-                           animated = true;
-                         }
-                         return (
-                           <div key={story.url} className="h-1 flex-1 bg-white/20 rounded-full overflow-hidden">
-                             <div
-                               key={story.url + (animated ? "-active" : "")}
-                               className="h-full bg-white rounded-full"
-                               style={{
-                                 width: animated ? undefined : width,
-                                 animation: animated ? "gcpStoryProgress 5s linear forwards" : undefined,
-                                 animationPlayState: isPaused ? "paused" : "running",
-                               }}
-                               onAnimationEnd={animated ? handleNextStory : undefined}
-                             />
-                           </div>
-                         );
-                       })}
-                     </div>
+                {/* Profile info & change settings */}
+                <div className="flex items-center justify-between text-white">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center p-0.5 border border-stone-300">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src="/images/gcp_logo.png" alt="GCP Logo" className="w-full h-full object-contain" />
+                    </div>
+                    <div className="text-left">
+                      <p className="text-[10px] font-black uppercase tracking-wider text-[#c5a059]">Greater Chennai Police</p>
+                      <p className="text-[8px] text-stone-300 font-medium">Stories Live Feed</p>
+                    </div>
+                  </div>
 
-                     {/* Profile Info & Close Button */}
-                     <div className="flex items-center justify-between w-full">
-                       <div className="flex items-center gap-2">
-                         <div className="relative w-8 h-8 rounded-full overflow-hidden border border-white/20 bg-stone-900 shrink-0">
-                           <Image
-                             src="/images/gcp_logo.png"
-                             alt="GCP Logo"
-                             fill
-                             className="object-cover p-0.5"
-                           />
-                         </div>
-                         <div className="flex flex-col min-w-0">
-                           <span className="text-white text-xs font-black uppercase tracking-wider truncate">
-                             {language === "ta" ? "சென்னை பெருநகர காவல்" : "Greater Chennai Police"}
-                           </span>
-                           <span className="text-white/60 text-[9px] font-bold uppercase tracking-widest truncate">
-                             {getStoryCategory(currentStory)} • {new Date(currentStory.updatedAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short" })}
-                           </span>
-                         </div>
-                       </div>
+                  <div className="flex items-center gap-2">
+                    {/* Translate toggle */}
+                    <button
+                      onClick={() => setStoryLang(l => l === "ta" ? "en" : "ta")}
+                      className="p-1 bg-white/10 hover:bg-white/20 text-white rounded-lg transition text-[9px] uppercase font-black tracking-wider flex items-center gap-1 cursor-pointer border border-white/10"
+                    >
+                      <Globe className="w-3 h-3 text-[#c5a059]" />
+                      <span>{storyLang === "ta" ? "ENG" : "தமிழ்"}</span>
+                    </button>
 
-                       <button
-                         onClick={() => setActiveStoryIdx(null)}
-                         className="p-1.5 rounded-full bg-black/40 hover:bg-black/60 text-white cursor-pointer transition hover:scale-105 flex items-center justify-center min-w-[36px] min-h-[36px] z-50"
-                         title="Close Viewer"
-                       >
-                         <X className="w-5 h-5" />
-                       </button>
-                     </div>
+                    {/* Play/Pause toggle */}
+                    <button
+                      onClick={() => setIsPlaying(p => !p)}
+                      className="p-1 bg-white/10 hover:bg-white/20 text-white rounded-lg transition cursor-pointer"
+                    >
+                      {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5 fill-white" />}
+                    </button>
+                  </div>
+                </div>
+              </div>
 
-                     {/* Story Title */}
-                     <div className="px-0.5">
-                       <h3 className="text-white text-xs font-bold uppercase tracking-wide leading-tight line-clamp-2 drop-shadow-md">
-                         {getStoryTitle(currentStory)}
-                       </h3>
-                     </div>
-                   </div>
+              {/* Tap navigation listeners */}
+              <div className="absolute inset-x-0 inset-y-20 z-15 flex">
+                <div onClick={handlePrevSlide} className="w-1/3 h-full cursor-w-resize" />
+                <div onClick={handleNextSlide} className="w-2/3 h-full cursor-e-resize" />
+              </div>
 
-                   {/* Left Side Hit Target for Previous Story */}
-                   <div
-                     className="absolute left-0 top-16 bottom-24 w-[35%] z-20 cursor-pointer"
-                     onMouseDown={handleMouseDown}
-                     onMouseUp={() => handleMouseUp("prev")}
-                     onMouseLeave={() => setIsPaused(false)}
-                   />
+              {/* Story Overlay Description */}
+              <div className="relative z-20 p-6 pb-12 text-left space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-[8px] uppercase font-black bg-rose-600 px-2 py-0.5 rounded tracking-widest text-white animate-pulse">
+                    {storyLang === "ta" ? "நேரடி" : "Live"}
+                  </span>
+                  <span className="text-[8px] uppercase font-black text-stone-300 tracking-wider">
+                    {storyLang === "ta" ? `பகுதி ${activeSlideIndex + 1} / ${activeSlides.length}` : `Slide ${activeSlideIndex + 1} of ${activeSlides.length}`}
+                  </span>
+                </div>
+                
+                <h2 className="font-display font-black text-sm uppercase tracking-wide text-[#c5a059]">
+                  {storyLang === "ta" ? currentStory.title_ta : currentStory.title_en}
+                </h2>
+                
+                <div className="border-t border-white/15 pt-3">
+                  <p className="text-xs leading-relaxed font-semibold text-stone-100">
+                    {storyLang === "ta" 
+                      ? (activeSlides[activeSlideIndex]?.caption_ta || activeSlides[activeSlideIndex]?.caption_en)
+                      : (activeSlides[activeSlideIndex]?.caption_en || activeSlides[activeSlideIndex]?.caption_ta)
+                    }
+                  </p>
+                </div>
+              </div>
 
-                   {/* Right Side Hit Target for Next Story */}
-                   <div
-                     className="absolute right-0 top-16 bottom-24 w-[65%] z-20 cursor-pointer"
-                     onMouseDown={handleMouseDown}
-                     onMouseUp={() => handleMouseUp("next")}
-                     onMouseLeave={() => setIsPaused(false)}
-                   />
+            </div>
 
-                   {/* Bottom Sheet Details & Action Bar */}
-                   <div className="absolute bottom-6 left-0 right-0 z-30 flex flex-col items-center gap-1.5 p-4 bg-gradient-to-t from-black/90 via-black/40 to-transparent">
-                     <motion.div
-                       animate={{ y: [0, -4, 0] }}
-                       transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-                       className="text-white/80 text-[10px] uppercase font-black tracking-widest drop-shadow-md"
-                     >
-                       ▲
-                     </motion.div>
-                     <button
-                       onClick={(e) => {
-                         e.stopPropagation();
-                         setActiveStoryIdx(null);
-                         if (currentStory.slug) {
-                           router.push(`/news/${currentStory.slug}`);
-                         } else {
-                           router.push("/#media");
-                         }
-                       }}
-                       className="bg-brand-maroon hover:bg-red-750 text-white font-black text-[10px] uppercase tracking-wider px-6 py-2.5 rounded-full shadow-lg flex items-center gap-1.5 cursor-pointer transition-all duration-300 transform active:scale-95"
-                     >
-                       {language === "ta" ? "செய்தியைப் படிக்க" : "READ NEWS"} <ExternalLink className="w-3.5 h-3.5" />
-                     </button>
-                   </div>
-                 </motion.div>
+            {/* Next slide control (Desktop) */}
+            <button
+              onClick={handleNextSlide}
+              className="hidden md:flex absolute right-8 top-1/2 -translate-y-1/2 p-3 bg-white/5 hover:bg-white/10 text-white rounded-full transition cursor-pointer z-40"
+            >
+              <ChevronRight className="w-6 h-6" />
+            </button>
 
-                 {/* Desktop Right navigation arrow */}
-                 {activeStoryIdx < stories.length - 1 && (
-                   <button
-                     onClick={(e) => {
-                       e.stopPropagation();
-                       handleNextStory();
-                     }}
-                     className="absolute right-8 z-50 p-3 rounded-full bg-stone-900/60 hover:bg-stone-900 border border-stone-800 text-white transition hover:scale-105 hidden md:flex items-center justify-center cursor-pointer"
-                     title="Next Story"
-                   >
-                     <ChevronRight className="w-6 h-6" />
-                   </button>
-                 )}
-               </motion.div>
-             );
-           })()}
+          </div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }

@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { DBPoliceStation, DBEmergencyContact, DBDepartmentLink } from "@/lib/db";
 import { useTranslation } from "@/context/LanguageContext";
+import NearbyPrecinct from "../NearbyPrecinct";
 
 interface StationsPageClientProps {
   initialStations: DBPoliceStation[];
@@ -124,6 +125,7 @@ export default function StationsPageClient({
   const [totalStations, setTotalStations] = useState(initialStations.length);
   const [isLoading, setIsLoading] = useState(false);
   const [userCoords, setUserCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [showNearbyModal, setShowNearbyModal] = useState(false);
 
   // Load filter options dynamically from backend
   useEffect(() => {
@@ -308,40 +310,9 @@ export default function StationsPageClient({
     setUserCoords(null);
   }, [searchQuery, selectedZone, selectedDivision, selectedType]);
 
-  // Locate Nearby Stations using Geolocation Browser API
+  // Locate Nearby Stations using Geolocation Browser API and modal popup
   const handleNearbySearch = () => {
-    if (!navigator.geolocation) {
-      alert("Geolocation is not supported by your browser");
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
-        setUserCoords({ lat, lng });
-        setIsLoading(true);
-        try {
-          const res = await fetch(`/api/police-stations/nearby?lat=${lat}&lng=${lng}`);
-          if (res.ok) {
-            const data = await res.json();
-            if (data.success) {
-              setStations(data.stations);
-              setTotalPages(1);
-              setTotalStations(data.stations.length);
-              setCurrentPage(1);
-            }
-          }
-        } catch (err) {
-          console.error("Error fetching nearby stations:", err);
-        } finally {
-          setIsLoading(false);
-        }
-      },
-      (error) => {
-        console.error("Geolocation error:", error);
-        alert("Unable to retrieve location. Please check your browser permissions.");
-      }
-    );
+    setShowNearbyModal(true);
   };
 
 
@@ -607,6 +578,9 @@ export default function StationsPageClient({
         </div>
       </section>
 
+      {showNearbyModal && (
+        <NearbyPrecinct onClose={() => setShowNearbyModal(false)} />
+      )}
 
     </div>
   );

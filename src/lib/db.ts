@@ -504,6 +504,18 @@ class ChennaiGuardianDatabase {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
       `);
 
+      // Create web_stories table if not exists
+      await query(`
+        CREATE TABLE IF NOT EXISTS \`web_stories\` (
+          \`id\` INT AUTO_INCREMENT PRIMARY KEY,
+          \`title_en\` VARCHAR(255) NOT NULL,
+          \`title_ta\` VARCHAR(255) NOT NULL,
+          \`cover_image\` LONGTEXT NULL,
+          \`slides_json\` LONGTEXT NULL,
+          \`active\` TINYINT DEFAULT 1
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+      `);
+
       // Add missing columns to users table
       await Promise.all([
         query("ALTER TABLE \`users\` ADD COLUMN \`locked\` TINYINT DEFAULT 0").catch(() => {}),
@@ -722,6 +734,15 @@ class ChennaiGuardianDatabase {
 
   public async saveCustomRoles(roles: any[]) {
     await this.saveTable("custom_roles", roles);
+  }
+
+  // Web Stories Module
+  public async getWebStories(): Promise<any[]> {
+    return this.getTable("web_stories", ["slides_json"]);
+  }
+
+  public async saveWebStories(stories: any[]) {
+    await this.saveTable("web_stories", stories);
   }
 
   // 2. News Module
@@ -1302,7 +1323,8 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<string, Record<string, string[]>> 
     "profile": ["view", "edit"],
     "theme": ["view", "edit"],
     "footer": ["view", "edit"],
-    "settings": ["view", "edit"]
+    "settings": ["view", "edit"],
+    "web-stories": ["view", "create", "edit", "delete", "publish"]
   },
   "CONTENT_MANAGER": {
     "dashboard": ["view"],
@@ -1313,7 +1335,8 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<string, Record<string, string[]>> 
     "videos": ["view", "create", "edit", "publish"],
     "alerts": ["view", "create", "edit", "publish"],
     "police-stations": ["view", "edit"],
-    "profile": ["view", "edit"]
+    "profile": ["view", "edit"],
+    "web-stories": ["view", "create", "edit", "publish"]
   },
   "NEWS_EDITOR": {
     "dashboard": ["view"],

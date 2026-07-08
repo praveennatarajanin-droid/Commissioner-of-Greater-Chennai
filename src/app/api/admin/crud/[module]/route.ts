@@ -19,8 +19,12 @@ async function checkAuth(requiredRoles?: string[]) {
       return null;
     }
     const user = JSON.parse(sessionCookie.value);
-    if (requiredRoles && !requiredRoles.includes(user.role)) {
-      return null;
+    if (requiredRoles) {
+      const userRole = (user.role || "").toUpperCase().replace(/[_\s]+/g, "");
+      const normalizedRequired = requiredRoles.map(r => r.toUpperCase().replace(/[_\s]+/g, ""));
+      if (!normalizedRequired.includes(userRole)) {
+        return null;
+      }
     }
     return user;
   } catch {
@@ -101,6 +105,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ module: 
       return NextResponse.json(await db.getEmergencyContacts());
     case "department-links":
       return NextResponse.json(await db.getDepartmentLinks());
+    case "web-stories":
+      return NextResponse.json(await db.getWebStories());
     default:
       return NextResponse.json({ error: "Invalid module" }, { status: 400 });
   }
@@ -280,6 +286,15 @@ export async function POST(req: Request, { params }: { params: Promise<{ module:
         items.push(newItem);
         await db.saveDepartmentLinks(items);
         await db.addActivityLog(auth.username, `Created department link: ${newItem.name_en}`);
+        return NextResponse.json({ success: true, item: newItem });
+      }
+      case "web-stories": {
+        const items = await db.getWebStories();
+        const id = items.length > 0 ? Math.max(...items.map((i) => i.id)) + 1 : 1;
+        const newItem = { id, ...data };
+        items.push(newItem);
+        await db.saveWebStories(items);
+        await db.addActivityLog(auth.username, `Created web story: ${newItem.title_en}`);
         return NextResponse.json({ success: true, item: newItem });
       }
       default:
@@ -517,6 +532,13 @@ export async function PUT(req: Request, { params }: { params: Promise<{ module: 
         await db.addActivityLog(auth.username, `Updated department link: ${data.name_en}`);
         return NextResponse.json({ success: true });
       }
+      case "web-stories": {
+        let items = await db.getWebStories();
+        items = items.map((i) => (i.id === data.id ? { ...i, ...data } : i));
+        await db.saveWebStories(items);
+        await db.addActivityLog(auth.username, `Updated web story: ${data.title_en}`);
+        return NextResponse.json({ success: true });
+      }
       default:
         return NextResponse.json({ error: "Method not supported for module" }, { status: 400 });
     }
@@ -648,6 +670,16 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ modul
         await db.saveDepartmentLinks(items);
         if (target) {
           await db.addActivityLog(auth.username, `Deleted department link: ${target.name_en}`);
+        }
+        return NextResponse.json({ success: true });
+      }
+      case "web-stories": {
+        let items = await db.getWebStories();
+        const target = items.find((i) => i.id === id);
+        items = items.filter((i) => i.id !== id);
+        await db.saveWebStories(items);
+        if (target) {
+          await db.addActivityLog(auth.username, `Deleted web story: ${target.title_en}`);
         }
         return NextResponse.json({ success: true });
       }

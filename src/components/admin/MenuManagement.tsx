@@ -1392,10 +1392,14 @@ export default function MenuManagement({
   // Helper: Resolve banner image URL
   const getBannerImage = (sections: PageSection[]) => {
     const banner = (sections || []).find(s => s.section_type === "banner");
+    let img = "/images/about_hero.jpg";
     if (banner && banner.content_json && banner.content_json.bg_image) {
-      return banner.content_json.bg_image;
+      img = banner.content_json.bg_image;
     }
-    return "/images/about_hero.jpg";
+    if (img && !img.startsWith("/") && !img.startsWith("http")) {
+      img = "/" + img;
+    }
+    return img;
   };
 
   // Direct Tree Node Action: Jump to Edit Block Index

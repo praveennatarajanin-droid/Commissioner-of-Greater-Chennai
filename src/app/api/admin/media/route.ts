@@ -12,8 +12,12 @@ async function checkAuth(requiredRoles?: string[]) {
       return null;
     }
     const user = JSON.parse(sessionCookie.value);
-    if (requiredRoles && !requiredRoles.includes(user.role)) {
-      return null;
+    if (requiredRoles) {
+      const userRole = (user.role || "").toUpperCase().replace(/[_\s]+/g, "");
+      const normalizedRequired = requiredRoles.map(r => r.toUpperCase().replace(/[_\s]+/g, ""));
+      if (!normalizedRequired.includes(userRole)) {
+        return null;
+      }
     }
     return user;
   } catch {

@@ -14,7 +14,7 @@ export default async function Home() {
   // Sync traffic news in background
   try { await syncTrafficNews(); } catch { }
 
-  const [menuItems, rawTicker, news, allVideos, allAlerts, profile, allSlider, dynamicContent] = await Promise.all([
+  const [menuItems, rawTicker, news, allVideos, allAlerts, profile, allSlider, dynamicContent, rawStories] = await Promise.all([
     db.getMenuItems(),
     db.getTicker(),
     db.getNews(),
@@ -23,6 +23,7 @@ export default async function Home() {
     db.getCommissionerProfile(),
     db.getSlider(),
     db.getPageContent("home"),
+    db.getWebStories(),
   ]);
 
   const ticker = rawTicker.filter(i => i.active === 1).map(i => ({
@@ -33,8 +34,7 @@ export default async function Home() {
   const activeVideos = allVideos.filter(v => v.active === 1);
   const activeAlerts = allAlerts.filter(a => a.approved === 1 && a.removed === 0);
   const activeSlider = allSlider.filter(s => s.active === 1).sort((a, b) => a.order_num - b.order_num);
-
-
+  const activeStories = rawStories.filter(s => s.active === 1 || s.active === undefined);
 
   return (
     <>
@@ -45,6 +45,7 @@ export default async function Home() {
         ticker={ticker}
         menuItems={menuItems}
         slider={activeSlider}
+        stories={activeStories}
       />
       <Footer customProfile={profile} />
     </>
