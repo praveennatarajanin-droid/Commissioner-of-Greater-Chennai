@@ -37,9 +37,17 @@ export default function OfficialAlertsFeed({ initialAlerts = [], language = "en"
   const [loading, setLoading] = useState(false);
   const [lastUpdated, setLastUpdated] = useState("");
 
+  const sortAlerts = (list: AlertItem[]) => {
+    return [...list].sort((a, b) => {
+      const da = new Date(a.published_at || 0).getTime();
+      const db = new Date(b.published_at || 0).getTime();
+      return db - da; // Descending: newest first
+    });
+  };
+
   useEffect(() => {
     if (initialAlerts.length > 0) {
-      setAlerts(initialAlerts);
+      setAlerts(sortAlerts(initialAlerts));
       setLastUpdated(new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true }));
     }
   }, [initialAlerts]);
@@ -52,7 +60,8 @@ export default function OfficialAlertsFeed({ initialAlerts = [], language = "en"
       if (res.ok) {
         const data = await res.json();
         if (data.success && data.alerts) {
-          setAlerts(data.alerts.filter((a: AlertItem) => a.approved === 1 && !a.removed));
+          const filtered = data.alerts.filter((a: AlertItem) => a.approved === 1 && !a.removed);
+          setAlerts(sortAlerts(filtered));
           setLastUpdated(new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true }));
         }
       }

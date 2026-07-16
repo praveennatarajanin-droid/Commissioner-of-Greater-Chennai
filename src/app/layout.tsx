@@ -99,7 +99,7 @@ export default async function RootLayout({
   };
 
   return (
-    <html lang="en" className="h-full antialiased scroll-smooth" suppressHydrationWarning>
+    <html lang="en" className="h-full antialiased scroll-smooth" suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
         <style dangerouslySetInnerHTML={{ __html: inlineStyles }} />
         <link rel="icon" href="/favicon.ico?v=2" />

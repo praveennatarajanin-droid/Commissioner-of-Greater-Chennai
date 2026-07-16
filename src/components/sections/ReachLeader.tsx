@@ -24,6 +24,9 @@ export default function ReachLeader() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, mobile, grievance }),
       });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       const data = await response.json();
       if (data.success) {
         setSentPreviewHtml(data.emailHtml);

@@ -4,7 +4,7 @@ import React, { useRef, useEffect, useState } from "react";
 import { 
   Bold, Italic, Underline, Strikethrough, AlignLeft, AlignCenter, AlignRight, AlignJustify,
   List, ListOrdered, Link as LinkIcon, Unlink, Image as ImageIcon, Video, Quote, Minus, 
-  Smile, Undo, Redo, Heading1, Heading2, Heading3, Palette, Highlighter, Upload, Grid
+  Smile, Undo, Redo, Palette, Highlighter, Upload, Grid
 } from "lucide-react";
 
 interface RichTextEditorProps {
@@ -228,7 +228,7 @@ export default function RichTextEditor({ value, onChange, placeholder, className
   };
 
   const commonEmojis = ["😀", "😃", "😄", "😁", "😆", "😅", "😂", "🤣", "😊", "😇", "🙂", "😉", "😍", "🥰", "😘", "😋", "😜", "😎", "🤔", "🤫", "👍", "👋", "👏", "🔥", "🎉", "❤️", "📍", "🛡️", "🚔", "📢"];
-  const textColors = ["#000000", "#333333", "#666666", "#999999", "#ef4444", "#f97316", "#f59e0b", "#10b981", "#3b82f6", "#8b5cf6", "#2e3192", "#ed1b24", "#c5a059"];
+  const textColors = ["#000000", "#333333", "#666666", "#999999", "#ef4444", "#f97316", "#f59e0b", "#10b981", "#3b82f6", "#8b5cf6", "#1e40af", "#ed1b24", "#d4af37"];
   const bgColors = ["#ffffff", "#f3f4f6", "#e5e7eb", "#fca5a5", "#fed7aa", "#fde68a", "#a7f3d0", "#a5f3fc", "#bfdbfe", "#e9d5ff", "transparent"];
 
   return (
@@ -241,11 +241,7 @@ export default function RichTextEditor({ value, onChange, placeholder, className
         <button type="button" onClick={() => execCmd("redo")} className="p-1 hover:bg-stone-200 dark:hover:bg-stone-800 rounded transition cursor-pointer text-slate-700 dark:text-stone-300" title="Redo"><Redo className="w-3.5 h-3.5" /></button>
         <div className="w-px h-4 bg-stone-300 dark:bg-stone-700 mx-1" />
 
-        {/* Headings */}
-        <button type="button" onClick={() => execCmd("formatBlock", "H1")} className="p-1 hover:bg-stone-200 dark:hover:bg-stone-800 rounded transition cursor-pointer text-slate-700 dark:text-stone-300" title="Heading 1"><Heading1 className="w-3.5 h-3.5" /></button>
-        <button type="button" onClick={() => execCmd("formatBlock", "H2")} className="p-1 hover:bg-stone-200 dark:hover:bg-stone-800 rounded transition cursor-pointer text-slate-700 dark:text-stone-300" title="Heading 2"><Heading2 className="w-3.5 h-3.5" /></button>
-        <button type="button" onClick={() => execCmd("formatBlock", "H3")} className="p-1 hover:bg-stone-200 dark:hover:bg-stone-800 rounded transition cursor-pointer text-slate-700 dark:text-stone-300" title="Heading 3"><Heading3 className="w-3.5 h-3.5" /></button>
-        <div className="w-px h-4 bg-stone-300 dark:bg-stone-700 mx-1" />
+
 
         {/* Text styling */}
         <button type="button" onClick={() => execCmd("bold")} className="p-1 hover:bg-stone-200 dark:hover:bg-stone-800 rounded transition cursor-pointer text-slate-700 dark:text-stone-300 font-bold" title="Bold"><Bold className="w-3.5 h-3.5" /></button>
@@ -257,14 +253,40 @@ export default function RichTextEditor({ value, onChange, placeholder, className
         {/* Font size */}
         <select 
           onChange={(e) => execCmd("fontSize", e.target.value)} 
-          className="bg-transparent border border-stone-300 dark:border-stone-700 text-[10px] rounded px-1 text-slate-700 dark:text-stone-300 outline-none"
+          className="bg-transparent border border-stone-300 dark:border-stone-700 text-[10px] rounded px-1 text-slate-700 dark:text-stone-300 outline-none cursor-pointer"
           title="Font Size"
           defaultValue="3"
         >
-          <option value="1">Small</option>
-          <option value="3">Normal</option>
-          <option value="5">Large</option>
-          <option value="7">Huge</option>
+          <option value="1">10px (Extra Small)</option>
+          <option value="2">13px (Small)</option>
+          <option value="3">16px (Normal)</option>
+          <option value="4">18px (Medium-Large)</option>
+          <option value="5">24px (Large)</option>
+          <option value="6">32px (Extra Large)</option>
+          <option value="7">48px (Huge)</option>
+        </select>
+        <div className="w-px h-4 bg-stone-300 dark:bg-stone-700 mx-1" />
+
+        {/* Font Family */}
+        <select 
+          onChange={(e) => execCmd("fontName", e.target.value)} 
+          className="bg-transparent border border-stone-300 dark:border-stone-700 text-[10px] rounded px-1 text-slate-700 dark:text-stone-300 outline-none cursor-pointer"
+          title="Font Family"
+          defaultValue="Georgia, serif"
+        >
+          <option value="Georgia, serif">Georgia</option>
+          <option value="Arial, Helvetica, sans-serif">Arial</option>
+          <option value="Garamond, serif">Garamond</option>
+          <option value="Times New Roman, Times, serif">Times New Roman</option>
+          <option value="Verdana, Geneva, sans-serif">Verdana</option>
+          <option value="Courier New, Courier, monospace">Courier New</option>
+          <option value="'Trebuchet MS', Helvetica, sans-serif">Trebuchet MS</option>
+          <option value="Tahoma, Geneva, sans-serif">Tahoma</option>
+          <option value="Impact, Charcoal, sans-serif">Impact (Bold/Impactful)</option>
+          <option value="'Comic Sans MS', cursive, sans-serif">Comic Sans</option>
+          <option value="'Brush Script MT', cursive">Brush Script (Cursive)</option>
+          <option value="'Century Gothic', sans-serif">Century Gothic</option>
+          <option value="'Palatino Linotype', Palatino, serif">Palatino</option>
         </select>
         <div className="w-px h-4 bg-stone-300 dark:bg-stone-700 mx-1" />
 
@@ -347,13 +369,31 @@ export default function RichTextEditor({ value, onChange, placeholder, className
           pointer-events: none;
           display: block;
         }
+        .gcp-editor-div ul {
+          list-style-type: disc !important;
+          margin-left: 1.5rem !important;
+          padding-left: 0.5rem !important;
+          margin-top: 0.5rem !important;
+          margin-bottom: 0.5rem !important;
+        }
+        .gcp-editor-div ol {
+          list-style-type: decimal !important;
+          margin-left: 1.5rem !important;
+          padding-left: 0.5rem !important;
+          margin-top: 0.5rem !important;
+          margin-bottom: 0.5rem !important;
+        }
+        .gcp-editor-div li {
+          display: list-item !important;
+          margin-bottom: 0.25rem !important;
+        }
       `}</style>
       <div 
         ref={editorRef}
         contentEditable
         onInput={handleInput}
         onKeyDown={handleKeyDown}
-        className="gcp-editor-div flex-grow p-4 min-h-[200px] outline-none overflow-y-auto text-sm text-slate-800 dark:text-white bg-white dark:bg-stone-955 max-h-[400px] prose dark:prose-invert"
+        className="gcp-editor-div flex-grow p-4 min-h-[200px] outline-none overflow-y-auto text-lg font-serif leading-relaxed text-slate-800 dark:text-white bg-white dark:bg-stone-955 max-h-[400px] prose dark:prose-invert"
         {...({ "data-placeholder": placeholder } as any)}
       />
 

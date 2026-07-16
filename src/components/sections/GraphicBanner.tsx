@@ -105,7 +105,7 @@ export default function GraphicBanner() {
               fill
               className="object-contain object-center scale-[1.20] origin-center"
               priority
-            />
+             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
           </div>
         </div>
 

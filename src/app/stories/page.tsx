@@ -11,11 +11,12 @@ export const metadata: Metadata = {
 };
 
 export default async function StoriesPage() {
-  const [menuItems, rawTicker, allStories, profile] = await Promise.all([
+  const [menuItems, rawTicker, allStories, profile, allNews] = await Promise.all([
     db.getMenuItems(),
     db.getTicker(),
     db.getWebStories(),
     db.getCommissionerProfile(),
+    db.getNews(),
   ]);
 
   const tickerItems = rawTicker
@@ -27,10 +28,12 @@ export default async function StoriesPage() {
     }));
 
   const activeStories = allStories.filter((s) => s.active === 1 || s.active === undefined);
+  const publishedNews = allNews.filter((n) => n.published === 1);
 
   return (
     <StoriesPageClient
       stories={activeStories}
+      news={publishedNews}
       menuItems={menuItems}
       ticker={tickerItems}
       profile={profile}

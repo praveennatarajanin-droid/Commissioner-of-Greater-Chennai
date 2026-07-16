@@ -54,6 +54,9 @@ export default function GcpCitizenServices() {
           remarks: traceRemarks
         }),
       });
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
       const data = await res.json();
       if (data.success) {
         setTraceReceiptHtml(data.emailHtml);
@@ -85,6 +88,9 @@ export default function GcpCitizenServices() {
           message: feedMessage
         }),
       });
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
       const data = await res.json();
       if (data.success) {
         setFeedReceiptHtml(data.emailHtml);

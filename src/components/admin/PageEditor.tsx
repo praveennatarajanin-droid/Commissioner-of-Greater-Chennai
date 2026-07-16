@@ -440,7 +440,7 @@ export default function PageEditor({
             <div>
               <h2 className="text-sm font-black uppercase tracking-widest text-slate-800 flex items-center gap-1.5">
                 <span>CMS Section Editor:</span>
-                <span className="text-[#2e3192]">{currentPage.name}</span>
+                <span className="text-[#1e40af]">{currentPage.name}</span>
               </h2>
             </div>
           </div>
@@ -470,7 +470,7 @@ export default function PageEditor({
                     }}
                     className={`w-full flex items-center justify-between p-2.5 rounded-xl text-xs font-black uppercase tracking-wider text-left transition ${
                       isActivePage 
-                        ? "bg-[#2e3192]/10 text-[#2e3192]" 
+                        ? "bg-[#1e40af]/10 text-[#1e40af]" 
                         : "hover:bg-slate-50 text-slate-700"
                     }`}
                   >
@@ -507,9 +507,9 @@ export default function PageEditor({
           {/* Top Panel Actions bar */}
           <div className="p-4 bg-white border-b border-slate-250/60 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shrink-0">
             <div>
-              <h2 className="text-sm font-black uppercase tracking-widest text-[#2e3192] flex items-center gap-1.5">
+              <h2 className="text-sm font-black uppercase tracking-widest text-[#1e40af] flex items-center gap-1.5">
                 <span>📝 WordPress-Style CMS Editor</span>
-                <span className="px-2 py-0.5 bg-[#2e3192]/10 rounded text-[9px] font-black uppercase tracking-widest text-[#2e3192]">
+                <span className="px-2 py-0.5 bg-[#1e40af]/10 rounded text-[9px] font-black uppercase tracking-widest text-[#1e40af]">
                   {currentPage.name}
                 </span>
               </h2>
@@ -523,7 +523,7 @@ export default function PageEditor({
                 href={`http://localhost:3001${currentPage.route}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-slate-100 border border-slate-200 text-[#2e3192] rounded-xl text-[10px] font-black uppercase tracking-wider transition shadow-sm"
+                className="flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-slate-100 border border-slate-200 text-[#1e40af] rounded-xl text-[10px] font-black uppercase tracking-wider transition shadow-sm"
               >
                 <Eye className="w-3.5 h-3.5" />
                 <span>👁 Open Frontend</span>
@@ -586,7 +586,7 @@ export default function PageEditor({
                                     {slide.src && <img src={slide.src} alt="" className="w-full h-full object-cover opacity-80" />}
                                   </div>
                                   <div className="text-left">
-                                    <span className="text-[9px] font-black uppercase bg-[#2e3192]/10 text-[#2e3192] px-1.5 py-0.5 rounded">
+                                    <span className="text-[9px] font-black uppercase bg-[#1e40af]/10 text-[#1e40af] px-1.5 py-0.5 rounded">
                                       Slide #{sIdx + 1} ({slide.category_en})
                                     </span>
                                     <h4 className="font-bold text-xs text-slate-800 mt-1">{slide.title_en}</h4>
@@ -638,7 +638,7 @@ export default function PageEditor({
                         {node.id === "history" && (
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
                             <div className="space-y-3">
-                              <h4 className="font-black text-sm text-[#2e3192] border-l-2 border-brand-maroon pl-2">
+                              <h4 className="font-black text-sm text-[#1e40af] border-l-2 border-brand-maroon pl-2">
                                 {aboutData?.sections?.find((s: any) => s.section_type === "history" || s.section_title?.toLowerCase() === "history")?.content_json?.title_en || "History of Greater Chennai Police"}
                               </h4>
                               <p className="text-[10px] text-slate-500 leading-relaxed italic max-h-[88px] overflow-hidden">
@@ -677,7 +677,7 @@ export default function PageEditor({
                               { id: "pink-patrol", name_en: "Pink Patrol (Women Safety)", desc_en: "Specially trained women officers patrol the city in dedicated pink vehicles." }
                             ]).slice(0, 3).map((it: any, idx: number) => (
                               <div key={idx} className="p-3 border rounded-xl bg-slate-50 space-y-2">
-                                <span className="px-1.5 py-0.5 bg-[#2e3192]/10 text-[#2e3192] text-[8px] font-black uppercase rounded">
+                                <span className="px-1.5 py-0.5 bg-[#1e40af]/10 text-[#1e40af] text-[8px] font-black uppercase rounded">
                                   Program: {it.id}
                                 </span>
                                 <h4 className="font-bold text-[10px] text-slate-805 truncate">{it.name_en}</h4>
@@ -703,7 +703,7 @@ export default function PageEditor({
 
                         {/* 8. MOCKUP: General Safety Portal banners & objectives */}
                         {node.id === "safety_hero" && (
-                          <div className="bg-[#2e3192] text-white p-6 rounded-xl text-left relative overflow-hidden">
+                          <div className="bg-[#1e40af] text-white p-6 rounded-xl text-left relative overflow-hidden">
                             <div className="relative z-10 space-y-2">
                               <span className="px-2 py-0.5 bg-brand-gold text-stone-900 rounded text-[9px] font-black uppercase tracking-wider">
                                 banner & intro details
@@ -726,7 +726,7 @@ export default function PageEditor({
                               {profileData?.photo && <img src={profileData.photo} alt="" className="w-full h-full object-cover" />}
                             </div>
                             <div className="md:col-span-9 space-y-2">
-                              <h4 className="font-display font-black text-sm text-[#2e3192] uppercase">
+                              <h4 className="font-display font-black text-sm text-[#1e40af] uppercase">
                                 {profileData?.name_en || "Dr. A. Amalraj IPS"}
                               </h4>
                               <span className="text-[9px] font-black text-brand-gold block uppercase leading-none">
@@ -760,7 +760,7 @@ export default function PageEditor({
                       {isEditingThis && (
                         <div className="border-t border-slate-200 bg-slate-50/50 p-6 space-y-6 text-left">
                           <div className="flex justify-between items-center">
-                            <h4 className="text-xs font-black uppercase text-[#2e3192] tracking-wider flex items-center gap-1">
+                            <h4 className="text-xs font-black uppercase text-[#1e40af] tracking-wider flex items-center gap-1">
                               <Settings className="w-4 h-4 text-brand-gold" />
                               <span>Editing Panel: {node.name}</span>
                             </h4>
@@ -1259,7 +1259,7 @@ export default function PageEditor({
                               type="button"
                               onClick={() => handleSaveSection(node.id)}
                               disabled={saving}
-                              className="px-5 py-2 bg-[#2e3192] hover:bg-[#1e2060] text-white rounded-xl uppercase tracking-widest text-[10px] font-black transition cursor-pointer flex items-center gap-1.5"
+                              className="px-5 py-2 bg-[#1e40af] hover:bg-[#1e3a8a] text-white rounded-xl uppercase tracking-widest text-[10px] font-black transition cursor-pointer flex items-center gap-1.5"
                             >
                               {saving ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
                               <span>Save Changes</span>

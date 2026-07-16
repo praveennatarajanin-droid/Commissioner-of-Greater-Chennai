@@ -179,7 +179,7 @@ export default function VideoGallery({ customVideos }: VideoGalleryProps) {
                       fill
                       unoptimized={!activeVideo.coverImage}
                       className="object-cover object-center group-hover:scale-[1.01] transition-transform duration-300"
-                    />
+                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
                     {/* Glass Play Overlay */}
                     <div className="absolute inset-0 bg-black/10 group-hover:bg-black/25 transition-colors duration-300 flex items-center justify-center">
                       <div className="w-16 h-16 rounded-full bg-brand-maroon/90 border border-brand-gold/30 flex items-center justify-center text-white shadow-xl group-hover:scale-105 transition-transform duration-300">
@@ -230,7 +230,7 @@ export default function VideoGallery({ customVideos }: VideoGalleryProps) {
                           fill
                           unoptimized={!item.coverImage}
                           className="object-cover object-center"
-                        />
+                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
                         <div className="absolute inset-0 flex items-center justify-center bg-black/25">
                           <Play className="w-3.5 h-3.5 text-white fill-white" />
                         </div>
@@ -289,7 +289,7 @@ export default function VideoGallery({ customVideos }: VideoGalleryProps) {
                     fill
                     unoptimized
                     className="object-cover object-center group-hover:scale-[1.03] transition-transform duration-300"
-                  />
+                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
                   <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/35 transition-colors duration-300">
                     <div className="w-9 h-9 rounded-full bg-brand-maroon/90 border border-brand-gold/30 flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-300">
                       <Play className="w-3.5 h-3.5 fill-white ml-0.5" />

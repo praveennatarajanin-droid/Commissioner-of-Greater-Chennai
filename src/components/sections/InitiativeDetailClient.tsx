@@ -248,7 +248,7 @@ function PinkPatrolLayout({
                 fill
                 priority
                 className="object-cover group-hover:scale-105 transition-transform duration-700"
-              />
+               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
               <div className="absolute inset-0 bg-gradient-to-t lg:bg-gradient-to-r from-[#030b1b] via-transparent to-transparent opacity-90 lg:opacity-75" />
               <div className="absolute bottom-4 left-4 right-4 bg-stone-955/80 backdrop-blur-md border border-white/5 p-3 rounded-xl">
                 <span className="text-[10px] font-black uppercase tracking-wider text-rose-400 block">
@@ -337,7 +337,7 @@ function PinkPatrolLayout({
                   alt={initiative.name_en}
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
-                />
+                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
                 <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors flex items-center justify-center">
                   <div className="w-14 h-14 rounded-full bg-stone-950/80 backdrop-blur-md text-rose-500 flex items-center justify-center border border-white/10 group-hover:scale-110 shadow-xl transition-all duration-300">
                     <Play className="w-6 h-6 fill-rose-500 ml-1 text-rose-500" />
@@ -634,7 +634,7 @@ function CctvLayout({
                 fill
                 priority
                 className="object-cover group-hover:scale-105 transition-transform duration-700"
-              />
+               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
               <div className="absolute inset-0 bg-gradient-to-t lg:bg-gradient-to-r from-[#030b1b] via-transparent to-transparent opacity-90 lg:opacity-75" />
               <div className="absolute bottom-4 left-4 right-4 bg-stone-955/80 backdrop-blur-md border border-white/5 p-3 rounded-xl">
                 <span className="text-[10px] font-black uppercase tracking-wider text-brand-gold block">
@@ -765,7 +765,7 @@ function CctvLayout({
                   alt={initiative.name_en}
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
-                />
+                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
                 <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors flex items-center justify-center">
                   <div className="w-14 h-14 rounded-full bg-stone-950/80 backdrop-blur-md text-brand-gold flex items-center justify-center border border-white/10 group-hover:scale-110 shadow-xl transition-all duration-350">
                     <Play className="w-6 h-6 fill-brand-gold ml-1 text-brand-gold" />

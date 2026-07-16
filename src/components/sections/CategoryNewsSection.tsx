@@ -103,7 +103,7 @@ export default function CategoryNewsSection({ news, language = "en" }: CategoryN
                       alt={title}
                       fill
                       className="object-cover object-center group-hover:scale-[1.04] transition-transform duration-500"
-                      onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/images/police_medal.jpg"; }}
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/images/police_medal.jpg"; }}
                     />
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
 

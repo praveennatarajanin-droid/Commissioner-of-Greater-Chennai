@@ -922,7 +922,7 @@ export default function SeoManager({ news, videos, alerts, slider, profile, onAl
                 onClick={() => setActiveSubTab(tab.key)}
                 className="flex items-center gap-1.5 px-3 py-2.5 rounded-lg text-[9px] font-black uppercase tracking-wider transition cursor-pointer"
                 style={{
-                  background: activeSubTab === tab.key ? "#2e3192" : "transparent",
+                  background: activeSubTab === tab.key ? "#1e40af" : "transparent",
                   color: activeSubTab === tab.key ? "#ffffff" : "#64748b",
                 }}
               >
@@ -1538,7 +1538,7 @@ export default function SeoManager({ news, videos, alerts, slider, profile, onAl
                 {activeSubTab === "ai" && (
                   <div className="space-y-5">
                     <h2 className="text-xs font-black uppercase tracking-wider pb-2 border-b border-stone-100 dark:border-stone-850 text-slate-800 dark:text-white">✨ AI SEO Assistant</h2>
-                    <div className="text-center py-6 rounded-xl space-y-4 text-slate-800 dark:text-white" style={{ background: "linear-gradient(135deg, rgba(99,102,241,0.06), rgba(168,85,247,0.06), rgba(249,115,22,0.06))", border: "1px solid rgba(46,49,146,0.15)" }}>
+                    <div className="text-center py-6 rounded-xl space-y-4 text-slate-800 dark:text-white" style={{ background: "linear-gradient(135deg, rgba(99,102,241,0.06), rgba(168,85,247,0.06), rgba(249,115,22,0.06))", border: "1px solid rgba(30,64,175,0.15)" }}>
                       <Sparkles className="w-12 h-12 mx-auto text-indigo-500 animate-pulse" />
                       <div className="space-y-1">
                         <h3 className="text-sm font-black">Generate Full SEO & Open Graph Metadata</h3>

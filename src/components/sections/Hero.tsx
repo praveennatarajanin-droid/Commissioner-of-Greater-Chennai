@@ -193,7 +193,7 @@ export default function Hero({ customSlides, customNews }: HeroProps = {}) {
                           alt=""
                           fill
                           className="object-cover object-center"
-                        />
+                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
                       </div>
                       
                       {/* Main fully visible, centered foreground image */}

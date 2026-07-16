@@ -363,7 +363,7 @@ export default function SuperAdminConsole({ user, onTabChange }: SuperAdminConso
       <div className="w-full lg:w-64 bg-white dark:bg-stone-900 border-b lg:border-b-0 lg:border-r border-slate-200 dark:border-stone-850 flex flex-col shrink-0">
         <div className="p-4 bg-slate-50 dark:bg-stone-955 border-b border-slate-200 dark:border-stone-850 shrink-0">
           <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider flex items-center gap-1.5">
-            <Shield className="w-4 h-4 text-[#2e3192]" />
+            <Shield className="w-4 h-4 text-[#1e40af]" />
             <span>Access Management Module</span>
           </span>
         </div>
@@ -374,7 +374,7 @@ export default function SuperAdminConsole({ user, onTabChange }: SuperAdminConso
               onClick={() => setActiveSection(sec.id)}
               className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold transition text-left cursor-pointer ${
                 activeSection === sec.id
-                  ? "bg-[#2e3192]/10 text-[#2e3192] dark:bg-brand-gold/10 dark:text-brand-gold"
+                  ? "bg-[#1e40af]/10 text-[#1e40af] dark:bg-brand-gold/10 dark:text-brand-gold"
                   : "text-slate-600 dark:text-stone-400 hover:bg-slate-50 dark:hover:bg-stone-800"
               }`}
             >
@@ -422,7 +422,7 @@ export default function SuperAdminConsole({ user, onTabChange }: SuperAdminConso
                       });
                       setShowUserModal(true);
                     }}
-                    className="flex items-center gap-1.5 px-4 py-2 bg-[#2e3192] hover:bg-[#1e2060] text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition cursor-pointer"
+                    className="flex items-center gap-1.5 px-4 py-2 bg-[#1e40af] hover:bg-[#1e3a8a] text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition cursor-pointer"
                   >
                     <Plus className="w-3.5 h-3.5" /> Create User
                   </button>
@@ -435,7 +435,7 @@ export default function SuperAdminConsole({ user, onTabChange }: SuperAdminConso
                     placeholder="Search users by name or email..."
                     value={userSearch}
                     onChange={(e) => setUserSearch(e.target.value)}
-                    className="w-full pl-9 pr-4 py-1.5 border border-slate-200 dark:border-stone-800 rounded-xl text-xs outline-none focus:border-[#2e3192] bg-white dark:bg-stone-950 text-stone-900 dark:text-white"
+                    className="w-full pl-9 pr-4 py-1.5 border border-slate-200 dark:border-stone-800 rounded-xl text-xs outline-none focus:border-[#1e40af] bg-white dark:bg-stone-950 text-stone-900 dark:text-white"
                   />
                 </div>
 
@@ -470,7 +470,7 @@ export default function SuperAdminConsole({ user, onTabChange }: SuperAdminConso
                               </div>
                             </td>
                             <td className="p-3">
-                              <span className="px-2 py-0.5 bg-[#2e3192]/10 text-[#2e3192] dark:bg-brand-gold/10 dark:text-brand-gold rounded text-[8px] font-black uppercase tracking-wider">
+                              <span className="px-2 py-0.5 bg-[#1e40af]/10 text-[#1e40af] dark:bg-brand-gold/10 dark:text-brand-gold rounded text-[8px] font-black uppercase tracking-wider">
                                 {u.role}
                               </span>
                             </td>
@@ -551,7 +551,7 @@ export default function SuperAdminConsole({ user, onTabChange }: SuperAdminConso
                       setRoleForm({ role_name: "", permissions_json: {} });
                       setShowRoleModal(true);
                     }}
-                    className="flex items-center gap-1.5 px-4 py-2 bg-[#2e3192] hover:bg-[#1e2060] text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition cursor-pointer"
+                    className="flex items-center gap-1.5 px-4 py-2 bg-[#1e40af] hover:bg-[#1e3a8a] text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition cursor-pointer"
                   >
                     <Plus className="w-3.5 h-3.5" /> Create Custom Role
                   </button>
@@ -944,7 +944,7 @@ export default function SuperAdminConsole({ user, onTabChange }: SuperAdminConso
                       saveConfigKey("smtpUser", config.smtpUser);
                       saveConfigKey("smtpPass", config.smtpPass);
                     }}
-                    className="flex items-center justify-center gap-1.5 px-6 py-2.5 bg-[#2e3192] hover:bg-[#1e2060] text-white rounded-xl text-xs font-black uppercase tracking-wider transition cursor-pointer"
+                    className="flex items-center justify-center gap-1.5 px-6 py-2.5 bg-[#1e40af] hover:bg-[#1e3a8a] text-white rounded-xl text-xs font-black uppercase tracking-wider transition cursor-pointer"
                   >
                     Save SMTP settings
                   </button>
@@ -985,7 +985,7 @@ export default function SuperAdminConsole({ user, onTabChange }: SuperAdminConso
                       saveConfigKey("gcpTranslateKey", config.gcpTranslateKey);
                       saveConfigKey("gcpTtsKey", config.gcpTtsKey);
                     }}
-                    className="flex items-center justify-center gap-1.5 px-6 py-2.5 bg-[#2e3192] hover:bg-[#1e2060] text-white rounded-xl text-xs font-black uppercase tracking-wider transition cursor-pointer"
+                    className="flex items-center justify-center gap-1.5 px-6 py-2.5 bg-[#1e40af] hover:bg-[#1e3a8a] text-white rounded-xl text-xs font-black uppercase tracking-wider transition cursor-pointer"
                   >
                     Save API Integration Keys
                   </button>
@@ -1043,7 +1043,7 @@ export default function SuperAdminConsole({ user, onTabChange }: SuperAdminConso
                       saveConfigKey("portalTitleEn", config.portalTitleEn);
                       saveConfigKey("portalTitleTa", config.portalTitleTa);
                     }}
-                    className="flex items-center justify-center gap-1.5 px-6 py-2.5 bg-[#2e3192] hover:bg-[#1e2060] text-white rounded-xl text-xs font-black uppercase tracking-wider transition cursor-pointer"
+                    className="flex items-center justify-center gap-1.5 px-6 py-2.5 bg-[#1e40af] hover:bg-[#1e3a8a] text-white rounded-xl text-xs font-black uppercase tracking-wider transition cursor-pointer"
                   >
                     Save Branding Titles
                   </button>
@@ -1087,7 +1087,7 @@ export default function SuperAdminConsole({ user, onTabChange }: SuperAdminConso
                     disabled={!!editingUser}
                     value={userForm.username}
                     onChange={(e) => setUserForm({ ...userForm, username: e.target.value })}
-                    className="w-full border border-slate-200 dark:border-stone-850 rounded-xl p-2.5 outline-none focus:border-[#2e3192] bg-white dark:bg-stone-950 text-stone-900 dark:text-white"
+                    className="w-full border border-slate-200 dark:border-stone-850 rounded-xl p-2.5 outline-none focus:border-[#1e40af] bg-white dark:bg-stone-950 text-stone-900 dark:text-white"
                   />
                 </div>
                 <div className="space-y-1">
@@ -1099,7 +1099,7 @@ export default function SuperAdminConsole({ user, onTabChange }: SuperAdminConso
                     required={!editingUser}
                     value={userForm.password}
                     onChange={(e) => setUserForm({ ...userForm, password: e.target.value })}
-                    className="w-full border border-slate-200 dark:border-stone-850 rounded-xl p-2.5 outline-none focus:border-[#2e3192] bg-white dark:bg-stone-950 text-stone-900 dark:text-white"
+                    className="w-full border border-slate-200 dark:border-stone-850 rounded-xl p-2.5 outline-none focus:border-[#1e40af] bg-white dark:bg-stone-950 text-stone-900 dark:text-white"
                   />
                 </div>
               </div>
@@ -1112,7 +1112,7 @@ export default function SuperAdminConsole({ user, onTabChange }: SuperAdminConso
                     required
                     value={userForm.email}
                     onChange={(e) => setUserForm({ ...userForm, email: e.target.value })}
-                    className="w-full border border-slate-200 dark:border-stone-850 rounded-xl p-2.5 outline-none focus:border-[#2e3192] bg-white dark:bg-stone-950 text-stone-900 dark:text-white"
+                    className="w-full border border-slate-200 dark:border-stone-850 rounded-xl p-2.5 outline-none focus:border-[#1e40af] bg-white dark:bg-stone-950 text-stone-900 dark:text-white"
                   />
                 </div>
                 <div className="space-y-1">
@@ -1121,7 +1121,7 @@ export default function SuperAdminConsole({ user, onTabChange }: SuperAdminConso
                     type="text"
                     value={userForm.mobile}
                     onChange={(e) => setUserForm({ ...userForm, mobile: e.target.value })}
-                    className="w-full border border-slate-200 dark:border-stone-850 rounded-xl p-2.5 outline-none focus:border-[#2e3192] bg-white dark:bg-stone-950 text-stone-900 dark:text-white"
+                    className="w-full border border-slate-200 dark:border-stone-850 rounded-xl p-2.5 outline-none focus:border-[#1e40af] bg-white dark:bg-stone-950 text-stone-900 dark:text-white"
                   />
                 </div>
               </div>
@@ -1133,7 +1133,7 @@ export default function SuperAdminConsole({ user, onTabChange }: SuperAdminConso
                   placeholder="https://... or data:image/png;base64,..."
                   value={userForm.profile_photo}
                   onChange={(e) => setUserForm({ ...userForm, profile_photo: e.target.value })}
-                  className="w-full border border-slate-200 dark:border-stone-850 rounded-xl p-2.5 outline-none focus:border-[#2e3192] bg-white dark:bg-stone-950 text-stone-900 dark:text-white"
+                  className="w-full border border-slate-200 dark:border-stone-850 rounded-xl p-2.5 outline-none focus:border-[#1e40af] bg-white dark:bg-stone-950 text-stone-900 dark:text-white"
                 />
               </div>
 
@@ -1143,7 +1143,7 @@ export default function SuperAdminConsole({ user, onTabChange }: SuperAdminConso
                   <select
                     value={userForm.role}
                     onChange={(e) => setUserForm({ ...userForm, role: e.target.value })}
-                    className="w-full border border-slate-200 dark:border-stone-850 rounded-xl p-2.5 outline-none focus:border-[#2e3192] bg-white dark:bg-stone-950 text-stone-900 dark:text-white"
+                    className="w-full border border-slate-200 dark:border-stone-850 rounded-xl p-2.5 outline-none focus:border-[#1e40af] bg-white dark:bg-stone-950 text-stone-900 dark:text-white"
                   >
                     <option value="SUPER_ADMIN">Super Admin</option>
                     <option value="ADMINISTRATOR">Administrator</option>
@@ -1162,7 +1162,7 @@ export default function SuperAdminConsole({ user, onTabChange }: SuperAdminConso
                   <select
                     value={userForm.status}
                     onChange={(e) => setUserForm({ ...userForm, status: e.target.value })}
-                    className="w-full border border-slate-200 dark:border-stone-850 rounded-xl p-2.5 outline-none focus:border-[#2e3192] bg-white dark:bg-stone-950 text-stone-900 dark:text-white"
+                    className="w-full border border-slate-200 dark:border-stone-850 rounded-xl p-2.5 outline-none focus:border-[#1e40af] bg-white dark:bg-stone-950 text-stone-900 dark:text-white"
                   >
                     <option value="active">Active</option>
                     <option value="disabled">Disabled</option>
@@ -1249,7 +1249,7 @@ export default function SuperAdminConsole({ user, onTabChange }: SuperAdminConso
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-[#2e3192] text-white rounded-xl uppercase font-black text-[10px]"
+                  className="px-4 py-2 bg-[#1e40af] text-white rounded-xl uppercase font-black text-[10px]"
                 >
                   Save User
                 </button>
@@ -1290,7 +1290,7 @@ export default function SuperAdminConsole({ user, onTabChange }: SuperAdminConso
                   placeholder="e.g. TRAFFIC_EDITOR"
                   value={roleForm.role_name}
                   onChange={(e) => setRoleForm({ ...roleForm, role_name: e.target.value.toUpperCase().replace(" ", "_") })}
-                  className="w-full border border-slate-200 dark:border-stone-850 rounded-xl p-2.5 outline-none focus:border-[#2e3192] bg-white dark:bg-stone-950 text-stone-900 dark:text-white"
+                  className="w-full border border-slate-200 dark:border-stone-850 rounded-xl p-2.5 outline-none focus:border-[#1e40af] bg-white dark:bg-stone-950 text-stone-900 dark:text-white"
                 />
               </div>
 
@@ -1353,7 +1353,7 @@ export default function SuperAdminConsole({ user, onTabChange }: SuperAdminConso
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-[#2e3192] text-white rounded-xl uppercase font-black text-[10px]"
+                  className="px-4 py-2 bg-[#1e40af] text-white rounded-xl uppercase font-black text-[10px]"
                 >
                   Save Custom Role
                 </button>

@@ -240,7 +240,7 @@ export default function VideosPageClient({
                           fill
                           className="object-cover"
                           unoptimized
-                        />
+                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
                         <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
                           <div className="p-1.5 rounded-full bg-white/20 text-white shadow backdrop-blur-sm">
                             <Play className="w-3 h-3 fill-current" />

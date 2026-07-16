@@ -117,6 +117,69 @@ const CATEGORY_MAP: Record<string, { title_en: string; title_ta: string; color: 
     bgImage: "/images/public_safety_banner_bg.png",
     bgGradient: "linear-gradient(90deg, #1e1b4b 0%, rgba(30, 27, 75, 0.95) 30%, rgba(30, 27, 75, 0.5) 65%, rgba(30, 27, 75, 0) 100%)",
     bgPosition: "center 50%"
+  },
+  "wanted-criminals": {
+    title_en: "Wanted Criminals",
+    title_ta: "தேடப்படும் குற்றவாளிகள்",
+    color: "#7c3aed",
+    keywords: ["wanted", "criminals", "suspect", "absconding", "reward"],
+    bgImage: "/images/crime_banner_bg.png",
+    bgGradient: "linear-gradient(90deg, #1e0b36 0%, rgba(30, 11, 54, 0.95) 30%, rgba(30, 11, 54, 0.5) 65%, rgba(30, 11, 54, 0) 100%)",
+    bgPosition: "center 45%"
+  },
+  "missing-persons": {
+    title_en: "Missing Persons",
+    title_ta: "காணாமல் போனவர்கள்",
+    color: "#059669",
+    keywords: ["missing", "tracing", "reunite", "reunited", "lost", "kidnap", "child rescue"],
+    bgImage: "/images/reunion_gujarat.png",
+    bgGradient: "linear-gradient(90deg, #062f22 0%, rgba(6, 47, 34, 0.95) 30%, rgba(6, 47, 34, 0.5) 65%, rgba(6, 47, 34, 0) 100%)",
+    bgPosition: "center center"
+  },
+  "cyber-awareness": {
+    title_en: "Cyber Awareness",
+    title_ta: "இணைய விழிப்புணர்வு",
+    color: "#0284c7",
+    keywords: ["awareness", "safety tips", "cyber tips", "security guidelines", "vishing", "smishing"],
+    bgImage: "/images/cyber_safety_banner_bg.png",
+    bgGradient: "linear-gradient(90deg, #091e3a 0%, rgba(9, 30, 58, 0.95) 30%, rgba(9, 30, 58, 0.5) 65%, rgba(9, 30, 58, 0) 100%)",
+    bgPosition: "center center"
+  },
+  "online-fraud": {
+    title_en: "Online Fraud",
+    title_ta: "ஆன்லைன் மோசடி",
+    color: "#ef4444",
+    keywords: ["fraud", "scam", "financial loss", "impersonation", "lottery", "crypto scam", "part-time job scam"],
+    bgImage: "/images/cyber_safety_banner_bg.png",
+    bgGradient: "linear-gradient(90deg, #3f0909 0%, rgba(63, 9, 9, 0.95) 30%, rgba(63, 9, 9, 0.5) 65%, rgba(63, 9, 9, 0) 100%)",
+    bgPosition: "center center"
+  },
+  "pink-patrol": {
+    title_en: "Pink Patrol",
+    title_ta: "பிங்க் பேட்ரோல்",
+    color: "#db2777",
+    keywords: ["pink patrol", "women safety", "patrol vehicle", "emergency response", "distress call"],
+    bgImage: "/images/pink_patrol.png",
+    bgGradient: "linear-gradient(90deg, #2d0b25 0%, rgba(45, 11, 37, 0.95) 30%, rgba(45, 11, 37, 0.5) 65%, rgba(45, 11, 37, 0) 100%)",
+    bgPosition: "center center"
+  },
+  "aval-support": {
+    title_en: "AVAL Support",
+    title_ta: "அவள் ஆதரவு",
+    color: "#db2777",
+    keywords: ["aval", "support wing", "counseling", "rehabilitation", "domestic violence", "family dispute"],
+    bgImage: "/images/aval.png",
+    bgGradient: "linear-gradient(90deg, #2d0b25 0%, rgba(45, 11, 37, 0.95) 30%, rgba(45, 11, 37, 0.5) 65%, rgba(45, 11, 37, 0) 100%)",
+    bgPosition: "center 30%"
+  },
+  "women-helpline": {
+    title_en: "Women Helpline",
+    title_ta: "பெண்கள் உதவி எண்",
+    color: "#db2777",
+    keywords: ["helpline", "women toll-free", "181", "1091", "emergency assist"],
+    bgImage: "/images/singappen.png",
+    bgGradient: "linear-gradient(90deg, #2d0b25 0%, rgba(45, 11, 37, 0.95) 30%, rgba(45, 11, 37, 0.5) 65%, rgba(45, 11, 37, 0) 100%)",
+    bgPosition: "center 20%"
   }
 };
 
@@ -163,15 +226,32 @@ export default function CategoryPageClient({
       const catEn = (n.category_en || "").toLowerCase();
       const titleEn = (n.title_en || "").toLowerCase();
       
-      const exactMatch = (id === "crime" && (catEn === "crime" || catEn === "crime prevention")) ||
+      const normalizedId = id.toLowerCase().replace(/-/g, " ");
+      const normalizedCat = catEn.toLowerCase().replace(/-/g, " ");
+      const idMatch = normalizedId === normalizedCat;
+
+      const exactMatch = idMatch ||
+                         (id === "crime" && (catEn === "crime" || catEn === "crime prevention")) ||
                          (id === "cyber-safety" && catEn === "cyber safety") ||
                          (id === "women-safety" && (catEn === "women safety" || catEn === "women's safety")) ||
                          (id === "public-safety" && catEn === "public safety") ||
-                         (id === "traffic" && (catEn === "traffic" || catEn === "traffic news" || catEn === "traffic advisory")) ||
-                         (id === "outreach" && (catEn === "outreach" || catEn === "community outreach"));
+                         (id === "traffic" && (catEn === "traffic" || catEn === "traffic news" || catEn === "traffic advisory" || catEn === "traffic updates")) ||
+                         (id === "outreach" && (catEn === "outreach" || catEn === "community outreach")) ||
+                         (id === "government" && (catEn === "government updates" || catEn === "government" || catEn === "government update")) ||
+                         (id === "awards" && (catEn === "awards & recognition" || catEn === "awards" || catEn === "recognition")) ||
+                         (id === "administration" && (catEn === "police administration" || catEn === "administration")) ||
+                         (id === "trending" && (catEn === "trending news" || catEn === "trending" || catEn === "tranding news")) ||
+                         (id === "general" && (catEn === "general news" || catEn === "general")) ||
+                         (id === "wanted-criminals" && catEn === "wanted criminals") ||
+                         (id === "missing-persons" && catEn === "missing persons") ||
+                         (id === "cyber-awareness" && (catEn === "cyber awareness" || catEn === "cyber awereness")) ||
+                         (id === "online-fraud" && catEn === "online fraud") ||
+                         (id === "complaint-portal" && catEn === "complaint portal") ||
+                         (id === "pink-patrol" && (catEn === "pink patrol" || catEn === "pink patrol (women safety)")) ||
+                         (id === "aval-support" && (catEn === "aval support wing" || catEn === "aval support")) ||
+                         (id === "women-helpline" && catEn === "women helpline");
       
-      if (exactMatch) return true;
-      return catInfo.keywords.some(k => catEn.includes(k) || titleEn.includes(k));
+      return exactMatch;
     })
     .sort((a, b) => {
       const da = a.created_at || a.date || "";
@@ -252,7 +332,7 @@ export default function CategoryPageClient({
                         alt={title}
                         fill
                         className="object-cover object-center group-hover:scale-[1.03] transition-transform duration-500"
-                        onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/images/police_medal.jpg"; }}
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/images/police_medal.jpg"; }}
                       />
                       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
                     </div>
@@ -275,11 +355,7 @@ export default function CategoryPageClient({
                         <span className="flex items-center gap-1">
                           <Clock className="w-3 h-3 text-stone-400" /> {timeAgo(n.created_at || n.date, language)}
                         </span>
-                        {n.views_count != null && (
-                          <span className="flex items-center gap-0.5">
-                            <Eye className="w-3 h-3 text-stone-400" /> {n.views_count.toLocaleString()}
-                          </span>
-                        )}
+
                         <span className="flex items-center gap-0.5 text-brand-maroon dark:text-brand-gold group-hover:gap-1.5 transition-all text-[8px] font-black tracking-widest uppercase">
                           {language === "ta" ? "மேலும் படிக்க" : "Read More"} <ChevronRight className="w-2.5 h-2.5" />
                         </span>

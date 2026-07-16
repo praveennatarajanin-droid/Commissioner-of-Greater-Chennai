@@ -28,7 +28,7 @@ export default function SpecialUnitDetailClient({ unit }: SpecialUnitDetailClien
           fill
           priority
           className="object-cover opacity-45 blur-sm scale-105"
-        />
+         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
         <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-900/60 to-transparent" />
         
         {/* Content Overlay */}
@@ -110,7 +110,7 @@ export default function SpecialUnitDetailClient({ unit }: SpecialUnitDetailClien
                   alt={unit.name_en}
                   fill
                   className="object-cover"
-                />
+                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
               </div>
             </div>
 

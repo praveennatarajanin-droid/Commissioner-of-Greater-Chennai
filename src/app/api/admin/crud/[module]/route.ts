@@ -120,18 +120,25 @@ export async function POST(req: Request, { params }: { params: Promise<{ module:
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  if (module === "config") {
-    if (!(await hasPermission(auth.username, auth.role, "footer", "edit")) && !(await hasPermission(auth.username, auth.role, "settings", "edit"))) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
-  } else {
-    if (!(await hasPermission(auth.username, auth.role, module, "create"))) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
-  }
-
   try {
     const data = await req.json();
+
+    if (module === "config") {
+      const { key } = data;
+      if (key === "footer_config") {
+        if (!(await hasPermission(auth.username, auth.role, "footer", "edit"))) {
+          return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+        }
+      } else {
+        if (!(await hasPermission(auth.username, auth.role, "settings", "edit"))) {
+          return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+        }
+      }
+    } else {
+      if (!(await hasPermission(auth.username, auth.role, module, "create"))) {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      }
+    }
     
     switch (module) {
       case "config": {
@@ -311,18 +318,25 @@ export async function PUT(req: Request, { params }: { params: Promise<{ module: 
   const auth = await checkAuth();
   if (!auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  if (module === "config") {
-    if (!(await hasPermission(auth.username, auth.role, "footer", "edit")) && !(await hasPermission(auth.username, auth.role, "settings", "edit"))) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
-  } else {
-    if (!(await hasPermission(auth.username, auth.role, module, "edit"))) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
-  }
-
   try {
     const data = await req.json();
+
+    if (module === "config") {
+      const { key } = data;
+      if (key === "footer_config") {
+        if (!(await hasPermission(auth.username, auth.role, "footer", "edit"))) {
+          return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+        }
+      } else {
+        if (!(await hasPermission(auth.username, auth.role, "settings", "edit"))) {
+          return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+        }
+      }
+    } else {
+      if (!(await hasPermission(auth.username, auth.role, module, "edit"))) {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      }
+    }
 
     switch (module) {
       case "config": {

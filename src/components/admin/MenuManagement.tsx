@@ -212,8 +212,21 @@ function CMSPageEditor({
                          (s === "cyber-safety" && catEn === "cyber safety") ||
                          (s === "women-safety" && (catEn === "women safety" || catEn === "women's safety")) ||
                          (s === "public-safety" && catEn === "public safety") ||
-                         (s === "traffic" && (catEn === "traffic" || catEn === "traffic news" || catEn === "traffic advisory")) ||
-                         (s === "outreach" && (catEn === "outreach" || catEn === "community outreach"));
+                         (s === "traffic" && (catEn === "traffic" || catEn === "traffic news" || catEn === "traffic advisory" || catEn === "traffic updates")) ||
+                         (s === "outreach" && (catEn === "outreach" || catEn === "community outreach")) ||
+                         (s === "government" && (catEn === "government updates" || catEn === "government" || catEn === "government update")) ||
+                         (s === "awards" && (catEn === "awards & recognition" || catEn === "awards" || catEn === "recognition")) ||
+                         (s === "administration" && (catEn === "police administration" || catEn === "administration")) ||
+                         (s === "trending" && (catEn === "trending news" || catEn === "trending" || catEn === "tranding news")) ||
+                         (s === "general" && (catEn === "general news" || catEn === "general")) ||
+                         (s === "wanted-criminals" && catEn === "wanted criminals") ||
+                         (s === "missing-persons" && catEn === "missing persons") ||
+                         (s === "cyber-awareness" && (catEn === "cyber awareness" || catEn === "cyber awereness")) ||
+                         (s === "online-fraud" && catEn === "online fraud") ||
+                         (s === "complaint-portal" && catEn === "complaint portal") ||
+                         (s === "pink-patrol" && (catEn === "pink patrol" || catEn === "pink patrol (women safety)")) ||
+                         (s === "aval-support" && (catEn === "aval support wing" || catEn === "aval support")) ||
+                         (s === "women-helpline" && catEn === "women helpline");
       
       if (exactMatch) return true;
       return keywords.some(k => catEn.includes(k) || titleEn.includes(k));
@@ -534,7 +547,7 @@ function CMSPageEditor({
   };
 
   // ── Button style helpers ──
-  const btnPrimary   = "px-4 py-2 bg-[#2e3192] hover:bg-[#1e2060] active:bg-[#14175e] !text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition shadow-sm cursor-pointer flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed";
+  const btnPrimary   = "px-4 py-2 bg-[#1e40af] hover:bg-[#1e3a8a] active:bg-[#14175e] !text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition shadow-sm cursor-pointer flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed";
   const btnDanger    = "px-4 py-2 bg-[#ed1b24] hover:bg-[#c0161e] active:bg-[#a01219] !text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition shadow-sm cursor-pointer flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed";
   const btnSuccess   = "px-4 py-2 bg-[#10b981] hover:bg-[#059669] active:bg-[#047857] !text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition shadow-sm cursor-pointer flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed";
   const btnSecondary = "px-4 py-2 bg-[#f3f4f6] hover:bg-[#e5e7eb] active:bg-[#d1d5db] text-[#374151] border border-[#e5e7eb] rounded-xl text-[10px] font-black uppercase tracking-wider transition cursor-pointer flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed";
@@ -607,7 +620,7 @@ function CMSPageEditor({
             <div>
               <h2 className="text-sm font-black uppercase tracking-widest text-slate-800 flex items-center gap-1.5">
                 <span>CMS Editor:</span>
-                <span className="text-[#2e3192]">{menu.name_en}</span>
+                <span className="text-[#1e40af]">{menu.name_en}</span>
               </h2>
               <p className="text-[10px] font-bold text-amber-600 uppercase tracking-wider">
                 Type: {menu.page_type} • URL: {menu.url}
@@ -652,7 +665,7 @@ function CMSPageEditor({
                 }}
                 className={`flex-1 py-3 text-center text-[10px] font-black uppercase tracking-wider transition ${
                   editorTab === "sections"
-                    ? "bg-white border-b-2 border-[#2e3192] text-[#2e3192]"
+                    ? "bg-white border-b-2 border-[#1e40af] text-[#1e40af]"
                     : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
                 }`}
               >
@@ -667,7 +680,7 @@ function CMSPageEditor({
                 }}
                 className={`flex-1 py-3 text-center text-[10px] font-black uppercase tracking-wider transition ${
                   editorTab === "news"
-                    ? "bg-white border-b-2 border-[#2e3192] text-[#2e3192]"
+                    ? "bg-white border-b-2 border-[#1e40af] text-[#1e40af]"
                     : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
                 }`}
               >
@@ -696,7 +709,7 @@ function CMSPageEditor({
                       <button
                         key={type}
                         onClick={() => addBlock(type as any)}
-                        className="w-full text-left px-3 py-2.5 text-[10px] font-bold text-slate-700 hover:bg-[#2e3192] hover:text-white uppercase tracking-wider transition"
+                        className="w-full text-left px-3 py-2.5 text-[10px] font-bold text-slate-700 hover:bg-[#1e40af] hover:text-white uppercase tracking-wider transition"
                       >
                         {type.replace("_", " ")}
                       </button>
@@ -739,7 +752,7 @@ function CMSPageEditor({
                   <div
                     key={art.id}
                     onClick={() => setSelectedArticle(art)}
-                    className={`p-3.5 hover:bg-slate-50 transition cursor-pointer flex gap-3.5 relative ${isSelected ? "bg-blue-50/60 border-l-4 border-[#2e3192]" : ""}`}
+                    className={`p-3.5 hover:bg-slate-50 transition cursor-pointer flex gap-3.5 relative ${isSelected ? "bg-blue-50/60 border-l-4 border-[#1e40af]" : ""}`}
                   >
                     <img
                       src={art.image || "/images/public_safety_banner_bg.png"}
@@ -761,7 +774,7 @@ function CMSPageEditor({
                               const updated = { ...art, image: url };
                               fetch("/api/admin/crud/news", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(updated) }).then(() => fetchNewsArticles());
                             }); }}
-                            className={`${btnIcon} bg-slate-100 hover:bg-blue-100 text-slate-600 hover:text-[#2e3192]`}
+                            className={`${btnIcon} bg-slate-100 hover:bg-blue-100 text-slate-600 hover:text-[#1e40af]`}
                             title="Change Image"
                           >
                             <ImageIcon className="w-3.5 h-3.5" />
@@ -794,12 +807,12 @@ function CMSPageEditor({
                   <div
                     key={idx}
                     onClick={() => setEditingBlockIndex(idx)}
-                    className={`p-3.5 hover:bg-slate-50 transition cursor-pointer flex gap-3.5 relative ${isSelected ? "bg-blue-50/60 border-l-4 border-[#2e3192]" : ""}`}
+                    className={`p-3.5 hover:bg-slate-50 transition cursor-pointer flex gap-3.5 relative ${isSelected ? "bg-blue-50/60 border-l-4 border-[#1e40af]" : ""}`}
                   >
                     {secImg ? (
                       <img src={secImg} className="w-14 h-14 object-cover rounded-lg border shrink-0 bg-slate-100" />
                     ) : (
-                      <div className="w-14 h-14 rounded-lg bg-[#2e3192]/10 border border-[#2e3192]/20 flex items-center justify-center text-[#2e3192] shrink-0 uppercase font-black text-[9px] tracking-wider">
+                      <div className="w-14 h-14 rounded-lg bg-[#1e40af]/10 border border-[#1e40af]/20 flex items-center justify-center text-[#1e40af] shrink-0 uppercase font-black text-[9px] tracking-wider">
                         {sec.section_type.slice(0, 3)}
                       </div>
                     )}
@@ -833,7 +846,7 @@ function CMSPageEditor({
                               else updated[idx].content_json.image_url = url;
                               saveSectionsList(updated);
                             }); }}
-                            className={`${btnIcon} bg-blue-50 hover:bg-blue-100 text-[#2e3192]`}
+                            className={`${btnIcon} bg-blue-50 hover:bg-blue-100 text-[#1e40af]`}
                             title="Replace Image"
                           ><ImageIcon className="w-3.5 h-3.5" /></button>
                           <button
@@ -863,19 +876,19 @@ function CMSPageEditor({
                 <div className="space-y-1">
                   <label>SEO Page Title</label>
                   <input type="text" value={pageContent.seo_title || ""} onChange={(e) => setPageContent({ ...pageContent, seo_title: e.target.value })}
-                    className="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:border-[#2e3192] focus:ring-2 focus:ring-[#2e3192]/10"
+                    className="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:border-[#1e40af] focus:ring-2 focus:ring-[#1e40af]/10"
                     placeholder="e.g. Chennai Traffic Updates | Chennai Guardian" />
                 </div>
                 <div className="space-y-1">
                   <label>Meta Description</label>
                   <textarea value={pageContent.seo_description || ""} onChange={(e) => setPageContent({ ...pageContent, seo_description: e.target.value })}
-                    rows={4} className="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:border-[#2e3192] focus:ring-2 focus:ring-[#2e3192]/10"
+                    rows={4} className="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:border-[#1e40af] focus:ring-2 focus:ring-[#1e40af]/10"
                     placeholder="Provide a concise 150-character page description..." />
                 </div>
                 <div className="space-y-1">
                   <label>Keywords</label>
                   <input type="text" value={pageContent.seo_keywords || ""} onChange={(e) => setPageContent({ ...pageContent, seo_keywords: e.target.value })}
-                    className="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:border-[#2e3192] focus:ring-2 focus:ring-[#2e3192]/10"
+                    className="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:border-[#1e40af] focus:ring-2 focus:ring-[#1e40af]/10"
                     placeholder="e.g. traffic alerts, road closures, Chennai police" />
                 </div>
                 <div className="pt-2 flex justify-end gap-2">
@@ -928,7 +941,7 @@ function CMSPageEditor({
                     type="date"
                     value={localArticle.date ? (() => { try { return new Date(localArticle.date).toISOString().split("T")[0]; } catch { return ""; } })() : ""}
                     onChange={(e) => { if (e.target.value) { const parsed = new Date(e.target.value).toLocaleDateString("en-US", { month: "long", day: "2-digit", year: "numeric" }); setLocalArticle({ ...localArticle, date: parsed }); } }}
-                    className="border border-slate-200 rounded-lg p-1.5 text-[10px] font-bold outline-none focus:border-[#2e3192]"
+                    className="border border-slate-200 rounded-lg p-1.5 text-[10px] font-bold outline-none focus:border-[#1e40af]"
                   />
                 </div>
               </div>
@@ -936,26 +949,66 @@ function CMSPageEditor({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-1"><label>Title (English)</label>
                     <input type="text" value={localArticle.title_en || ""} onChange={(e) => setLocalArticle({ ...localArticle, title_en: e.target.value })}
-                      className="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:border-[#2e3192] focus:ring-2 focus:ring-[#2e3192]/10" /></div>
+                      className="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:border-[#1e40af] focus:ring-2 focus:ring-[#1e40af]/10" /></div>
                   <div className="space-y-1"><label>Title (Tamil)</label>
                     <input type="text" value={localArticle.title_ta || ""} onChange={(e) => setLocalArticle({ ...localArticle, title_ta: e.target.value })}
-                      className="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:border-[#2e3192] focus:ring-2 focus:ring-[#2e3192]/10" /></div>
+                      className="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:border-[#1e40af] focus:ring-2 focus:ring-[#1e40af]/10" /></div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-1"><label>Summary (English)</label>
                     <textarea value={localArticle.summary_en || ""} onChange={(e) => setLocalArticle({ ...localArticle, summary_en: e.target.value })} rows={2}
-                      className="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:border-[#2e3192] focus:ring-2 focus:ring-[#2e3192]/10" /></div>
+                      className="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:border-[#1e40af] focus:ring-2 focus:ring-[#1e40af]/10" /></div>
                   <div className="space-y-1"><label>Summary (Tamil)</label>
                     <textarea value={localArticle.summary_ta || ""} onChange={(e) => setLocalArticle({ ...localArticle, summary_ta: e.target.value })} rows={2}
-                      className="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:border-[#2e3192] focus:ring-2 focus:ring-[#2e3192]/10" /></div>
+                      className="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:border-[#1e40af] focus:ring-2 focus:ring-[#1e40af]/10" /></div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-1"><label>Category (English)</label>
-                    <input type="text" value={localArticle.category_en || ""} onChange={(e) => setLocalArticle({ ...localArticle, category_en: e.target.value })}
-                      className="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:border-[#2e3192] focus:ring-2 focus:ring-[#2e3192]/10" /></div>
-                  <div className="space-y-1"><label>Category (Tamil)</label>
-                    <input type="text" value={localArticle.category_ta || ""} onChange={(e) => setLocalArticle({ ...localArticle, category_ta: e.target.value })}
-                      className="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:border-[#2e3192] focus:ring-2 focus:ring-[#2e3192]/10" /></div>
+                  <div className="space-y-1">
+                    <label>Category (English)</label>
+                    <select
+                      value={localArticle.category_en || "GENERAL NEWS"}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        const defaults = [
+                          { en: "AWARDS & RECOGNITION", ta: "விருதுகள் & அங்கீகாரம்" },
+                          { en: "POLICE ADMINISTRATION", ta: "காவல் நிர்வாகம்" },
+                          { en: "GOVERNMENT UPDATE", ta: "அரசு அறிவிப்புகள்" },
+                          { en: "TRENDING NEWS", ta: "பிரபலமான செய்திகள்" },
+                          { en: "GENERAL NEWS", ta: "பொதுச் செய்திகள்" },
+                          { en: "TRAFFIC NEWS", ta: "போக்குவரத்து தகவல்கள்" },
+                          { en: "CRIME", ta: "குற்றம்" },
+                          { en: "CYBER SAFETY", ta: "இணைய பாதுகாப்பு" },
+                          { en: "WOMEN SAFETY", ta: "பெண்கள் பாதுகாப்பு" },
+                          { en: "PUBLIC SAFETY", ta: "பொது பாதுகாப்பு" },
+                          { en: "COMMUNITY OUTREACH", ta: "சமூக அவுட்ரீச்" }
+                        ];
+                        const found = defaults.find(d => d.en === val) || { en: "GENERAL NEWS", ta: "பொதுச் செய்திகள்" };
+                        setLocalArticle({ ...localArticle, category_en: found.en, category_ta: found.ta });
+                      }}
+                      className="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:border-[#1e40af] focus:ring-2 focus:ring-[#1e40af]/10 bg-white cursor-pointer"
+                    >
+                      <option value="AWARDS & RECOGNITION">AWARDS & RECOGNITION</option>
+                      <option value="POLICE ADMINISTRATION">POLICE ADMINISTRATION</option>
+                      <option value="GOVERNMENT UPDATE">GOVERNMENT UPDATE</option>
+                      <option value="TRENDING NEWS">TRENDING NEWS</option>
+                      <option value="GENERAL NEWS">GENERAL NEWS</option>
+                      <option value="TRAFFIC NEWS">TRAFFIC NEWS</option>
+                      <option value="CRIME">CRIME</option>
+                      <option value="CYBER SAFETY">CYBER SAFETY</option>
+                      <option value="WOMEN SAFETY">WOMEN SAFETY</option>
+                      <option value="PUBLIC SAFETY">PUBLIC SAFETY</option>
+                      <option value="COMMUNITY OUTREACH">COMMUNITY OUTREACH</option>
+                    </select>
+                  </div>
+                  <div className="space-y-1">
+                    <label>Category (Tamil - Auto Sync)</label>
+                    <input
+                      type="text"
+                      disabled
+                      value={localArticle.category_ta || "பொதுச் செய்திகள்"}
+                      className="w-full border border-slate-200 bg-slate-50 text-slate-500 rounded-xl p-2.5 outline-none cursor-not-allowed"
+                    />
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <label>Thumbnail Image</label>
@@ -993,17 +1046,17 @@ function CMSPageEditor({
               <div className="space-y-4 text-xs font-bold text-slate-600">
                 <div className="space-y-1"><label>Section Title</label>
                   <input type="text" value={localBlock.section_title || ""} onChange={(e) => setLocalBlock({ ...localBlock, section_title: e.target.value })}
-                    className="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:border-[#2e3192] focus:ring-2 focus:ring-[#2e3192]/10" /></div>
+                    className="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:border-[#1e40af] focus:ring-2 focus:ring-[#1e40af]/10" /></div>
 
                 {localBlock.section_type === "banner" && (
                   <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-1"><label>Title EN</label><input type="text" value={localBlock.content_json.title_en||""} onChange={(e)=>setLocalBlock({...localBlock,content_json:{...localBlock.content_json,title_en:e.target.value}})} className="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:border-[#2e3192]"/></div>
-                      <div className="space-y-1"><label>Title TA</label><input type="text" value={localBlock.content_json.title_ta||""} onChange={(e)=>setLocalBlock({...localBlock,content_json:{...localBlock.content_json,title_ta:e.target.value}})} className="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:border-[#2e3192]"/></div>
+                      <div className="space-y-1"><label>Title EN</label><input type="text" value={localBlock.content_json.title_en||""} onChange={(e)=>setLocalBlock({...localBlock,content_json:{...localBlock.content_json,title_en:e.target.value}})} className="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:border-[#1e40af]"/></div>
+                      <div className="space-y-1"><label>Title TA</label><input type="text" value={localBlock.content_json.title_ta||""} onChange={(e)=>setLocalBlock({...localBlock,content_json:{...localBlock.content_json,title_ta:e.target.value}})} className="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:border-[#1e40af]"/></div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-1"><label>Subtitle EN</label><input type="text" value={localBlock.content_json.subtitle_en||""} onChange={(e)=>setLocalBlock({...localBlock,content_json:{...localBlock.content_json,subtitle_en:e.target.value}})} className="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:border-[#2e3192]"/></div>
-                      <div className="space-y-1"><label>Subtitle TA</label><input type="text" value={localBlock.content_json.subtitle_ta||""} onChange={(e)=>setLocalBlock({...localBlock,content_json:{...localBlock.content_json,subtitle_ta:e.target.value}})} className="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:border-[#2e3192]"/></div>
+                      <div className="space-y-1"><label>Subtitle EN</label><input type="text" value={localBlock.content_json.subtitle_en||""} onChange={(e)=>setLocalBlock({...localBlock,content_json:{...localBlock.content_json,subtitle_en:e.target.value}})} className="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:border-[#1e40af]"/></div>
+                      <div className="space-y-1"><label>Subtitle TA</label><input type="text" value={localBlock.content_json.subtitle_ta||""} onChange={(e)=>setLocalBlock({...localBlock,content_json:{...localBlock.content_json,subtitle_ta:e.target.value}})} className="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:border-[#1e40af]"/></div>
                     </div>
                     <div className="space-y-2"><label>Background Image</label>
                       <div className="flex items-center gap-4">
@@ -1018,8 +1071,8 @@ function CMSPageEditor({
 
                 {localBlock.section_type === "heading" && (
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1"><label>Heading EN</label><input type="text" value={localBlock.content_json.heading_en||""} onChange={(e)=>setLocalBlock({...localBlock,content_json:{...localBlock.content_json,heading_en:e.target.value}})} className="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:border-[#2e3192]"/></div>
-                    <div className="space-y-1"><label>Heading TA</label><input type="text" value={localBlock.content_json.heading_ta||""} onChange={(e)=>setLocalBlock({...localBlock,content_json:{...localBlock.content_json,heading_ta:e.target.value}})} className="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:border-[#2e3192]"/></div>
+                    <div className="space-y-1"><label>Heading EN</label><input type="text" value={localBlock.content_json.heading_en||""} onChange={(e)=>setLocalBlock({...localBlock,content_json:{...localBlock.content_json,heading_en:e.target.value}})} className="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:border-[#1e40af]"/></div>
+                    <div className="space-y-1"><label>Heading TA</label><input type="text" value={localBlock.content_json.heading_ta||""} onChange={(e)=>setLocalBlock({...localBlock,content_json:{...localBlock.content_json,heading_ta:e.target.value}})} className="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:border-[#1e40af]"/></div>
                   </div>
                 )}
 
@@ -1038,7 +1091,7 @@ function CMSPageEditor({
                         <button type="button" onClick={()=>triggerImageUpload((url)=>setLocalBlock({...localBlock,content_json:{...localBlock.content_json,image_url:url}}))} className={btnSecondary}><ImageIcon className="w-3.5 h-3.5"/> Select Image</button>
                       </div>
                     </div>
-                    <div className="space-y-1"><label>Alt Text</label><input type="text" value={localBlock.content_json.alt_text||""} onChange={(e)=>setLocalBlock({...localBlock,content_json:{...localBlock.content_json,alt_text:e.target.value}})} className="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:border-[#2e3192]"/></div>
+                    <div className="space-y-1"><label>Alt Text</label><input type="text" value={localBlock.content_json.alt_text||""} onChange={(e)=>setLocalBlock({...localBlock,content_json:{...localBlock.content_json,alt_text:e.target.value}})} className="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:border-[#1e40af]"/></div>
                   </div>
                 )}
 
@@ -1055,12 +1108,12 @@ function CMSPageEditor({
                         <div key={cIdx} className="bg-slate-50 border border-slate-200 rounded-2xl p-4 relative space-y-3">
                           <button type="button" onClick={()=>{const upd=localBlock.content_json.cards.filter((_:any,i:number)=>i!==cIdx);setLocalBlock({...localBlock,content_json:{...localBlock.content_json,cards:upd}});}} className={`${btnIcon} absolute top-2 right-2 bg-rose-50 hover:bg-rose-100 text-rose-600`}><X className="w-3.5 h-3.5"/></button>
                           <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-1"><label className="text-[10px] text-slate-500">Title EN</label><input type="text" value={card.title_en||""} onChange={(e)=>{const u=[...localBlock.content_json.cards];u[cIdx].title_en=e.target.value;setLocalBlock({...localBlock,content_json:{...localBlock.content_json,cards:u}});}} className="w-full border border-slate-200 rounded-xl p-2 bg-white outline-none focus:border-[#2e3192]"/></div>
-                            <div className="space-y-1"><label className="text-[10px] text-slate-500">Title TA</label><input type="text" value={card.title_ta||""} onChange={(e)=>{const u=[...localBlock.content_json.cards];u[cIdx].title_ta=e.target.value;setLocalBlock({...localBlock,content_json:{...localBlock.content_json,cards:u}});}} className="w-full border border-slate-200 rounded-xl p-2 bg-white outline-none focus:border-[#2e3192]"/></div>
+                            <div className="space-y-1"><label className="text-[10px] text-slate-500">Title EN</label><input type="text" value={card.title_en||""} onChange={(e)=>{const u=[...localBlock.content_json.cards];u[cIdx].title_en=e.target.value;setLocalBlock({...localBlock,content_json:{...localBlock.content_json,cards:u}});}} className="w-full border border-slate-200 rounded-xl p-2 bg-white outline-none focus:border-[#1e40af]"/></div>
+                            <div className="space-y-1"><label className="text-[10px] text-slate-500">Title TA</label><input type="text" value={card.title_ta||""} onChange={(e)=>{const u=[...localBlock.content_json.cards];u[cIdx].title_ta=e.target.value;setLocalBlock({...localBlock,content_json:{...localBlock.content_json,cards:u}});}} className="w-full border border-slate-200 rounded-xl p-2 bg-white outline-none focus:border-[#1e40af]"/></div>
                           </div>
                           <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-1"><label className="text-[10px] text-slate-500">Desc EN</label><textarea value={card.desc_en||""} onChange={(e)=>{const u=[...localBlock.content_json.cards];u[cIdx].desc_en=e.target.value;setLocalBlock({...localBlock,content_json:{...localBlock.content_json,cards:u}});}} className="w-full border border-slate-200 rounded-xl p-2 bg-white outline-none focus:border-[#2e3192]" rows={2}/></div>
-                            <div className="space-y-1"><label className="text-[10px] text-slate-500">Desc TA</label><textarea value={card.desc_ta||""} onChange={(e)=>{const u=[...localBlock.content_json.cards];u[cIdx].desc_ta=e.target.value;setLocalBlock({...localBlock,content_json:{...localBlock.content_json,cards:u}});}} className="w-full border border-slate-200 rounded-xl p-2 bg-white outline-none focus:border-[#2e3192]" rows={2}/></div>
+                            <div className="space-y-1"><label className="text-[10px] text-slate-500">Desc EN</label><textarea value={card.desc_en||""} onChange={(e)=>{const u=[...localBlock.content_json.cards];u[cIdx].desc_en=e.target.value;setLocalBlock({...localBlock,content_json:{...localBlock.content_json,cards:u}});}} className="w-full border border-slate-200 rounded-xl p-2 bg-white outline-none focus:border-[#1e40af]" rows={2}/></div>
+                            <div className="space-y-1"><label className="text-[10px] text-slate-500">Desc TA</label><textarea value={card.desc_ta||""} onChange={(e)=>{const u=[...localBlock.content_json.cards];u[cIdx].desc_ta=e.target.value;setLocalBlock({...localBlock,content_json:{...localBlock.content_json,cards:u}});}} className="w-full border border-slate-200 rounded-xl p-2 bg-white outline-none focus:border-[#1e40af]" rows={2}/></div>
                           </div>
                         </div>
                       ))}
@@ -2076,7 +2129,7 @@ export default function MenuManagement({
                           <div key={rIdx} className="py-2.5 flex items-center justify-between gap-4">
                             <div>
                               <div className="flex items-center gap-1.5">
-                                <span className="px-1.5 py-0.5 bg-[#2e3192]/10 text-[#2e3192] text-[8px] font-black uppercase rounded">
+                                <span className="px-1.5 py-0.5 bg-[#1e40af]/10 text-[#1e40af] text-[8px] font-black uppercase rounded">
                                   Page: {res.page_name}
                                 </span>
                                 {res.section_title && (
@@ -2141,7 +2194,7 @@ export default function MenuManagement({
                                   </button>
                                 </td>
                                 <td className="p-4">
-                                   <div onClick={() => setSelectedMenuForCms(menu)} className="font-black text-slate-805 cursor-pointer hover:underline hover:text-[#2e3192]">{menu.name_en}</div>
+                                   <div onClick={() => setSelectedMenuForCms(menu)} className="font-black text-slate-805 cursor-pointer hover:underline hover:text-[#1e40af]">{menu.name_en}</div>
                                    <div className="text-[10px] text-slate-400 font-medium mt-0.5">{menu.name_ta}</div>
                                  </td>
                                  <td className="p-4 font-mono font-bold text-slate-500">{menu.slug}</td>
@@ -2426,7 +2479,7 @@ export default function MenuManagement({
                           return (
                             <tr key={sub.id} className="hover:bg-slate-50/50 transition">
                               <td className="p-4">
-                                <div className="flex items-center gap-1.5 font-bold text-[#2e3192] uppercase text-[10px]">
+                                <div className="flex items-center gap-1.5 font-bold text-[#1e40af] uppercase text-[10px]">
                                   <span>{parent ? parent.name_en : "Unknown"}</span>
                                 </div>
                               </td>
@@ -2550,7 +2603,7 @@ export default function MenuManagement({
                         const siblings = submenus.filter((s) => s.parent_menu_id === parent.id);
                         return (
                           <div key={parent.id} className="border border-slate-100 rounded-xl p-3 bg-slate-50/50">
-                            <h4 className="text-[10px] font-black uppercase text-[#2e3192] tracking-wider mb-2">
+                            <h4 className="text-[10px] font-black uppercase text-[#1e40af] tracking-wider mb-2">
                               Parent: {parent.name_en}
                             </h4>
                             <div className="divide-y divide-slate-100 bg-white border border-slate-100 rounded-lg p-2">
@@ -2603,7 +2656,7 @@ export default function MenuManagement({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Main menus visibility list */}
                   <div className="space-y-3">
-                    <h4 className="text-[10px] font-black uppercase text-[#2e3192] tracking-widest border-b pb-2">Main Navigation links</h4>
+                    <h4 className="text-[10px] font-black uppercase text-[#1e40af] tracking-widest border-b pb-2">Main Navigation links</h4>
                     {menus.map((m) => (
                       <div key={m.id} className="flex items-center justify-between p-3 border border-slate-150 rounded-xl hover:border-brand-blue/30 transition">
                         <div>
@@ -2627,7 +2680,7 @@ export default function MenuManagement({
 
                   {/* Submenus visibility list */}
                   <div className="space-y-3">
-                    <h4 className="text-[10px] font-black uppercase text-[#2e3192] tracking-widest border-b pb-2">Sub Menu Items</h4>
+                    <h4 className="text-[10px] font-black uppercase text-[#1e40af] tracking-widest border-b pb-2">Sub Menu Items</h4>
                     {submenus.map((s) => {
                       const parent = menus.find((m) => m.id === s.parent_menu_id);
                       return (
@@ -2637,7 +2690,7 @@ export default function MenuManagement({
                               <CornerDownRight className="w-3.5 h-3.5 text-slate-300" />
                               <span>{s.name_en}</span>
                             </div>
-                            <span className="text-[9px] text-[#2e3192] font-black uppercase ml-5 tracking-wider">
+                            <span className="text-[9px] text-[#1e40af] font-black uppercase ml-5 tracking-wider">
                               Parent: {parent ? parent.name_en : "Unknown"}
                             </span>
                           </div>
@@ -2679,7 +2732,7 @@ export default function MenuManagement({
                             setSelectedPage(e.target.value);
                             setEditingBlockIndex(null);
                           }}
-                          className="border border-slate-200 rounded-xl p-2 text-xs bg-white outline-none focus:border-brand-blue font-black uppercase text-[#2e3192] tracking-wider"
+                          className="border border-slate-200 rounded-xl p-2 text-xs bg-white outline-none focus:border-brand-blue font-black uppercase text-[#1e40af] tracking-wider"
                         >
                           <option value="home">Home Page</option>
                           <option value="about">About Us Page</option>
@@ -2719,7 +2772,7 @@ export default function MenuManagement({
                       <div className="flex gap-2">
                         <button
                           onClick={openHistoryModal}
-                          className="flex items-center gap-1 hover:text-[#2e3192] transition cursor-pointer"
+                          className="flex items-center gap-1 hover:text-[#1e40af] transition cursor-pointer"
                         >
                           <History className="w-3.5 h-3.5" />
                           <span>Version History</span>
@@ -2744,13 +2797,13 @@ export default function MenuManagement({
                             <div
                               key={index}
                               className={`bg-white border rounded-2xl shadow-sm transition-all overflow-hidden ${
-                                isEditing ? "border-[#2e3192] ring-1 ring-[#2e3192]" : "border-slate-200/60"
+                                isEditing ? "border-[#1e40af] ring-1 ring-[#1e40af]" : "border-slate-200/60"
                               }`}
                             >
                               {/* Block Header */}
                               <div className="p-3 bg-slate-50 flex items-center justify-between gap-3 border-b border-slate-105">
                                 <div className="flex items-center gap-2">
-                                  <span className="w-5 h-5 rounded bg-[#2e3192]/10 text-[#2e3192] font-black text-[10px] flex items-center justify-center">
+                                  <span className="w-5 h-5 rounded bg-[#1e40af]/10 text-[#1e40af] font-black text-[10px] flex items-center justify-center">
                                     {index + 1}
                                   </span>
                                   <span className="text-xs font-black uppercase text-slate-700 tracking-wider">
@@ -3202,42 +3255,42 @@ export default function MenuManagement({
                       <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-6 gap-2">
                         <button
                           onClick={() => addBlock("banner")}
-                          className="py-2.5 bg-slate-50 hover:bg-slate-100 text-[#2e3192] border border-slate-200/50 rounded-xl text-[10px] font-black uppercase tracking-wider flex flex-col items-center gap-1.5 transition cursor-pointer"
+                          className="py-2.5 bg-slate-50 hover:bg-slate-100 text-[#1e40af] border border-slate-200/50 rounded-xl text-[10px] font-black uppercase tracking-wider flex flex-col items-center gap-1.5 transition cursor-pointer"
                         >
                           <Layout className="w-4.5 h-4.5 text-brand-gold" />
                           <span>Hero Banner</span>
                         </button>
                         <button
                           onClick={() => addBlock("heading")}
-                          className="py-2.5 bg-slate-50 hover:bg-slate-100 text-[#2e3192] border border-slate-200/50 rounded-xl text-[10px] font-black uppercase tracking-wider flex flex-col items-center gap-1.5 transition cursor-pointer"
+                          className="py-2.5 bg-slate-50 hover:bg-slate-100 text-[#1e40af] border border-slate-200/50 rounded-xl text-[10px] font-black uppercase tracking-wider flex flex-col items-center gap-1.5 transition cursor-pointer"
                         >
                           <Heading className="w-4.5 h-4.5 text-brand-gold" />
                           <span>Heading</span>
                         </button>
                         <button
                           onClick={() => addBlock("description")}
-                          className="py-2.5 bg-slate-50 hover:bg-slate-100 text-[#2e3192] border border-slate-200/50 rounded-xl text-[10px] font-black uppercase tracking-wider flex flex-col items-center gap-1.5 transition cursor-pointer"
+                          className="py-2.5 bg-slate-50 hover:bg-slate-100 text-[#1e40af] border border-slate-200/50 rounded-xl text-[10px] font-black uppercase tracking-wider flex flex-col items-center gap-1.5 transition cursor-pointer"
                         >
                           <AlignLeft className="w-4.5 h-4.5 text-brand-gold" />
                           <span>Description</span>
                         </button>
                         <button
                           onClick={() => addBlock("image")}
-                          className="py-2.5 bg-slate-50 hover:bg-slate-100 text-[#2e3192] border border-slate-200/50 rounded-xl text-[10px] font-black uppercase tracking-wider flex flex-col items-center gap-1.5 transition cursor-pointer"
+                          className="py-2.5 bg-slate-50 hover:bg-slate-100 text-[#1e40af] border border-slate-200/50 rounded-xl text-[10px] font-black uppercase tracking-wider flex flex-col items-center gap-1.5 transition cursor-pointer"
                         >
                           <ImageIcon className="w-4.5 h-4.5 text-brand-gold" />
                           <span>Single Image</span>
                         </button>
                         <button
                           onClick={() => addBlock("cards")}
-                          className="py-2.5 bg-slate-50 hover:bg-slate-100 text-[#2e3192] border border-slate-200/50 rounded-xl text-[10px] font-black uppercase tracking-wider flex flex-col items-center gap-1.5 transition cursor-pointer"
+                          className="py-2.5 bg-slate-50 hover:bg-slate-100 text-[#1e40af] border border-slate-200/50 rounded-xl text-[10px] font-black uppercase tracking-wider flex flex-col items-center gap-1.5 transition cursor-pointer"
                         >
                           <Grid className="w-4.5 h-4.5 text-brand-gold" />
                           <span>Cards Grid</span>
                         </button>
                         <button
                           onClick={() => addBlock("cta_buttons")}
-                          className="py-2.5 bg-slate-50 hover:bg-slate-100 text-[#2e3192] border border-slate-200/50 rounded-xl text-[10px] font-black uppercase tracking-wider flex flex-col items-center gap-1.5 transition cursor-pointer"
+                          className="py-2.5 bg-slate-50 hover:bg-slate-100 text-[#1e40af] border border-slate-200/50 rounded-xl text-[10px] font-black uppercase tracking-wider flex flex-col items-center gap-1.5 transition cursor-pointer"
                         >
                           <ExternalLink className="w-4.5 h-4.5 text-brand-gold" />
                           <span>CTA Buttons</span>
@@ -3303,7 +3356,7 @@ export default function MenuManagement({
                       )}
                       <button
                         onClick={() => setShowPreviewModal(true)}
-                        className="w-full flex items-center justify-center gap-2 py-3 bg-white hover:bg-slate-50 text-[#2e3192] border border-slate-200 rounded-xl text-xs uppercase font-black tracking-widest transition cursor-pointer shadow-sm hover:shadow"
+                        className="w-full flex items-center justify-center gap-2 py-3 bg-white hover:bg-slate-50 text-[#1e40af] border border-slate-200 rounded-xl text-xs uppercase font-black tracking-widest transition cursor-pointer shadow-sm hover:shadow"
                       >
                         <Eye className="w-4 h-4" />
                         Preview Changes
@@ -3334,7 +3387,7 @@ export default function MenuManagement({
             className="w-full max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
           >
             <div className="bg-slate-50 p-4 border-b flex justify-between items-center">
-              <h3 className="font-display font-black text-xs uppercase tracking-widest text-[#2e3192]">
+              <h3 className="font-display font-black text-xs uppercase tracking-widest text-[#1e40af]">
                 {editingMenu.id ? "Edit Main Menu Item" : "Create New Main Menu"}
               </h3>
               <button
@@ -3464,7 +3517,7 @@ export default function MenuManagement({
               </button>
               <button
                 type="submit"
-                className="px-5 py-2 bg-[#2e3192] text-white rounded-xl hover:bg-[#1e2060] uppercase tracking-widest text-[10px] font-black transition cursor-pointer"
+                className="px-5 py-2 bg-[#1e40af] text-white rounded-xl hover:bg-[#1e3a8a] uppercase tracking-widest text-[10px] font-black transition cursor-pointer"
               >
                 {editingMenu.id ? "Update Menu" : "Create Menu"}
               </button>
@@ -3481,7 +3534,7 @@ export default function MenuManagement({
             className="w-full max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
           >
             <div className="bg-slate-50 p-4 border-b flex justify-between items-center">
-              <h3 className="font-display font-black text-xs uppercase tracking-widest text-[#2e3192]">
+              <h3 className="font-display font-black text-xs uppercase tracking-widest text-[#1e40af]">
                 {editingSubmenu.id ? "Edit Submenu Item" : "Create New Submenu"}
               </h3>
               <button
@@ -3600,7 +3653,7 @@ export default function MenuManagement({
               </button>
               <button
                 type="submit"
-                className="px-5 py-2 bg-[#2e3192] text-white rounded-xl hover:bg-[#1e2060] uppercase tracking-widest text-[10px] font-black transition cursor-pointer"
+                className="px-5 py-2 bg-[#1e40af] text-white rounded-xl hover:bg-[#1e3a8a] uppercase tracking-widest text-[10px] font-black transition cursor-pointer"
               >
                 {editingSubmenu.id ? "Update Submenu" : "Create Submenu"}
               </button>
@@ -3658,7 +3711,7 @@ export default function MenuManagement({
         <div className="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-[990] flex items-center justify-center p-4">
           <div className="w-full max-w-4xl bg-white rounded-2xl shadow-2xl flex flex-col max-h-[85vh] overflow-hidden">
             <div className="bg-slate-50 p-4 border-b flex justify-between items-center shrink-0">
-              <h3 className="font-display font-black text-xs uppercase tracking-widest text-[#2e3192]">
+              <h3 className="font-display font-black text-xs uppercase tracking-widest text-[#1e40af]">
                 Version History: {selectedPage.toUpperCase()}
               </h3>
               <button
@@ -3682,7 +3735,7 @@ export default function MenuManagement({
                       onClick={() => compareVersion(ver)}
                       className={`p-3 rounded-xl transition cursor-pointer text-left space-y-1.5 mt-1 border ${
                         comparingVersion?.meta?.id === ver.id
-                          ? "border-[#2e3192] bg-[#2e3192]/5"
+                          ? "border-[#1e40af] bg-[#1e40af]/5"
                           : "border-transparent hover:bg-slate-50"
                       }`}
                     >

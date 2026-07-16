@@ -469,6 +469,34 @@ async function decodeGoogleNewsUrl(sourceUrl: string): Promise<DecodeResult> {
   return decodeUrl(paramsRes.signature || '', paramsRes.timestamp || '', paramsRes.base64Str || '');
 }
 
+async function columnExists(tableName: string, columnName: string): Promise<boolean> {
+  try {
+    const res: any = await query(`
+      SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS 
+      WHERE TABLE_SCHEMA = DATABASE() 
+        AND TABLE_NAME = ? 
+        AND COLUMN_NAME = ?
+    `, [tableName, columnName]);
+    return res && res.length > 0;
+  } catch (e) {
+    return false;
+  }
+}
+
+async function indexExists(tableName: string, indexName: string): Promise<boolean> {
+  try {
+    const res: any = await query(`
+      SELECT 1 FROM INFORMATION_SCHEMA.STATISTICS 
+      WHERE TABLE_SCHEMA = DATABASE() 
+        AND TABLE_NAME = ? 
+        AND INDEX_NAME = ?
+    `, [tableName, indexName]);
+    return res && res.length > 0;
+  } catch (e) {
+    return false;
+  }
+}
+
 class ChennaiGuardianDatabase {
   private dbType: "mysql" = "mysql";
   private cache: Record<string, any> = {};
@@ -516,37 +544,52 @@ class ChennaiGuardianDatabase {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
       `);
 
+      if (!(await columnExists("web_stories", "news_slug"))) {
+        await query("ALTER TABLE `web_stories` ADD COLUMN `news_slug` VARCHAR(255) NULL").catch(() => {});
+      }
+
       // Add missing columns to users table
-      await Promise.all([
-        query("ALTER TABLE \`users\` ADD COLUMN \`locked\` TINYINT DEFAULT 0").catch(() => {}),
-        query("ALTER TABLE \`users\` ADD COLUMN \`failed_logins\` INT DEFAULT 0").catch(() => {}),
-        query("ALTER TABLE \`users\` ADD COLUMN \`password_expiry\` VARCHAR(255) NULL").catch(() => {}),
-        query("ALTER TABLE \`users\` ADD COLUMN \`permissions_json\` LONGTEXT NULL").catch(() => {}),
-        query("ALTER TABLE \`users\` ADD COLUMN \`mobile\` VARCHAR(255) NULL").catch(() => {}),
-        query("ALTER TABLE \`users\` ADD COLUMN \`profile_photo\` LONGTEXT NULL").catch(() => {}),
-        query("ALTER TABLE \`users\` ADD COLUMN \`force_password_change\` TINYINT DEFAULT 0").catch(() => {})
-      ]);
+      if (!(await columnExists("users", "locked"))) {
+        await query("ALTER TABLE `users` ADD COLUMN `locked` TINYINT DEFAULT 0").catch(() => {});
+      }
+      if (!(await columnExists("users", "failed_logins"))) {
+        await query("ALTER TABLE `users` ADD COLUMN `failed_logins` INT DEFAULT 0").catch(() => {});
+      }
+      if (!(await columnExists("users", "password_expiry"))) {
+        await query("ALTER TABLE `users` ADD COLUMN `password_expiry` VARCHAR(255) NULL").catch(() => {});
+      }
+      if (!(await columnExists("users", "permissions_json"))) {
+        await query("ALTER TABLE `users` ADD COLUMN `permissions_json` LONGTEXT NULL").catch(() => {});
+      }
+      if (!(await columnExists("users", "mobile"))) {
+        await query("ALTER TABLE `users` ADD COLUMN `mobile` VARCHAR(255) NULL").catch(() => {});
+      }
+      if (!(await columnExists("users", "profile_photo"))) {
+        await query("ALTER TABLE `users` ADD COLUMN `profile_photo` LONGTEXT NULL").catch(() => {});
+      }
+      if (!(await columnExists("users", "force_password_change"))) {
+        await query("ALTER TABLE `users` ADD COLUMN `force_password_change` TINYINT DEFAULT 0").catch(() => {});
+      }
 
       // Add missing columns to activity_logs table
-      await query(`
-        ALTER TABLE \`activity_logs\`
-        ADD COLUMN IF NOT EXISTS \`role\` VARCHAR(255) NULL,
-        ADD COLUMN IF NOT EXISTS \`ip_address\` VARCHAR(255) NULL,
-        ADD COLUMN IF NOT EXISTS \`module\` VARCHAR(255) NULL
-      `).catch(() => {
-        // Fallback for older MySQL engines that do not support ADD COLUMN IF NOT EXISTS
-        return Promise.all([
-          query("ALTER TABLE \`activity_logs\` ADD COLUMN \`role\` VARCHAR(255) NULL").catch(() => {}),
-          query("ALTER TABLE \`activity_logs\` ADD COLUMN \`ip_address\` VARCHAR(255) NULL").catch(() => {}),
-          query("ALTER TABLE \`activity_logs\` ADD COLUMN \`module\` VARCHAR(255) NULL").catch(() => {})
-        ]);
-      });
-
-      await Promise.all([
-        query("ALTER TABLE \`activity_logs\` ADD COLUMN \`browser\` VARCHAR(255) NULL").catch(() => {}),
-        query("ALTER TABLE \`activity_logs\` ADD COLUMN \`before_val\` LONGTEXT NULL").catch(() => {}),
-        query("ALTER TABLE \`activity_logs\` ADD COLUMN \`after_val\` LONGTEXT NULL").catch(() => {})
-      ]);
+      if (!(await columnExists("activity_logs", "role"))) {
+        await query("ALTER TABLE `activity_logs` ADD COLUMN `role` VARCHAR(255) NULL").catch(() => {});
+      }
+      if (!(await columnExists("activity_logs", "ip_address"))) {
+        await query("ALTER TABLE `activity_logs` ADD COLUMN `ip_address` VARCHAR(255) NULL").catch(() => {});
+      }
+      if (!(await columnExists("activity_logs", "module"))) {
+        await query("ALTER TABLE `activity_logs` ADD COLUMN `module` VARCHAR(255) NULL").catch(() => {});
+      }
+      if (!(await columnExists("activity_logs", "browser"))) {
+        await query("ALTER TABLE `activity_logs` ADD COLUMN `browser` VARCHAR(255) NULL").catch(() => {});
+      }
+      if (!(await columnExists("activity_logs", "before_val"))) {
+        await query("ALTER TABLE `activity_logs` ADD COLUMN `before_val` LONGTEXT NULL").catch(() => {});
+      }
+      if (!(await columnExists("activity_logs", "after_val"))) {
+        await query("ALTER TABLE `activity_logs` ADD COLUMN `after_val` LONGTEXT NULL").catch(() => {});
+      }
 
       // Seed default SUPER_ADMIN and ADMIN users if not already seeded
       const users: any = await query("SELECT * FROM \`users\`");
@@ -590,10 +633,18 @@ class ChennaiGuardianDatabase {
         }
 
         // Add indexes to frequently searched columns
-        await query("ALTER TABLE \`police_stations\` ADD INDEX \`idx_ps_zone\` (\`zone\`)").catch(() => {});
-        await query("ALTER TABLE \`police_stations\` ADD INDEX \`idx_ps_division\` (\`division\`)").catch(() => {});
-        await query("ALTER TABLE \`police_stations\` ADD INDEX \`idx_ps_type\` (\`type\`)").catch(() => {});
-        await query("ALTER TABLE \`news\` ADD INDEX \`idx_news_published\` (\`published\`)").catch(() => {});
+        if (!(await indexExists("police_stations", "idx_ps_zone"))) {
+          await query("ALTER TABLE `police_stations` ADD INDEX `idx_ps_zone` (`zone`)").catch(() => {});
+        }
+        if (!(await indexExists("police_stations", "idx_ps_division"))) {
+          await query("ALTER TABLE `police_stations` ADD INDEX `idx_ps_division` (`division`)").catch(() => {});
+        }
+        if (!(await indexExists("police_stations", "idx_ps_type"))) {
+          await query("ALTER TABLE `police_stations` ADD INDEX `idx_ps_type` (`type`)").catch(() => {});
+        }
+        if (!(await indexExists("news", "idx_news_published"))) {
+          await query("ALTER TABLE `news` ADD INDEX `idx_news_published` (`published`)").catch(() => {});
+        }
 
         // Seed default footer_config if not exists
         const existingConfig: any = await query("SELECT * FROM \`superadmin_config\` WHERE \`config_key\` = 'footer_config'");
@@ -1277,7 +1328,7 @@ class ChennaiGuardianDatabase {
   }
 
   public async getResolvedPermissions(username: string, roleName: string): Promise<Record<string, string[]>> {
-    const r = (roleName || "").toUpperCase().trim().replace(" ", "_");
+    let r = (roleName || "").toUpperCase().trim().replace(" ", "_");
     if (r === "SUPER_ADMIN" || r === "SUPERADMIN") {
       return DEFAULT_ROLE_PERMISSIONS["SUPER_ADMIN"];
     }
@@ -1308,6 +1359,16 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<string, Record<string, string[]>> 
   "SUPER_ADMIN": {
     "*": ["view", "create", "edit", "delete", "publish", "approve", "upload", "download", "export", "import", "settings", "ai_generate", "preview"]
   },
+  "ADMIN": {
+    "dashboard": ["view", "preview"],
+    "news": ["view", "create", "edit", "delete", "publish", "approve", "upload", "preview"],
+    "police-stations": ["view", "create", "edit", "delete", "publish"],
+    "emergency-contacts": ["view", "create", "edit", "delete", "publish"],
+    "department-links": ["view", "create", "edit", "delete", "publish"],
+    "profile": ["view", "edit"],
+    "theme": ["view", "edit"],
+    "settings": ["view", "edit"]
+  },
   "ADMINISTRATOR": {
     "dashboard": ["view", "preview"],
     "menu-management": ["view", "edit", "publish"],
@@ -1322,7 +1383,6 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<string, Record<string, string[]>> 
     "department-links": ["view", "create", "edit", "delete", "publish"],
     "profile": ["view", "edit"],
     "theme": ["view", "edit"],
-    "footer": ["view", "edit"],
     "settings": ["view", "edit"],
     "web-stories": ["view", "create", "edit", "delete", "publish"]
   },

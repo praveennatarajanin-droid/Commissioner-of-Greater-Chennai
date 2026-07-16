@@ -87,18 +87,24 @@ export default function ChiefMinisterPage() {
     setLanguage(lang);
 
     // Fetch layout configs
-    fetch("/api/admin/crud/menu-items").then(res => res.json()).then(data => Array.isArray(data) && setMenuItems(data)).catch(() => {});
-    fetch("/api/ticker").then(res => res.json()).then(data => Array.isArray(data) && setTicker(data)).catch(() => {});
+    fetch("/api/admin/crud/menu-items").then(res => res.ok ? res.json() : null).then(data => Array.isArray(data) && setMenuItems(data)).catch(() => {});
+    fetch("/api/ticker").then(res => res.ok ? res.json() : null).then(data => Array.isArray(data) && setTicker(data)).catch(() => {});
     
     // Load commissioner profile details
     fetch("/api/admin/crud/commissioner")
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        return res.json();
+      })
       .then(data => data && setProfile(data))
       .catch(() => {});
 
     // Fetch news matching Chief Minister keywords
     fetch("/api/admin/crud/news")
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        return res.json();
+      })
       .then(data => {
         if (Array.isArray(data)) {
           const cmArticles = data.filter(n => 
@@ -212,7 +218,7 @@ export default function ChiefMinisterPage() {
                   className="object-cover"
                   style={{ objectFit: "cover", objectPosition: "center 15%", transform: "scale(1.12)", transformOrigin: "center top" }}
                   priority
-                />
+                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
               </div>
             </div>
 
@@ -448,7 +454,7 @@ export default function ChiefMinisterPage() {
                       fill
                       unoptimized
                       className="object-cover"
-                    />
+                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
                     <div className="absolute inset-0 bg-black/35 flex items-center justify-center">
                       <div className="p-3 bg-brand-gold hover:bg-amber-600 text-stone-950 rounded-full shadow-lg transition-transform duration-300 group-hover:scale-110">
                         <Play className="w-5 h-5 fill-current" />
@@ -671,7 +677,7 @@ export default function ChiefMinisterPage() {
               fill
               className="object-contain"
               unoptimized
-            />
+             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
           </div>
         </div>
       )}

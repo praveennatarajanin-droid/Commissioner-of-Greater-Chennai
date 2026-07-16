@@ -167,11 +167,12 @@ async function runMigration() {
         ['Cyber Safety', 'இணைய பாதுகாப்பு', 'cyber-safety', 'Lock', 4, '/category/cyber-safety', 'news_category', 'active', 0],
         ['Women Safety', 'பெண்கள் பாதுகாப்பு', 'women-safety', 'Heart', 5, '/category/women-safety', 'news_category', 'active', 0],
         ['Public Safety', 'பொது பாதுகாப்பு', 'public-safety', 'Eye', 6, '/category/public-safety', 'news_category', 'active', 0],
-        ['Outreach', 'சமூக உதவி', 'outreach', 'Users', 7, '/category/outreach', 'news_category', 'active', 0],
-        ['Stations', 'காவல் நிலையங்கள்', 'stations', 'MapPin', 8, '/stations', 'static', 'active', 0],
-        ['Videos', 'வீடியோக்கள்', 'videos', 'Video', 9, '/videos', 'static', 'active', 0],
-        ['Profile', 'ஆணையர் சுயவிவரம்', 'commissioner-profile', 'User', 10, '/commissioner-profile', 'static', 'active', 0],
-        ['Contact Us', 'தொடர்பு கொள்ளுங்கள்', 'contact-us', 'Phone', 11, '/contact-us', 'static', 'active', 0]
+        ['Traffic', 'போக்குவரத்து', 'traffic', 'Car', 7, '/category/traffic', 'news_category', 'active', 0],
+        ['Outreach', 'சமூக உதவி', 'outreach', 'Users', 8, '/category/outreach', 'news_category', 'active', 0],
+        ['Stations', 'காவல் நிலையங்கள்', 'stations', 'MapPin', 9, '/stations', 'static', 'active', 0],
+        ['Videos', 'வீடியோக்கள்', 'videos', 'Video', 10, '/videos', 'static', 'active', 0],
+        ['Profile', 'ஆணையர் சுயவிவரம்', 'commissioner-profile', 'User', 11, '/commissioner-profile', 'static', 'active', 0],
+        ['Contact Us', 'தொடர்பு கொள்ளுங்கள்', 'contact-us', 'Phone', 12, '/contact-us', 'static', 'active', 0]
       ];
 
       for (const menu of defaultMenus) {
@@ -189,20 +190,20 @@ async function runMigration() {
           );
           await connection.query(
             'INSERT INTO `sub_menus` (parent_menu_id, name_en, name_ta, slug, url, icon, display_order, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-            [menuId, 'Wanted Criminals', 'தேடப்படும் குற்றவாளிகள்', 'wanted-criminals', '/wanted-criminals', 'UserX', 2, 'active']
+            [menuId, 'Wanted Criminals', 'தேடப்படும் குற்றவாளிகள்', 'wanted-criminals', '/category/wanted-criminals', 'UserX', 2, 'active']
           );
           await connection.query(
             'INSERT INTO `sub_menus` (parent_menu_id, name_en, name_ta, slug, url, icon, display_order, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-            [menuId, 'Missing Persons', 'காணாமல் போனவர்கள்', 'missing-persons', '/missing-persons', 'Search', 3, 'active']
+            [menuId, 'Missing Persons', 'காணாமல் போனவர்கள்', 'missing-persons', '/category/missing-persons', 'Search', 3, 'active']
           );
         } else if (menu[2] === 'cyber-safety') {
           await connection.query(
             'INSERT INTO `sub_menus` (parent_menu_id, name_en, name_ta, slug, url, icon, display_order, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-            [menuId, 'Cyber Awareness', 'இணைய விழிப்புணர்வு', 'cyber-awareness', '/cyber-awareness', 'Globe', 1, 'active']
+            [menuId, 'Cyber Awareness', 'இணைய விழிப்புணர்வு', 'cyber-awareness', '/category/cyber-awareness', 'Globe', 1, 'active']
           );
           await connection.query(
             'INSERT INTO `sub_menus` (parent_menu_id, name_en, name_ta, slug, url, icon, display_order, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-            [menuId, 'Online Fraud', 'ஆன்லைன் மோசடி', 'online-fraud', '/online-fraud', 'AlertTriangle', 2, 'active']
+            [menuId, 'Online Fraud', 'ஆன்லைன் மோசடி', 'online-fraud', '/category/online-fraud', 'AlertTriangle', 2, 'active']
           );
           await connection.query(
             'INSERT INTO `sub_menus` (parent_menu_id, name_en, name_ta, slug, url, icon, display_order, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
@@ -211,15 +212,15 @@ async function runMigration() {
         } else if (menu[2] === 'women-safety') {
           await connection.query(
             'INSERT INTO `sub_menus` (parent_menu_id, name_en, name_ta, slug, url, icon, display_order, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-            [menuId, 'Pink Patrol', 'பிங்க் பேட்ரோல்', 'pink-patrol', '/pink-patrol', 'ShieldAlert', 1, 'active']
+            [menuId, 'Pink Patrol', 'பிங்க் பேட்ரோல்', 'pink-patrol', '/category/pink-patrol', 'ShieldAlert', 1, 'active']
           );
           await connection.query(
             'INSERT INTO `sub_menus` (parent_menu_id, name_en, name_ta, slug, url, icon, display_order, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-            [menuId, 'AVAL Support Wing', 'அவள் ஆதரவு பிரிவு', 'aval-support', '/aval-support', 'Smile', 2, 'active']
+            [menuId, 'AVAL Support Wing', 'அவள் ஆதரவு பிரிவு', 'aval-support', '/category/aval-support', 'Smile', 2, 'active']
           );
           await connection.query(
             'INSERT INTO `sub_menus` (parent_menu_id, name_en, name_ta, slug, url, icon, display_order, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-            [menuId, 'Women Helpline', 'பெண்கள் உதவி எண்', 'women-helpline', '/women-helpline', 'PhoneCall', 3, 'active']
+            [menuId, 'Women Helpline', 'பெண்கள் உதவி எண்', 'women-helpline', '/category/women-helpline', 'PhoneCall', 3, 'active']
           );
         }
       }

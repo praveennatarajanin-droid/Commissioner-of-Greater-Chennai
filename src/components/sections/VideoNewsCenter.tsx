@@ -161,7 +161,7 @@ export default function VideoNewsCenter({ customVideos }: VideoNewsCenterProps) 
                       fill
                       unoptimized
                       className="object-cover object-center"
-                    />
+                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
                     {/* Play overlay */}
                     <div className="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-colors flex items-center justify-center">
                       <div
@@ -216,7 +216,7 @@ export default function VideoNewsCenter({ customVideos }: VideoNewsCenterProps) 
                     fill
                     unoptimized
                     className="object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
+                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
                   <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex items-center justify-center">
                     <Play className="w-4 h-4 fill-white text-white opacity-80" />
                   </div>

@@ -126,7 +126,7 @@ export default function TopStoriesGrid({ news, language = "en" }: TopStoriesGrid
                       alt={title}
                       fill
                       className="object-cover object-center group-hover:scale-[1.04] transition-transform duration-500"
-                      onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/images/police_medal.jpg"; }}
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/images/police_medal.jpg"; }}
                     />
 
                     {/* Category badge */}
@@ -182,12 +182,7 @@ export default function TopStoriesGrid({ news, language = "en" }: TopStoriesGrid
                             {item.date}
                           </span>
                         )}
-                        {item.views_count != null && (
-                          <span className="flex items-center gap-1 text-[10px] text-stone-400 font-medium">
-                            <Eye className="w-3 h-3" />
-                            {item.views_count.toLocaleString()}
-                          </span>
-                        )}
+
                       </div>
                       <span
                         className="text-[9px] font-black uppercase tracking-wider group-hover:gap-1.5 transition-all flex items-center gap-1"

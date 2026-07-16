@@ -100,7 +100,7 @@ function OrgChart({ language, imageSrc = "/images/gcp_org_chart.png" }: { langua
               alt="Greater Chennai Police Organizational Chart"
               width={1200}
               height={800}
-              className="w-full h-auto max-h-[75vh] object-contain cursor-zoom-in transition-transform duration-500 hover:scale-[1.01]"
+              className="w-full h-auto cursor-zoom-in transition-transform duration-500 hover:scale-[1.01]"
               onLoad={() => setImageState("success")}
               onError={() => setImageState("error")}
               onClick={() => setIsModalOpen(true)}
@@ -420,7 +420,7 @@ export default function AboutUsClient({ initialTab, customData }: AboutUsClientP
                         alt={officer.name_en} 
                         fill
                         className="object-contain p-2 group-hover:scale-105 transition-transform duration-500"
-                      />
+                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
                       <div className="absolute top-4 left-4 bg-brand-maroon text-white font-mono text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded border border-brand-maroon-dark">
                         {language === "ta" ? officer.period_ta : officer.period_en}
                       </div>
@@ -474,7 +474,7 @@ export default function AboutUsClient({ initialTab, customData }: AboutUsClientP
                         alt={item.name_en} 
                         fill
                         className={`object-cover ${item.id === "singa-pen" ? "object-top" : "object-center"}`}
-                      />
+                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
                     </div>
                     <div>
                       <h4 className="font-display font-black text-sm uppercase text-stone-900 dark:text-white">

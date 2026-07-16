@@ -95,183 +95,419 @@ const htmlToParagraphs = (html: string): string[] => {
 
 // ─── Permanent Light Mode CSS for Admin Dashboard ────────────────────────────
 const ADMIN_LIGHT_CSS = `
-  /* === Permanent White Light Mode for Admin Dashboard === */
+  /* === Premium Light Mode for Admin Dashboard === */
+  #adm-root {
+    --primary-blue: #1e40af;
+    --primary-blue-dark: #1e3a8a;
+    --primary-blue-light: #3b82f6;
+    --primary-blue-hover: #1d4ed8;
+    --accent-gold: #d4af37;
+    --bg-slate: #f8fafc;
+    --card-bg: #ffffff;
+    --text-primary: #1f2937;
+    --text-secondary: #64748b;
+    --border-gray: #e5e7eb;
+    --hover-blue-light: #e8f0fe;
+  }
+
+  /* Set fonts globally inside the admin root */
   #adm-root, #adm-root * {
+    font-family: 'Inter', sans-serif !important;
     scrollbar-color: #cbd5e1 #f1f5f9;
   }
 
-  /* Backgrounds */
+  /* Background overrides */
+  #adm-root {
+    background-color: var(--bg-slate) !important;
+  }
+
   #adm-root .bg-stone-950,
   #adm-root .bg-stone-950\\/40,
-  #adm-root .bg-stone-950\\/20 { background-color: #f8fafc !important; }
+  #adm-root .bg-stone-950\\/20 {
+    background-color: var(--bg-slate) !important;
+  }
 
   #adm-root .bg-stone-900,
   #adm-root .bg-stone-900\\/20,
   #adm-root .bg-stone-900\\/40,
-  #adm-root .bg-stone-900\\/60 { background-color: #ffffff !important; }
+  #adm-root .bg-stone-900\\/60 {
+    background-color: var(--card-bg) !important;
+  }
 
   #adm-root .bg-stone-850,
-  #adm-root .bg-stone-850\\/30 { background-color: #f1f5f9 !important; }
+  #adm-root .bg-stone-850\\/30 {
+    background-color: #f1f5f9 !important;
+  }
 
-  #adm-root .bg-stone-800     { background-color: #e2e8f0 !important; }
-  #adm-root .bg-stone-700     { background-color: #dde6f0 !important; }
+  #adm-root .bg-stone-800 {
+    background-color: #e2e8f0 !important;
+  }
 
-  /* Text */
-  #adm-root .text-white        { color: #1e293b !important; }
-  #adm-root .text-stone-100    { color: #1e293b !important; }
-  #adm-root .text-stone-200    { color: #334155 !important; }
-  #adm-root .text-stone-300    { color: #475569 !important; }
-  #adm-root .text-stone-400    { color: #64748b !important; }
-  #adm-root .text-stone-500    { color: #94a3b8 !important; }
+  #adm-root .bg-stone-700 {
+    background-color: #cbd5e1 !important;
+  }
 
-  /* Borders */
-  #adm-root .border-stone-850  { border-color: rgba(0,0,0,0.09) !important; }
-  #adm-root .border-stone-800  { border-color: rgba(0,0,0,0.10) !important; }
-  #adm-root .border-stone-700  { border-color: rgba(0,0,0,0.12) !important; }
-  #adm-root .divide-stone-850 > * + * { border-color: rgba(0,0,0,0.07) !important; }
+  /* Text colors */
+  #adm-root .text-white,
+  #adm-root .text-stone-100 {
+    color: var(--text-primary) !important;
+  }
 
-  /* Hover states */
-  #adm-root .hover\\:bg-stone-850:hover      { background-color: #e8eef5 !important; }
-  #adm-root .hover\\:bg-stone-700:hover      { background-color: #dde6f0 !important; }
-  #adm-root .hover\\:bg-stone-950\\/40:hover  { background-color: #f0f4f8 !important; }
-  #adm-root .hover\\:bg-stone-950\\/20:hover  { background-color: #f5f8fb !important; }
-  #adm-root .hover\\:text-white:hover        { color: #0f172a   !important; }
+  #adm-root .text-stone-200 {
+    color: #374151 !important;
+  }
 
-  /* Placeholders */
-  #adm-root .placeholder-stone-600::placeholder { color: #94a3b8 !important; }
+  #adm-root .text-stone-300 {
+    color: var(--text-primary) !important;
+  }
 
-  /* Form inputs */
-  #adm-root select,
+  #adm-root .text-stone-400 {
+    color: var(--text-secondary) !important;
+  }
+
+  #adm-root .text-stone-500 {
+    color: #9ca3af !important;
+  }
+
+  /* Borders overrides */
+  #adm-root .border-stone-850,
+  #adm-root .border-stone-800,
+  #adm-root .border-stone-700,
+  #adm-root .border-stone-600 {
+    border-color: var(--border-gray) !important;
+  }
+
+  #adm-root .divide-stone-850 > * + * {
+    border-color: var(--border-gray) !important;
+  }
+
+  /* Brand Blue overrides in CSS (for SuperAdmin, Menu Management, PageEditor, etc.) */
+  #adm-root .bg-brand-blue,
+  #adm-root .bg-\\[\\#1e40af\\],
+  #adm-root .bg-\\[\\#1e40af\\],
+  #adm-root [class*="bg-[#1e40af]"] {
+    background-color: var(--primary-blue) !important;
+    color: #ffffff !important;
+  }
+
+  #adm-root .text-brand-blue-light,
+  #adm-root .text-brand-blue,
+  #adm-root .text-\\[\\#1e40af\\],
+  #adm-root [class*="text-[#1e40af]"] {
+    color: var(--primary-blue) !important;
+  }
+
+  #adm-root [class*="bg-[#1e40af]/10"] {
+    background-color: rgba(30, 64, 175, 0.08) !important;
+    color: var(--primary-blue) !important;
+  }
+
+  #adm-root [class*="bg-[#1e40af]/25"] {
+    background-color: rgba(30, 64, 175, 0.2) !important;
+  }
+
+  #adm-root [class*="border-[#1e40af]"] {
+    border-color: var(--primary-blue) !important;
+  }
+
+  #adm-root [class*="focus:border-[#1e40af]"]:focus {
+    border-color: var(--primary-blue) !important;
+    box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15) !important;
+  }
+
+  /* Brand Gold overrides in CSS */
+  #adm-root .text-brand-gold,
+  #adm-root .text-\\[\\#d4af37\\],
+  #adm-root [class*="text-[#d4af37]"] {
+    color: var(--accent-gold) !important;
+  }
+
+  #adm-root .bg-brand-gold,
+  #adm-root .bg-\\[\\#d4af37\\],
+  #adm-root [class*="bg-[#d4af37]"] {
+    background-color: var(--accent-gold) !important;
+    color: #ffffff !important;
+  }
+
+  #adm-root [class*="bg-brand-gold/10"] {
+    background-color: rgba(212, 175, 55, 0.1) !important;
+    color: var(--accent-gold) !important;
+  }
+
+  /* Hover states general */
+  #adm-root .hover\\:bg-stone-850:hover,
+  #adm-root .hover\\:bg-stone-700:hover,
+  #adm-root .hover\\:bg-stone-950\\/40:hover,
+  #adm-root .hover\\:bg-stone-950\\/20:hover {
+    background-color: var(--hover-blue-light) !important;
+    color: var(--primary-blue) !important;
+  }
+
+  #adm-root .hover\\:text-white:hover {
+    color: var(--primary-blue) !important;
+  }
+
+  /* Forms & inputs */
   #adm-root input[type="text"],
   #adm-root input[type="password"],
   #adm-root input[type="email"],
   #adm-root input[type="number"],
+  #adm-root input[type="date"],
+  #adm-root select,
   #adm-root textarea {
-    background-color: #f8fafc !important;
-    color: #1e293b !important;
-    border-color: rgba(0,0,0,0.12) !important;
+    background-color: #ffffff !important;
+    color: var(--text-primary) !important;
+    border: 1.5px solid var(--border-gray) !important;
+    border-radius: 10px !important;
+    padding: 10px 14px !important;
+    font-size: 14px !important;
+    outline: none !important;
+    transition: all 200ms ease !important;
   }
+
+  #adm-root input[type="text"]:focus,
+  #adm-root input[type="password"]:focus,
+  #adm-root input[type="email"]:focus,
+  #adm-root input[type="number"]:focus,
+  #adm-root input[type="date"]:focus,
+  #adm-root select:focus,
+  #adm-root textarea:focus {
+    border-color: var(--primary-blue) !important;
+    box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15) !important;
+    background-color: #ffffff !important;
+  }
+
   #adm-root select option {
-    background: #ffffff;
-    color: #1e293b;
+    background: #ffffff !important;
+    color: var(--text-primary) !important;
   }
 
-  /* Shadows */
-  #adm-root .shadow-sm  { box-shadow: 0 1px 4px rgba(0,0,0,0.06) !important; }
-  #adm-root .shadow-2xl { box-shadow: 0 8px 40px rgba(0,0,0,0.09) !important; }
-
-  /* Colored accent backgrounds (keep them but lighten) */
-  #adm-root .bg-brand-blue\\/10   { background-color: rgba(46,49,146,0.07) !important; }
-  #adm-root .bg-brand-gold\\/10   { background-color: rgba(197,160,89,0.09) !important; }
-  #adm-root .bg-brand-maroon\\/10 { background-color: rgba(237,27,36,0.07) !important; }
-  #adm-root .bg-emerald-500\\/10  { background-color: rgba(16,185,129,0.07) !important; }
-
-  #adm-root .border-brand-blue\\/20    { border-color: rgba(46,49,146,0.18) !important; }
-  #adm-root .border-brand-gold\\/20    { border-color: rgba(197,160,89,0.25) !important; }
-  #adm-root .border-brand-maroon\\/20  { border-color: rgba(237,27,36,0.15) !important; }
-  #adm-root .border-emerald-500\\/20   { border-color: rgba(16,185,129,0.20) !important; }
-
-  #adm-root .text-brand-blue-light  { color: #2e3192 !important; }
-  #adm-root .text-brand-maroon-light { color: #ed1b24 !important; }
-  #adm-root .text-emerald-400        { color: #059669 !important; }
-
-  /* Success / Error alerts */
-  #adm-root .bg-emerald-500\\/10.border-emerald-500\\/25 { background-color: #f0fdf4 !important; }
-  #adm-root .text-emerald-300 { color: #065f46 !important; }
-  #adm-root .bg-rose-500\\/10  { background-color: #fff1f2 !important; }
-  #adm-root .text-rose-300    { color: #be123c  !important; }
-  #adm-root .hover\\:text-rose-400:hover { color: #e11d48 !important; }
-
-  /* Focus border */
-  #adm-root .focus\\:border-brand-gold\\/50:focus { border-color: rgba(46,49,146,0.45) !important; }
-
-  /* Force white text on maroon colored buttons/icons for accessibility */
-  #adm-root .bg-brand-maroon,
-  #adm-root .bg-brand-maroon *,
-  #adm-root .bg-brand-maroon-dark,
-  #adm-root .bg-brand-maroon-dark *,
-  #adm-root .bg-brand-blue,
-  #adm-root .bg-brand-blue *,
-  #adm-root .bg-brand-blue-dark,
-  #adm-root .bg-brand-blue-dark *,
-  #adm-root .bg-brand-blue-light,
-  #adm-root .bg-brand-blue-light *,
-  #adm-root .bg-emerald-600,
-  #adm-root .bg-emerald-600 *,
-  #adm-root .bg-emerald-700,
-  #adm-root .bg-emerald-700 *,
-  #adm-root .bg-rose-600,
-  #adm-root .bg-rose-600 *,
-  #adm-root .bg-rose-700,
-  #adm-root .bg-rose-700 *,
-  #adm-root .bg-red-600,
-  #adm-root .bg-red-600 *,
-  #adm-root .bg-red-700,
-  #adm-root .bg-red-700 *,
-  #adm-root .text-white-force,
-  #adm-root .text-white-force * {
-    color: #ffffff !important;
+  #adm-root label {
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: var(--text-primary) !important;
+    margin-bottom: 6px !important;
+    display: inline-block !important;
   }
 
-  /* Force white text for custom arbitrary bg color hex codes (escaped properly for JS strings) */
-  #adm-root .bg-\\[\\#2e3192\\],
-  #adm-root .bg-\\[\\#2e3192\\] *,
-  #adm-root .bg-\\[\\#2E3192\\],
-  #adm-root .bg-\\[\\#2E3192\\] *,
-  #adm-root .bg-\\[\\#1e2060\\],
-  #adm-root .bg-\\[\\#1e2060\\] *,
-  #adm-root .bg-\\[\\#1d206f\\],
-  #adm-root .bg-\\[\\#1d206f\\] * {
-    color: #ffffff !important;
+  /* Cards - Gov Card Theme */
+  #adm-root .gov-card,
+  #adm-root .bg-stone-900:not(aside):not(header) {
+    background-color: #ffffff !important;
+    border: 1px solid var(--border-gray) !important;
+    border-top: 3px solid var(--accent-gold) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03) !important;
+    transition: transform 200ms ease, box-shadow 200ms ease !important;
+    padding: 24px !important;
+    position: relative !important;
   }
 
-  /* Segmented Nav tabs Visibility & Layout */
-  #adm-root .nav-tab-active {
-    background-color: #2E3192 !important;
-    color: #FFFFFF !important;
-    border: 1px solid #2E3192 !important;
-    font-size: 14px !important;
-    font-weight: 700 !important;
-    letter-spacing: 0.5px !important;
-    text-transform: uppercase !important;
-    padding: 12px 22px !important;
-    min-height: 48px !important;
-    border-radius: 14px !important;
-    box-shadow: 0 4px 15px rgba(46,49,146,0.25) !important;
-    transition: all 0.25s ease !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    white-space: nowrap !important;
-    cursor: pointer !important;
-  }
-
-  #adm-root .nav-tab-inactive {
-    background-color: #FFFFFF !important;
-    color: #2E3192 !important;
-    border: 1px solid #d8dce8 !important;
-    font-size: 14px !important;
-    font-weight: 700 !important;
-    letter-spacing: 0.5px !important;
-    text-transform: uppercase !important;
-    padding: 12px 22px !important;
-    min-height: 48px !important;
-    border-radius: 14px !important;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.08) !important;
-    transition: all 0.25s ease !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    white-space: nowrap !important;
-    cursor: pointer !important;
-  }
-
-  #adm-root .nav-tab-inactive:hover {
-    background-color: #f5f7ff !important;
-    border-color: #2E3192 !important;
+  #adm-root .gov-card:hover,
+  #adm-root .bg-stone-900:not(aside):not(header):hover {
     transform: translateY(-2px) !important;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08) !important;
+  }
+
+  /* Card Headings */
+  #adm-root .gov-card h2,
+  #adm-root .gov-card h3,
+  #adm-root .bg-stone-900 h3 {
+    font-size: 18px !important;
+    font-weight: 600 !important;
+    color: var(--text-primary) !important;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+  }
+
+  /* Buttons */
+  /* Primary buttons */
+  #adm-root button.bg-brand-maroon,
+  #adm-root button.bg-brand-blue,
+  #adm-root button.bg-stone-950,
+  #adm-root button[class*="bg-[#1e40af]"],
+  #adm-root button[class*="bg-stone-950"],
+  #adm-root button[class*="bg-slate-800"] {
+    background-color: var(--primary-blue) !important;
+    color: #ffffff !important;
+    border: 1px solid var(--primary-blue) !important;
+    border-radius: 10px !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    padding: 10px 18px !important;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+    transition: all 200ms ease !important;
+    cursor: pointer !important;
+    box-shadow: 0 2px 4px rgba(30, 64, 175, 0.1) !important;
+  }
+
+  #adm-root button.bg-brand-maroon:hover,
+  #adm-root button.bg-brand-blue:hover,
+  #adm-root button.bg-stone-950:hover,
+  #adm-root button[class*="bg-[#1e40af]"]:hover,
+  #adm-root button[class*="bg-stone-950"]:hover,
+  #adm-root button[class*="bg-slate-800"]:hover {
+    background-color: var(--primary-blue-dark) !important;
+    border-color: var(--primary-blue-dark) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 8px rgba(30, 64, 175, 0.2) !important;
+  }
+
+  /* Secondary buttons */
+  #adm-root button.border-brand-gold\\/20,
+  #adm-root button.border-stone-800,
+  #adm-root button.bg-white.border-stone-700,
+  #adm-root button[class*="border-brand-blue/20"],
+  #adm-root button.bg-white.text-slate-800,
+  #adm-root button.border-slate-200 {
+    background-color: #ffffff !important;
+    color: var(--primary-blue) !important;
+    border: 1.5px solid var(--primary-blue) !important;
+    border-radius: 10px !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    padding: 10px 18px !important;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+    transition: all 200ms ease !important;
+    cursor: pointer !important;
+  }
+
+  #adm-root button.border-brand-gold\\/20:hover,
+  #adm-root button.border-stone-800:hover,
+  #adm-root button.bg-white.border-stone-700:hover,
+  #adm-root button[class*="border-brand-blue/20"]:hover,
+  #adm-root button.bg-white.text-slate-800:hover,
+  #adm-root button.border-slate-200:hover {
+    background-color: var(--hover-blue-light) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 2px 6px rgba(30, 64, 175, 0.1) !important;
+  }
+
+  /* Red/Delete Button styling */
+  #adm-root button.bg-rose-600,
+  #adm-root button.bg-red-600,
+  #adm-root button.hover\\:bg-rose-700:hover,
+  #adm-root button.hover\\:bg-red-700:hover {
+    background-color: #dc2626 !important;
+    color: #ffffff !important;
+    border-color: #dc2626 !important;
+    border-radius: 10px !important;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+  }
+  
+  #adm-root button.bg-rose-600:hover,
+  #adm-root button.bg-red-600:hover {
+    background-color: #b91c1c !important;
+    border-color: #b91c1c !important;
+  }
+
+  /* Tables styling */
+  #adm-root table {
+    width: 100% !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    border-radius: 10px !important;
+    overflow: hidden !important;
+    border: 1px solid var(--border-gray) !important;
+  }
+  
+  #adm-root thead {
+    background-color: #f1f5f9 !important;
+  }
+  
+  #adm-root th {
+    color: var(--text-primary) !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    padding: 14px 16px !important;
+    text-align: left !important;
+    border-bottom: 2px solid var(--border-gray) !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+  }
+  
+  #adm-root td {
+    padding: 14px 16px !important;
+    font-size: 14px !important;
+    color: var(--text-primary) !important;
+    border-bottom: 1px solid var(--border-gray) !important;
+    background-color: #ffffff !important;
+    transition: background-color 150ms ease !important;
+  }
+  
+  #adm-root tr:nth-child(even) td {
+    background-color: #f8fafc !important;
+  }
+  
+  #adm-root tr:hover td {
+    background-color: var(--hover-blue-light) !important;
+  }
+
+  /* Success/Error Alert adjustments */
+  #adm-root .bg-emerald-500\\/10,
+  #adm-root .bg-emerald-500\\/10.border-emerald-500\\/25 {
+    background-color: #f0fdf4 !important;
+    border-color: rgba(16, 185, 129, 0.2) !important;
+    color: #065f46 !important;
+  }
+  #adm-root .text-emerald-300 {
+    color: #065f46 !important;
+  }
+  #adm-root .bg-rose-500\\/10 {
+    background-color: #fff1f2 !important;
+    border-color: rgba(239, 68, 68, 0.2) !important;
+    color: #be123c !important;
+  }
+  #adm-root .text-rose-300 {
+    color: #be123c !important;
+  }
+
+  /* Tab selections styling */
+  #adm-root .nav-tab-active {
+    background-color: var(--primary-blue) !important;
+    color: #ffffff !important;
+    border: 1px solid var(--primary-blue) !important;
+    border-radius: 10px !important;
+    box-shadow: 0 4px 12px rgba(30, 64, 175, 0.15) !important;
+  }
+  #adm-root .nav-tab-inactive {
+    background-color: #ffffff !important;
+    color: var(--primary-blue) !important;
+    border: 1px solid var(--border-gray) !important;
+    border-radius: 10px !important;
+  }
+  #adm-root .nav-tab-inactive:hover {
+    background-color: var(--hover-blue-light) !important;
+    border-color: var(--primary-blue) !important;
   }
 `;
+
+const getTabTitle = (tab: string): string => {
+  const titles: Record<string, string> = {
+    dashboard: "Overview",
+    superadmin: "Access Control",
+    "menu-management": "Menu Management",
+    news: "News Articles",
+    media: "Media Library",
+    ticker: "News Ticker",
+    slider: "Hero Slider",
+    videos: "Video & Media",
+    "web-stories": "Web Stories",
+    alerts: "Official Alerts",
+    "police-stations": "Police Stations",
+    "emergency-contacts": "Helplines Registry",
+    "department-links": "Portal Links",
+    profile: "Profile Settings",
+    theme: "Branding Theme",
+    footer: "Footer Management",
+    settings: "Console Config",
+    "page-editor": "Page Editor"
+  };
+  return titles[tab] || tab.split("-").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
+};
 
 interface AdminDashboardProps {
   user: { username: string; role: string };
@@ -286,6 +522,25 @@ type TabType = "dashboard" | "news" | "ticker" | "slider" | "profile" | "theme" 
 export default function AdminDashboard({ user, onLogout, activeTab: propActiveTab, subPage, onTabChange }: AdminDashboardProps) {
   const [localActiveTab, setLocalActiveTab] = useState<TabType>("dashboard");
   const activeTab = propActiveTab !== undefined ? propActiveTab : localActiveTab;
+
+  const sidebarScrollRef = useRef<HTMLDivElement>(null);
+
+  const handleSidebarScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const scrollPos = e.currentTarget.scrollTop;
+    sessionStorage.setItem("admin-sidebar-scroll", String(scrollPos));
+  };
+
+  useEffect(() => {
+    const savedScroll = sessionStorage.getItem("admin-sidebar-scroll");
+    if (savedScroll && sidebarScrollRef.current) {
+      sidebarScrollRef.current.scrollTop = parseInt(savedScroll, 10);
+    }
+    // Keep active button visible in the viewport using a smooth transition
+    const activeBtn = sidebarScrollRef.current?.querySelector('[data-active="true"]');
+    if (activeBtn) {
+      activeBtn.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }
+  }, [activeTab]);
   const setActiveTab = (tab: TabType) => {
     if (onTabChange) {
       onTabChange(tab);
@@ -401,8 +656,27 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
         return false;
       }
     }
-    if (categoryFilter && item.category_en !== categoryFilter) {
-      return false;
+    if (categoryFilter) {
+      const itemCat = (item.category_en || "").toUpperCase().trim();
+      const filterCat = categoryFilter.toUpperCase().trim();
+      let isMatch = itemCat === filterCat;
+      if (!isMatch) {
+        if (filterCat === "CRIME" && (itemCat === "CRIME" || itemCat === "CRIME PREVENTION")) isMatch = true;
+        else if (filterCat === "TRAFFIC NEWS" && (itemCat === "TRAFFIC" || itemCat === "TRAFFIC NEWS" || itemCat === "TRAFFIC UPDATES" || itemCat === "TRAFFIC ADVISORY")) isMatch = true;
+        else if (filterCat === "COMMUNITY OUTREACH" && (itemCat === "OUTREACH" || itemCat === "COMMUNITY OUTREACH")) isMatch = true;
+        else if (filterCat === "GOVERNMENT UPDATE" && (itemCat === "GOVERNMENT" || itemCat === "GOVERNMENT UPDATE" || itemCat === "GOVERNMENT UPDATES")) isMatch = true;
+        else if (filterCat === "CYBER SAFETY" && itemCat === "CYBER-SAFETY") isMatch = true;
+        else if (filterCat === "WOMEN SAFETY" && itemCat === "WOMEN-SAFETY") isMatch = true;
+        else if (filterCat === "PUBLIC SAFETY" && itemCat === "PUBLIC-SAFETY") isMatch = true;
+        else if (filterCat === "CYBER AWERENESS" && (itemCat === "CYBER AWARENESS" || itemCat === "CYBER AWERENESS")) isMatch = true;
+        else if (filterCat === "PINK PATROL" && (itemCat === "PINK PATROL" || itemCat === "PINK PATROL (WOMEN SAFETY)" || itemCat === "PINK-PATROL")) isMatch = true;
+        else if (filterCat === "AVAL SUPPORT WING" && (itemCat === "AVAL SUPPORT" || itemCat === "AVAL SUPPORT WING" || itemCat === "AVAL-SUPPORT")) isMatch = true;
+        else if (filterCat === "WOMEN HELPLINE" && (itemCat === "WOMEN HELPLINE" || itemCat === "WOMEN-HELPLINE")) isMatch = true;
+        else if (filterCat === "COMPLAINT PORTAL" && (itemCat === "COMPLAINT PORTAL" || itemCat === "COMPLAINT-PORTAL")) isMatch = true;
+      }
+      if (!isMatch) {
+        return false;
+      }
     }
     if (statusFilter) {
       const isPublished = item.published === 1;
@@ -745,11 +1019,11 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
     const entries: { icon: string; msg: string; time: string; color: string }[] = [];
     news.slice(0, 3).forEach((n, i) => {
       const t = new Date(now.getTime() - (i + 1) * 7 * 60000);
-      entries.push({ icon: "N", msg: `News published: "${n.title_en?.slice(0, 45)}..."`, time: `${fmtDate(t)} ${fmt(t)}`, color: "#2e3192" });
+      entries.push({ icon: "N", msg: `News published: "${n.title_en?.slice(0, 45)}..."`, time: `${fmtDate(t)} ${fmt(t)}`, color: "#1e40af" });
     });
     slider.slice(0, 2).forEach((s, i) => {
       const t = new Date(now.getTime() - (i + 4) * 15 * 60000);
-      entries.push({ icon: "S", msg: `Hero Slider updated: "${s.title_en?.slice(0, 35)}..."`, time: `${fmtDate(t)} ${fmt(t)}`, color: "#c5a059" });
+      entries.push({ icon: "S", msg: `Hero Slider updated: "${s.title_en?.slice(0, 35)}..."`, time: `${fmtDate(t)} ${fmt(t)}`, color: "#d4af37" });
     });
     ticker.slice(0, 2).forEach((tk, i) => {
       const t = new Date(now.getTime() - (i + 7) * 20 * 60000);
@@ -1065,7 +1339,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
     <div
       id="adm-root"
       className="flex h-screen overflow-hidden font-sans select-none"
-      style={{ background: "#f0f4f8", color: "#1e293b" }}
+      style={{ background: "#F8FAFC", color: "#1F2937" }}
     >
 
       {/* Mobile Sidebar Overlay Backdrop */}
@@ -1083,132 +1357,194 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
         }`}
         style={{ background: "#ffffff" }}
       >
-        {/* Logo Brand Header - Aligned h-12 (shrink-0) */}
+        {/* Logo Brand Header - Height matches navbar (shrink-0) */}
         <div
-          className="h-12 px-4 flex items-center gap-3 border-b border-stone-200/80 shrink-0"
+          className="h-16 px-6 flex items-center gap-3 border-b border-stone-200/80 shrink-0"
         >
-          <div className="relative w-8 h-8 rounded-full bg-white p-0.5 border border-brand-gold/30 shrink-0">
-            <Image src="/images/gcp_logo.png" alt="" fill className="object-contain" />
+          <div className="relative w-9 h-9 rounded-full bg-white p-0.5 border border-[#D4AF37]/30 shrink-0">
+            <Image src="/images/gcp_logo.png" alt="" fill className="object-contain"  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
           </div>
           <div className="flex flex-col justify-center gap-0.5">
-            <h3 className="font-display font-black text-[10px] tracking-wider uppercase text-slate-800 dark:text-white leading-none">
-              GCP CONTROL PANEL
+            <h3 className="font-display font-bold text-[11px] tracking-wider uppercase text-slate-800 leading-none">
+              GCP Control Panel
             </h3>
-            <span className="text-[8px] font-black text-brand-gold uppercase tracking-widest block leading-none">
-              ADMIN CONSOLE
+            <span className="text-[9px] font-bold text-[#D4AF37] uppercase tracking-widest block leading-none">
+              Admin Console
             </span>
           </div>
         </div>
 
         {/* Scrollable Navigation links (flex-1) */}
-        <div className="flex-1 overflow-y-auto min-h-0">
-          <nav className="p-3 space-y-1">
+        <div 
+          ref={sidebarScrollRef}
+          onScroll={handleSidebarScroll}
+          className="flex-1 overflow-y-auto min-h-0 py-4"
+        >
+          <nav className="px-3 space-y-6">
             {([
-              { tab: "dashboard", icon: <LayoutDashboard className="w-4 h-4" />, label: "Overview" },
-              { tab: "superadmin", icon: <Shield className="w-4 h-4" />,        label: "Access Management Module" },
-              { tab: "menu-management", icon: <Menu className="w-4 h-4" />,      label: "Menu Management" },
-              { tab: "news",      icon: <FileText className="w-4 h-4" />,        label: "News Articles" },
-              { tab: "media",     icon: <FolderOpen className="w-4 h-4" />,      label: "Media Library" },
-              { tab: "ticker",    icon: <Radio className="w-4 h-4" />,           label: "News Ticker" },
-              { tab: "slider",    icon: <ImageIcon className="w-4 h-4" />,       label: "Hero Slider" },
-              { tab: "videos",    icon: <Tv className="w-4 h-4" />,             label: "Video & Media" },
-              { tab: "web-stories", icon: <BookOpen className="w-4 h-4" />,      label: "Web Stories" },
-              { tab: "alerts",    icon: <AlertTriangle className="w-4 h-4" />,   label: "Official Alerts" },
-              { tab: "police-stations", icon: <MapPin className="w-4 h-4" />,    label: "Police Stations" },
-              { tab: "emergency-contacts", icon: <Phone className="w-4 h-4" />,  label: "Helplines Registry" },
-              { tab: "department-links", icon: <ExternalLink className="w-4 h-4" />, label: "Portal Links" },
-              { tab: "profile",   icon: <User className="w-4 h-4" />,            label: "Profile" },
-              { tab: "theme",     icon: <Palette className="w-4 h-4" />,         label: "Branding Theme" },
-              { tab: "footer",    icon: <Layout className="w-4 h-4" />,          label: "Footer Management" },
-              { tab: "settings",  icon: <Settings className="w-4 h-4" />,        label: "Console Config" },
-            ] as { tab: TabType; icon: React.ReactNode; label: string }[]).map(({ tab, icon, label }) => {
-              const isAllowed = hasModulePermission(tab, "view");
+              {
+                section: "Core System",
+                items: [
+                  { tab: "dashboard", icon: <LayoutDashboard className="w-5 h-5" />, label: "Overview" },
+                  { tab: "superadmin", icon: <Shield className="w-5 h-5" />, label: "Access Control" },
+                ]
+              },
+              {
+                section: "Content & Media",
+                items: [
+                  { tab: "news", icon: <FileText className="w-5 h-5" />, label: "News Articles" },
+                  { tab: "web-stories", icon: <BookOpen className="w-5 h-5" />, label: "Web Stories" },
+                  { tab: "ticker", icon: <Radio className="w-5 h-5" />, label: "News Ticker" },
+                  { tab: "slider", icon: <ImageIcon className="w-5 h-5" />, label: "Hero Slider" },
+                  { tab: "videos", icon: <Tv className="w-5 h-5" />, label: "Video & Media" },
+                  { tab: "media", icon: <FolderOpen className="w-5 h-5" />, label: "Media Library" },
+                ]
+              },
+              {
+                section: "Public Registry",
+                items: [
+                  { tab: "alerts", icon: <AlertTriangle className="w-5 h-5" />, label: "Official Alerts" },
+                  { tab: "police-stations", icon: <MapPin className="w-5 h-5" />, label: "Police Stations" },
+                  { tab: "emergency-contacts", icon: <Phone className="w-5 h-5" />, label: "Helplines Registry" },
+                  { tab: "department-links", icon: <ExternalLink className="w-5 h-5" />, label: "Portal Links" },
+                ]
+              },
+              {
+                section: "Appearance & Settings",
+                items: [
+                  { tab: "menu-management", icon: <Menu className="w-5 h-5" />, label: "Menu Management" },
+                  { tab: "footer", icon: <Layout className="w-5 h-5" />, label: "Footer Management" },
+                  { tab: "theme", icon: <Palette className="w-5 h-5" />, label: "Branding Theme" },
+                  { tab: "profile", icon: <User className="w-5 h-5" />, label: "Profile Settings" },
+                  { tab: "settings", icon: <Settings className="w-5 h-5" />, label: "Console Config" },
+                ]
+              }
+            ] as { section: string; items: { tab: TabType; icon: React.ReactNode; label: string }[] }[]).map(({ section, items }) => {
+              // Check if any tab in the section is allowed
+              const allowedItems = items.filter(({ tab }) => hasModulePermission(tab, "view"));
+              if (allowedItems.length === 0) return null;
+
               return (
-                <button
-                  key={tab}
-                  disabled={!isAllowed}
-                  title={isAllowed ? "" : "You don't have permission to access this module."}
-                  onClick={() => {
-                    if (!isAllowed) return;
-                    setActiveTab(tab);
-                    setEditingItem(null);
-                    setIsAdding(false);
-                    setIsSidebarOpen(false);
-                  }}
-                  className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-xs uppercase font-black tracking-wider transition ${
-                    isAllowed
-                      ? `cursor-pointer ${activeTab === tab ? "bg-[#2e3192] text-white" : "hover:bg-slate-100 hover:text-slate-900 text-[#64748b]"}`
-                      : "cursor-not-allowed opacity-40 text-[#64748b]"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    {icon}
-                    <span>{label}</span>
+                <div key={section} className="space-y-1">
+                  <h4 className="px-4 text-[13px] font-bold text-[#64748B] uppercase tracking-wider select-none mb-2">
+                    {section}
+                  </h4>
+                  <div className="space-y-1">
+                    {items.map(({ tab, icon, label }) => {
+                      const isAllowed = hasModulePermission(tab, "view");
+                      const isActive = activeTab === tab;
+                      return (
+                        <button
+                          key={tab}
+                          disabled={!isAllowed}
+                          data-active={isActive}
+                          title={isAllowed ? "" : "You don't have permission to access this module."}
+                          onClick={() => {
+                            if (!isAllowed) return;
+                            setActiveTab(tab);
+                            setEditingItem(null);
+                            setIsAdding(false);
+                            setIsSidebarOpen(false);
+                          }}
+                          className={`w-full flex items-center justify-between px-4 py-3 rounded-[12px] text-[15px] font-semibold transition-all duration-200 relative group ${
+                            isAllowed
+                              ? isActive
+                                ? "bg-[#1E40AF] text-white shadow-md cursor-pointer"
+                                : "hover:bg-[#E8F0FE] hover:text-[#1E40AF] text-[#64748B] cursor-pointer"
+                              : "cursor-not-allowed opacity-40 text-[#64748B]"
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <span className={isActive ? "text-white" : "text-[#64748B] group-hover:text-[#1E40AF] transition-colors"}>
+                              {icon}
+                            </span>
+                            <span className="leading-none">{label}</span>
+                          </div>
+                          {isActive && (
+                            <div className="absolute right-0 top-1/4 bottom-1/4 w-1 bg-[#D4AF37] rounded-l-md" />
+                          )}
+                          {!isAllowed && <Lock className="w-3.5 h-3.5 text-stone-400" />}
+                        </button>
+                      );
+                    })}
                   </div>
-                  {!isAllowed && <Lock className="w-3.5 h-3.5 text-stone-400" />}
-                </button>
+                </div>
               );
             })}
           </nav>
         </div>
-
-        {/* User Card & Logout (shrink-0) */}
-        <div
-          className="p-3 shrink-0"
-          style={{ borderTop: "1px solid rgba(0,0,0,0.09)", background: "#f8fafc" }}
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs font-black" style={{ color: "#1e293b" }}>{user.username}</p>
-              <span className="text-[9px] font-bold text-brand-gold uppercase">{user.role}</span>
-            </div>
-            <button
-              onClick={handleLogout}
-              className="p-2 rounded-xl transition duration-200 cursor-pointer"
-              style={{ color: "#94a3b8" }}
-              title="Terminate Session"
-              onMouseEnter={(e) => { e.currentTarget.style.color = "#e11d48"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.color = "#94a3b8"; }}
-            >
-              <LogOut className="w-4.5 h-4.5" />
-            </button>
-          </div>
-        </div>
       </aside>
 
       {/* ==================== MAIN PANEL FRAME ==================== */}
-      <main className="flex-grow flex flex-col overflow-hidden" style={{ background: "#f0f4f8" }}>
+      <main className="flex-grow flex flex-col overflow-hidden bg-[#F8FAFC]">
         
-        {/* Header Ribbon - Compact h-12, Aligned with Sidebar Header */}
+        {/* Header Ribbon - Compact h-16, Aligned with Sidebar Header */}
         <header
-          className="h-12 flex items-center justify-between px-4 lg:px-6 sticky top-0 z-30 shrink-0"
+          className="h-16 flex items-center justify-between px-6 sticky top-0 z-30 shrink-0 bg-white"
           style={{
-            background: "#ffffff",
-            borderBottom: "1px solid rgba(0,0,0,0.08)",
+            borderBottom: "1px solid #E5E7EB",
+            boxShadow: "0 4px 6px -1px rgba(0,0,0,0.05)"
           }}
         >
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             {/* Hamburger Menu Toggle Button */}
             <button
               type="button"
               onClick={() => setIsSidebarOpen(true)}
-              className="p-1.5 -ml-1 text-slate-500 hover:text-slate-800 hover:bg-stone-105 dark:hover:bg-stone-800 rounded-lg lg:hidden cursor-pointer flex items-center justify-center"
+              className="p-2 -ml-1 text-slate-500 hover:text-slate-800 hover:bg-[#E8F0FE] rounded-lg lg:hidden cursor-pointer flex items-center justify-center transition-colors"
               title="Toggle Menu"
             >
-              <Menu className="w-5 h-5" />
+              <Menu className="w-6 h-6" />
             </button>
-            <h2 className="font-display font-black text-xs sm:text-sm uppercase tracking-widest text-slate-800 dark:text-white leading-none">
-              {activeTab === "dashboard" ? "DASHBOARD MANAGEMENT DASHBOARD" : `${activeTab.toUpperCase()} MANAGEMENT DASHBOARD`}
+            <h2 className="text-2xl font-bold text-[#1F2937] leading-none tracking-tight">
+              {getTabTitle(activeTab)}
             </h2>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             <a
               href="/"
               target="_blank"
-              className="text-[9px] font-black uppercase text-brand-gold hover:text-amber-600 tracking-widest border border-brand-gold/30 px-2.5 py-1.5 rounded-lg transition"
+              className="text-sm font-semibold text-[#1E40AF] hover:text-[#1E3A8A] border border-[#E5E7EB] hover:border-[#1E40AF]/30 px-4 py-2 rounded-xl transition-all duration-200 flex items-center gap-2 bg-white shadow-sm hover:shadow"
             >
-              Launch Live Portal
+              <ExternalLink className="w-4 h-4" /> Launch Live Portal
             </a>
+            
+            {/* Notification Icon */}
+            <button 
+              onClick={() => setActiveTab("alerts")} 
+              className="p-2 text-[#64748B] hover:text-[#1E40AF] hover:bg-[#E8F0FE] rounded-xl cursor-pointer transition relative animate-fadeIn"
+              title="Official Alerts"
+            >
+              <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white animate-pulse" />
+              <Radio className="w-5 h-5" />
+            </button>
+
+            {/* Settings Icon */}
+            <button 
+              onClick={() => setActiveTab("settings")} 
+              className="p-2 text-[#64748B] hover:text-[#1E40AF] hover:bg-[#E8F0FE] rounded-xl cursor-pointer transition mr-1"
+              title="Console Config"
+            >
+              <Settings className="w-5 h-5" />
+            </button>
+
+            {/* User Profile / Logout Card */}
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-3 p-1.5 pl-2 pr-4 bg-white hover:bg-red-50 hover:border-red-200 border border-[#E5E7EB] rounded-full transition-all duration-200 cursor-pointer text-left shadow-sm group"
+              title="Log Out / Terminate Session"
+            >
+              <div className="w-7 h-7 rounded-full bg-[#1E40AF] text-white flex items-center justify-center font-bold text-xs transition-colors group-hover:bg-red-600 shrink-0 font-sans">
+                {user.username.charAt(0).toUpperCase()}
+              </div>
+              <div className="hidden sm:block">
+                <p className="text-xs font-bold text-[#1F2937] leading-none group-hover:text-red-700 transition-colors">{user.username}</p>
+                <span className="text-[9px] font-bold text-[#64748B] uppercase block mt-0.5">{user.role.toUpperCase()}</span>
+              </div>
+              <div className="pl-1 text-[#94a3b8] group-hover:text-red-600 transition-colors shrink-0">
+                <LogOut className="w-3.5 h-3.5" />
+              </div>
+            </button>
           </div>
         </header>
 
@@ -1268,8 +1604,8 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
             const totalVideoViews = videos.reduce((acc, item) => acc + (item.views_count || 0), 0);
             const totalViews = totalNewsViews + totalVideoViews;
             const kpiCards = [
-              { label: "News Articles", value: news.length, sub: `${publishedNews.length} live · ${draftNews.length} drafts`, icon: <FileText className="w-5 h-5" />, color: "#2e3192", bg: "rgba(46,49,146,0.1)", border: "rgba(46,49,146,0.2)", tab: "news" as TabType },
-              { label: "Hero Slider", value: activeSlider.length, sub: `${slider.length} total slides`, icon: <ImageIcon className="w-5 h-5" />, color: "#c5a059", bg: "rgba(197,160,89,0.1)", border: "rgba(197,160,89,0.2)", tab: "slider" as TabType },
+              { label: "News Articles", value: news.length, sub: `${publishedNews.length} live · ${draftNews.length} drafts`, icon: <FileText className="w-5 h-5" />, color: "#1e40af", bg: "rgba(30,64,175,0.1)", border: "rgba(30,64,175,0.2)", tab: "news" as TabType },
+              { label: "Hero Slider", value: activeSlider.length, sub: `${slider.length} total slides`, icon: <ImageIcon className="w-5 h-5" />, color: "#d4af37", bg: "rgba(212,175,55,0.1)", border: "rgba(212,175,55,0.2)", tab: "slider" as TabType },
               { label: "Live Ticker", value: activeTicker.length, sub: `${ticker.length} total items`, icon: <Radio className="w-5 h-5" />, color: "#ed1b24", bg: "rgba(237,27,36,0.1)", border: "rgba(237,27,36,0.2)", tab: "ticker" as TabType },
               { label: "Videos", value: videos.length, sub: `${activeVideosCount} active in gallery`, icon: <Tv className="w-5 h-5" />, color: "#7c3aed", bg: "rgba(124,58,237,0.1)", border: "rgba(124,58,237,0.2)", tab: "videos" as TabType },
               { label: "Helplines", value: activeContacts.length, sub: `${contacts.length} total contacts`, icon: <Phone className="w-5 h-5" />, color: "#059669", bg: "rgba(5,150,105,0.1)", border: "rgba(5,150,105,0.2)", tab: "settings" as TabType },
@@ -1278,7 +1614,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
             return (
               <div className="space-y-5">
                 {/* Welcome Banner */}
-                <div className="rounded-2xl p-5 flex items-center justify-between" style={{ background: "linear-gradient(135deg,#1e1b4b 0%,#2e3192 60%,#1d4ed8 100%)", border: "1px solid rgba(197,160,89,0.3)" }}>
+                <div className="rounded-2xl p-5 flex items-center justify-between" style={{ background: "linear-gradient(135deg,#1e1b4b 0%,#1e40af 60%,#1d4ed8 100%)", border: "1px solid rgba(212,175,55,0.3)" }}>
                   <div>
                     <p className="text-[10px] uppercase font-black tracking-widest text-blue-300">Greater Chennai Police - Admin Control Panel</p>
                     <h2
@@ -1343,14 +1679,14 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                     </div>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                       {([
-                        { label: "Add News", icon: <FileText className="w-5 h-5" />, color: "#2e3192", action: () => { setActiveTab("news" as TabType); setIsAdding(true); setEditingItem({ title_en: "", title_ta: "", category_en: "", category_ta: "", summary_en: "", summary_ta: "", content_en: [""], content_ta: [""], image: "", tags_en: [], tags_ta: [], section: "latest", published: 1, date: new Date().toLocaleDateString("en-US", { month: "long", day: "2-digit", year: "numeric" }), author_en: "Greater Chennai Police Media Desk", author_ta: "" }); } },
-                        { label: "Add Slider", icon: <ImageIcon className="w-5 h-5" />, color: "#c5a059", action: () => { setActiveTab("slider" as TabType); setIsAdding(true); setEditingItem({ src: "", title_en: "", title_ta: "", desc_en: "", desc_ta: "", category_en: "", category_ta: "", order_num: slider.length + 1, active: 1 }); } },
+                        { label: "Add News", icon: <FileText className="w-5 h-5" />, color: "#1e40af", action: () => { setActiveTab("news" as TabType); setIsAdding(true); setEditingItem({ title_en: "", title_ta: "", category_en: "", category_ta: "", summary_en: "", summary_ta: "", content_en: [""], content_ta: [""], image: "", tags_en: [], tags_ta: [], section: "latest", published: 1, date: new Date().toLocaleDateString("en-US", { month: "long", day: "2-digit", year: "numeric" }), author_en: "Greater Chennai Police Media Desk", author_ta: "" }); } },
+                        { label: "Add Slider", icon: <ImageIcon className="w-5 h-5" />, color: "#d4af37", action: () => { setActiveTab("slider" as TabType); setIsAdding(true); setEditingItem({ src: "", title_en: "", title_ta: "", desc_en: "", desc_ta: "", category_en: "", category_ta: "", order_num: slider.length + 1, active: 1 }); } },
                         { label: "Add Video", icon: <Tv className="w-5 h-5" />, color: "#7c3aed", action: () => { setActiveTab("videos" as TabType); setIsAdding(true); setVideoYoutubeUrl(""); setEditingItem({ youtube_id: "", title: "", category: "", date: new Date().toLocaleDateString("en-US", { month: "long", day: "2-digit", year: "numeric" }), order_num: videos.length + 1, active: 1, section: "main" }); } },
                         { label: "Add Ticker", icon: <Radio className="w-5 h-5" />, color: "#ed1b24", action: () => { setActiveTab("ticker" as TabType); setIsAdding(true); setEditingItem({ text_en: "", text_ta: "", active: 1, order_num: ticker.length + 1 }); } },
                         { label: "Edit Profile", icon: <User className="w-5 h-5" />, color: "#059669", action: () => setActiveTab("profile" as TabType) },
                         { label: "Branding", icon: <Palette className="w-5 h-5" />, color: "#d97706", action: () => setActiveTab("theme" as TabType) },
                         { label: "Config", icon: <Settings className="w-5 h-5" />, color: "#64748b", action: () => setActiveTab("settings" as TabType) },
-                        { label: "Live Portal", icon: <ExternalLink className="w-5 h-5" />, color: "#2e3192", action: () => window.open("/", "_blank") },
+                        { label: "Live Portal", icon: <ExternalLink className="w-5 h-5" />, color: "#1e40af", action: () => window.open("/", "_blank") },
                       ] as { label: string; icon: React.ReactNode; color: string; action: () => void }[]).map((a) => (
                         <button key={a.label} onClick={a.action}
                           className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border border-stone-800 hover:border-brand-gold/40 bg-stone-950 hover:bg-stone-850 transition cursor-pointer group text-center">
@@ -1369,7 +1705,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                     {profile ? (
                       <div className="flex flex-col items-center text-center gap-4 flex-grow">
                         <div className="relative w-20 h-20 rounded-full overflow-hidden bg-stone-950 border-2 border-brand-gold/40 shadow-xl">
-                          <Image src={profile.photo} alt="" fill className="object-cover object-center" />
+                          <Image src={profile.photo} alt="" fill className="object-cover object-center"  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
                         </div>
                         <div>
                           <span className="text-[8px] uppercase font-black text-brand-gold tracking-widest block">Active Executive</span>
@@ -1503,7 +1839,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                             <span className="text-[9px] font-black text-brand-gold">{count}</span>
                           </div>
                           <div className="h-1.5 rounded-full bg-stone-800 overflow-hidden">
-                            <div className="h-full rounded-full transition-all duration-700" style={{ width: `${(count / maxCatCount) * 100}%`, background: "linear-gradient(90deg,#2e3192,#c5a059)" }} />
+                            <div className="h-full rounded-full transition-all duration-700" style={{ width: `${(count / maxCatCount) * 100}%`, background: "linear-gradient(90deg,#1e40af,#d4af37)" }} />
                           </div>
                         </div>
                       )) : <p className="text-stone-500 text-xs text-center py-4">No category data</p>}
@@ -1519,8 +1855,8 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                       {[
                         { label: "Published News", count: publishedNews.length, total: Math.max(news.length,1), color: "#059669" },
                         { label: "Drafts", count: draftNews.length, total: Math.max(news.length,1), color: "#d97706" },
-                        { label: "Active Slider", count: activeSlider.length, total: Math.max(slider.length,1), color: "#c5a059" },
-                        { label: "Ticker Active", count: activeTicker.length, total: Math.max(ticker.length,1), color: "#2e3192" },
+                        { label: "Active Slider", count: activeSlider.length, total: Math.max(slider.length,1), color: "#d4af37" },
+                        { label: "Ticker Active", count: activeTicker.length, total: Math.max(ticker.length,1), color: "#1e40af" },
                         { label: "Videos Active", count: activeVideosCount, total: Math.max(videos.length,1), color: "#7c3aed" },
                         { label: "Contacts", count: activeContacts.length, total: Math.max(contacts.length,1), color: "#ed1b24" },
                       ].map(({ label, count, total, color }) => (
@@ -1567,7 +1903,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                         {monthlyData.map(({ month, count }) => (
                           <div key={month} className="flex flex-col items-center gap-0.5 flex-1 min-w-0">
                             <span className="text-[7px] text-stone-500 font-bold">{count || ""}</span>
-                            <div className="w-full rounded-t transition-all duration-700" style={{ height: `${Math.max((count/maxMonthly)*52, count > 0 ? 4 : 2)}px`, background: count > 0 ? "linear-gradient(180deg,#c5a059,#2e3192)" : "#2d2d2d" }} />
+                            <div className="w-full rounded-t transition-all duration-700" style={{ height: `${Math.max((count/maxMonthly)*52, count > 0 ? 4 : 2)}px`, background: count > 0 ? "linear-gradient(180deg,#d4af37,#1e40af)" : "#2d2d2d" }} />
                             <span className="text-[7px] text-stone-500 font-bold">{month}</span>
                           </div>
                         ))}
@@ -1599,7 +1935,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                   {announcements.length > 0 ? (
                     <div className="space-y-2 max-h-48 overflow-y-auto">
                       {announcements.map((ann) => {
-                        const typeColor = ann.type === "alert" ? "#ed1b24" : ann.type === "circular" ? "#2e3192" : "#c5a059";
+                        const typeColor = ann.type === "alert" ? "#ed1b24" : ann.type === "circular" ? "#1e40af" : "#d4af37";
                         return (
                           <div key={ann.id} className="flex items-start gap-3 p-3 rounded-xl border" style={{ background: `${typeColor}12`, borderColor: `${typeColor}30` }}>
                             <span className="text-[8px] font-black uppercase px-2 py-0.5 rounded-full shrink-0 mt-0.5 text-white" style={{ background: typeColor }}>{ann.type}</span>
@@ -1675,7 +2011,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                           category_en: "", category_ta: "",
                           summary_en: "", summary_ta: "",
                           content_en: [""], content_ta: [""],
-                          image: "/images/police_medal.jpg",
+                          image: "",
                           tags_en: [], tags_ta: [],
                           section: "latest", published: 1,
                           featured: 0, breaking: 0, latest: 1, homepage_visible: 1,
@@ -1709,12 +2045,28 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                       <select
                         value={categoryFilter}
                         onChange={(e) => setCategoryFilter(e.target.value)}
-                        className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-850 px-3 py-2 rounded-lg text-xs outline-none focus:border-brand-gold/50 cursor-pointer text-slate-800 dark:text-stone-300"
+                        className="w-full bg-stone-50 dark:bg-stone-955 border border-stone-200 dark:border-stone-850 px-3 py-2 rounded-lg text-xs outline-none focus:border-brand-gold/50 cursor-pointer text-slate-800 dark:text-stone-300 font-bold"
                       >
                         <option value="">All Categories</option>
-                        {Array.from(new Set(news.map(n => n.category_en).filter(Boolean))).map(cat => (
-                          <option key={cat} value={cat}>{cat}</option>
-                        ))}
+                        <option value="AWARDS & RECOGNITION">AWARDS & RECOGNITION</option>
+                        <option value="POLICE ADMINISTRATION">POLICE ADMINISTRATION</option>
+                        <option value="GOVERNMENT UPDATE">GOVERNMENT UPDATE</option>
+                        <option value="TRENDING NEWS">TRENDING NEWS</option>
+                        <option value="GENERAL NEWS">GENERAL NEWS</option>
+                        <option value="TRAFFIC NEWS">TRAFFIC NEWS</option>
+                        <option value="CRIME">CRIME</option>
+                        <option value="CYBER SAFETY">CYBER SAFETY</option>
+                        <option value="WOMEN SAFETY">WOMEN SAFETY</option>
+                        <option value="PUBLIC SAFETY">PUBLIC SAFETY</option>
+                        <option value="COMMUNITY OUTREACH">COMMUNITY OUTREACH</option>
+                        <option value="WANTED CRIMINALS">WANTED CRIMINALS</option>
+                        <option value="MISSING PERSONS">MISSING PERSONS</option>
+                        <option value="CYBER AWERENESS">CYBER AWERENESS</option>
+                        <option value="ONLINE FRAUD">ONLINE FRAUD</option>
+                        <option value="COMPLAINT PORTAL">COMPLAINT PORTAL</option>
+                        <option value="PINK PATROL">PINK PATROL</option>
+                        <option value="AVAL SUPPORT WING">AVAL SUPPORT WING</option>
+                        <option value="WOMEN HELPLINE">WOMEN HELPLINE</option>
                       </select>
                     </div>
                     {/* Filter Date */}
@@ -1798,15 +2150,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                                   <p className="text-[10px] text-stone-450 dark:text-stone-500 line-clamp-1 font-medium" title={item.title_ta}>
                                     {item.title_ta || "தலைப்பு இல்லை (தமிழ்)"}
                                   </p>
-                                  {(item.tags_en && item.tags_en.length > 0) && (
-                                    <div className="flex flex-wrap gap-1 mt-1">
-                                      {item.tags_en.slice(0, 3).map(tag => (
-                                        <span key={tag} className="text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-400">
-                                          {tag}
-                                        </span>
-                                      ))}
-                                    </div>
-                                  )}
+
                                 </div>
                               </td>
                               <td className="p-4 text-left">
@@ -1942,70 +2286,54 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                     <div className="space-y-1.5 xl:col-span-2">
                       <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Category (English)</label>
                       <select
-                        value={editingItem.category_en || "General News"}
+                        value={editingItem.category_en || "GENERAL NEWS"}
                         onChange={(e) => {
                           const val = e.target.value;
                           const defaults = [
-                            { en: "Crime", ta: "குற்றம்" },
-                            { en: "Cyber Safety", ta: "இணைய பாதுகாப்பு" },
-                            { en: "Women Safety", ta: "பெண்கள் பாதுகாப்பு" },
-                            { en: "Public Safety", ta: "பொது பாதுகாப்பு" },
-                            { en: "Outreach", ta: "சமூக அவுட்ரீச்" },
-                            { en: "Traffic Updates", ta: "போக்குவரத்து தகவல்கள்" },
-                            { en: "Awards & Recognition", ta: "விருதுகள் & அங்கீகாரம்" },
-                            { en: "Official Alerts", ta: "அதிகாரப்பூர்வ அறிவிப்புகள்" },
-                            { en: "General News", ta: "பொதுச் செய்திகள்" }
+                            { en: "AWARDS & RECOGNITION", ta: "விருதுகள் & அங்கீகாரம்" },
+                            { en: "POLICE ADMINISTRATION", ta: "காவல் நிர்வாகம்" },
+                            { en: "GOVERNMENT UPDATE", ta: "அரசு அறிவிப்புகள்" },
+                            { en: "TRENDING NEWS", ta: "பிரபலமான செய்திகள்" },
+                            { en: "GENERAL NEWS", ta: "பொதுச் செய்திகள்" },
+                            { en: "TRAFFIC NEWS", ta: "போக்குவரத்து தகவல்கள்" },
+                            { en: "CRIME", ta: "குற்றம்" },
+                            { en: "CYBER SAFETY", ta: "இணைய பாதுகாப்பு" },
+                            { en: "WOMEN SAFETY", ta: "பெண்கள் பாதுகாப்பு" },
+                            { en: "PUBLIC SAFETY", ta: "பொது பாதுகாப்பு" },
+                            { en: "COMMUNITY OUTREACH", ta: "சமூக அவுட்ரீச்" },
+                            { en: "WANTED CRIMINALS", ta: "தேடப்படும் குற்றவாளிகள்" },
+                            { en: "MISSING PERSONS", ta: "காணாமல் போனவர்கள்" },
+                            { en: "CYBER AWERENESS", ta: "சைபர் விழிப்புணர்வு" },
+                            { en: "ONLINE FRAUD", ta: "இணையவழி மோசடி" },
+                            { en: "COMPLAINT PORTAL", ta: "புகார் போர்டல்" },
+                            { en: "PINK PATROL", ta: "பிங்க் ரோந்து" },
+                            { en: "AVAL SUPPORT WING", ta: "அவள் ஆதரவு பிரிவு" },
+                            { en: "WOMEN HELPLINE", ta: "பெண்கள் உதவி எண்" }
                           ];
-                          
-                          const map = new Map<string, string>();
-                          if (news && Array.isArray(news)) {
-                            news.forEach((n: any) => {
-                              if (n.category_en) {
-                                map.set(n.category_en, n.category_ta || n.category_en);
-                              }
-                            });
-                          }
-                          defaults.forEach(d => {
-                            if (!map.has(d.en)) {
-                              map.set(d.en, d.ta);
-                            }
-                          });
-                          
-                          const list = Array.from(map.entries()).map(([en, ta]) => ({ en, ta }));
-                          const found = list.find(c => c.en === val) || { en: "General News", ta: "பொதுச் செய்திகள்" };
+                          const found = defaults.find(c => c.en === val) || { en: "GENERAL NEWS", ta: "பொதுச் செய்திகள்" };
                           setEditingItem({ ...editingItem, category_en: found.en, category_ta: found.ta });
                         }}
-                        className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-850 outline-none text-xs text-slate-850 dark:text-white p-3 rounded-xl focus:border-brand-gold/50 cursor-pointer"
+                        className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-855 outline-none text-xs text-slate-855 dark:text-white p-3 rounded-xl focus:border-brand-gold/50 cursor-pointer"
                       >
-                        {(() => {
-                          const defaults = [
-                            { en: "Crime", ta: "குற்றம்" },
-                            { en: "Cyber Safety", ta: "இணைய பாதுகாப்பு" },
-                            { en: "Women Safety", ta: "பெண்கள் பாதுகாப்பு" },
-                            { en: "Public Safety", ta: "பொது பாதுகாப்பு" },
-                            { en: "Outreach", ta: "சமூக அவுட்ரீச்" },
-                            { en: "Traffic Updates", ta: "போக்குவரத்து தகவல்கள்" },
-                            { en: "Awards & Recognition", ta: "விருதுகள் & அங்கீகாரம்" },
-                            { en: "Official Alerts", ta: "அதிகாரப்பூர்வ அறிவிப்புகள்" },
-                            { en: "General News", ta: "பொதுச் செய்திகள்" }
-                          ];
-                          const map = new Map<string, string>();
-                          if (news && Array.isArray(news)) {
-                            news.forEach((n: any) => {
-                              if (n.category_en) {
-                                map.set(n.category_en, n.category_ta || n.category_en);
-                              }
-                            });
-                          }
-                          defaults.forEach(d => {
-                            if (!map.has(d.en)) {
-                              map.set(d.en, d.ta);
-                            }
-                          });
-                          return Array.from(map.entries()).map(([en, ta]) => (
-                            <option key={en} value={en}>{en}</option>
-                          ));
-                        })()}
+                        <option value="AWARDS & RECOGNITION">AWARDS & RECOGNITION</option>
+                        <option value="POLICE ADMINISTRATION">POLICE ADMINISTRATION</option>
+                        <option value="GOVERNMENT UPDATE">GOVERNMENT UPDATE</option>
+                        <option value="TRENDING NEWS">TRENDING NEWS</option>
+                        <option value="GENERAL NEWS">GENERAL NEWS</option>
+                        <option value="TRAFFIC NEWS">TRAFFIC NEWS</option>
+                        <option value="CRIME">CRIME</option>
+                        <option value="CYBER SAFETY">CYBER SAFETY</option>
+                        <option value="WOMEN SAFETY">WOMEN SAFETY</option>
+                        <option value="PUBLIC SAFETY">PUBLIC SAFETY</option>
+                        <option value="COMMUNITY OUTREACH">COMMUNITY OUTREACH</option>
+                        <option value="WANTED CRIMINALS">WANTED CRIMINALS</option>
+                        <option value="MISSING PERSONS">MISSING PERSONS</option>
+                        <option value="CYBER AWERENESS">CYBER AWERENESS</option>
+                        <option value="ONLINE FRAUD">ONLINE FRAUD</option>
+                        <option value="COMPLAINT PORTAL">COMPLAINT PORTAL</option>
+                        <option value="PINK PATROL">PINK PATROL</option>
+                        <option value="AVAL SUPPORT WING">AVAL SUPPORT WING</option>
+                        <option value="WOMEN HELPLINE">WOMEN HELPLINE</option>
                       </select>
                     </div>
 
@@ -2016,7 +2344,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                         type="text"
                         disabled
                         value={editingItem.category_ta || "பொதுச் செய்திகள்"}
-                        className="w-full bg-stone-100 dark:bg-stone-900 border border-stone-250 dark:border-stone-800 outline-none text-xs text-stone-500 p-3 rounded-xl cursor-not-allowed"
+                        className="w-full bg-stone-100 dark:bg-stone-905 border border-stone-250 dark:border-stone-800 outline-none text-xs text-stone-500 p-3 rounded-xl cursor-not-allowed"
                       />
                     </div>
 
@@ -2182,29 +2510,6 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                         className={`w-full bg-stone-50 dark:bg-stone-955 border border-stone-200 dark:border-stone-850 outline-none text-xs text-slate-850 dark:text-white p-3 rounded-xl focus:border-brand-gold/50 ${isMetadataLocked ? "opacity-60 cursor-not-allowed" : ""}`}
                       />
                     </div>
-
-                    {/* English Tags */}
-                    <div className="space-y-1.5 xl:col-span-2">
-                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Tags (English, comma-separated)</label>
-                      <input
-                        type="text"
-                        value={editingItem.tags_en?.join(", ") || ""}
-                        onChange={(e) => setEditingItem({ ...editingItem, tags_en: e.target.value.split(",").map(t => t.trim()).filter(Boolean) })}
-                        placeholder="e.g. Medals, Awards, GCP"
-                        className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-850 outline-none text-xs text-slate-850 dark:text-white p-3 rounded-xl focus:border-brand-gold/50"
-                      />
-                    </div>
-                    {/* Tamil Tags */}
-                    <div className="space-y-1.5 xl:col-span-2">
-                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">குறிச்சொற்கள் (தமிழ், கமாவால் பிரிக்கப்பட்டவை)</label>
-                      <input
-                        type="text"
-                        value={editingItem.tags_ta?.join(", ") || ""}
-                        onChange={(e) => setEditingItem({ ...editingItem, tags_ta: e.target.value.split(",").map(t => t.trim()).filter(Boolean) })}
-                        placeholder="e.g. பதக்கங்கள், விருதுகள்"
-                        className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-850 outline-none text-xs text-slate-850 dark:text-white p-3 rounded-xl focus:border-brand-gold/50"
-                      />
-                    </div>
                   </div>
 
                   {/* CMS Toggles Section */}
@@ -2282,8 +2587,8 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                       style={{ minHeight: "140px" }}
                       onDragOver={(e) => {
                         e.preventDefault();
-                        e.currentTarget.style.borderColor = "#c5a059";
-                        e.currentTarget.style.background = "rgba(197,160,89,0.05)";
+                        e.currentTarget.style.borderColor = "#d4af37";
+                        e.currentTarget.style.background = "rgba(212,175,55,0.05)";
                       }}
                       onDragLeave={(e) => {
                         e.currentTarget.style.borderColor = "";
@@ -2774,8 +3079,8 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                     className="relative w-full rounded-xl border-2 border-dashed border-stone-200 dark:border-stone-700 hover:border-brand-gold/60 transition-all duration-200 cursor-pointer overflow-hidden bg-stone-55 dark:bg-stone-950 flex flex-col justify-center items-center py-10 px-4"
                     onDragOver={(e) => {
                       e.preventDefault();
-                      e.currentTarget.style.borderColor = "#c5a059";
-                      e.currentTarget.style.background = "rgba(197,160,89,0.05)";
+                      e.currentTarget.style.borderColor = "#d4af37";
+                      e.currentTarget.style.background = "rgba(212,175,55,0.05)";
                     }}
                     onDragLeave={(e) => {
                       e.currentTarget.style.borderColor = "";
@@ -3174,7 +3479,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                     Back to Slides List
                     <span className="text-[9px] text-stone-500 font-bold normal-case">({slider.length} slide{slider.length !== 1 ? "s" : ""} saved)</span>
                   </button>
-                  <span className="text-[9px] uppercase font-black tracking-widest" style={{ color: isAdding ? "#c5a059" : "#059669" }}>
+                  <span className="text-[9px] uppercase font-black tracking-widest" style={{ color: isAdding ? "#d4af37" : "#059669" }}>
                     {isAdding ? "+ Adding New Slide" : `✎ Editing Slide #${editingItem.id}`}
                   </span>
                 </div>
@@ -3202,8 +3507,8 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                         style={{ minHeight: "150px" }}
                         onDragOver={(e) => {
                           e.preventDefault();
-                          e.currentTarget.style.borderColor = "#c5a059";
-                          e.currentTarget.style.background = "rgba(197,160,89,0.05)";
+                          e.currentTarget.style.borderColor = "#d4af37";
+                          e.currentTarget.style.background = "rgba(212,175,55,0.05)";
                         }}
                         onDragLeave={(e) => {
                           e.currentTarget.style.borderColor = "";
@@ -3400,7 +3705,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                             finally { setSliderGenerating(false); }
                           }}
                           className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-                          style={{ background: sliderGenerating ? "rgba(197,160,89,0.15)" : "rgba(197,160,89,0.12)", border: "1px solid rgba(197,160,89,0.4)", color: "#c5a059" }}
+                          style={{ background: sliderGenerating ? "rgba(212,175,55,0.15)" : "rgba(212,175,55,0.12)", border: "1px solid rgba(212,175,55,0.4)", color: "#d4af37" }}
                         >
                           {sliderGenerating ? (
                             <><div className="w-3 h-3 rounded-full border border-brand-gold border-t-transparent animate-spin" />Generating...</>
@@ -3451,7 +3756,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                     {/* ── Auto-generated fields badge ── */}
                     {sliderGenSource && (
                       <div className="flex items-center gap-2 py-1.5 px-3 rounded-lg text-[9px] font-black uppercase tracking-widest"
-                        style={{ background: sliderGenSource === "ai" ? "rgba(16,185,129,0.08)" : "rgba(197,160,89,0.08)", border: `1px solid ${sliderGenSource === "ai" ? "rgba(16,185,129,0.2)" : "rgba(197,160,89,0.2)"}`, color: sliderGenSource === "ai" ? "#6ee7b7" : "#c5a059" }}>
+                        style={{ background: sliderGenSource === "ai" ? "rgba(16,185,129,0.08)" : "rgba(212,175,55,0.08)", border: `1px solid ${sliderGenSource === "ai" ? "rgba(16,185,129,0.2)" : "rgba(212,175,55,0.2)"}`, color: sliderGenSource === "ai" ? "#6ee7b7" : "#d4af37" }}>
                         <CheckCircle className="w-3 h-3" />
                         {sliderGenSource === "ai" ? "✦ AI-generated (Gemini) — all fields below auto-filled" : "✦ Rules-based — Category & Title auto-filled (add GEMINI_API_KEY for Tamil)"}
                       </div>
@@ -3578,7 +3883,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                   {slider.map((item) => (
                     <div key={item.id} className="bg-stone-900 border border-stone-850 rounded-xl overflow-hidden flex flex-col shadow-sm">
                       <div className="relative w-full h-[150px] bg-black">
-                        <Image src={item.src} alt="" fill className="object-cover object-center" />
+                        <Image src={item.src} alt="" fill className="object-cover object-center"  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
                         <div className="absolute top-2 right-2 bg-black/50 text-[9px] font-bold text-white px-2 py-0.5 rounded backdrop-blur">
                           Order #{item.order_num} | {item.active ? "Active" : "Hidden"}
                         </div>
@@ -3903,7 +4208,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                 {/* Photo modification */}
                 <div className="lg:col-span-4 flex flex-col items-center gap-4">
                   <div className="relative w-36 h-36 rounded-full overflow-hidden bg-stone-955 border border-stone-800 shadow-lg">
-                    <Image src={profile.photo} alt="" fill className="object-cover object-center" />
+                    <Image src={profile.photo} alt="" fill className="object-cover object-center"  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
                   </div>
                   
                   <label className="px-4 py-2 bg-stone-950 border border-stone-800 hover:border-brand-gold/30 rounded-lg text-[10px] font-black uppercase tracking-wider text-white transition cursor-pointer flex items-center gap-1.5 shadow">
@@ -4475,7 +4780,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                         <div key={idx} className="flex gap-3 items-center bg-stone-955 rounded-xl border border-stone-850 p-3">
                           {imgUrl && imgUrl.startsWith("/") && (
                             <div className="relative w-12 h-8 rounded bg-stone-950 border border-stone-800 overflow-hidden shrink-0">
-                              <Image src={imgUrl} alt="" fill className="object-cover" />
+                              <Image src={imgUrl} alt="" fill className="object-cover"  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
                             </div>
                           )}
                           <input
@@ -4656,7 +4961,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                       onClick={() => setAlertsFilter(filter)}
                       className="pb-3 px-1 text-xs uppercase font-black tracking-wider border-b-2 transition relative flex items-center gap-2 cursor-pointer"
                       style={{
-                        borderColor: alertsFilter === filter ? "#c5a059" : "transparent",
+                        borderColor: alertsFilter === filter ? "#d4af37" : "transparent",
                         color: alertsFilter === filter ? "#1e293b" : "#64748b",
                       }}
                     >
@@ -5100,7 +5405,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                       </span>
                     </div>
                     <div className="bg-stone-900 border border-stone-850 p-4 rounded-xl flex flex-col items-start shadow-sm">
-                      <span className="text-[10px] uppercase font-black tracking-wider text-[#c5a059]">Traffic Control</span>
+                      <span className="text-[10px] uppercase font-black tracking-wider text-[#d4af37]">Traffic Control</span>
                       <span className="text-2xl font-black text-white mt-1">
                         {policeStations.filter(s => s.type === "Traffic").length}
                       </span>

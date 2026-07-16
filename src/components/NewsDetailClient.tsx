@@ -61,7 +61,10 @@ export default function NewsDetailClient({ article }: { article: NewsItem }) {
       fetch(`/api/news/${article.id}/view`, { method: "POST" }).catch(() => {});
     }
     fetch("/api/admin/crud/news")
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        return res.json();
+      })
       .then(data => {
         if (Array.isArray(data)) {
           // Only show published articles in related/sidebar sections

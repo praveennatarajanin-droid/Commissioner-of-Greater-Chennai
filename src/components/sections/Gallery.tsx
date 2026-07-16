@@ -120,7 +120,7 @@ export default function Gallery() {
                   alt={item.title}
                   fill
                   className="object-cover object-center group-hover:scale-105 group-hover:blur-[2px] transition-all duration-700 select-none"
-                />
+                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
                 
                 {/* Gradient shade */}
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/20 to-slate-950/30 opacity-60 group-hover:opacity-80 transition duration-300" />
@@ -184,7 +184,7 @@ export default function Gallery() {
                   alt="Enlarged View"
                   fill
                   className="object-contain"
-                />
+                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
               </motion.div>
             </motion.div>
           )}

@@ -9,12 +9,13 @@ import { useTranslation } from "@/context/LanguageContext";
 
 interface StoriesPageClientProps {
   stories: any[];
+  news?: any[];
   menuItems: any[];
   ticker: any[];
   profile: any;
 }
 
-export default function StoriesPageClient({ stories, menuItems, ticker, profile }: StoriesPageClientProps) {
+export default function StoriesPageClient({ stories, news = [], menuItems, ticker, profile }: StoriesPageClientProps) {
   const { language } = useTranslation();
   const [activeStory, setActiveStory] = useState<any | null>(null);
   const [activeSlideIndex, setActiveSlideIndex] = useState(0);
@@ -31,6 +32,34 @@ export default function StoriesPageClient({ stories, menuItems, ticker, profile 
         ? activeStory.slides_json 
         : (typeof activeStory.slides_json === "string" ? JSON.parse(activeStory.slides_json) : []))
     : [];
+
+  // Find matching news article for active story
+  const customLink = activeStory?.news_slug;
+  const isDirectLink = customLink && (customLink.startsWith("/") || customLink.startsWith("http"));
+
+  const matchingNews = !isDirectLink && activeStory ? (news || []).find((n: any) => {
+    // 1. Check explicit news_slug link matching
+    if (activeStory.news_slug && n.slug === activeStory.news_slug) {
+      return true;
+    }
+    // 2. Intelligent fallback: match by title similarity
+    const storyTitle = (activeStory.title_en || "").toLowerCase();
+    const newsTitle = (n.title_en || "").toLowerCase();
+    
+    // Extract unique significant words
+    const storyWords = storyTitle
+      .replace(/[^\w\s]/g, "")
+      .split(/\s+/)
+      .filter((w: string) => w.length > 3 && !["takes", "charge", "posted", "about", "their", "under", "these", "those"].includes(w));
+    
+    if (storyWords.length === 0) return false;
+    
+    // Verify if news title matches significant key phrases/words
+    const matches = storyWords.filter((w: string) => newsTitle.includes(w));
+    return matches.length >= Math.min(2, storyWords.length);
+  }) : null;
+
+  const targetLink = isDirectLink ? customLink : (matchingNews ? `/news/${matchingNews.slug}` : null);
 
   // Sync language with standard website selection when story opens
   useEffect(() => {
@@ -329,6 +358,22 @@ export default function StoriesPageClient({ stories, menuItems, ticker, profile 
                   }
                 </p>
               </div>
+
+              {/* Read More button linked to News details */}
+              {targetLink && (
+                <div className="pt-3 flex justify-center">
+                  <a
+                    href={targetLink}
+                    onClick={() => {
+                      handleCloseStory();
+                    }}
+                    className="w-full text-center py-2 px-4 rounded-xl bg-white/15 hover:bg-[#c5a059] hover:text-stone-950 text-white font-black text-[10px] uppercase tracking-wider transition-all duration-300 border border-white/20 flex items-center justify-center gap-1.5 backdrop-blur-sm group/btn"
+                  >
+                    <span>{storyLang === "ta" ? "மேலும் படிக்க" : "Read Full Story"}</span>
+                    <ChevronRight className="w-3.5 h-3.5 transform group-hover/btn:translate-x-0.5 transition" />
+                  </a>
+                </div>
+              )}
             </div>
 
           </div>

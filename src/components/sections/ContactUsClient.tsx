@@ -6,7 +6,7 @@ import {
   Phone, Mail, MapPin, Clock, Shield, AlertTriangle, UserCheck, HeartPulse,
   PhoneCall, Send, RefreshCw, ChevronDown, ChevronUp, ExternalLink,
   MessageSquare, Navigation, Search, BookOpen, Globe, Wifi, Users,
-  CheckCircle
+  CheckCircle, Loader2
 } from "lucide-react";
 import Image from "next/image";
 import { useTranslation } from "@/context/LanguageContext";
@@ -171,18 +171,17 @@ const categories = [
    MAIN COMPONENT
 ═══════════════════════════════════════════════════ */
 export default function ContactUsClient() {
-  const { language } = useTranslation();
+  const { t, language } = useTranslation();
 
   // Form state
   const [name, setName] = useState("");
   const [mobile, setMobile] = useState("");
   const [email, setEmail] = useState("");
-  const [subject, setSubject] = useState("");
-  const [category, setCategory] = useState("General Enquiry");
-  const [message, setMessage] = useState("");
+  const [grievance, setGrievance] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  const [sentPreviewHtml, setSentPreviewHtml] = useState("");
 
   // FAQ accordion state
   const [openFaq, setOpenFaq] = useState<number | null>(null);
@@ -192,28 +191,29 @@ export default function ContactUsClient() {
     setSubmitting(true);
     setSubmitError("");
     try {
-      const res = await fetch("/api/contact-us", {
+      const res = await fetch("/api/send-email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, mobile, email, subject, category, message }),
+        body: JSON.stringify({ name, email, mobile, grievance }),
       });
-      if (res.ok) {
+      const data = await res.json();
+      if (data.success) {
+        setSentPreviewHtml(data.emailHtml);
         setSubmitted(true);
-        setName(""); setMobile(""); setEmail(""); setSubject(""); setMessage("");
-        setCategory("General Enquiry");
       } else {
-        setSubmitError("Failed to send message. Please try again.");
+        setSubmitError(language === "ta" ? "மனுவைச் சமர்ப்பிக்க முடியவில்லை. மீண்டும் முயலவும்." : "Failed to submit grievance. Please try again.");
       }
-    } catch {
-      setSubmitError("Network error. Please check your connection.");
+    } catch (err) {
+      console.error(err);
+      setSubmitError(language === "ta" ? "நிர்வாக மேசை சேவையுடன் இணைப்பதில் பிழை." : "Error connecting to the administrative desk service.");
     } finally {
       setSubmitting(false);
     }
   };
 
   const handleReset = () => {
-    setName(""); setMobile(""); setEmail(""); setSubject(""); setMessage("");
-    setCategory("General Enquiry"); setSubmitted(false); setSubmitError("");
+    setName(""); setMobile(""); setEmail(""); setGrievance("");
+    setSentPreviewHtml(""); setSubmitted(false); setSubmitError("");
   };
 
   const inputClass = "w-full bg-stone-50 dark:bg-stone-955 border border-stone-200 dark:border-stone-800 text-sm text-stone-800 dark:text-white p-3 rounded-xl focus:border-brand-gold focus:outline-none transition-colors placeholder:text-stone-400";
@@ -232,7 +232,7 @@ export default function ContactUsClient() {
           fill
           priority
           className="object-cover"
-        />
+         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
       </section>
 
       {/* ══════════════════════════════════════
@@ -296,10 +296,10 @@ export default function ContactUsClient() {
                   <p className="text-xs text-stone-500 dark:text-stone-400 truncate">✉️ {desk.email}</p>
                 </div>
                 <div className="flex gap-2 pt-2 border-t border-stone-100 dark:border-stone-800">
-                  <a href={`tel:${desk.phone}`} className="flex-1 py-2 text-center text-[10px] font-black uppercase tracking-wide bg-stone-50 dark:bg-stone-950 hover:bg-brand-gold hover:text-stone-950 dark:hover:bg-brand-gold dark:hover:text-stone-950 text-stone-700 dark:text-stone-300 rounded-lg border border-stone-200 dark:border-stone-800 transition cursor-pointer">
+                  <a href={`tel:${desk.phone}`} className="flex-1 py-2 text-center text-[10px] font-black uppercase tracking-wide bg-stone-50 dark:bg-stone-955 hover:bg-brand-gold hover:text-stone-955 dark:hover:bg-brand-gold dark:hover:text-stone-955 text-stone-700 dark:text-stone-300 rounded-lg border border-stone-200 dark:border-stone-800 transition cursor-pointer">
                     📞 Call
                   </a>
-                  <a href={`mailto:${desk.email}`} className="flex-1 py-2 text-center text-[10px] font-black uppercase tracking-wide bg-stone-50 dark:bg-stone-950 hover:bg-brand-blue hover:text-white dark:hover:bg-brand-blue dark:hover:text-white text-stone-700 dark:text-stone-300 rounded-lg border border-stone-200 dark:border-stone-800 transition cursor-pointer">
+                  <a href={`mailto:${desk.email}`} className="flex-1 py-2 text-center text-[10px] font-black uppercase tracking-wide bg-stone-50 dark:bg-stone-955 hover:bg-brand-blue hover:text-white dark:hover:bg-brand-blue dark:hover:text-white text-stone-700 dark:text-stone-300 rounded-lg border border-stone-200 dark:border-stone-800 transition cursor-pointer">
                     ✉️ Email
                   </a>
                 </div>
@@ -310,74 +310,179 @@ export default function ContactUsClient() {
       </section>
 
       {/* ══════════════════════════════════════
-          SECTION 4 – SEND MESSAGE FORM
+          SECTION 4 – GRIEVANCE / OUTREACH FORM
       ══════════════════════════════════════ */}
       <section className="py-16 px-4 bg-stone-50 dark:bg-stone-900/50">
         <div className="max-w-3xl mx-auto">
           <div className="flex items-center gap-2.5 border-b border-stone-200 dark:border-stone-800 pb-3 mb-10">
             <div className="w-1.5 h-6 rounded-full bg-brand-maroon" />
             <h2 className="font-display font-black text-sm uppercase tracking-widest text-stone-900 dark:text-white">
-              Send Us a Message
+              {language === "ta" ? "மனு சமர்ப்பிப்பு படிவம்" : "Grievance / Outreach Form"}
             </h2>
           </div>
 
           {submitted ? (
-            <div className="bg-white dark:bg-stone-900 border border-emerald-200 dark:border-emerald-700/50 rounded-2xl p-10 text-center space-y-4 animate-fadeIn">
-              <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-500/10 text-emerald-500 rounded-full flex items-center justify-center mx-auto">
-                <CheckCircle className="w-8 h-8" />
+            <div className="bg-white dark:bg-stone-900 border border-emerald-200 dark:border-emerald-700/50 rounded-2xl p-5 sm:p-7 md:p-8 text-center space-y-5 animate-fadeIn">
+              <div className="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-955/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto">
+                <CheckCircle className="w-6 h-6" />
               </div>
-              <h3 className="font-display font-black text-xl uppercase tracking-wide text-stone-900 dark:text-white">Message Sent!</h3>
-              <p className="text-stone-500 dark:text-stone-400 text-sm">Your enquiry has been recorded. Our team will respond within 2 working days.</p>
-              <button onClick={handleReset} className="mt-4 px-6 py-2.5 bg-brand-maroon text-white rounded-xl text-xs font-black uppercase tracking-widest transition hover:bg-brand-maroon-dark cursor-pointer">
-                Send Another Message
+              <div className="space-y-1.5">
+                <h4 className="font-display font-bold text-sm sm:text-base text-emerald-600 dark:text-emerald-400">
+                  {language === "ta" ? "மின்னஞ்சல் வெற்றிகரமாக அனுப்பப்பட்டது!" : "Email Sent Successfully!"}
+                </h4>
+                <p className="text-xs text-slate-500 dark:text-slate-400 max-w-xs mx-auto font-normal leading-relaxed">
+                  {language === "ta" 
+                    ? "உங்கள் கோரிக்கை விவரங்கள் வெற்றிகரமாகப் பதிவு செய்யப்பட்டு, " 
+                    : "Your grievance details have been successfully registered and sent to "}
+                  <strong className="text-brand-maroon dark:text-brand-gold font-bold">gcp.itdepartment@gmail.com</strong>
+                  {language === "ta" ? " என்ற மின்னஞ்சல் முகவரிக்கு அனுப்பப்பட்டது." : "."}
+                </p>
+              </div>
+
+              {/* Simulated Email Preview Container */}
+              {sentPreviewHtml && (
+                <div className="w-full text-left border border-stone-200 dark:border-stone-800 rounded-xl overflow-hidden shadow-inner bg-stone-50 dark:bg-stone-955 max-h-[260px] overflow-y-auto overflow-x-hidden p-1 my-3">
+                  <div className="bg-stone-100 dark:bg-stone-900 p-2.5 text-[9px] font-black text-stone-500 dark:text-stone-400 border-b border-stone-200 dark:border-stone-800 flex justify-between items-center sticky top-0 z-10 uppercase tracking-wider">
+                    <span>{t("contact.sentLogs")}</span>
+                    <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> {t("contact.sentSuccess")}
+                    </span>
+                  </div>
+                  <div className="p-3 bg-white email-preview-container" dangerouslySetInnerHTML={{ __html: sentPreviewHtml }} />
+                  <style dangerouslySetInnerHTML={{ __html: `
+                    .email-preview-container .email-card {
+                      width: 100% !important;
+                      max-width: 100% !important;
+                      border-radius: 8px !important;
+                      box-shadow: none !important;
+                      border: none !important;
+                    }
+                    .email-preview-container .email-header {
+                      padding: 16px 12px !important;
+                    }
+                    .email-preview-container .email-body {
+                      padding: 16px 12px !important;
+                    }
+                    .email-preview-container .email-table {
+                      display: block !important;
+                      width: 100% !important;
+                    }
+                    .email-preview-container .email-table tbody {
+                      display: block !important;
+                      width: 100% !important;
+                    }
+                    .email-preview-container .email-row {
+                      display: block !important;
+                      width: 100% !important;
+                    }
+                    .email-preview-container .email-label {
+                      display: block !important;
+                      width: 100% !important;
+                      padding-top: 6px !important;
+                      padding-bottom: 2px !important;
+                      box-sizing: border-box !important;
+                    }
+                    .email-preview-container .email-val {
+                      display: block !important;
+                      width: 100% !important;
+                      padding-bottom: 8px !important;
+                      box-sizing: border-box !important;
+                      word-break: break-all !important;
+                    }
+                    .email-preview-container .email-title {
+                      font-size: 14px !important;
+                    }
+                    .email-preview-container .email-subtitle {
+                      font-size: 8px !important;
+                      letter-spacing: 1px !important;
+                    }
+                  `}} />
+                </div>
+              )}
+
+              <button
+                onClick={handleReset}
+                className="px-5 py-2.5 rounded-lg bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-xs font-black uppercase tracking-wider transition-colors text-slate-800 dark:text-slate-200 cursor-pointer"
+              >
+                {t("contact.anotherForm")}
               </button>
             </div>
           ) : (
             <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-850 rounded-2xl p-6 md:p-8 shadow-sm">
               {submitError && (
-                <div className="mb-4 p-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-xl text-red-600 dark:text-red-400 text-xs font-bold">
+                <div className="mb-4 p-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-xl text-red-650 dark:text-red-400 text-xs font-bold">
                   ⚠️ {submitError}
                 </div>
               )}
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div>
-                    <label className={labelClass}>Full Name *</label>
-                    <input type="text" required value={name} onChange={e => setName(e.target.value)} placeholder="Your full name" className={inputClass} />
+                    <label className={labelClass}>{t("contact.name")} *</label>
+                    <input
+                      type="text"
+                      required
+                      value={name}
+                      onChange={e => setName(e.target.value)}
+                      placeholder={t("contact.namePlaceholder")}
+                      className={inputClass}
+                    />
                   </div>
                   <div>
-                    <label className={labelClass}>Mobile Number *</label>
-                    <input type="tel" required value={mobile} onChange={e => setMobile(e.target.value)} placeholder="10-digit mobile" className={inputClass} />
-                  </div>
-                  <div>
-                    <label className={labelClass}>Email Address *</label>
-                    <input type="email" required value={email} onChange={e => setEmail(e.target.value)} placeholder="your@email.com" className={inputClass} />
-                  </div>
-                  <div>
-                    <label className={labelClass}>Category</label>
-                    <select value={category} onChange={e => setCategory(e.target.value)} className={inputClass + " cursor-pointer"}>
-                      {categories.map(c => <option key={c} value={c}>{c}</option>)}
-                    </select>
+                    <label className={labelClass}>{t("contact.email")} *</label>
+                    <input
+                      type="email"
+                      required
+                      value={email}
+                      onChange={e => setEmail(e.target.value)}
+                      placeholder={t("contact.emailPlaceholder")}
+                      className={inputClass}
+                    />
                   </div>
                 </div>
 
                 <div>
-                  <label className={labelClass}>Subject *</label>
-                  <input type="text" required value={subject} onChange={e => setSubject(e.target.value)} placeholder="Brief subject of your enquiry" className={inputClass} />
+                  <label className={labelClass}>{t("contact.mobile")} *</label>
+                  <input
+                    type="tel"
+                    required
+                    value={mobile}
+                    onChange={e => setMobile(e.target.value)}
+                    placeholder={t("contact.mobilePlaceholder")}
+                    className={inputClass}
+                  />
                 </div>
 
                 <div>
-                  <label className={labelClass}>Message *</label>
-                  <textarea required value={message} onChange={e => setMessage(e.target.value)} rows={5} placeholder="Describe your enquiry in detail..." className={inputClass + " resize-none"} />
+                  <label className={labelClass}>{t("contact.grievance")} *</label>
+                  <textarea
+                    required
+                    value={grievance}
+                    onChange={e => setGrievance(e.target.value)}
+                    rows={5}
+                    placeholder={t("contact.grievancePlaceholder")}
+                    className={inputClass + " resize-none"}
+                  />
                 </div>
 
                 <div className="flex gap-3 pt-2">
-                  <button type="submit" disabled={submitting} className="flex-1 flex items-center justify-center gap-2 py-3 bg-brand-maroon hover:bg-brand-maroon-dark disabled:opacity-60 text-white rounded-xl text-xs font-black uppercase tracking-widest transition shadow cursor-pointer border border-brand-maroon-dark">
-                    <Send className="w-4 h-4" />
-                    {submitting ? "Sending..." : "Send Message"}
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="flex-1 flex items-center justify-center gap-2 py-3 bg-brand-maroon hover:bg-brand-maroon-dark disabled:opacity-60 text-white rounded-xl text-xs font-black uppercase tracking-widest transition shadow cursor-pointer border border-brand-maroon-dark"
+                  >
+                    {submitting ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Send className="w-4 h-4" />
+                    )}
+                    {submitting ? t("contact.submitProgress") : (language === "ta" ? "மனுவைச் சமர்ப்பிக்கவும்" : "Submit Grievance")}
                   </button>
-                  <button type="button" onClick={handleReset} className="flex items-center gap-2 px-5 py-3 bg-stone-100 dark:bg-stone-950 hover:bg-stone-200 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300 rounded-xl text-xs font-black uppercase tracking-widest transition cursor-pointer border border-stone-200 dark:border-stone-800">
-                    <RefreshCw className="w-4 h-4" /> Reset
+                  <button
+                    type="button"
+                    onClick={handleReset}
+                    className="flex items-center gap-2 px-5 py-3 bg-stone-100 dark:bg-stone-955 hover:bg-stone-200 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300 rounded-xl text-xs font-black uppercase tracking-widest transition cursor-pointer border border-stone-200 dark:border-stone-800"
+                  >
+                    <RefreshCw className="w-4 h-4" /> {language === "ta" ? "மீட்டமை" : "Reset"}
                   </button>
                 </div>
               </form>

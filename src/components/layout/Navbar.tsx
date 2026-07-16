@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { Search, Menu, X, Sun, Moon } from "lucide-react";
+import { Search, Menu, X, Sun, Moon, ChevronDown } from "lucide-react";
 import { useTheme } from "@/components/ThemeProvider";
 import { useTranslation } from "@/context/LanguageContext";
 import { motion, AnimatePresence } from "framer-motion";
@@ -51,20 +51,34 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
   const pathname = usePathname();
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const queryVal = params.get("search") || "";
+      setSearchVal(queryVal);
+    }
+  }, [pathname]);
+
+  useEffect(() => {
     fetch("/api/admin/crud/news")
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          console.warn(`HTTP error! status: ${res.status}`);
+          return [];
+        }
+        return res.json();
+      })
       .then((data) => {
         if (Array.isArray(data)) {
           setNews(data);
         }
       })
-      .catch((err) => console.error("Failed to load news for categories:", err));
+      .catch((err) => console.warn("Failed to load news for categories:", err));
   }, []);
 
   const getCount = (categoryId: string) => {
     const normalizedId = categoryId.toLowerCase();
     return news.filter((n) => {
-      if (n.published === 0) return false;
+      if (!n || n.published === 0) return false;
       const cat = (n.category_en || "").toLowerCase();
       const title = (n.title_en || "").toLowerCase();
       
@@ -91,16 +105,33 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
 
   const [dbMenus, setDbMenus] = useState<any[]>([]);
   const [expandedMobileItems, setExpandedMobileItems] = useState<{ [key: number]: boolean }>({});
+  const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
 
   useEffect(() => {
     fetch("/api/menus")
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          console.warn(`HTTP error! status: ${res.status}`);
+          return [];
+        }
+        return res.json();
+      })
       .then((data) => {
         if (Array.isArray(data)) {
           setDbMenus(data);
         }
       })
-      .catch((err) => console.error("Failed to load menus from DB:", err));
+      .catch((err) => console.warn("Failed to load menus from DB:", err));
+  }, []);
+
+  useEffect(() => {
+    const handleOutsideClick = () => {
+      setActiveDropdown(null);
+    };
+    document.addEventListener("click", handleOutsideClick);
+    return () => {
+      document.removeEventListener("click", handleOutsideClick);
+    };
   }, []);
 
   const toggleMobileItem = (idx: number) => {
@@ -130,13 +161,13 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
   ];
 
   const finalNavItems = dbMenus.length > 0
-    ? dbMenus.map((m: any) => ({
-        label: language === "ta" ? m.name_ta : m.name_en,
-        href: m.url,
+    ? dbMenus.filter(Boolean).map((m: any) => ({
+        label: language === "ta" ? (m.name_ta || m.name_en || "") : (m.name_en || m.name_ta || ""),
+        href: m.url || "",
         openInNewTab: m.open_in_new_tab === 1,
-        subMenus: (m.subMenus || []).map((sub: any) => ({
-          label: language === "ta" ? sub.name_ta : sub.name_en,
-          href: sub.url,
+        subMenus: (m.subMenus || []).filter(Boolean).map((sub: any) => ({
+          label: language === "ta" ? (sub.name_ta || sub.name_en || "") : (sub.name_en || sub.name_ta || ""),
+          href: sub.url || "",
           openInNewTab: sub.open_in_new_tab === 1
         }))
       }))
@@ -309,7 +340,7 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
             </span>
           </div>
 
-          <nav className="flex items-stretch flex-grow overflow-x-auto" style={{ scrollbarWidth: "none" }}>
+          <nav className="flex items-stretch flex-grow overflow-visible" style={{ scrollbarWidth: "none" }}>
             {finalNavItems.map((item: any, idx) => {
               const isActive = pathname === item.href;
               const hasSub = item.subMenus && item.subMenus.length > 0;
@@ -318,20 +349,26 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
                   <Link
                     href={item.href}
                     target={item.openInNewTab ? "_blank" : undefined}
-                    className={`flex items-center px-4 text-[10px] sm:text-xs uppercase font-black tracking-wider hover:bg-[#1e2060] transition border-r border-white/10 whitespace-nowrap ${
+                    className={`flex items-center gap-1.5 px-4 text-[10px] sm:text-xs uppercase font-black tracking-wider hover:bg-[#1e2060] transition border-r border-white/10 whitespace-nowrap cursor-pointer ${
                       isActive ? "bg-[#1e2060] text-[#c5a059] border-b-2 border-[#c5a059]" : ""
                     }`}
                     style={{ minHeight: "48px" }}
                   >
-                    {item.label}
+                    <span>{item.label}</span>
+                    {hasSub && <ChevronDown className="w-3 h-3 text-white/70 group-hover:text-[#c5a059] transition" />}
                   </Link>
                   {hasSub && (
-                    <div className="absolute left-0 top-[48px] hidden group-hover:flex flex-col bg-brand-blue border-t-2 border-[#c5a059] shadow-xl min-w-[220px] z-50">
+                    <div 
+                      className={`absolute left-0 top-[48px] flex-col bg-brand-blue border-t-2 border-[#c5a059] shadow-xl min-w-[220px] z-50 ${
+                        activeDropdown === idx ? "flex" : "hidden group-hover:flex"
+                      }`}
+                    >
                       {item.subMenus.map((sub: any, sIdx: number) => (
                         <Link
                           key={sIdx}
                           href={sub.href}
                           target={sub.openInNewTab ? "_blank" : undefined}
+                          onClick={() => setActiveDropdown(null)}
                           className="px-4 py-3 text-[10px] sm:text-xs uppercase font-black tracking-wider text-white hover:bg-[#1e2060] hover:text-[#c5a059] border-b border-white/5 transition whitespace-nowrap text-left block"
                         >
                           {sub.label}
@@ -378,16 +415,29 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
                 return (
                   <div key={idx} className="flex flex-col border-b border-white/5 last:border-b-0">
                     <div className="flex items-center justify-between w-full">
-                      <Link
-                        href={item.href}
-                        target={item.openInNewTab ? "_blank" : undefined}
-                        onClick={() => !hasSub && setMobileMenuOpen(false)}
-                        className={`flex-grow flex items-center py-3.5 px-4 text-[13px] uppercase font-bold tracking-wider hover:bg-[#1e2060]/70 rounded-lg transition text-left min-h-[44px] ${
-                          isActive ? "bg-[#1e2060] text-[#c5a059]" : "text-stone-100"
-                        }`}
-                      >
-                        {item.label}
-                      </Link>
+                      {hasSub ? (
+                        <Link
+                          href={item.href}
+                          target={item.openInNewTab ? "_blank" : undefined}
+                          onClick={() => setMobileMenuOpen(false)}
+                          className={`flex-grow flex items-center py-3.5 px-4 text-[13px] uppercase font-bold tracking-wider hover:bg-[#1e2060]/70 rounded-lg transition text-left min-h-[44px] cursor-pointer ${
+                            isActive ? "bg-[#1e2060] text-[#c5a059]" : "text-stone-100"
+                          }`}
+                        >
+                          {item.label}
+                        </Link>
+                      ) : (
+                        <Link
+                          href={item.href}
+                          target={item.openInNewTab ? "_blank" : undefined}
+                          onClick={() => setMobileMenuOpen(false)}
+                          className={`flex-grow flex items-center py-3.5 px-4 text-[13px] uppercase font-bold tracking-wider hover:bg-[#1e2060]/70 rounded-lg transition text-left min-h-[44px] ${
+                            isActive ? "bg-[#1e2060] text-[#c5a059]" : "text-stone-100"
+                          }`}
+                        >
+                          {item.label}
+                        </Link>
+                      )}
                       {hasSub && (
                         <button
                           onClick={() => toggleMobileItem(idx)}

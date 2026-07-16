@@ -239,7 +239,7 @@ const NewsCard = ({ n, lang, idx }: { n: NewsItem; lang: "en" | "ta"; idx: numbe
           alt={title}
           fill
           className="object-cover object-center group-hover:scale-[1.03] transition-transform duration-500"
-          onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/images/police_medal.jpg"; }}
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/images/police_medal.jpg"; }}
         />
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
         
@@ -261,11 +261,6 @@ const NewsCard = ({ n, lang, idx }: { n: NewsItem; lang: "en" | "ta"; idx: numbe
           <span className="flex items-center gap-1">
             <Clock className="w-3 h-3 text-stone-400" /> {timeAgo(n.created_at || n.date, lang)}
           </span>
-          {n.views_count != null && (
-            <span className="flex items-center gap-0.5">
-              <Eye className="w-3 h-3 text-stone-400" /> {n.views_count.toLocaleString()}
-            </span>
-          )}
           <span className="flex items-center gap-0.5 text-brand-maroon dark:text-brand-gold group-hover:gap-1.5 transition-all text-[8px] font-black tracking-widest uppercase">
             Read <ChevronRight className="w-2.5 h-2.5" />
           </span>
@@ -497,7 +492,6 @@ export default function NewsChannelHomepage({
                     </h4>
                     <div className="flex items-center gap-3 mt-1.5 text-[9px] text-stone-400 font-black uppercase tracking-wider">
                       <span>{timeAgo(item.created_at || item.date, language)}</span>
-                      <span className="flex items-center gap-0.5"><Eye className="w-3 h-3" /> {item.views_count?.toLocaleString()}</span>
                     </div>
                   </div>
                 </Link>
@@ -531,7 +525,7 @@ export default function NewsChannelHomepage({
                       alt={title}
                       fill
                       className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
+                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
                   </div>
 
@@ -547,8 +541,6 @@ export default function NewsChannelHomepage({
                     </p>
                     <div className="flex items-center gap-3 pt-1 text-[9px] text-white/50 font-bold uppercase tracking-wider">
                       <span>{timeAgo(n.created_at || n.date, language)}</span>
-                      <span>•</span>
-                      <span>{n.views_count?.toLocaleString()} views</span>
                     </div>
                   </div>
                 </Link>

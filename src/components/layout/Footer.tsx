@@ -32,7 +32,7 @@ export default function Footer({ customProfile }: FooterProps = {}) {
                 alt="Greater Chennai Police Logo"
                 fill
                 className="object-contain"
-              />
+               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
             </div>
             <div>
               <span className="font-display font-black tracking-wider text-lg text-white uppercase block leading-tight">
@@ -108,11 +108,21 @@ export default function Footer({ customProfile }: FooterProps = {}) {
             </li>
             <li className="flex items-center gap-2.5">
               <Phone className="w-4.5 h-4.5 text-brand-gold shrink-0" />
-              <span className="text-white/75">{phone}</span>
+              <a href={`tel:${phone.replace(/[^\d+]/g, '')}`} className="text-white/75 hover:text-brand-gold transition">
+                {phone}
+              </a>
             </li>
             <li className="flex items-center gap-2.5">
               <Mail className="w-4.5 h-4.5 text-brand-gold shrink-0" />
-              <span className="text-white/75">{email}</span>
+              <a href={`mailto:${email}`} className="text-white/75 hover:text-brand-gold transition">
+                {email}
+              </a>
+            </li>
+            <li className="flex items-center gap-2.5">
+              <Mail className="w-4.5 h-4.5 text-brand-gold shrink-0" />
+              <a href="mailto:gcp.itdepartment@gmail.com" className="text-white/75 hover:text-brand-gold transition">
+                gcp.itdepartment@gmail.com
+              </a>
             </li>
           </ul>
         </div>

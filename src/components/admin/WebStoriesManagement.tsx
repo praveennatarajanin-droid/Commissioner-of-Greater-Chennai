@@ -8,6 +8,7 @@ interface WebStoriesManagementProps {
 
 export default function WebStoriesManagement({ user, onTabChange }: WebStoriesManagementProps) {
   const [stories, setStories] = useState<any[]>([]);
+  const [newsList, setNewsList] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingStory, setEditingStory] = useState<any | null>(null); // null means list view, object means edit/create
   const [isAdding, setIsAdding] = useState(false);
@@ -18,7 +19,22 @@ export default function WebStoriesManagement({ user, onTabChange }: WebStoriesMa
 
   useEffect(() => {
     fetchStories();
+    fetchNews();
   }, []);
+
+  const fetchNews = async () => {
+    try {
+      const res = await fetch("/api/admin/crud/news");
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          setNewsList(data.filter((n: any) => n.published === 1));
+        }
+      }
+    } catch (e) {
+      console.error("Failed to load news", e);
+    }
+  };
 
   const fetchStories = async () => {
     setLoading(true);
@@ -50,6 +66,7 @@ export default function WebStoriesManagement({ user, onTabChange }: WebStoriesMa
     setEditingStory({
       title_en: "",
       title_ta: "",
+      news_slug: "",
       cover_image: "",
       active: 1,
       slides: [
@@ -218,7 +235,7 @@ export default function WebStoriesManagement({ user, onTabChange }: WebStoriesMa
   if (loading && !editingStory) {
     return (
       <div className="flex flex-col items-center justify-center py-20 space-y-4">
-        <Loader2 className="w-8 h-8 text-[#2e3192] animate-spin" />
+        <Loader2 className="w-8 h-8 text-[#1e40af] animate-spin" />
         <p className="text-xs font-black uppercase text-stone-400">Loading Web Stories...</p>
       </div>
     );
@@ -240,7 +257,7 @@ export default function WebStoriesManagement({ user, onTabChange }: WebStoriesMa
           </div>
           <button
             onClick={handleAddNew}
-            className="flex items-center gap-1.5 px-4 py-2 bg-[#2e3192] hover:bg-[#1e2060] text-white rounded-xl text-xs font-black uppercase tracking-wider transition cursor-pointer"
+            className="flex items-center gap-1.5 px-4 py-2 bg-[#1e40af] hover:bg-[#1e3a8a] text-white rounded-xl text-xs font-black uppercase tracking-wider transition cursor-pointer"
           >
             <Plus className="w-4 h-4" /> Add Web Story
           </button>
@@ -269,7 +286,7 @@ export default function WebStoriesManagement({ user, onTabChange }: WebStoriesMa
                       className="w-full h-full object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent flex flex-col justify-end p-4">
-                      <span className="text-[8px] bg-[#c5a059] text-stone-950 font-black px-2 py-0.5 rounded-full uppercase tracking-wider self-start mb-2">
+                      <span className="text-[8px] bg-[#d4af37] text-stone-950 font-black px-2 py-0.5 rounded-full uppercase tracking-wider self-start mb-2">
                         {slidesCount} Slides
                       </span>
                       <h4 className="text-white font-bold text-xs uppercase line-clamp-2">
@@ -296,7 +313,7 @@ export default function WebStoriesManagement({ user, onTabChange }: WebStoriesMa
                     <div className="flex gap-1.5">
                       <button
                         onClick={() => handleEdit(story)}
-                        className="p-1.5 bg-[#2e3192]/10 hover:bg-[#2e3192]/25 text-[#2e3192] dark:text-[#c5a059] rounded-lg transition cursor-pointer"
+                        className="p-1.5 bg-[#1e40af]/10 hover:bg-[#1e40af]/25 text-[#1e40af] dark:text-[#d4af37] rounded-lg transition cursor-pointer"
                         title="Edit Web Story"
                       >
                         <Edit2 className="w-3.5 h-3.5" />
@@ -348,7 +365,7 @@ export default function WebStoriesManagement({ user, onTabChange }: WebStoriesMa
               
               {/* Cover Details Card */}
               <div className="bg-white dark:bg-stone-900 p-5 rounded-2xl border border-stone-200 dark:border-stone-850 space-y-4">
-                <h3 className="font-bold text-xs uppercase tracking-wider text-[#2e3192] dark:text-[#c5a059] flex items-center gap-1.5">
+                <h3 className="font-bold text-xs uppercase tracking-wider text-[#1e40af] dark:text-[#d4af37] flex items-center gap-1.5">
                   📁 General Information
                 </h3>
                 
@@ -360,7 +377,7 @@ export default function WebStoriesManagement({ user, onTabChange }: WebStoriesMa
                       placeholder="e.g. Traffic Alert: Rain Update"
                       value={editingStory.title_en}
                       onChange={(e) => setEditingStory((prev: any) => ({ ...prev, title_en: e.target.value }))}
-                      className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 px-3.5 py-2.5 rounded-xl text-xs outline-none focus:border-[#2e3192] transition text-slate-800 dark:text-white font-semibold"
+                      className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 px-3.5 py-2.5 rounded-xl text-xs outline-none focus:border-[#1e40af] transition text-slate-800 dark:text-white font-semibold"
                     />
                   </div>
                   <div className="space-y-1">
@@ -370,8 +387,41 @@ export default function WebStoriesManagement({ user, onTabChange }: WebStoriesMa
                       placeholder="e.g. போக்குவரத்து எச்சரிக்கை..."
                       value={editingStory.title_ta}
                       onChange={(e) => setEditingStory((prev: any) => ({ ...prev, title_ta: e.target.value }))}
-                      className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 px-3.5 py-2.5 rounded-xl text-xs outline-none focus:border-[#2e3192] transition text-slate-800 dark:text-white font-semibold"
+                      className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 px-3.5 py-2.5 rounded-xl text-xs outline-none focus:border-[#1e40af] transition text-slate-800 dark:text-white font-semibold"
                     />
+                  </div>
+                </div>
+
+                {/* Linked News Article (Optional) */}
+                <div className="space-y-3">
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-black uppercase text-stone-400">Linked News Article (Adds a "Read More" button)</label>
+                    <select
+                      value={editingStory.news_slug && !editingStory.news_slug.startsWith("/") && !editingStory.news_slug.startsWith("http") ? editingStory.news_slug : ""}
+                      onChange={(e) => setEditingStory((prev: any) => ({ ...prev, news_slug: e.target.value || null }))}
+                      className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 px-3.5 py-2.5 rounded-xl text-xs outline-none focus:border-[#1e40af] transition text-slate-800 dark:text-white font-semibold"
+                    >
+                      <option value="">-- No Linked News Article (Auto-match by title) --</option>
+                      {newsList.map((item) => (
+                        <option key={item.id} value={item.slug}>
+                          {item.title_en}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-black uppercase text-stone-400">Or Custom Read More URL / Link (Optional)</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. /citizen-outreach or https://example.com"
+                      value={editingStory.news_slug || ""}
+                      onChange={(e) => setEditingStory((prev: any) => ({ ...prev, news_slug: e.target.value || null }))}
+                      className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 px-3.5 py-2.5 rounded-xl text-xs outline-none focus:border-[#1e40af] transition text-slate-800 dark:text-white font-semibold"
+                    />
+                    <p className="text-[9px] text-stone-400 dark:text-stone-550 font-bold uppercase tracking-wider">
+                      Note: If you enter a custom URL starting with "/" or "http", it will take precedence over the dropdown above.
+                    </p>
                   </div>
                 </div>
 
@@ -398,7 +448,7 @@ export default function WebStoriesManagement({ user, onTabChange }: WebStoriesMa
                           placeholder="Select an image or paste URL..."
                           value={editingStory.cover_image}
                           onChange={(e) => setEditingStory((prev: any) => ({ ...prev, cover_image: e.target.value }))}
-                          className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 px-3.5 py-2 rounded-xl text-xs outline-none focus:border-[#2e3192] transition text-slate-800 dark:text-white font-semibold"
+                          className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 px-3.5 py-2 rounded-xl text-xs outline-none focus:border-[#1e40af] transition text-slate-800 dark:text-white font-semibold"
                         />
                       </div>
                       <div className="flex gap-2">
@@ -429,7 +479,7 @@ export default function WebStoriesManagement({ user, onTabChange }: WebStoriesMa
               {/* Slides deck Card */}
               <div className="bg-white dark:bg-stone-900 p-5 rounded-2xl border border-stone-200 dark:border-stone-850 space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="font-bold text-xs uppercase tracking-wider text-[#2e3192] dark:text-[#c5a059] flex items-center gap-1.5">
+                  <h3 className="font-bold text-xs uppercase tracking-wider text-[#1e40af] dark:text-[#d4af37] flex items-center gap-1.5">
                     🎞️ Web Story Slides ({editingStory.slides.length})
                   </h3>
                   <button
@@ -446,7 +496,7 @@ export default function WebStoriesManagement({ user, onTabChange }: WebStoriesMa
                       key={sIdx}
                       className={`p-4 rounded-xl border transition flex gap-4 ${
                         previewSlideIndex === sIdx
-                          ? "bg-slate-50/50 dark:bg-stone-950/40 border-[#2e3192]/30 dark:border-[#c5a059]/40"
+                          ? "bg-slate-50/50 dark:bg-stone-950/40 border-[#1e40af]/30 dark:border-[#d4af37]/40"
                           : "bg-stone-50/40 dark:bg-stone-900/40 border-stone-200 dark:border-stone-800"
                       }`}
                       onClick={() => setPreviewSlideIndex(sIdx)}
@@ -467,7 +517,7 @@ export default function WebStoriesManagement({ user, onTabChange }: WebStoriesMa
                       {/* Slide Forms */}
                       <div className="flex-grow space-y-2.5 text-left">
                         <div className="flex items-center justify-between">
-                          <span className="text-[10px] uppercase font-black tracking-wider text-[#2e3192]/60 dark:text-[#c5a059]/80">
+                          <span className="text-[10px] uppercase font-black tracking-wider text-[#1e40af]/60 dark:text-[#d4af37]/80">
                             Slide {sIdx + 1} Settings
                           </span>
                           
@@ -549,7 +599,7 @@ export default function WebStoriesManagement({ user, onTabChange }: WebStoriesMa
                 <button
                   onClick={handleSave}
                   disabled={saving}
-                  className="flex items-center justify-center gap-2 px-6 py-3 bg-[#2e3192] hover:bg-[#1e2060] text-white rounded-xl text-xs font-black uppercase tracking-wider transition shadow-sm cursor-pointer border border-[#1e2060]"
+                  className="flex items-center justify-center gap-2 px-6 py-3 bg-[#1e40af] hover:bg-[#1e3a8a] text-white rounded-xl text-xs font-black uppercase tracking-wider transition shadow-sm cursor-pointer border border-[#1e3a8a]"
                 >
                   {saving ? (
                     <>
@@ -623,7 +673,7 @@ export default function WebStoriesManagement({ user, onTabChange }: WebStoriesMa
                       <img src="/images/gcp_logo.png" alt="Logo" className="w-full h-full object-contain" />
                     </div>
                     <div>
-                      <p className="text-[8px] font-black uppercase tracking-wider text-[#c5a059]">Chennai Guardian</p>
+                      <p className="text-[8px] font-black uppercase tracking-wider text-[#d4af37]">Chennai Guardian</p>
                       <p className="text-[6px] text-stone-300 font-medium">Stories Live Feed</p>
                     </div>
                   </div>
@@ -651,7 +701,7 @@ export default function WebStoriesManagement({ user, onTabChange }: WebStoriesMa
                       Slide {previewSlideIndex + 1} of {editingStory.slides.length}
                     </span>
                   </div>
-                  <h4 className="font-display font-black text-[11px] uppercase tracking-wider text-[#c5a059]">
+                  <h4 className="font-display font-black text-[11px] uppercase tracking-wider text-[#d4af37]">
                     {editingStory.title_en || "Untited Story"}
                   </h4>
                   <div className="space-y-1 border-t border-white/10 pt-1.5">

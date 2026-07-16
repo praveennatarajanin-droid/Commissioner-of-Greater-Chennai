@@ -133,7 +133,10 @@ export default function StationsPageClient({
       setZones(zonesCache);
     } else {
       fetch("/api/police-stations/zones")
-        .then((res) => res.json())
+        .then((res) => {
+          if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+          return res.json();
+        })
         .then((data) => {
           if (data.success && data.zones) {
             zonesCache = data.zones;
@@ -147,7 +150,10 @@ export default function StationsPageClient({
       setDivisions(divisionsCache);
     } else {
       fetch("/api/police-stations/divisions")
-        .then((res) => res.json())
+        .then((res) => {
+          if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+          return res.json();
+        })
         .then((data) => {
           if (data.success && data.divisions) {
             divisionsCache = data.divisions;
@@ -161,7 +167,10 @@ export default function StationsPageClient({
       setTypes(typesCache);
     } else {
       fetch("/api/police-stations/categories")
-        .then((res) => res.json())
+        .then((res) => {
+          if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+          return res.json();
+        })
         .then((data) => {
           if (data.success && data.categories) {
             typesCache = data.categories;

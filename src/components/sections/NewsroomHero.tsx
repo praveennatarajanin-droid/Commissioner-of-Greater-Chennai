@@ -140,9 +140,9 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
   useEffect(() => {
     setMounted(true);
     // Fetch live views stats
-    fetch("/api/news/trending").then(res => res.json()).then(data => Array.isArray(data) && setDbTrending(data)).catch(() => {});
-    fetch("/api/news/most-read").then(res => res.json()).then(data => Array.isArray(data) && setDbMostRead(data)).catch(() => {});
-    fetch("/api/videos/trending").then(res => res.json()).then(data => Array.isArray(data) && setDbVideos(data)).catch(() => {});
+    fetch("/api/news/trending").then(res => res.ok ? res.json() : null).then(data => Array.isArray(data) && setDbTrending(data)).catch(() => {});
+    fetch("/api/news/most-read").then(res => res.ok ? res.json() : null).then(data => Array.isArray(data) && setDbMostRead(data)).catch(() => {});
+    fetch("/api/videos/trending").then(res => res.ok ? res.json() : null).then(data => Array.isArray(data) && setDbVideos(data)).catch(() => {});
   }, []);
 
   // Center Hero story: Featured or breaking first
@@ -310,7 +310,7 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
                           alt={title}
                           fill
                           className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
-                          onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/images/police_medal.jpg"; }}
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/images/police_medal.jpg"; }}
                         />
                       </div>
                       
@@ -363,7 +363,7 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
                   fill
                   className="object-cover object-center group-hover/slider:scale-[1.02] transition-transform duration-700"
                   priority
-                  onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/images/police_medal.jpg"; }}
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/images/police_medal.jpg"; }}
                 />
                 
                 {/* Gradient overlay for text contrast (reduced shading for brightness) */}
@@ -496,7 +496,7 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
                           alt={title}
                           fill
                           className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
-                          onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/images/police_medal.jpg"; }}
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/images/police_medal.jpg"; }}
                         />
                         <div className="absolute top-0.5 left-0.5 w-4.5 h-4.5 bg-brand-maroon/90 dark:bg-brand-gold/90 flex items-center justify-center rounded-sm shadow-md">
                           <span className="text-[8px] font-black text-white dark:text-stone-950 font-display">
@@ -511,7 +511,6 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
                         </h4>
                         <div className="flex items-center gap-2 mt-1 text-[9px] text-stone-400 font-semibold">
                           <span>{timeAgo(item.created_at || item.date, language)}</span>
-                          <span className="flex items-center gap-0.5"><Eye className="w-2.5 h-2.5" /> {formatViews(item.views_count, language)}</span>
                         </div>
                       </div>
                     </Link>
@@ -533,7 +532,7 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
                           alt={title}
                           fill
                           className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
-                          onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/images/police_medal.jpg"; }}
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/images/police_medal.jpg"; }}
                         />
                         <div className="absolute top-0.5 left-0.5 w-4.5 h-4.5 bg-[#c5a059]/90 flex items-center justify-center rounded-sm shadow-md">
                           <span className="text-[8px] font-black text-black font-display">
@@ -548,7 +547,6 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
                         </h4>
                         <div className="flex items-center gap-2 mt-1 text-[9px] text-stone-400 font-semibold">
                           <span>{timeAgo(item.created_at || item.date, language)}</span>
-                          <span className="flex items-center gap-0.5"><Eye className="w-2.5 h-2.5" /> {formatViews(item.views_count, language)}</span>
                         </div>
                       </div>
                     </Link>
@@ -572,7 +570,7 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
                         fill
                         unoptimized
                         className="object-cover"
-                      />
+                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
                       <div className="absolute inset-0 flex items-center justify-center bg-black/35 group-hover:bg-black/50">
                         <Play className="w-4 h-4 fill-white text-white opacity-95 scale-90 group-hover:scale-100 transition-transform" />
                       </div>
@@ -583,7 +581,6 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
                       </h4>
                       <div className="flex items-center gap-2 mt-0.5 text-[9px] font-bold text-stone-400 uppercase">
                         <span>{video.category}</span>
-                        <span className="flex items-center gap-0.5 font-semibold normal-case"><Eye className="w-2.5 h-2.5 text-stone-400" /> {formatViews(video.views_count, language)}</span>
                       </div>
                     </div>
                   </a>

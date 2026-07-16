@@ -35,7 +35,7 @@ export default function DocsSection() {
                   alt="Hon'ble Chief Minister Vijay"
                   fill
                   className="object-cover object-center"
-                />
+                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
               </div>
               <div className="relative w-full h-[180px] rounded-xl overflow-hidden bg-slate-950/20">
                 <Image
@@ -43,7 +43,7 @@ export default function DocsSection() {
                   alt="Dr. A. Amalraj IPS Portrait"
                   fill
                   className="object-cover object-center"
-                />
+                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
               </div>
             </div>
             <div className="bg-brand-maroon/5 dark:bg-brand-maroon/10 p-3 rounded-lg border border-brand-maroon/10 dark:border-brand-gold/20">
