@@ -482,7 +482,9 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
               {/* Tab Contents */}
               <div className="space-y-3 max-h-[380px] overflow-y-auto" style={{ scrollbarWidth: "none" }}>
                 {activeTab === "trending" && trendingNews.map((item, idx) => {
-                  const title = language === "ta" ? (item.title_ta || item.title_en) : item.title_en;
+                  const title = language === "ta"
+                    ? (item.title_ta || item.title_en || "")
+                    : (item.title_en || item.title_ta || "");
                   return (
                     <Link
                       key={item.id}
@@ -518,7 +520,9 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
                 })}
 
                 {activeTab === "most-read" && mostReadNews.map((item, idx) => {
-                  const title = language === "ta" ? (item.title_ta || item.title_en) : item.title_en;
+                  const title = language === "ta"
+                    ? (item.title_ta || item.title_en || "")
+                    : (item.title_en || item.title_ta || "");
                   return (
                     <Link
                       key={item.id}

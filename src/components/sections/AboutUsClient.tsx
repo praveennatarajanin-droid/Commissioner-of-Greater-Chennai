@@ -329,6 +329,7 @@ export default function AboutUsClient({ initialTab, customData }: AboutUsClientP
                   alt="Greater Chennai Police Headquarters"
                   width={800}
                   height={500}
+                  priority
                   className="w-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent text-white text-xs">

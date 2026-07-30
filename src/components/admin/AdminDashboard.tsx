@@ -520,6 +520,7 @@ interface AdminDashboardProps {
 type TabType = "dashboard" | "news" | "ticker" | "slider" | "profile" | "theme" | "footer" | "settings" | "videos" | "alerts" | "media" | "police-stations" | "emergency-contacts" | "department-links" | "menu-management" | "page-editor" | "superadmin" | "web-stories";
 
 export default function AdminDashboard({ user, onLogout, activeTab: propActiveTab, subPage, onTabChange }: AdminDashboardProps) {
+  const displayName = user.role === "superadmin" ? "Super Admin" : user.role === "admin" ? "Admin" : user.username;
   const [localActiveTab, setLocalActiveTab] = useState<TabType>("dashboard");
   const activeTab = propActiveTab !== undefined ? propActiveTab : localActiveTab;
 
@@ -1535,10 +1536,10 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
               title="Log Out / Terminate Session"
             >
               <div className="w-7 h-7 rounded-full bg-[#1E40AF] text-white flex items-center justify-center font-bold text-xs transition-colors group-hover:bg-red-600 shrink-0 font-sans">
-                {user.username.charAt(0).toUpperCase()}
+                {displayName.charAt(0).toUpperCase()}
               </div>
               <div className="hidden sm:block">
-                <p className="text-xs font-bold text-[#1F2937] leading-none group-hover:text-red-700 transition-colors">{user.username}</p>
+                <p className="text-xs font-bold text-[#1F2937] leading-none group-hover:text-red-700 transition-colors">{displayName}</p>
                 <span className="text-[9px] font-bold text-[#64748B] uppercase block mt-0.5">{user.role.toUpperCase()}</span>
               </div>
               <div className="pl-1 text-[#94a3b8] group-hover:text-red-600 transition-colors shrink-0">
@@ -1638,7 +1639,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                         lineHeight: "1.4"
                       }}
                     >
-                      Welcome back, <span className="text-brand-gold font-black">{user.username}</span> &middot; {new Date().toLocaleDateString("en-IN", { weekday: "long", day: "2-digit", month: "long", year: "numeric" })}
+                      Welcome back, <span className="text-brand-gold font-black">{displayName}</span> &middot; {new Date().toLocaleDateString("en-IN", { weekday: "long", day: "2-digit", month: "long", year: "numeric" })}
                     </p>
                   </div>
                   <div className="hidden md:flex items-center gap-4 shrink-0">
@@ -2048,25 +2049,39 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                         className="w-full bg-stone-50 dark:bg-stone-955 border border-stone-200 dark:border-stone-850 px-3 py-2 rounded-lg text-xs outline-none focus:border-brand-gold/50 cursor-pointer text-slate-800 dark:text-stone-300 font-bold"
                       >
                         <option value="">All Categories</option>
-                        <option value="AWARDS & RECOGNITION">AWARDS & RECOGNITION</option>
-                        <option value="POLICE ADMINISTRATION">POLICE ADMINISTRATION</option>
-                        <option value="GOVERNMENT UPDATE">GOVERNMENT UPDATE</option>
-                        <option value="TRENDING NEWS">TRENDING NEWS</option>
-                        <option value="GENERAL NEWS">GENERAL NEWS</option>
-                        <option value="TRAFFIC NEWS">TRAFFIC NEWS</option>
-                        <option value="CRIME">CRIME</option>
-                        <option value="CYBER SAFETY">CYBER SAFETY</option>
-                        <option value="WOMEN SAFETY">WOMEN SAFETY</option>
-                        <option value="PUBLIC SAFETY">PUBLIC SAFETY</option>
-                        <option value="COMMUNITY OUTREACH">COMMUNITY OUTREACH</option>
-                        <option value="WANTED CRIMINALS">WANTED CRIMINALS</option>
-                        <option value="MISSING PERSONS">MISSING PERSONS</option>
-                        <option value="CYBER AWERENESS">CYBER AWERENESS</option>
-                        <option value="ONLINE FRAUD">ONLINE FRAUD</option>
-                        <option value="COMPLAINT PORTAL">COMPLAINT PORTAL</option>
-                        <option value="PINK PATROL">PINK PATROL</option>
-                        <option value="AVAL SUPPORT WING">AVAL SUPPORT WING</option>
-                        <option value="WOMEN HELPLINE">WOMEN HELPLINE</option>
+                        <optgroup label="🚨 CRIME CATEGORY & SUBMENUS">
+                          <option value="CRIME">CRIME</option>
+                          <option value="WANTED CRIMINALS">↳ WANTED CRIMINALS</option>
+                          <option value="MISSING PERSONS">↳ MISSING PERSONS</option>
+                        </optgroup>
+
+                        <optgroup label="🔒 CYBER SAFETY CATEGORY & SUBMENUS">
+                          <option value="CYBER SAFETY">CYBER SAFETY</option>
+                          <option value="CYBER AWARENESS">↳ CYBER AWARENESS</option>
+                          <option value="ONLINE FRAUD">↳ ONLINE FRAUD</option>
+                        </optgroup>
+
+                        <optgroup label="🩷 WOMEN SAFETY CATEGORY & SUBMENUS">
+                          <option value="WOMEN SAFETY">WOMEN SAFETY</option>
+                          <option value="PINK PATROL">↳ PINK PATROL</option>
+                          <option value="AVAL SUPPORT WING">↳ AVAL SUPPORT WING</option>
+                          <option value="WOMEN HELPLINE">↳ WOMEN HELPLINE</option>
+                        </optgroup>
+
+                        <optgroup label="👁️ PUBLIC SAFETY & TRAFFIC & OUTREACH">
+                          <option value="PUBLIC SAFETY">PUBLIC SAFETY</option>
+                          <option value="TRAFFIC NEWS">TRAFFIC NEWS</option>
+                          <option value="COMMUNITY OUTREACH">COMMUNITY OUTREACH</option>
+                        </optgroup>
+
+                        <optgroup label="📰 POLICE & GOVERNMENT UPDATES">
+                          <option value="GENERAL NEWS">GENERAL NEWS</option>
+                          <option value="POLICE ADMINISTRATION">POLICE ADMINISTRATION</option>
+                          <option value="AWARDS & RECOGNITION">AWARDS & RECOGNITION</option>
+                          <option value="GOVERNMENT UPDATE">GOVERNMENT UPDATE</option>
+                          <option value="TRENDING NEWS">TRENDING NEWS</option>
+                          <option value="COMPLAINT PORTAL">COMPLAINT PORTAL</option>
+                        </optgroup>
                       </select>
                     </div>
                     {/* Filter Date */}
@@ -2138,7 +2153,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                                   {item.image ? (
                                     <img src={item.image} alt="" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.src = "/images/police_medal.jpg"; }} />
                                   ) : (
-                                    <span className="text-[10px] font-bold text-stone-450 dark:text-stone-550">N/A</span>
+                                    <span className="text-[10px] font-bold text-stone-450 dark:text-stone-555">N/A</span>
                                   )}
                                 </div>
                               </td>
@@ -2284,56 +2299,71 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
 
                     {/* Category Selection Dropdown */}
                     <div className="space-y-1.5 xl:col-span-2">
-                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Category (English)</label>
+                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Category & Submenu (English)</label>
                       <select
                         value={editingItem.category_en || "GENERAL NEWS"}
                         onChange={(e) => {
                           const val = e.target.value;
                           const defaults = [
+                            { en: "CRIME", ta: "குற்றம்" },
+                            { en: "WANTED CRIMINALS", ta: "தேடப்படும் குற்றவாளிகள்" },
+                            { en: "MISSING PERSONS", ta: "காணாமல் போனவர்கள்" },
+                            { en: "CYBER SAFETY", ta: "இணைய பாதுகாப்பு" },
+                            { en: "CYBER AWARENESS", ta: "சைபர் விழிப்புணர்வு" },
+                            { en: "CYBER AWERENESS", ta: "சைபர் விழிப்புணர்வு" },
+                            { en: "ONLINE FRAUD", ta: "ஆன்லைன் மோசடி" },
+                            { en: "WOMEN SAFETY", ta: "பெண்கள் பாதுகாப்பு" },
+                            { en: "PINK PATROL", ta: "பிங்க் ரோந்து" },
+                            { en: "AVAL SUPPORT WING", ta: "அவள் ஆதரவு பிரிவு" },
+                            { en: "WOMEN HELPLINE", ta: "பெண்கள் உதவி எண்" },
+                            { en: "PUBLIC SAFETY", ta: "பொது பாதுகாப்பு" },
+                            { en: "TRAFFIC NEWS", ta: "போக்குவரத்து தகவல்கள்" },
+                            { en: "COMMUNITY OUTREACH", ta: "சமூக உதவி" },
                             { en: "AWARDS & RECOGNITION", ta: "விருதுகள் & அங்கீகாரம்" },
                             { en: "POLICE ADMINISTRATION", ta: "காவல் நிர்வாகம்" },
                             { en: "GOVERNMENT UPDATE", ta: "அரசு அறிவிப்புகள்" },
                             { en: "TRENDING NEWS", ta: "பிரபலமான செய்திகள்" },
                             { en: "GENERAL NEWS", ta: "பொதுச் செய்திகள்" },
-                            { en: "TRAFFIC NEWS", ta: "போக்குவரத்து தகவல்கள்" },
-                            { en: "CRIME", ta: "குற்றம்" },
-                            { en: "CYBER SAFETY", ta: "இணைய பாதுகாப்பு" },
-                            { en: "WOMEN SAFETY", ta: "பெண்கள் பாதுகாப்பு" },
-                            { en: "PUBLIC SAFETY", ta: "பொது பாதுகாப்பு" },
-                            { en: "COMMUNITY OUTREACH", ta: "சமூக அவுட்ரீச்" },
-                            { en: "WANTED CRIMINALS", ta: "தேடப்படும் குற்றவாளிகள்" },
-                            { en: "MISSING PERSONS", ta: "காணாமல் போனவர்கள்" },
-                            { en: "CYBER AWERENESS", ta: "சைபர் விழிப்புணர்வு" },
-                            { en: "ONLINE FRAUD", ta: "இணையவழி மோசடி" },
-                            { en: "COMPLAINT PORTAL", ta: "புகார் போர்டல்" },
-                            { en: "PINK PATROL", ta: "பிங்க் ரோந்து" },
-                            { en: "AVAL SUPPORT WING", ta: "அவள் ஆதரவு பிரிவு" },
-                            { en: "WOMEN HELPLINE", ta: "பெண்கள் உதவி எண்" }
+                            { en: "COMPLAINT PORTAL", ta: "புகார் மையம்" }
                           ];
-                          const found = defaults.find(c => c.en === val) || { en: "GENERAL NEWS", ta: "பொதுச் செய்திகள்" };
+                          const found = defaults.find(c => c.en === val) || { en: val, ta: val };
                           setEditingItem({ ...editingItem, category_en: found.en, category_ta: found.ta });
                         }}
-                        className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-855 outline-none text-xs text-slate-855 dark:text-white p-3 rounded-xl focus:border-brand-gold/50 cursor-pointer"
+                        className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-855 outline-none text-xs text-slate-855 dark:text-white p-3 rounded-xl focus:border-brand-gold/50 cursor-pointer font-bold"
                       >
-                        <option value="AWARDS & RECOGNITION">AWARDS & RECOGNITION</option>
-                        <option value="POLICE ADMINISTRATION">POLICE ADMINISTRATION</option>
-                        <option value="GOVERNMENT UPDATE">GOVERNMENT UPDATE</option>
-                        <option value="TRENDING NEWS">TRENDING NEWS</option>
-                        <option value="GENERAL NEWS">GENERAL NEWS</option>
-                        <option value="TRAFFIC NEWS">TRAFFIC NEWS</option>
-                        <option value="CRIME">CRIME</option>
-                        <option value="CYBER SAFETY">CYBER SAFETY</option>
-                        <option value="WOMEN SAFETY">WOMEN SAFETY</option>
-                        <option value="PUBLIC SAFETY">PUBLIC SAFETY</option>
-                        <option value="COMMUNITY OUTREACH">COMMUNITY OUTREACH</option>
-                        <option value="WANTED CRIMINALS">WANTED CRIMINALS</option>
-                        <option value="MISSING PERSONS">MISSING PERSONS</option>
-                        <option value="CYBER AWERENESS">CYBER AWERENESS</option>
-                        <option value="ONLINE FRAUD">ONLINE FRAUD</option>
-                        <option value="COMPLAINT PORTAL">COMPLAINT PORTAL</option>
-                        <option value="PINK PATROL">PINK PATROL</option>
-                        <option value="AVAL SUPPORT WING">AVAL SUPPORT WING</option>
-                        <option value="WOMEN HELPLINE">WOMEN HELPLINE</option>
+                        <optgroup label="🚨 CRIME CATEGORY & SUBMENUS">
+                          <option value="CRIME">CRIME (Main Category)</option>
+                          <option value="WANTED CRIMINALS">↳ WANTED CRIMINALS</option>
+                          <option value="MISSING PERSONS">↳ MISSING PERSONS</option>
+                        </optgroup>
+
+                        <optgroup label="🔒 CYBER SAFETY CATEGORY & SUBMENUS">
+                          <option value="CYBER SAFETY">CYBER SAFETY (Main Category)</option>
+                          <option value="CYBER AWARENESS">↳ CYBER AWARENESS</option>
+                          <option value="ONLINE FRAUD">↳ ONLINE FRAUD</option>
+                        </optgroup>
+
+                        <optgroup label="🩷 WOMEN SAFETY CATEGORY & SUBMENUS">
+                          <option value="WOMEN SAFETY">WOMEN SAFETY (Main Category)</option>
+                          <option value="PINK PATROL">↳ PINK PATROL</option>
+                          <option value="AVAL SUPPORT WING">↳ AVAL SUPPORT WING</option>
+                          <option value="WOMEN HELPLINE">↳ WOMEN HELPLINE</option>
+                        </optgroup>
+
+                        <optgroup label="👁️ PUBLIC SAFETY & TRAFFIC & OUTREACH">
+                          <option value="PUBLIC SAFETY">PUBLIC SAFETY</option>
+                          <option value="TRAFFIC NEWS">TRAFFIC NEWS</option>
+                          <option value="COMMUNITY OUTREACH">COMMUNITY OUTREACH</option>
+                        </optgroup>
+
+                        <optgroup label="📰 POLICE & GOVERNMENT UPDATES">
+                          <option value="GENERAL NEWS">GENERAL NEWS</option>
+                          <option value="POLICE ADMINISTRATION">POLICE ADMINISTRATION</option>
+                          <option value="AWARDS & RECOGNITION">AWARDS & RECOGNITION</option>
+                          <option value="GOVERNMENT UPDATE">GOVERNMENT UPDATE</option>
+                          <option value="TRENDING NEWS">TRENDING NEWS</option>
+                          <option value="COMPLAINT PORTAL">COMPLAINT PORTAL</option>
+                        </optgroup>
                       </select>
                     </div>
 

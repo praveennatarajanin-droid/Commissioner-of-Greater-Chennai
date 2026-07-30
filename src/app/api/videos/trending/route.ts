@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { query } from "@/lib/mysql";
+import { db } from "@/lib/db";
 
 let videosCache: any = null;
 let videosCacheTime = 0;
@@ -12,9 +12,11 @@ export async function GET() {
       return NextResponse.json(videosCache);
     }
 
-    const rows = await query(
-      "SELECT id, youtube_id, title, category, date, order_num, active, section, views_count FROM videos WHERE active = 1 ORDER BY COALESCE(views_count, 0) DESC, order_num ASC LIMIT 5"
-    );
+    const videos = await db.getVideos();
+    const rows = videos
+      .filter(v => v.active === 1)
+      .sort((a, b) => (b.views_count || 0) - (a.views_count || 0) || a.order_num - b.order_num)
+      .slice(0, 5);
 
     videosCache = rows;
     videosCacheTime = now;

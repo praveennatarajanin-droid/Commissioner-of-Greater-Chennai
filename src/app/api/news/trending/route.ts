@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { query } from "@/lib/mysql";
+import { db } from "@/lib/db";
 
 let trendingCache: any = null;
 let trendingCacheTime = 0;
@@ -12,9 +12,23 @@ export async function GET() {
       return NextResponse.json(trendingCache);
     }
 
-    const rows = await query(
-      "SELECT id, slug, title_en, title_ta, category_en, category_ta, image, views_count, created_at, date FROM news WHERE published = 1 ORDER BY COALESCE(views_count, 0) DESC, id DESC LIMIT 5"
-    );
+    const news = await db.getNews();
+    const rows = news
+      .filter(n => n.published === 1)
+      .sort((a, b) => (b.views_count || 0) - (a.views_count || 0) || b.id - a.id)
+      .slice(0, 5)
+      .map(n => ({
+        id: n.id,
+        slug: n.slug,
+        title_en: n.title_en,
+        title_ta: n.title_ta,
+        category_en: n.category_en,
+        category_ta: n.category_ta,
+        image: n.image,
+        views_count: n.views_count || 0,
+        created_at: n.created_at || "",
+        date: n.date
+      }));
 
     trendingCache = rows;
     trendingCacheTime = now;

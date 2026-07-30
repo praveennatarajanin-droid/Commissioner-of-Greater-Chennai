@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSessionUser, isSuperAdmin, getIpAddress } from "@/lib/auth";
 import { db, hashPassword } from "@/lib/db";
-import { query } from "@/lib/mysql";
 
 // ── GET HANDLER ──
 export async function GET(req: Request) {
@@ -46,15 +45,7 @@ export async function GET(req: Request) {
     }
 
     if (action === "config") {
-      const rows: any = await query("SELECT * FROM \`superadmin_config\`");
-      const config: Record<string, any> = {};
-      (rows || []).forEach((row: any) => {
-        try {
-          config[row.config_key] = JSON.parse(row.config_value);
-        } catch {
-          config[row.config_key] = row.config_value;
-        }
-      });
+      const config = await db.getSuperadminConfig();
       return NextResponse.json(config);
     }
 
@@ -142,12 +133,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Key is required" }, { status: 400 });
       }
 
-      const stringifiedValue = typeof value === "object" ? JSON.stringify(value) : String(value);
-
-      await query(
-        "INSERT INTO \`superadmin_config\` (config_key, config_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE config_value = ?",
-        [key, stringifiedValue, stringifiedValue]
-      );
+      await db.saveSuperadminConfig(key, value);
 
       await db.addRbacAuditLog(user.username, user.role, ip, `Updated system configuration key: ${key}`, "SystemConfig", browser);
       return NextResponse.json({ success: true });
@@ -203,7 +189,6 @@ export async function PUT(req: Request) {
       const targetUser = usersList[userIndex];
       const beforeState = JSON.stringify(targetUser);
 
-      // Prevent blocking or editing self role
       if (targetUser.username === user.username && (status === "disabled" || locked || role !== targetUser.role)) {
         return NextResponse.json({ error: "You cannot change your own role, lock your account, or disable your own account." }, { status: 400 });
       }
@@ -217,7 +202,7 @@ export async function PUT(req: Request) {
       if (locked !== undefined) {
         (targetUser as any).locked = locked ? 1 : 0;
         if (!locked) {
-          (targetUser as any).failed_logins = 0; // Reset failed counter on unlock
+          (targetUser as any).failed_logins = 0;
         }
       }
       if (force_password_change !== undefined) (targetUser as any).force_password_change = force_password_change ? 1 : 0;

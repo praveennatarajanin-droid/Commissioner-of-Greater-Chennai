@@ -324,15 +324,31 @@ export default function NewsChannelHomepage({
       const cat = (n.category_en || "").toLowerCase();
       const title = (n.title_en || "").toLowerCase();
       
-      const exactMatch = (catId === "crime" && (cat === "crime" || cat === "crime prevention")) ||
-                         (catId === "cyber" && cat === "cyber safety") ||
-                         (catId === "women" && (cat === "women safety" || cat === "women's safety")) ||
-                         (catId === "public" && cat === "public safety") ||
-                         (catId === "traffic" && (cat === "traffic" || cat === "traffic updates" || cat === "traffic news" || cat === "traffic advisory")) ||
-                         (catId === "outreach" && (cat === "outreach" || cat === "community outreach")) ||
-                         (catId === "government" && cat === "government updates");
+      // Determine if this article matches the target category exactly (including its subcategories)
+      const matchesTargetExactly = 
+        (catId === "crime" && (cat === "crime" || cat === "crime prevention" || cat === "wanted criminals" || cat === "missing persons")) ||
+        (catId === "cyber" && (cat === "cyber safety" || cat === "cyber awareness" || cat === "online fraud")) ||
+        (catId === "women" && (cat === "women safety" || cat === "women's safety" || cat === "pink patrol" || cat === "pink patrol (women safety)" || cat === "aval support wing" || cat === "aval support" || cat === "women helpline")) ||
+        (catId === "public" && (cat === "public safety" || cat === "clean campus" || cat === "security audit")) ||
+        (catId === "traffic" && (cat === "traffic" || cat === "traffic updates" || cat === "traffic news" || cat === "traffic advisory")) ||
+        (catId === "outreach" && (cat === "outreach" || cat === "community outreach" || cat === "social awareness" || cat === "legal outreach" || cat === "community support")) ||
+        (catId === "government" && (cat === "government updates" || cat === "government" || cat === "government update"));
+
+      if (matchesTargetExactly) return true;
+
+      // Check if this article belongs to ANY OTHER main category exactly.
+      // If it does, we do NOT want it to leak into this category via keywords.
+      const matchesOtherExactly = 
+        (catId !== "crime" && (cat === "crime" || cat === "crime prevention" || cat === "wanted criminals" || cat === "missing persons")) ||
+        (catId !== "cyber" && (cat === "cyber safety" || cat === "cyber awareness" || cat === "online fraud")) ||
+        (catId !== "women" && (cat === "women safety" || cat === "women's safety" || cat === "pink patrol" || cat === "pink patrol (women safety)" || cat === "aval support wing" || cat === "aval support" || cat === "women helpline")) ||
+        (catId !== "public" && (cat === "public safety" || cat === "clean campus" || cat === "security audit")) ||
+        (catId !== "traffic" && (cat === "traffic" || cat === "traffic updates" || cat === "traffic news" || cat === "traffic advisory")) ||
+        (catId !== "outreach" && (cat === "outreach" || cat === "community outreach" || cat === "social awareness" || cat === "legal outreach" || cat === "community support")) ||
+        (catId !== "government" && (cat === "government updates" || cat === "government" || cat === "government update"));
+
+      if (matchesOtherExactly) return false;
       
-      if (exactMatch) return true;
       return keywords.some(k => cat.includes(k) || title.includes(k));
     });
   };

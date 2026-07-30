@@ -863,6 +863,8 @@ export default function NewsDetailClient({ article }: { article: NewsItem }) {
               <img
                 src={article.image}
                 alt={language === "ta" ? article.title_ta : article.title_en}
+                loading="eager"
+                fetchPriority="high"
                 className="w-full h-auto max-h-[80vh] object-contain block print:max-w-[85%] print:mx-auto print:rounded-lg print:shadow-sm"
                 style={{ display: "block" }}
               />

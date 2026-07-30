@@ -28,6 +28,14 @@ export default function ControllerPage({ params }: PageProps) {
 
   const checkSession = async () => {
     try {
+      const hasAuthFlag = typeof window !== "undefined" && window.sessionStorage.getItem("admin_authenticated") === "true";
+      if (!hasAuthFlag) {
+        await fetch("/api/admin/auth", { method: "DELETE" });
+        setSession(null);
+        setLoading(false);
+        return;
+      }
+
       const res = await fetch("/api/admin/auth");
       const data = await res.json();
       if (data.authenticated) {
@@ -99,7 +107,16 @@ export default function ControllerPage({ params }: PageProps) {
         </div>
       );
     }
-    return <AdminLogin onLoginSuccess={(user) => setSession(user)} />;
+    return (
+      <AdminLogin
+        onLoginSuccess={(user) => {
+          if (typeof window !== "undefined") {
+            window.sessionStorage.setItem("admin_authenticated", "true");
+          }
+          setSession(user);
+        }}
+      />
+    );
   }
 
   // If authenticated but we are at /controller, return a redirecting page
@@ -124,6 +141,9 @@ export default function ControllerPage({ params }: PageProps) {
     <AdminDashboard
       user={session}
       onLogout={() => {
+        if (typeof window !== "undefined") {
+          window.sessionStorage.removeItem("admin_authenticated");
+        }
         setSession(null);
         router.replace("/controller");
       }}

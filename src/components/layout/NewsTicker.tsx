@@ -98,7 +98,9 @@ export default function NewsTicker({ customTickerItems }: NewsTickerProps = {}) 
           {feed.map((item) => {
             const isBreaking = item.section === "spotlight";
             const isTrending = item.id === 1 || item.id === 10;
-            const title = language === "ta" ? (item.text_ta || item.title_ta) : (item.text_en || item.title_en);
+            const title = language === "ta"
+              ? (item.text_ta || item.title_ta || item.text_en || item.title_en || "")
+              : (item.text_en || item.title_en || item.text_ta || item.title_ta || "");
             const href = item.id === 0 ? "#" : (item.url || (item.slug ? `/news/${item.slug}` : "/"));
             const hoverTitle = language === "ta" ? `அறிவிப்பு` : `Alert`;
 
@@ -131,7 +133,9 @@ export default function NewsTicker({ customTickerItems }: NewsTickerProps = {}) 
           {feed.map((item) => {
             const isBreaking = item.section === "spotlight";
             const isTrending = item.id === 1 || item.id === 10;
-            const title = language === "ta" ? (item.text_ta || item.title_ta) : (item.text_en || item.title_en);
+            const title = language === "ta"
+              ? (item.text_ta || item.title_ta || item.text_en || item.title_en || "")
+              : (item.text_en || item.title_en || item.text_ta || item.title_ta || "");
             const href = item.id === 0 ? "#" : (item.url || (item.slug ? `/news/${item.slug}` : "/"));
             const hoverTitle = language === "ta" ? `அறிவிப்பு` : `Alert`;
 

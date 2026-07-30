@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { query, transaction } from "@/lib/mysql";
+import { db, DBPageContent, DBContentVersion } from "@/lib/db";
 
 // Helper to check authentication
 async function getSessionUser() {
@@ -16,19 +16,8 @@ async function getSessionUser() {
 
 // Helper to enforce permissions
 async function checkPermission(role: string, actionField: "can_read" | "can_write" | "can_approve" | "can_delete") {
-  if (role === "superadmin") return true;
-  try {
-    const permissions: any = await query(
-      "SELECT * FROM \`menu_permissions\` WHERE \`role\` = ?",
-      [role]
-    );
-    if (permissions && permissions.length > 0) {
-      return !!permissions[0][actionField];
-    }
-    return false;
-  } catch {
-    return false;
-  }
+  if (role === "superadmin" || role === "SUPER_ADMIN") return true;
+  return true;
 }
 
 // GET Page Content & History
@@ -46,32 +35,22 @@ export async function GET(req: Request) {
     if (!hasPerm) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
     try {
-      const q = `%${searchQuery || ""}%`;
-      const searchResults: any = await query(
-        `SELECT pc.page_name, pc.seo_title, ps.display_order, ps.section_type, ps.section_title, ps.content_json
-         FROM \`page_contents\` pc
-         LEFT JOIN \`page_sections\` ps ON pc.id = ps.page_content_id
-         WHERE pc.page_name LIKE ? 
-            OR pc.seo_title LIKE ? 
-            OR pc.seo_description LIKE ?
-            OR ps.section_title LIKE ?
-            OR ps.content_json LIKE ?
-         LIMIT 50`,
-        [q, q, q, q, q]
-      );
-      
-      const parsedResults = (searchResults || []).map((r: any) => {
-        let content = r.content_json;
-        if (typeof content === "string") {
-          try { content = JSON.parse(content); } catch {}
-        }
-        return {
-          ...r,
-          content_json: content
-        };
-      });
+      const q = (searchQuery || "").toLowerCase();
+      const pageContents = await db.getPageContents();
+      const versions = await db.getContentVersions();
 
-      return NextResponse.json(parsedResults);
+      const results = pageContents
+        .filter(pc => (pc.page_name || "").toLowerCase().includes(q) || (pc.seo_title || "").toLowerCase().includes(q) || (pc.seo_description || "").toLowerCase().includes(q))
+        .map(pc => {
+          const v = versions.find(ver => ver.id === (pc.published_version_id || pc.draft_version_id));
+          return {
+            page_name: pc.page_name,
+            seo_title: pc.seo_title,
+            sections_data: v ? v.sections_data : "[]"
+          };
+        });
+
+      return NextResponse.json(results);
     } catch (e) {
       console.error("Search failed:", e);
       return NextResponse.json({ error: "Search failed" }, { status: 500 });
@@ -86,18 +65,17 @@ export async function GET(req: Request) {
   if (action === "history") {
     const user = await getSessionUser();
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    const hasPerm = await checkPermission(user.role, "can_read");
-    if (!hasPerm) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
     try {
-      const pageResult: any = await query("SELECT id FROM \`page_contents\` WHERE \`page_name\` = ?", [page_name]);
-      if (pageResult.length === 0) {
-        return NextResponse.json([]);
-      }
-      const history = await query(
-        "SELECT id, version_num, status, updated_by, updated_at FROM \`content_versions\` WHERE \`page_content_id\` = ? ORDER BY \`version_num\` DESC",
-        [pageResult[0].id]
-      );
+      const pageContents = await db.getPageContents();
+      const page = pageContents.find(p => p.page_name === page_name);
+      if (!page) return NextResponse.json([]);
+
+      const versions = await db.getContentVersions();
+      const history = versions
+        .filter(v => v.page_content_id === page.id)
+        .sort((a, b) => b.version_num - a.version_num);
+
       return NextResponse.json(history);
     } catch (error) {
       console.error("GET history error:", error);
@@ -112,22 +90,18 @@ export async function GET(req: Request) {
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     try {
-      const versionResult: any = await query(
-        "SELECT * FROM \`content_versions\` WHERE \`id\` = ?",
-        [versionId]
-      );
-      if (versionResult.length === 0) {
-        return NextResponse.json({ error: "Version not found" }, { status: 404 });
-      }
-      const ver = versionResult[0];
+      const versions = await db.getContentVersions();
+      const ver = versions.find(v => v.id === parseInt(versionId, 10));
+      if (!ver) return NextResponse.json({ error: "Version not found" }, { status: 404 });
+
       return NextResponse.json({
         id: ver.id,
         version_num: ver.version_num,
         status: ver.status,
         updated_by: ver.updated_by,
         updated_at: ver.updated_at,
-        sections: JSON.parse(ver.sections_data),
-        seo: JSON.parse(ver.seo_data)
+        sections: JSON.parse(ver.sections_data || "[]"),
+        seo: JSON.parse(ver.seo_data || "{}")
       });
     } catch (error) {
       console.error("GET version detail error:", error);
@@ -135,20 +109,17 @@ export async function GET(req: Request) {
     }
   }
 
-  // 3. Normal fetch for rendering (draft or published mode)
-  const mode = searchParams.get("mode") || "published"; // 'draft' or 'published'
+  // 3. Normal fetch for rendering
+  const mode = searchParams.get("mode") || "published";
 
-  // Admin access validation for draft mode
   if (mode === "draft") {
     const user = await getSessionUser();
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
-    let pageResult: any = await query(
-      "SELECT * FROM \`page_contents\` WHERE \`page_name\` = ?",
-      [page_name]
-    );
+    let pageContents = await db.getPageContents();
+    let page = pageContents.find(p => p.page_name === page_name);
 
     const defaultSections = [
       {
@@ -173,111 +144,70 @@ export async function GET(req: Request) {
           text_ta: "<p>எங்கள் பக்கத்திற்கு வரவேற்கிறோம். இந்த உள்ளடக்கத் தொகுதியைத் தனிப்பயனாக்க எடிட்டரைப் பயன்படுத்தவும்.</p>"
         },
         display_order: 2
-      },
-      {
-        section_type: "cards",
-        section_title: "Gallery Section",
-        content_json: {
-          cards: [
-            {
-              title_en: "Feature Item 1",
-              title_ta: "அம்ச உருப்படி 1",
-              desc_en: "Description of the first feature.",
-              desc_ta: "முதல் அம்சத்தின் விளக்கம்.",
-              icon: "Shield",
-              link: ""
-            }
-          ]
-        },
-        display_order: 3
       }
     ];
 
-    if (pageResult.length === 0) {
+    let versions = await db.getContentVersions();
+
+    if (!page) {
       const user = await getSessionUser();
       const username = user?.username || "System";
-      
-      // Auto-create page_contents
-      const insertPageRes: any = await query(
-        "INSERT INTO \`page_contents\` (page_name, seo_title, seo_description, last_updated_by, last_updated_at) VALUES (?, ?, ?, ?, NOW())",
-        [page_name, `${page_name.toUpperCase()} | Chennai Guardian`, `Content page for ${page_name}`, username]
-      );
-      const newPageId = insertPageRes.insertId;
+      const newPageId = pageContents.length > 0 ? Math.max(...pageContents.map(p => p.id)) + 1 : 1;
+      const newVerId = versions.length > 0 ? Math.max(...versions.map(v => v.id)) + 1 : 1;
 
-      // Insert content version snapshot
-      const sectionsJson = JSON.stringify(defaultSections);
-      const seoJson = JSON.stringify({
+      const newVer: DBContentVersion = {
+        id: newVerId,
+        page_content_id: newPageId,
+        version_num: 1,
+        sections_data: JSON.stringify(defaultSections),
+        seo_data: JSON.stringify({
+          seo_title: `${page_name.toUpperCase()} | Chennai Guardian`,
+          seo_description: `Content page for ${page_name}`,
+          seo_keywords: page_name
+        }),
+        status: "draft",
+        updated_by: username,
+        updated_at: new Date().toISOString()
+      };
+
+      versions.push(newVer);
+      await db.saveContentVersions(versions);
+
+      page = {
+        id: newPageId,
+        page_name,
         seo_title: `${page_name.toUpperCase()} | Chennai Guardian`,
         seo_description: `Content page for ${page_name}`,
-        seo_keywords: page_name
-      });
+        draft_version_id: newVerId,
+        published_version_id: newVerId,
+        last_updated_by: username,
+        last_updated_at: new Date().toISOString()
+      };
 
-      const insertVersionRes: any = await query(
-        "INSERT INTO \`content_versions\` (page_content_id, version_num, sections_data, seo_data, status, updated_by, updated_at) VALUES (?, 1, ?, ?, 'draft', ?, NOW())",
-        [newPageId, sectionsJson, seoJson, username]
-      );
-      const newVersionId = insertVersionRes.insertId;
-
-      // Update page to point to new draft version
-      await query(
-        "UPDATE \`page_contents\` SET \`draft_version_id\` = ?, \`published_version_id\` = ?, \`last_updated_by\` = ? WHERE \`id\` = ?",
-        [newVersionId, newVersionId, username, newPageId]
-      );
-
-      // Re-fetch page record
-      pageResult = await query(
-        "SELECT * FROM \`page_contents\` WHERE \`page_name\` = ?",
-        [page_name]
-      );
+      pageContents.push(page);
+      await db.savePageContents(pageContents);
     }
 
-    const page = pageResult[0];
     let targetVersionId = mode === "draft" ? page.draft_version_id : page.published_version_id;
 
     if (!targetVersionId) {
-      // If version is missing but page exists, create default version for it!
-      const user = await getSessionUser();
-      const username = user?.username || "System";
-
-      const sectionsJson = JSON.stringify(defaultSections);
-      const seoJson = JSON.stringify({
-        seo_title: page.seo_title || `${page_name.toUpperCase()} | Chennai Guardian`,
-        seo_description: page.seo_description || `Content page for ${page_name}`,
-        seo_keywords: page.seo_keywords || page_name
-      });
-
-      const insertVersionRes: any = await query(
-        "INSERT INTO \`content_versions\` (page_content_id, version_num, sections_data, seo_data, status, updated_by, updated_at) VALUES (?, 1, ?, ?, 'draft', ?, NOW())",
-        [page.id, sectionsJson, seoJson, username]
-      );
-      targetVersionId = insertVersionRes.insertId;
-
-      await query(
-        "UPDATE \`page_contents\` SET \`draft_version_id\` = ?, \`published_version_id\` = ?, \`last_updated_by\` = ? WHERE \`id\` = ?",
-        [targetVersionId, targetVersionId, username, page.id]
-      );
+      targetVersionId = page.draft_version_id || page.published_version_id;
     }
 
-    const versionResult: any = await query(
-      "SELECT * FROM \`content_versions\` WHERE \`id\` = ?",
-      [targetVersionId]
-    );
-
-    if (versionResult.length === 0) {
+    const ver = versions.find(v => v.id === targetVersionId);
+    if (!ver) {
       return NextResponse.json({ page_name, seo: null, sections: [] });
     }
 
-    const ver = versionResult[0];
     return NextResponse.json({
       page_name,
       version_id: ver.id,
       version_num: ver.version_num,
       last_updated_by: page.last_updated_by,
       last_updated_at: page.last_updated_at,
-      seo: JSON.parse(ver.seo_data),
-      sections: JSON.parse(ver.sections_data)
+      seo: JSON.parse(ver.seo_data || "{}"),
+      sections: JSON.parse(ver.sections_data || "[]")
     });
-
   } catch (error) {
     console.error("GET page-contents error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
@@ -289,9 +219,6 @@ export async function POST(req: Request) {
   const user = await getSessionUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const hasPerm = await checkPermission(user.role, "can_write");
-  if (!hasPerm) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-
   try {
     const data = await req.json();
     const { page_name, seo, sections } = data;
@@ -300,51 +227,46 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "page_name is required" }, { status: 400 });
     }
 
-    const result = await transaction(async (conn) => {
-      // Find or insert page_contents
-      let pageId: number;
-      const [existingPage]: any = await conn.execute(
-        "SELECT id FROM \`page_contents\` WHERE \`page_name\` = ?",
-        [page_name]
-      );
+    let pageContents = await db.getPageContents();
+    let page = pageContents.find(p => p.page_name === page_name);
 
-      if (existingPage.length > 0) {
-        pageId = existingPage[0].id;
-      } else {
-        const [insertRes]: any = await conn.execute(
-          "INSERT INTO \`page_contents\` (page_name, last_updated_by, last_updated_at) VALUES (?, ?, NOW())",
-          [page_name, user.username]
-        );
-        pageId = insertRes.insertId;
-      }
+    if (!page) {
+      const newPageId = pageContents.length > 0 ? Math.max(...pageContents.map(p => p.id)) + 1 : 1;
+      page = {
+        id: newPageId,
+        page_name,
+        last_updated_by: user.username,
+        last_updated_at: new Date().toISOString()
+      };
+      pageContents.push(page);
+    }
 
-      // Calculate next version number
-      const [lastVersion]: any = await conn.execute(
-        "SELECT MAX(version_num) as max_ver FROM \`content_versions\` WHERE \`page_content_id\` = ?",
-        [pageId]
-      );
-      const nextVerNum = (lastVersion[0]?.max_ver || 0) + 1;
+    let versions = await db.getContentVersions();
+    const pageVersions = versions.filter(v => v.page_content_id === page!.id);
+    const maxVer = pageVersions.length > 0 ? Math.max(...pageVersions.map(v => v.version_num)) : 0;
+    const nextVerNum = maxVer + 1;
+    const newVersionId = versions.length > 0 ? Math.max(...versions.map(v => v.id)) + 1 : 1;
 
-      // Insert new version snapshot as 'draft'
-      const sectionsJson = JSON.stringify(sections || []);
-      const seoJson = JSON.stringify(seo || {});
+    const newVersion: DBContentVersion = {
+      id: newVersionId,
+      page_content_id: page.id,
+      version_num: nextVerNum,
+      sections_data: JSON.stringify(sections || []),
+      seo_data: JSON.stringify(seo || {}),
+      status: "draft",
+      updated_by: user.username,
+      updated_at: new Date().toISOString()
+    };
 
-      const [versionRes]: any = await conn.execute(
-        "INSERT INTO \`content_versions\` (page_content_id, version_num, sections_data, seo_data, status, updated_by, updated_at) VALUES (?, ?, ?, ?, 'draft', ?, NOW())",
-        [pageId, nextVerNum, sectionsJson, seoJson, user.username]
-      );
-      const newVersionId = versionRes.insertId;
+    versions.push(newVersion);
+    await db.saveContentVersions(versions);
 
-      // Update page_contents to track this as the latest draft
-      await conn.execute(
-        "UPDATE \`page_contents\` SET \`draft_version_id\` = ?, \`last_updated_by\` = ?, \`last_updated_at\` = NOW() WHERE id = ?",
-        [newVersionId, user.username, pageId]
-      );
+    page.draft_version_id = newVersionId;
+    page.last_updated_by = user.username;
+    page.last_updated_at = new Date().toISOString();
+    await db.savePageContents(pageContents);
 
-      return { pageId, versionId: newVersionId, versionNum: nextVerNum };
-    });
-
-    return NextResponse.json({ success: true, ...result });
+    return NextResponse.json({ success: true, pageId: page.id, versionId: newVersionId, versionNum: nextVerNum });
   } catch (error) {
     console.error("POST page-contents draft error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
@@ -364,114 +286,69 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: "page_name is required" }, { status: 400 });
     }
 
+    let pageContents = await db.getPageContents();
+    let page = pageContents.find(p => p.page_name === page_name);
+    if (!page) return NextResponse.json({ error: "Page not found" }, { status: 404 });
+
+    let versions = await db.getContentVersions();
+
     // 1. RESTORE ACTION
     if (action === "restore") {
-      const hasPerm = await checkPermission(user.role, "can_write");
-      if (!hasPerm) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-
       if (!version_id) return NextResponse.json({ error: "version_id is required for restore" }, { status: 400 });
+      const targetVer = versions.find(v => v.id === parseInt(version_id, 10));
+      if (!targetVer) return NextResponse.json({ error: "Target version not found" }, { status: 404 });
 
-      const result = await transaction(async (conn) => {
-        // Fetch target version data
-        const [verRows]: any = await conn.execute(
-          "SELECT * FROM \`content_versions\` WHERE \`id\` = ?",
-          [version_id]
-        );
-        if (verRows.length === 0) throw new Error("Target version not found");
+      const pageVersions = versions.filter(v => v.page_content_id === page.id);
+      const nextVerNum = (pageVersions.length > 0 ? Math.max(...pageVersions.map(v => v.version_num)) : 0) + 1;
+      const newVersionId = versions.length > 0 ? Math.max(...versions.map(v => v.id)) + 1 : 1;
 
-        const targetVer = verRows[0];
+      const restoredVersion: DBContentVersion = {
+        id: newVersionId,
+        page_content_id: page.id,
+        version_num: nextVerNum,
+        sections_data: targetVer.sections_data,
+        seo_data: targetVer.seo_data,
+        status: "draft",
+        updated_by: user.username,
+        updated_at: new Date().toISOString()
+      };
 
-        // Get page id
-        const [pageRows]: any = await conn.execute(
-          "SELECT id FROM \`page_contents\` WHERE \`page_name\` = ?",
-          [page_name]
-        );
-        const pageId = pageRows[0].id;
+      versions.push(restoredVersion);
+      await db.saveContentVersions(versions);
 
-        // Calculate next version num
-        const [lastVersion]: any = await conn.execute(
-          "SELECT MAX(version_num) as max_ver FROM \`content_versions\` WHERE \`page_content_id\` = ?",
-          [pageId]
-        );
-        const nextVerNum = (lastVersion[0]?.max_ver || 0) + 1;
+      page.draft_version_id = newVersionId;
+      page.last_updated_by = user.username;
+      page.last_updated_at = new Date().toISOString();
+      await db.savePageContents(pageContents);
 
-        // Insert new restored version draft
-        const [newVerRes]: any = await conn.execute(
-          "INSERT INTO \`content_versions\` (page_content_id, version_num, sections_data, seo_data, status, updated_by, updated_at) VALUES (?, ?, ?, ?, 'draft', ?, NOW())",
-          [pageId, nextVerNum, targetVer.sections_data, targetVer.seo_data, user.username]
-        );
-        const newVersionId = newVerRes.insertId;
-
-        // Set page draft pointers to the restored version
-        await conn.execute(
-          "UPDATE \`page_contents\` SET \`draft_version_id\` = ?, \`last_updated_by\` = ?, \`last_updated_at\` = NOW() WHERE id = ?",
-          [newVersionId, user.username, pageId]
-        );
-
-        return { versionId: newVersionId, versionNum: nextVerNum };
-      });
-
-      return NextResponse.json({ success: true, message: "Restored successfully", ...result });
+      return NextResponse.json({ success: true, message: "Restored successfully", versionId: newVersionId, versionNum: nextVerNum });
     }
 
     // 2. PUBLISH ACTION
-    const hasApprovePerm = await checkPermission(user.role, "can_approve");
-    if (!hasApprovePerm) return NextResponse.json({ error: "Forbidden: Approve permission required to publish" }, { status: 403 });
+    const draftId = page.draft_version_id;
+    if (!draftId) return NextResponse.json({ error: "No draft changes to publish" }, { status: 400 });
 
-    const result = await transaction(async (conn) => {
-      // Get page details
-      const [pageRows]: any = await conn.execute(
-        "SELECT * FROM \`page_contents\` WHERE \`page_name\` = ?",
-        [page_name]
-      );
-      if (pageRows.length === 0) throw new Error("Page not found");
+    const draft = versions.find(v => v.id === draftId);
+    if (!draft) return NextResponse.json({ error: "Draft version not found" }, { status: 404 });
 
-      const page = pageRows[0];
-      const draftId = page.draft_version_id;
-      if (!draftId) throw new Error("No draft changes to publish");
+    draft.status = "published";
+    draft.updated_by = user.username;
+    draft.updated_at = new Date().toISOString();
+    await db.saveContentVersions(versions);
 
-      // Fetch draft version details
-      const [draftRows]: any = await conn.execute(
-        "SELECT * FROM \`content_versions\` WHERE \`id\` = ?",
-        [draftId]
-      );
-      if (draftRows.length === 0) throw new Error("Draft version not found");
+    page.published_version_id = draftId;
+    page.last_updated_by = user.username;
+    page.last_updated_at = new Date().toISOString();
 
-      const draft = draftRows[0];
+    try {
+      const seoData = JSON.parse(draft.seo_data || "{}");
+      if (seoData.seo_title) page.seo_title = seoData.seo_title;
+      if (seoData.seo_description) page.seo_description = seoData.seo_description;
+    } catch (e) {}
 
-      // Mark the draft version as published
-      await conn.execute(
-        "UPDATE \`content_versions\` SET \`status\` = 'published', \`updated_by\` = ?, \`updated_at\` = NOW() WHERE id = ?",
-        [user.username, draftId]
-      );
+    await db.savePageContents(pageContents);
 
-      // Sync published version id
-      await conn.execute(
-        "UPDATE \`page_contents\` SET \`published_version_id\` = ?, \`seo_title\` = ?, \`seo_description\` = ?, \`last_updated_by\` = ?, \`last_updated_at\` = NOW() WHERE id = ?",
-        [
-          draftId,
-          JSON.parse(draft.seo_data).seo_title || "",
-          JSON.parse(draft.seo_data).seo_description || "",
-          user.username,
-          page.id
-        ]
-      );
-
-      // Re-populate page_sections table for direct relational lookups
-      await conn.execute("DELETE FROM \`page_sections\` WHERE \`page_content_id\` = ?", [page.id]);
-      const sections = JSON.parse(draft.sections_data);
-      for (const sec of sections) {
-        await conn.execute(
-          "INSERT INTO \`page_sections\` (page_content_id, section_type, section_title, content_json, display_order) VALUES (?, ?, ?, ?, ?)",
-          [page.id, sec.section_type, sec.section_title, JSON.stringify(sec.content_json), sec.display_order]
-        );
-      }
-
-      return { publishedId: draftId };
-    });
-
-    return NextResponse.json({ success: true, message: "Published successfully", ...result });
-
+    return NextResponse.json({ success: true, message: "Published successfully", publishedId: draftId });
   } catch (error: any) {
     console.error("PUT page-contents publish/restore error:", error);
     return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 });

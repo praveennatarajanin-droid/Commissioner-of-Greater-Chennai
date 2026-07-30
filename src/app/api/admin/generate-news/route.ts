@@ -21,35 +21,35 @@ async function translateText(text: string, targetLang: "en" | "ta"): Promise<str
 
 // ─── Category translation map ────────────────────────────────────────────────
 const CATEGORY_MAP: Record<string, { en: string; ta: string }> = {
-  "Crime": { en: "Crime", ta: "குற்றம்" },
-  "Cyber Safety": { en: "Cyber Safety", ta: "இணைய பாதுகாப்பு" },
-  "Women Safety": { en: "Women Safety", ta: "பெண்கள் பாதுகாப்பு" },
-  "Public Safety": { en: "Public Safety", ta: "பொது பாதுகாப்பு" },
-  "Outreach": { en: "Outreach", ta: "சமூக அவுட்ரீச்" },
-  "Traffic": { en: "Traffic Updates", ta: "போக்குவரத்து தகவல்கள்" },
-  "Police Achievement": { en: "Awards & Recognition", ta: "விருதுகள் & அங்கீகாரம்" },
-  "Government Update": { en: "Official Alerts", ta: "அதிகாரப்பூர்வ அறிவிப்புகள்" },
-  "General News": { en: "General News", ta: "பொதுச் செய்திகள்" }
+  "Crime": { en: "CRIME", ta: "குற்றம்" },
+  "Cyber Safety": { en: "CYBER SAFETY", ta: "இணைய பாதுகாப்பு" },
+  "Women Safety": { en: "WOMEN SAFETY", ta: "பெண்கள் பாதுகாப்பு" },
+  "Public Safety": { en: "PUBLIC SAFETY", ta: "பொது பாதுகாப்பு" },
+  "Outreach": { en: "COMMUNITY OUTREACH", ta: "சமூக உதவி" },
+  "Traffic": { en: "TRAFFIC NEWS", ta: "போக்குவரத்து தகவல்கள்" },
+  "Police Achievement": { en: "AWARDS & RECOGNITION", ta: "விருதுகள் & அங்கீகாரம்" },
+  "Government Update": { en: "GOVERNMENT UPDATE", ta: "அரசு அறிவிப்புகள்" },
+  "General News": { en: "GENERAL NEWS", ta: "பொதுச் செய்திகள்" }
 };
 
 // Category keywords for rules-based backup
 const CATEGORY_RULES: [string[], string][] = [
-  [["award", "medal", "felicitat", "recogni", "honor", "honour", "appreciat", "champion", "achievement"], "Police Achievement"],
+  [["crime", "arrest", "nabbed", "accused", "criminal", "gang", "seized", "robbery", "murder", "theft", "stole", "stealing"], "Crime"],
   [["cyber", "online", "internet", "digital", "fraud", "scam", "hacking", "phishing"], "Cyber Safety"],
   [["women", "child", "girl", "mahila", "shakti", "domestic", "harassment"], "Women Safety"],
   [["traffic", "road", "signal", "helmet", "vehicle", "drunk drive", "intersection", "pedestrian"], "Traffic"],
-  [["crime", "arrest", "nabbed", "accused", "criminal", "gang", "seized", "robbery", "murder", "theft"], "Crime"],
+  [["award", "medal", "felicitat", "recogni", "honor", "honour", "appreciat", "champion", "achievement"], "Police Achievement"],
   [["community", "outreach", "public", "citizen", "school", "college", "awareness", "camp"], "Outreach"],
   [["public safety", "safety guide", "emergency", "alert", "flood", "cyclone", "disaster"], "Public Safety"],
   [["official", "circular", "notification", "government", "announcement"], "Government Update"],
 ];
 
 const TAMIL_CATEGORY_RULES: [string[], string][] = [
-  [["பாராட்டு", "விருது", "பதக்கம்", "சாதனை", "அங்கீகாரம்", "சம்பளம்"], "Police Achievement"],
+  [["கைது", "கொலை", "கொள்ளை", "திருட்டு", "குற்றம்", "வழக்கு", "கைது செய்யப்பட்டார்"], "Crime"],
   [["சைபர்", "இணைய", "மோசடி", "ஏமாற்று", "ஹேக்கிங்", "பாஸ்வேர்டு"], "Cyber Safety"],
   [["பெண்", "குழந்தை", "மகளிர்", "பாலியல்", "வன்கொடுமை", "கடத்தல்"], "Women Safety"],
   [["போக்குவரத்து", "சாலை", "விபத்து", "ஹெல்மெட்", "வாகனம்", "சிக்னல்", "காரணம்"], "Traffic"],
-  [["கைது", "கொலை", "கொள்ளை", "திருட்டு", "குற்றம்", "வழக்கு", "கைது செய்யப்பட்டார்"], "Crime"],
+  [["பாராட்டு", "விருது", "பதக்கம்", "சாதனை", "அங்கீகாரம்", "சம்பளம்"], "Police Achievement"],
   [["விழிப்புணர்வு", "முகாம்", "பள்ளி", "கல்லூரி", "பொதுமக்கள்", "சமூகம்"], "Outreach"],
   [["வெள்ளம்", "மழை", "புயல்", "அவசரம்", "பேரிடர்", "எச்சரிக்கை"], "Public Safety"],
   [["அரசாணை", "அறிவிப்பு", "அதிகாரப்பூர்வ", "சுற்றறிக்கை"], "Government Update"],

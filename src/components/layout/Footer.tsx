@@ -80,11 +80,6 @@ export default function Footer({ customProfile }: FooterProps = {}) {
             <li>
               <Link href="/stations" className="hover:text-brand-gold transition">{language === "ta" ? "காவல் நிலையங்கள்" : "Police Stations"}</Link>
             </li>
-            <li>
-              <Link href="/citizen-outreach" className="hover:text-brand-gold transition">
-                {language === "ta" ? "மனு சமர்ப்பிப்பு" : "Grievance Form"}
-              </Link>
-            </li>
           </ul>
         </div>
 

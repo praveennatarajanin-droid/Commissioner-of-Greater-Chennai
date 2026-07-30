@@ -16,7 +16,6 @@ export async function GET() {
     { url: "/videos", priority: "0.7", changefreq: "weekly" },
     { url: "/about", priority: "0.6", changefreq: "monthly" },
     { url: "/achievements", priority: "0.6", changefreq: "monthly" },
-    { url: "/citizen-outreach", priority: "0.6", changefreq: "monthly" },
     { url: "/category/crime", priority: "0.7", changefreq: "daily" },
     { url: "/category/cyber-safety", priority: "0.7", changefreq: "daily" },
     { url: "/category/women-safety", priority: "0.7", changefreq: "daily" },

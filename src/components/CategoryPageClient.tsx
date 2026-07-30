@@ -231,12 +231,12 @@ export default function CategoryPageClient({
       const idMatch = normalizedId === normalizedCat;
 
       const exactMatch = idMatch ||
-                         (id === "crime" && (catEn === "crime" || catEn === "crime prevention")) ||
-                         (id === "cyber-safety" && catEn === "cyber safety") ||
-                         (id === "women-safety" && (catEn === "women safety" || catEn === "women's safety")) ||
-                         (id === "public-safety" && catEn === "public safety") ||
+                         (id === "crime" && (catEn === "crime" || catEn === "crime prevention" || catEn === "wanted criminals" || catEn === "missing persons")) ||
+                         (id === "cyber-safety" && (catEn === "cyber safety" || catEn === "cyber awareness" || catEn === "online fraud")) ||
+                         (id === "women-safety" && (catEn === "women safety" || catEn === "women's safety" || catEn === "pink patrol" || catEn === "pink patrol (women safety)" || catEn === "aval support wing" || catEn === "aval support" || catEn === "women helpline")) ||
+                         (id === "public-safety" && (catEn === "public safety" || catEn === "clean campus" || catEn === "security audit")) ||
                          (id === "traffic" && (catEn === "traffic" || catEn === "traffic news" || catEn === "traffic advisory" || catEn === "traffic updates")) ||
-                         (id === "outreach" && (catEn === "outreach" || catEn === "community outreach")) ||
+                         (id === "outreach" && (catEn === "outreach" || catEn === "community outreach" || catEn === "social awareness" || catEn === "legal outreach" || catEn === "community support")) ||
                          (id === "government" && (catEn === "government updates" || catEn === "government" || catEn === "government update")) ||
                          (id === "awards" && (catEn === "awards & recognition" || catEn === "awards" || catEn === "recognition")) ||
                          (id === "administration" && (catEn === "police administration" || catEn === "administration")) ||

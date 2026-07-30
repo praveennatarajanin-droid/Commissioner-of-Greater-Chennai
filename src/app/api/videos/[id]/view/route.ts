@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { query } from "@/lib/mysql";
+import { db } from "@/lib/db";
 import { cookies, headers } from "next/headers";
 
 const ipVideoViewCache = new Map<string, number>();
@@ -39,15 +39,9 @@ export async function POST(
     // Support both database ID (int) and YouTube ID (string)
     const videoId = parseInt(id, 10);
     if (!isNaN(videoId)) {
-      await query(
-        "UPDATE videos SET views_count = COALESCE(views_count, 0) + 1 WHERE id = ?",
-        [videoId]
-      );
+      await db.incrementVideoViews(videoId);
     } else {
-      await query(
-        "UPDATE videos SET views_count = COALESCE(views_count, 0) + 1 WHERE youtube_id = ?",
-        [id]
-      );
+      await db.incrementVideoViews(id);
     }
 
     // Set cookie

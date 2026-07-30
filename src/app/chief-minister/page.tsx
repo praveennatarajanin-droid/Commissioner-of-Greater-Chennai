@@ -28,6 +28,7 @@ import {
 import Navbar from "@/components/layout/Navbar";
 import NewsTicker from "@/components/layout/NewsTicker";
 import Footer from "@/components/layout/Footer";
+import { useTranslation } from "@/context/LanguageContext";
 
 // Real CM Vijay Portrait is already seeded in the public folder as /images/vijay_profile.png
 
@@ -70,7 +71,7 @@ function CounterCard({ label, value, sub, delay }: { label: string; value: strin
 }
 
 export default function ChiefMinisterPage() {
-  const [language, setLanguage] = useState<"en" | "ta">("en");
+  const { language } = useTranslation();
   const [activeTab, setActiveTab] = useState<"all" | "meetings" | "events" | "sessions">("all");
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
@@ -82,10 +83,6 @@ export default function ChiefMinisterPage() {
   const [cmsNews, setCmsNews] = useState<any[]>([]);
 
   useEffect(() => {
-    // Detect system language or hook into translation contexts
-    const lang = document.documentElement.lang === "ta" ? "ta" : "en";
-    setLanguage(lang);
-
     // Fetch layout configs
     fetch("/api/admin/crud/menu-items").then(res => res.ok ? res.json() : null).then(data => Array.isArray(data) && setMenuItems(data)).catch(() => {});
     fetch("/api/ticker").then(res => res.ok ? res.json() : null).then(data => Array.isArray(data) && setTicker(data)).catch(() => {});

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { query } from "@/lib/mysql";
+import { db, DBSubMenu } from "@/lib/db";
 
 // Helper to check authentication
 async function getSessionUser() {
@@ -18,12 +18,11 @@ async function getSessionUser() {
 async function checkPermission(role: string, actionField: "can_read" | "can_write" | "can_approve" | "can_delete") {
   const r = (role || "").toUpperCase().trim();
   if (r === "SUPER_ADMIN" || r === "SUPERADMIN") return true;
-  // Content managers (ADMIN, editor, etc.) are only allowed to read menu listings, not write or delete menu items
   if (actionField === "can_read" && (r === "ADMIN" || r === "CONTENTADMIN" || r === "EDITOR")) return true;
   return false;
 }
 
-// GET all submenus (grouped/sorted)
+// GET all submenus
 export async function GET() {
   const user = await getSessionUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -32,7 +31,11 @@ export async function GET() {
   if (!hasPerm) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   try {
-    const submenus = await query("SELECT * FROM \`sub_menus\` ORDER BY \`parent_menu_id\` ASC, \`display_order\` ASC");
+    const submenus = await db.getSubMenus();
+    submenus.sort((a, b) => {
+      if (a.parent_menu_id !== b.parent_menu_id) return a.parent_menu_id - b.parent_menu_id;
+      return a.display_order - b.display_order;
+    });
     return NextResponse.json(submenus);
   } catch (error) {
     console.error("GET submenus error:", error);
@@ -56,37 +59,24 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    const sql = `
-      INSERT INTO \`sub_menus\` (parent_menu_id, name_en, name_ta, slug, url, icon, display_order, status)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `;
-    const result: any = await query(sql, [
-      parent_menu_id,
+    const submenus = await db.getSubMenus();
+    const newId = submenus.length > 0 ? Math.max(...submenus.map(s => s.id)) + 1 : 1;
+    const newSub: DBSubMenu = {
+      id: newId,
+      parent_menu_id: Number(parent_menu_id),
       name_en,
       name_ta,
       slug,
       url,
-      icon || null,
-      display_order || 0,
-      status || "active"
-    ]);
+      icon: icon || null,
+      display_order: display_order || submenus.length + 1,
+      status: status || "active"
+    };
 
-    // Also auto-create a page content mapping if the sub-menu is dynamic or static
-    // Let's use the slug as the pageName
-    const pageName = slug;
-    const seoTitle = `${name_en} | Chennai Guardian`;
-    const seoDesc = `Information regarding ${name_en} services and safety.`;
+    submenus.push(newSub);
+    await db.saveSubMenus(submenus);
 
-    try {
-      await query(
-        "INSERT IGNORE INTO \`page_contents\` (sub_menu_id, page_name, seo_title, seo_description, last_updated_by, last_updated_at) VALUES (?, ?, ?, ?, ?, NOW())",
-        [result.insertId, pageName, seoTitle, seoDesc, user.username]
-      );
-    } catch (err) {
-      console.error("Auto page creation for submenu error:", err);
-    }
-
-    return NextResponse.json({ success: true, insertId: result.insertId });
+    return NextResponse.json({ success: true, insertId: newId });
   } catch (error) {
     console.error("POST submenus error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
@@ -103,38 +93,43 @@ export async function PUT(req: Request) {
 
   try {
     const data = await req.json();
+    let submenus = await db.getSubMenus();
 
-    // Check if bulk reordering
     if (data.reorder && Array.isArray(data.reorder)) {
-      for (const item of data.reorder) {
-        await query("UPDATE \`sub_menus\` SET \`display_order\` = ? WHERE \`id\` = ?", [
-          item.display_order,
-          item.id
-        ]);
-      }
+      const orderMap = new Map<number, number>();
+      data.reorder.forEach((item: any) => orderMap.set(item.id, item.display_order));
+
+      submenus = submenus.map(s => {
+        if (orderMap.has(s.id)) {
+          return { ...s, display_order: orderMap.get(s.id)! };
+        }
+        return s;
+      });
+      await db.saveSubMenus(submenus);
       return NextResponse.json({ success: true });
     }
 
     const { id, parent_menu_id, name_en, name_ta, slug, url, icon, display_order, status } = data;
     if (!id) return NextResponse.json({ error: "ID is required" }, { status: 400 });
 
-    const sql = `
-      UPDATE \`sub_menus\`
-      SET parent_menu_id = ?, name_en = ?, name_ta = ?, slug = ?, url = ?, icon = ?, display_order = ?, status = ?
-      WHERE id = ?
-    `;
-    await query(sql, [
-      parent_menu_id,
-      name_en,
-      name_ta,
-      slug,
-      url,
-      icon || null,
-      display_order || 0,
-      status || "active",
-      id
-    ]);
+    submenus = submenus.map(s => {
+      if (s.id === id) {
+        return {
+          ...s,
+          parent_menu_id: parent_menu_id !== undefined ? Number(parent_menu_id) : s.parent_menu_id,
+          name_en: name_en ?? s.name_en,
+          name_ta: name_ta ?? s.name_ta,
+          slug: slug ?? s.slug,
+          url: url ?? s.url,
+          icon: icon !== undefined ? icon : s.icon,
+          display_order: display_order ?? s.display_order,
+          status: status ?? s.status
+        };
+      }
+      return s;
+    });
 
+    await db.saveSubMenus(submenus);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("PUT submenus error:", error);
@@ -152,10 +147,14 @@ export async function DELETE(req: Request) {
 
   try {
     const { searchParams } = new URL(req.url);
-    const id = searchParams.get("id");
-    if (!id) return NextResponse.json({ error: "ID is required" }, { status: 400 });
+    const idStr = searchParams.get("id");
+    if (!idStr) return NextResponse.json({ error: "ID is required" }, { status: 400 });
 
-    await query("DELETE FROM \`sub_menus\` WHERE \`id\` = ?", [id]);
+    const id = parseInt(idStr, 10);
+    let submenus = await db.getSubMenus();
+    submenus = submenus.filter(s => s.id !== id);
+    await db.saveSubMenus(submenus);
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("DELETE submenus error:", error);

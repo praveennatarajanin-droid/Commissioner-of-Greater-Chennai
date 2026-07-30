@@ -7,6 +7,8 @@ import { db } from "@/lib/db";
 import { specialUnitsData } from "@/lib/aboutData";
 import type { Metadata } from "next";
 
+export const revalidate = 0;
+
 interface PageProps {
   params: Promise<{ id: string }>;
 }

@@ -25,7 +25,7 @@ function timeAgo(dateStr: string): string {
     const d = new Date(dateStr);
     if (isNaN(d.getTime())) return dateStr;
     const diff = (Date.now() - d.getTime()) / 1000;
-    if (diff < 60) return "Just now";
+    if (diff <= 60) return "Just now";
     if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
     if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
     return `${Math.floor(diff / 86400)}d ago`;
@@ -46,9 +46,11 @@ export default function OfficialAlertsFeed({ initialAlerts = [], language = "en"
   };
 
   useEffect(() => {
-    if (initialAlerts.length > 0) {
+    if (initialAlerts && initialAlerts.length > 0) {
       setAlerts(sortAlerts(initialAlerts));
       setLastUpdated(new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true }));
+    } else {
+      refresh(false);
     }
   }, [initialAlerts]);
 

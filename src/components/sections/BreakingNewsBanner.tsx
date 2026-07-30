@@ -62,7 +62,7 @@ export default function BreakingNewsBanner({ breakingNews = [], language = "en" 
   };
 
   useEffect(() => {
-    if (breakingNews.length > 0) {
+    if (breakingNews && breakingNews.length > 0) {
       const filtered = breakingNews.filter((t: any) => {
         const isActive = t.active === 1 || t.active === true || t.active === "true" || t.active === undefined;
         const isEnabled = t.enabled === undefined || t.enabled === true || t.enabled === 1 || t.enabled === "true" || t.enabled === "Enabled";
@@ -75,15 +75,12 @@ export default function BreakingNewsBanner({ breakingNews = [], language = "en" 
         title_ta: i.title_ta || (i as any).text_ta || "",
         slug: i.slug || (i as any).url || ""
       })));
-      // Skip API fetch — data already provided by server via prop
     } else {
-      // Only fetch from API when no prop data is provided (e.g. standalone usage)
       fetchNews();
+      const interval = setInterval(fetchNews, 30000);
+      return () => clearInterval(interval);
     }
-
-    const interval = setInterval(fetchNews, 30000);
-    return () => clearInterval(interval);
-  }, []);
+  }, [breakingNews]);
 
   useEffect(() => {
     const updateTime = () => {
@@ -163,7 +160,9 @@ export default function BreakingNewsBanner({ breakingNews = [], language = "en" 
           >
             {/* First loop of headlines */}
             {loopItems.map((item) => {
-              const itemTitle = language === "ta" ? item.title_ta : item.title_en;
+              const itemTitle = language === "ta"
+                ? (item.title_ta || item.title_en || "")
+                : (item.title_en || item.title_ta || "");
               const href = item.id === 0 ? "#" : (item.slug || "");
               return (
                 <div key={`loop1-${item.id}`} className="flex items-center whitespace-nowrap text-sm font-bold text-white">
@@ -187,7 +186,9 @@ export default function BreakingNewsBanner({ breakingNews = [], language = "en" 
 
             {/* Duplicated loop of headlines for seamless scrolling */}
             {loopItems.map((item) => {
-              const itemTitle = language === "ta" ? item.title_ta : item.title_en;
+              const itemTitle = language === "ta"
+                ? (item.title_ta || item.title_en || "")
+                : (item.title_en || item.title_ta || "");
               const href = item.id === 0 ? "#" : (item.slug || "");
               return (
                 <div key={`loop2-${item.id}`} className="flex items-center whitespace-nowrap text-sm font-bold text-white">

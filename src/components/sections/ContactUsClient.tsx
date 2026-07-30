@@ -122,8 +122,8 @@ const emergencyNumbers = [
 
 /* ───────── HOW WE HELP CARDS ───────── */
 const helpCards = [
-  { icon: <AlertTriangle className="w-7 h-7" />, title: "Report Crime", desc: "Report incidents and crimes directly to the control room.", href: "/citizen-outreach", color: "text-red-500" },
-  { icon: <Search className="w-7 h-7" />, title: "Track Complaint", desc: "Check the status of your registered complaint.", href: "/citizen-outreach", color: "text-brand-blue" },
+  { icon: <AlertTriangle className="w-7 h-7" />, title: "Report Crime", desc: "Report incidents and crimes directly via TN Police E-Services.", href: "https://eservices.tnpolice.gov.in", color: "text-red-500" },
+  { icon: <Search className="w-7 h-7" />, title: "Track Complaint", desc: "Check status online via the official CCTNS tracking portal.", href: "https://eservices.tnpolice.gov.in", color: "text-brand-blue" },
   { icon: <MapPin className="w-7 h-7" />, title: "Find Police Station", desc: "Locate your nearest police station with map directions.", href: "/stations", color: "text-brand-maroon" },
   { icon: <PhoneCall className="w-7 h-7" />, title: "Emergency Contacts", desc: "Access all emergency helpline numbers instantly.", href: "#emergency", color: "text-orange-500" },
   { icon: <MessageSquare className="w-7 h-7" />, title: "Citizen Services", desc: "Apply for verification, NOC, and other services.", href: "/stations", color: "text-teal-500" },
@@ -134,7 +134,7 @@ const helpCards = [
 const faqs = [
   {
     q: "How do I file a complaint?",
-    a: "You can file a complaint by visiting your nearest police station, calling 100 (Police Control Room), or using our online Grievance Form available at /citizen-outreach. You will receive a receipt number to track your complaint."
+    a: "You can file a complaint by visiting your nearest police station, calling 100 (Police Control Room), or using the online Tamil Nadu Police E-Services portal at eservices.tnpolice.gov.in. You will receive a receipt number to track your complaint."
   },
   {
     q: "How can I contact a police station?",
@@ -149,8 +149,8 @@ const faqs = [
     a: "Passport police verification requests can be submitted through the Police Stations Directory (/stations) by selecting 'Passport Verification Check' in the Citizen Services Desk form. The verification is processed within 15 working days."
   },
   {
-    q: "How do I track my grievance?",
-    a: "Use the receipt ID provided after submission to track your grievance. You can also contact the Citizens Outreach Desk at 044-23452330 or email outreach@tncctns.gov.in for an update on your case status."
+    q: "How do I track my complaint?",
+    a: "You can track your complaint status online via the Tamil Nadu Police E-Services portal (eservices.tnpolice.gov.in) using your receipt/FIR number, or by contacting your local police station directly."
   },
 ];
 
@@ -173,52 +173,8 @@ const categories = [
 export default function ContactUsClient() {
   const { t, language } = useTranslation();
 
-  // Form state
-  const [name, setName] = useState("");
-  const [mobile, setMobile] = useState("");
-  const [email, setEmail] = useState("");
-  const [grievance, setGrievance] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const [submitError, setSubmitError] = useState("");
-  const [sentPreviewHtml, setSentPreviewHtml] = useState("");
-
   // FAQ accordion state
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitting(true);
-    setSubmitError("");
-    try {
-      const res = await fetch("/api/send-email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, mobile, grievance }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        setSentPreviewHtml(data.emailHtml);
-        setSubmitted(true);
-      } else {
-        setSubmitError(language === "ta" ? "மனுவைச் சமர்ப்பிக்க முடியவில்லை. மீண்டும் முயலவும்." : "Failed to submit grievance. Please try again.");
-      }
-    } catch (err) {
-      console.error(err);
-      setSubmitError(language === "ta" ? "நிர்வாக மேசை சேவையுடன் இணைப்பதில் பிழை." : "Error connecting to the administrative desk service.");
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleReset = () => {
-    setName(""); setMobile(""); setEmail(""); setGrievance("");
-    setSentPreviewHtml(""); setSubmitted(false); setSubmitError("");
-  };
-
-  const inputClass = "w-full bg-stone-50 dark:bg-stone-955 border border-stone-200 dark:border-stone-800 text-sm text-stone-800 dark:text-white p-3 rounded-xl focus:border-brand-gold focus:outline-none transition-colors placeholder:text-stone-400";
-  const labelClass = "block text-[10px] uppercase font-black text-stone-500 dark:text-stone-400 tracking-wider mb-1.5";
-
   return (
     <div className="w-full max-w-[1700px] mx-auto px-4 py-0 space-y-0">
 
@@ -309,187 +265,6 @@ export default function ContactUsClient() {
         </div>
       </section>
 
-      {/* ══════════════════════════════════════
-          SECTION 4 – GRIEVANCE / OUTREACH FORM
-      ══════════════════════════════════════ */}
-      <section className="py-16 px-4 bg-stone-50 dark:bg-stone-900/50">
-        <div className="max-w-3xl mx-auto">
-          <div className="flex items-center gap-2.5 border-b border-stone-200 dark:border-stone-800 pb-3 mb-10">
-            <div className="w-1.5 h-6 rounded-full bg-brand-maroon" />
-            <h2 className="font-display font-black text-sm uppercase tracking-widest text-stone-900 dark:text-white">
-              {language === "ta" ? "மனு சமர்ப்பிப்பு படிவம்" : "Grievance / Outreach Form"}
-            </h2>
-          </div>
-
-          {submitted ? (
-            <div className="bg-white dark:bg-stone-900 border border-emerald-200 dark:border-emerald-700/50 rounded-2xl p-5 sm:p-7 md:p-8 text-center space-y-5 animate-fadeIn">
-              <div className="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-955/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto">
-                <CheckCircle className="w-6 h-6" />
-              </div>
-              <div className="space-y-1.5">
-                <h4 className="font-display font-bold text-sm sm:text-base text-emerald-600 dark:text-emerald-400">
-                  {language === "ta" ? "மின்னஞ்சல் வெற்றிகரமாக அனுப்பப்பட்டது!" : "Email Sent Successfully!"}
-                </h4>
-                <p className="text-xs text-slate-500 dark:text-slate-400 max-w-xs mx-auto font-normal leading-relaxed">
-                  {language === "ta" 
-                    ? "உங்கள் கோரிக்கை விவரங்கள் வெற்றிகரமாகப் பதிவு செய்யப்பட்டு, " 
-                    : "Your grievance details have been successfully registered and sent to "}
-                  <strong className="text-brand-maroon dark:text-brand-gold font-bold">gcp.itdepartment@gmail.com</strong>
-                  {language === "ta" ? " என்ற மின்னஞ்சல் முகவரிக்கு அனுப்பப்பட்டது." : "."}
-                </p>
-              </div>
-
-              {/* Simulated Email Preview Container */}
-              {sentPreviewHtml && (
-                <div className="w-full text-left border border-stone-200 dark:border-stone-800 rounded-xl overflow-hidden shadow-inner bg-stone-50 dark:bg-stone-955 max-h-[260px] overflow-y-auto overflow-x-hidden p-1 my-3">
-                  <div className="bg-stone-100 dark:bg-stone-900 p-2.5 text-[9px] font-black text-stone-500 dark:text-stone-400 border-b border-stone-200 dark:border-stone-800 flex justify-between items-center sticky top-0 z-10 uppercase tracking-wider">
-                    <span>{t("contact.sentLogs")}</span>
-                    <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> {t("contact.sentSuccess")}
-                    </span>
-                  </div>
-                  <div className="p-3 bg-white email-preview-container" dangerouslySetInnerHTML={{ __html: sentPreviewHtml }} />
-                  <style dangerouslySetInnerHTML={{ __html: `
-                    .email-preview-container .email-card {
-                      width: 100% !important;
-                      max-width: 100% !important;
-                      border-radius: 8px !important;
-                      box-shadow: none !important;
-                      border: none !important;
-                    }
-                    .email-preview-container .email-header {
-                      padding: 16px 12px !important;
-                    }
-                    .email-preview-container .email-body {
-                      padding: 16px 12px !important;
-                    }
-                    .email-preview-container .email-table {
-                      display: block !important;
-                      width: 100% !important;
-                    }
-                    .email-preview-container .email-table tbody {
-                      display: block !important;
-                      width: 100% !important;
-                    }
-                    .email-preview-container .email-row {
-                      display: block !important;
-                      width: 100% !important;
-                    }
-                    .email-preview-container .email-label {
-                      display: block !important;
-                      width: 100% !important;
-                      padding-top: 6px !important;
-                      padding-bottom: 2px !important;
-                      box-sizing: border-box !important;
-                    }
-                    .email-preview-container .email-val {
-                      display: block !important;
-                      width: 100% !important;
-                      padding-bottom: 8px !important;
-                      box-sizing: border-box !important;
-                      word-break: break-all !important;
-                    }
-                    .email-preview-container .email-title {
-                      font-size: 14px !important;
-                    }
-                    .email-preview-container .email-subtitle {
-                      font-size: 8px !important;
-                      letter-spacing: 1px !important;
-                    }
-                  `}} />
-                </div>
-              )}
-
-              <button
-                onClick={handleReset}
-                className="px-5 py-2.5 rounded-lg bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-xs font-black uppercase tracking-wider transition-colors text-slate-800 dark:text-slate-200 cursor-pointer"
-              >
-                {t("contact.anotherForm")}
-              </button>
-            </div>
-          ) : (
-            <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-850 rounded-2xl p-6 md:p-8 shadow-sm">
-              {submitError && (
-                <div className="mb-4 p-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-xl text-red-650 dark:text-red-400 text-xs font-bold">
-                  ⚠️ {submitError}
-                </div>
-              )}
-              <form onSubmit={handleSubmit} className="space-y-5">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  <div>
-                    <label className={labelClass}>{t("contact.name")} *</label>
-                    <input
-                      type="text"
-                      required
-                      value={name}
-                      onChange={e => setName(e.target.value)}
-                      placeholder={t("contact.namePlaceholder")}
-                      className={inputClass}
-                    />
-                  </div>
-                  <div>
-                    <label className={labelClass}>{t("contact.email")} *</label>
-                    <input
-                      type="email"
-                      required
-                      value={email}
-                      onChange={e => setEmail(e.target.value)}
-                      placeholder={t("contact.emailPlaceholder")}
-                      className={inputClass}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className={labelClass}>{t("contact.mobile")} *</label>
-                  <input
-                    type="tel"
-                    required
-                    value={mobile}
-                    onChange={e => setMobile(e.target.value)}
-                    placeholder={t("contact.mobilePlaceholder")}
-                    className={inputClass}
-                  />
-                </div>
-
-                <div>
-                  <label className={labelClass}>{t("contact.grievance")} *</label>
-                  <textarea
-                    required
-                    value={grievance}
-                    onChange={e => setGrievance(e.target.value)}
-                    rows={5}
-                    placeholder={t("contact.grievancePlaceholder")}
-                    className={inputClass + " resize-none"}
-                  />
-                </div>
-
-                <div className="flex gap-3 pt-2">
-                  <button
-                    type="submit"
-                    disabled={submitting}
-                    className="flex-1 flex items-center justify-center gap-2 py-3 bg-brand-maroon hover:bg-brand-maroon-dark disabled:opacity-60 text-white rounded-xl text-xs font-black uppercase tracking-widest transition shadow cursor-pointer border border-brand-maroon-dark"
-                  >
-                    {submitting ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <Send className="w-4 h-4" />
-                    )}
-                    {submitting ? t("contact.submitProgress") : (language === "ta" ? "மனுவைச் சமர்ப்பிக்கவும்" : "Submit Grievance")}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleReset}
-                    className="flex items-center gap-2 px-5 py-3 bg-stone-100 dark:bg-stone-955 hover:bg-stone-200 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300 rounded-xl text-xs font-black uppercase tracking-widest transition cursor-pointer border border-stone-200 dark:border-stone-800"
-                  >
-                    <RefreshCw className="w-4 h-4" /> {language === "ta" ? "மீட்டமை" : "Reset"}
-                  </button>
-                </div>
-              </form>
-            </div>
-          )}
-        </div>
-      </section>
 
       {/* ══════════════════════════════════════
           SECTION 5 – EMERGENCY QUICK ACCESS
@@ -692,9 +467,6 @@ export default function ContactUsClient() {
             </a>
             <Link href="/stations" className="flex items-center gap-2 px-6 py-3 bg-white/15 hover:bg-white/25 text-white border border-white/30 rounded-xl font-black text-sm uppercase tracking-widest transition backdrop-blur-sm cursor-pointer">
               <MapPin className="w-4 h-4" /> Locate Police Station
-            </Link>
-            <Link href="/citizen-outreach" className="flex items-center gap-2 px-6 py-3 bg-brand-gold hover:bg-amber-500 text-stone-950 rounded-xl font-black text-sm uppercase tracking-widest transition shadow cursor-pointer">
-              <Send className="w-4 h-4" /> Submit Grievance
             </Link>
           </div>
         </div>

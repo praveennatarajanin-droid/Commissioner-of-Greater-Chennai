@@ -81,23 +81,23 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
       if (!n || n.published === 0) return false;
       const cat = (n.category_en || "").toLowerCase();
       const title = (n.title_en || "").toLowerCase();
-      
-      const exactMatch = (normalizedId === "crime" && (cat === "crime" || cat === "crime prevention")) ||
-                         (normalizedId === "cyber-safety" && cat === "cyber safety") ||
-                         (normalizedId === "women-safety" && (cat === "women safety" || cat === "women's safety")) ||
-                         (normalizedId === "public-safety" && cat === "public safety") ||
-                         (normalizedId === "traffic" && (cat === "traffic" || cat === "traffic news" || cat === "traffic advisory")) ||
-                         (normalizedId === "outreach" && (cat === "outreach" || cat === "community outreach"));
-      
+
+      const exactMatch = (normalizedId === "crime" && (cat === "crime" || cat === "crime prevention" || cat === "wanted criminals" || cat === "missing persons")) ||
+        (normalizedId === "cyber-safety" && (cat === "cyber safety" || cat === "cyber awareness" || cat === "online fraud")) ||
+        (normalizedId === "women-safety" && (cat === "women safety" || cat === "women's safety" || cat === "pink patrol" || cat === "pink patrol (women safety)" || cat === "aval support wing" || cat === "aval support" || cat === "women helpline")) ||
+        (normalizedId === "public-safety" && (cat === "public safety" || cat === "clean campus" || cat === "security audit")) ||
+        (normalizedId === "traffic" && (cat === "traffic" || cat === "traffic news" || cat === "traffic advisory" || cat === "traffic updates")) ||
+        (normalizedId === "outreach" && (cat === "outreach" || cat === "community outreach" || cat === "social awareness" || cat === "legal outreach" || cat === "community support"));
+
       if (exactMatch) return true;
 
       const keywords = normalizedId === "crime" ? ["crime", "arrest", "painkiller", "dvac", "bribery", "cheat", "theft", "seizure", "corruption", "law and order"] :
-                       normalizedId === "cyber-safety" ? ["cyber", "online", "scam", "phishing", "hacker", "fraud", "password"] :
-                       normalizedId === "women-safety" ? ["women", "harassment", "singappen", "gender", "ssf", "girls", "harass"] :
-                       normalizedId === "public-safety" ? ["safety", "patrol", "beach", "audit", "cctv", "third eye", "surveillance", "clean campus"] :
-                       normalizedId === "traffic" ? ["traffic", "diversion", "road closure", "signal", "congestion", "transport", "accident alert", "traffic police"] :
-                       normalizedId === "outreach" ? ["community", "outreach", "karangal", "rescue", "welfare", "pledge", "labour", "students", "legal", "social awareness", "community support"] :
-                       [];
+        normalizedId === "cyber-safety" ? ["cyber", "online", "scam", "phishing", "hacker", "fraud", "password"] :
+          normalizedId === "women-safety" ? ["women", "harassment", "singappen", "gender", "ssf", "girls", "harass"] :
+            normalizedId === "public-safety" ? ["safety", "patrol", "beach", "audit", "cctv", "third eye", "surveillance", "clean campus"] :
+              normalizedId === "traffic" ? ["traffic", "diversion", "road closure", "signal", "congestion", "transport", "accident alert", "traffic police"] :
+                normalizedId === "outreach" ? ["community", "outreach", "karangal", "rescue", "welfare", "pledge", "labour", "students", "legal", "social awareness", "community support"] :
+                  [];
 
       return keywords.some(k => cat.includes(k) || title.includes(k));
     }).length;
@@ -139,38 +139,38 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
   };
 
   const categoryLinks = [
-    { label: language === "ta" ? "குற்றம்" : "Crime",          href: "/category/crime", id: "crime" },
-    { label: language === "ta" ? "இணைய பாதுகாப்பு" : "Cyber Safety", href: "/category/cyber-safety", id: "cyber-safety" },
-    { label: language === "ta" ? "பெண்கள் பாதுகாப்பு" : "Women Safety",   href: "/category/women-safety", id: "women-safety" },
-    { label: language === "ta" ? "பொது பாதுகாப்பு" : "Public Safety",   href: "/category/public-safety", id: "public-safety" },
-    { label: language === "ta" ? "போக்குவரத்து" : "Traffic",   href: "/category/traffic", id: "traffic" },
-    { label: language === "ta" ? "சமூக உதவி" : "Outreach",    href: "/category/outreach", id: "outreach" },
+    { label: language === "ta" ? "குற்றம்" : "Crime", href: "/category/crime", id: "crime" },
+    { label: language === "ta" ? "சைபர் பாதுகாப்பு" : "Cyber Safety", href: "/category/cyber-safety", id: "cyber-safety" },
+    { label: language === "ta" ? "பெண்கள் பாதுகாப்பு" : "Women Safety", href: "/category/women-safety", id: "women-safety" },
+    { label: language === "ta" ? "பொது பாதுகாப்பு" : "Public Safety", href: "/category/public-safety", id: "public-safety" },
+    { label: language === "ta" ? "போக்குவரத்து" : "Traffic", href: "/category/traffic", id: "traffic" },
+    { label: language === "ta" ? "சமூக உதவி" : "Outreach", href: "/category/outreach", id: "outreach" },
   ].filter(item => {
-    if (news.length === 0) return true; 
+    if (news.length === 0) return true;
     return getCount(item.id) > 0;
   });
 
   const fallbackNavItems = [
-    { label: language === "ta" ? "முகப்பு" : "Home",         href: "/" },
-    { label: language === "ta" ? "எங்களைப் பற்றி" : "About Us", href: "/about" },
+    { label: language === "ta" ? "முகப்பு" : "Home", href: "/" },
+    { label: language === "ta" ? "அறிமுகம்" : "About Us", href: "/about" },
     ...categoryLinks,
     { label: language === "ta" ? "காவல் நிலையங்கள்" : "Stations", href: "/stations" },
-    { label: language === "ta" ? "வீடியோக்கள்" : "Videos",    href: "/videos" },
-    { label: language === "ta" ? "ஆணையர் சுயவிவரம்" : "Profile", href: "/commissioner-profile" },
-    { label: language === "ta" ? "தொடர்பு கொள்ளுங்கள்" : "Contact Us", href: "/contact-us" },
+    { label: language === "ta" ? "வீடியோக்கள்" : "Videos", href: "/videos" },
+    { label: language === "ta" ? "ஆணையர்" : "Profile", href: "/commissioner-profile" },
+    { label: language === "ta" ? "தொடர்பு" : "Contact Us", href: "/contact-us" },
   ];
 
   const finalNavItems = dbMenus.length > 0
     ? dbMenus.filter(Boolean).map((m: any) => ({
-        label: language === "ta" ? (m.name_ta || m.name_en || "") : (m.name_en || m.name_ta || ""),
-        href: m.url || "",
-        openInNewTab: m.open_in_new_tab === 1,
-        subMenus: (m.subMenus || []).filter(Boolean).map((sub: any) => ({
-          label: language === "ta" ? (sub.name_ta || sub.name_en || "") : (sub.name_en || sub.name_ta || ""),
-          href: sub.url || "",
-          openInNewTab: sub.open_in_new_tab === 1
-        }))
+      label: language === "ta" ? (m.name_ta || m.name_en || "") : (m.name_en || m.name_ta || ""),
+      href: m.url || "",
+      openInNewTab: m.open_in_new_tab === 1,
+      subMenus: (m.subMenus || []).filter(Boolean).map((sub: any) => ({
+        label: language === "ta" ? (sub.name_ta || sub.name_en || "") : (sub.name_en || sub.name_ta || ""),
+        href: sub.url || "",
+        openInNewTab: sub.open_in_new_tab === 1
       }))
+    }))
     : fallbackNavItems.map(item => ({ ...item, subMenus: [] }));
 
 
@@ -182,15 +182,31 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
     }
   };
 
+  const shortenTamilLabel = (label: any) => {
+    try {
+      if (language !== "ta") return label;
+      if (!label || typeof label !== "string") return label || "";
+      const trimmed = label.trim();
+      if (trimmed.includes("பற்றி")) return "அறிமுகம்";
+      if (trimmed.includes("இணைய") && trimmed.includes("பாதுகாப்பு")) return "சைபர் பாதுகாப்பு";
+      if (trimmed.includes("சுயவிவரம்")) return "ஆணையர்";
+      if (trimmed.includes("தொடர்பு")) return "தொடர்பு";
+      return label;
+    } catch (e) {
+      console.error("Error in shortenTamilLabel:", e);
+      return label || "";
+    }
+  };
+
   return (
-    <header 
+    <header
       className="sticky w-full z-50 flex flex-col shadow-md"
       style={{ top: stickyOffset || 0 }}
     >
       {/* 1. Red Top Header Bar */}
       <div className="w-full bg-brand-maroon text-white py-2 md:py-3.5 px-4 md:px-6">
         <div className="max-w-[1700px] mx-auto flex items-center justify-between gap-2 md:gap-4">
-          
+
           {/* Left Block: Logo + Brand Title */}
           <Link href="/" className="flex items-center gap-2 md:gap-4 shrink-1 min-w-0">
             <div className="relative w-14 h-14 md:w-20 md:h-20 shrink-0 bg-white rounded-full p-1 border border-white/20 shadow-md">
@@ -228,7 +244,7 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
 
           {/* Right Block: Actions, Switches, Toggles, Drawer Toggle */}
           <div className="flex items-center gap-3 md:gap-4 shrink-0 print:hidden">
-            
+
             {/* Desktop Social Links (Hidden on Mobile) */}
             <div className="hidden lg:flex items-center gap-2">
               <a href="https://www.facebook.com/Chennai.Police/" target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/25 border border-white/20 text-white flex items-center justify-center transition">
@@ -249,18 +265,16 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
             <div className="hidden md:flex items-center border border-white/20 bg-white/10 rounded-md p-0.5 text-[9px] font-black tracking-wider text-white">
               <button
                 onClick={() => changeLanguage("en")}
-                className={`px-2 py-1 rounded cursor-pointer transition-all ${
-                  language === "en" ? "bg-[#c5a059] text-black" : "hover:bg-white/10 text-white"
-                }`}
+                className={`px-2 py-1 rounded cursor-pointer transition-all ${language === "en" ? "bg-[#c5a059] text-black" : "hover:bg-white/10 text-white"
+                  }`}
               >
                 EN
               </button>
               <span className="text-white/30 px-0.5 select-none">|</span>
               <button
                 onClick={() => changeLanguage("ta")}
-                className={`px-2 py-1 rounded cursor-pointer transition-all ${
-                  language === "ta" ? "bg-[#c5a059] text-black" : "hover:bg-white/10 text-white"
-                }`}
+                className={`px-2 py-1 rounded cursor-pointer transition-all ${language === "ta" ? "bg-[#c5a059] text-black" : "hover:bg-white/10 text-white"
+                  }`}
               >
                 தமிழ்
               </button>
@@ -299,7 +313,7 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
                 priority
               />
             </Link>
-            
+
             {/* Hamburger menu toggle (min touch target 44px) */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -323,7 +337,7 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
             className="flex-grow bg-white/15 border border-white/25 outline-none rounded-lg py-2 px-3 text-xs text-white placeholder:text-white/60"
             autoFocus
           />
-          <button type="submit" className="px-3.5 py-2 bg-brand-gold hover:bg-amber-600 text-stone-950 font-bold rounded-lg text-xs uppercase tracking-wider">
+          <button type="submit" className="px-3.5 py-2 bg-brand-gold hover:bg-amber-600 text-stone-955 font-bold rounded-lg text-xs uppercase tracking-wider">
             GO
           </button>
         </form>
@@ -332,36 +346,37 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
       {/* 2. Secondary Navigation Bar (Desktop Only) */}
       <div className="w-full bg-brand-blue text-white print:hidden hidden md:block" style={{ minHeight: "48px" }}>
         <div className="max-w-[1700px] mx-auto flex items-stretch justify-between h-full">
-          
-          <div className="flex items-center px-4 border-r border-white/15 shrink-0 bg-red-600 hover:bg-red-700 transition cursor-pointer">
-            <span className="flex items-center gap-1.5 text-xs font-black text-white uppercase tracking-widest animate-pulse">
-              <span className="w-2.5 h-2.5 rounded-full bg-white" />
+
+          <div className="flex items-center px-2 xl:px-4 border-r border-white/15 shrink-0 bg-red-600 hover:bg-red-700 transition cursor-pointer">
+            <span className="flex items-center gap-1 xl:gap-1.5 text-[9px] xl:text-xs font-black text-white uppercase tracking-widest animate-pulse">
+              <span className="w-2 xl:w-2.5 h-2 xl:h-2.5 rounded-full bg-white" />
               LIVE TV
             </span>
           </div>
 
-          <nav className="flex items-stretch flex-grow overflow-visible" style={{ scrollbarWidth: "none" }}>
+          <nav className="flex items-stretch flex-nowrap flex-grow overflow-visible w-full" style={{ scrollbarWidth: "none" }}>
             {finalNavItems.map((item: any, idx) => {
               const isActive = pathname === item.href;
               const hasSub = item.subMenus && item.subMenus.length > 0;
               return (
-                <div key={idx} className="relative group flex items-stretch">
+                <div key={idx} className="relative group flex items-stretch flex-1 shrink md:shrink-0">
                   <Link
                     href={item.href}
                     target={item.openInNewTab ? "_blank" : undefined}
-                    className={`flex items-center gap-1.5 px-4 text-[10px] sm:text-xs uppercase font-black tracking-wider hover:bg-[#1e2060] transition border-r border-white/10 whitespace-nowrap cursor-pointer ${
-                      isActive ? "bg-[#1e2060] text-[#c5a059] border-b-2 border-[#c5a059]" : ""
-                    }`}
+                    className={`flex items-center justify-center w-full uppercase font-black tracking-wider hover:bg-[#1e2060] transition border-r border-white/10 whitespace-nowrap cursor-pointer ${
+                      language === "ta"
+                        ? "gap-1 px-1 lg:px-1.5 xl:px-2 text-[8px] lg:text-[9px] xl:text-[10px]"
+                        : "gap-1 px-1.5 lg:px-2 xl:px-3 text-[8.5px] lg:text-[9.5px] xl:text-[11px]"
+                    } ${isActive ? "bg-[#1e2060] text-[#c5a059] border-b-2 border-[#c5a059]" : ""}`}
                     style={{ minHeight: "48px" }}
                   >
-                    <span>{item.label}</span>
-                    {hasSub && <ChevronDown className="w-3 h-3 text-white/70 group-hover:text-[#c5a059] transition" />}
+                    <span>{shortenTamilLabel(item.label)}</span>
+                    {hasSub && <ChevronDown className="w-2.5 h-2.5 xl:w-3 xl:h-3 ml-0.5 text-white/70 group-hover:text-[#c5a059] transition" />}
                   </Link>
                   {hasSub && (
-                    <div 
-                      className={`absolute left-0 top-[48px] flex-col bg-brand-blue border-t-2 border-[#c5a059] shadow-xl min-w-[220px] z-50 ${
-                        activeDropdown === idx ? "flex" : "hidden group-hover:flex"
-                      }`}
+                    <div
+                      className={`absolute left-0 top-[48px] flex-col bg-brand-blue border-t-2 border-[#c5a059] shadow-xl min-w-[220px] z-50 ${activeDropdown === idx ? "flex" : "hidden group-hover:flex"
+                        }`}
                     >
                       {item.subMenus.map((sub: any, sIdx: number) => (
                         <Link
@@ -381,8 +396,8 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
             })}
           </nav>
 
-          <div className="hidden lg:flex items-center gap-2 text-xs font-black text-[#c5a059] tracking-wide px-5 shrink-0 border-l border-white/15">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#10b981] animate-pulse" />
+          <div className="hidden lg:flex items-center gap-1.5 xl:gap-2 text-[9px] xl:text-xs font-black text-[#c5a059] tracking-wide px-2 xl:px-5 shrink-0 border-l border-white/15">
+            <span className="w-2 xl:w-2.5 h-2 xl:h-2.5 rounded-full bg-[#10b981] animate-pulse" />
             {language === "ta" ? "உதவி எண்: 1930 / 112" : "Helpline: 1930 / 112"}
           </div>
 
@@ -399,7 +414,7 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
             className="md:hidden w-full bg-brand-blue border-t border-white/10 overflow-hidden shadow-2xl"
           >
             <nav className="flex flex-col p-4 space-y-1">
-              
+
               {/* Helpdesk badge */}
               <div className="py-2.5 px-4 bg-white/5 rounded-lg text-xs font-bold text-[#c5a059] flex items-center gap-2 mb-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-[#10b981] animate-pulse" />
@@ -411,7 +426,7 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
                 const isActive = pathname === item.href;
                 const hasSub = item.subMenus && item.subMenus.length > 0;
                 const isExpanded = expandedMobileItems[idx];
-                
+
                 return (
                   <div key={idx} className="flex flex-col border-b border-white/5 last:border-b-0">
                     <div className="flex items-center justify-between w-full">
@@ -420,9 +435,8 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
                           href={item.href}
                           target={item.openInNewTab ? "_blank" : undefined}
                           onClick={() => setMobileMenuOpen(false)}
-                          className={`flex-grow flex items-center py-3.5 px-4 text-[13px] uppercase font-bold tracking-wider hover:bg-[#1e2060]/70 rounded-lg transition text-left min-h-[44px] cursor-pointer ${
-                            isActive ? "bg-[#1e2060] text-[#c5a059]" : "text-stone-100"
-                          }`}
+                          className={`flex-grow flex items-center py-3.5 px-4 text-[13px] uppercase font-bold tracking-wider hover:bg-[#1e2060]/70 rounded-lg transition text-left min-h-[44px] cursor-pointer ${isActive ? "bg-[#1e2060] text-[#c5a059]" : "text-stone-100"
+                            }`}
                         >
                           {item.label}
                         </Link>
@@ -431,9 +445,8 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
                           href={item.href}
                           target={item.openInNewTab ? "_blank" : undefined}
                           onClick={() => setMobileMenuOpen(false)}
-                          className={`flex-grow flex items-center py-3.5 px-4 text-[13px] uppercase font-bold tracking-wider hover:bg-[#1e2060]/70 rounded-lg transition text-left min-h-[44px] ${
-                            isActive ? "bg-[#1e2060] text-[#c5a059]" : "text-stone-100"
-                          }`}
+                          className={`flex-grow flex items-center py-3.5 px-4 text-[13px] uppercase font-bold tracking-wider hover:bg-[#1e2060]/70 rounded-lg transition text-left min-h-[44px] ${isActive ? "bg-[#1e2060] text-[#c5a059]" : "text-stone-100"
+                            }`}
                         >
                           {item.label}
                         </Link>
@@ -472,17 +485,15 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
                 <div className="flex items-center border border-white/20 bg-white/5 rounded-lg p-0.5 text-xs font-black tracking-wider text-white">
                   <button
                     onClick={() => { changeLanguage("en"); setMobileMenuOpen(false); }}
-                    className={`px-4 py-2 rounded-md cursor-pointer transition-all ${
-                      language === "en" ? "bg-[#c5a059] text-black" : "hover:bg-white/10 text-white"
-                    }`}
+                    className={`px-4 py-2 rounded-md cursor-pointer transition-all ${language === "en" ? "bg-[#c5a059] text-black" : "hover:bg-white/10 text-white"
+                      }`}
                   >
                     ENGLISH
                   </button>
                   <button
                     onClick={() => { changeLanguage("ta"); setMobileMenuOpen(false); }}
-                    className={`px-4 py-2 rounded-md cursor-pointer transition-all ${
-                      language === "ta" ? "bg-[#c5a059] text-black" : "hover:bg-white/10 text-white"
-                    }`}
+                    className={`px-4 py-2 rounded-md cursor-pointer transition-all ${language === "ta" ? "bg-[#c5a059] text-black" : "hover:bg-white/10 text-white"
+                      }`}
                   >
                     தமிழ்
                   </button>

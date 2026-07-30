@@ -23,6 +23,9 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     const saved = localStorage.getItem("preferred-language");
     if (saved === "en" || saved === "ta") {
       setLanguage(saved);
+      if (typeof document !== "undefined") {
+        document.documentElement.lang = saved;
+      }
     }
     setMounted(true);
   }, []);
@@ -30,6 +33,9 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const changeLanguage = (lang: Language) => {
     setLanguage(lang);
     localStorage.setItem("preferred-language", lang);
+    if (typeof document !== "undefined") {
+      document.documentElement.lang = lang;
+    }
   };
 
   const t = (key: string): string => {

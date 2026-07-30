@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { query } from "@/lib/mysql";
+import { db } from "@/lib/db";
 import { cookies, headers } from "next/headers";
 
 const ipViewCache = new Map<string, number>();
@@ -38,10 +38,7 @@ export async function POST(
     ipViewCache.set(cacheKey, now);
 
     // Increment in DB
-    await query(
-      "UPDATE news SET views_count = COALESCE(views_count, 0) + 1 WHERE id = ?",
-      [articleId]
-    );
+    await db.incrementViews(articleId);
 
     // Set cookie
     cookieStore.set(cookieName, "1", { maxAge: 30 * 60, path: "/" });

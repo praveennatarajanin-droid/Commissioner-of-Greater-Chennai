@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { query } from "@/lib/mysql";
+import { db } from "@/lib/db";
 
 let mostReadCache: any = null;
 let mostReadCacheTime = 0;
@@ -12,15 +12,27 @@ export async function GET() {
       return NextResponse.json(mostReadCache);
     }
 
-    const rows: any = await query(
-      "SELECT id, slug, title_en, title_ta, category_en, category_ta, image, views_count, created_at, date FROM news WHERE published = 1"
-    );
+    const news = await db.getNews();
+    const rows = news
+      .filter(item => item.published === 1)
+      .map(item => ({
+        id: item.id,
+        slug: item.slug,
+        title_en: item.title_en,
+        title_ta: item.title_ta,
+        category_en: item.category_en,
+        category_ta: item.category_ta,
+        image: item.image,
+        views_count: item.views_count || 0,
+        created_at: item.created_at || "",
+        date: item.date
+      }));
 
     const thirtyDaysAgo = now - 30 * 24 * 60 * 60 * 1000;
 
     const filtered = rows.filter((item: any) => {
       const pubDate = item.created_at ? new Date(item.created_at) : (item.date ? new Date(item.date) : null);
-      if (!pubDate) return false;
+      if (!pubDate) return true; // Fallback to include if date parsing unavailable
       return pubDate.getTime() >= thirtyDaysAgo;
     });
 
