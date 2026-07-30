@@ -62,9 +62,16 @@ function timeAgo(dateStr: string, lang: "en" | "ta" = "en"): string {
     if (isNaN(d.getTime())) return dateStr;
     const diff = (Date.now() - d.getTime()) / 1000;
     if (diff < 60) return lang === "ta" ? "இப்போது" : "Just now";
-    if (diff < 3600) return lang === "ta" ? `${Math.floor(diff / 60)} நிமிடம் முன்` : `${Math.floor(diff / 60)}m ago`;
-    if (diff < 86400) return lang === "ta" ? `${Math.floor(diff / 3600)} மணிநேரம் முன்` : `${Math.floor(diff / 3600)}h ago`;
-    return lang === "ta" ? `${Math.floor(diff / 86400)} நாள் முன்` : `${Math.floor(diff / 86400)}d ago`;
+    if (diff < 3600) {
+      const mins = Math.floor(diff / 60);
+      return lang === "ta" ? `${mins} நிமிடம் முன்` : `${mins} ${mins === 1 ? "minute" : "minutes"} ago`;
+    }
+    if (diff < 86400) {
+      const hrs = Math.floor(diff / 3600);
+      return lang === "ta" ? `${hrs} மணிநேரம் முன்` : `${hrs} ${hrs === 1 ? "hour" : "hours"} ago`;
+    }
+    const days = Math.floor(diff / 86400);
+    return lang === "ta" ? `${days} நாள் முன்` : `${days} ${days === 1 ? "day" : "days"} ago`;
   } catch { return dateStr; }
 }
 

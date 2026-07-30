@@ -45,6 +45,18 @@
   ],
   "activity_logs": [
     {
+      "id": 88,
+      "username": "Digital_TN_GovMaster",
+      "action": "Created news article: The Greater Chennai Traffic Police, in collaboration with Hyundai Motor...",
+      "timestamp": "2026-07-30T11:50:34.236Z"
+    },
+    {
+      "id": 87,
+      "username": "Digital_TN_GovMaster",
+      "action": "Created news article: Greater Chennai Police Commissioner Dr...",
+      "timestamp": "2026-07-30T11:49:32.579Z"
+    },
+    {
       "id": 86,
       "username": "Digital_TN_GovMaster",
       "action": "Created news article: Greater Chennai Police reiterated the availability of round-the-clock emergency assistance for women through official helpline services...",
@@ -647,6 +659,90 @@
   ],
   "custom_roles": [],
   "news": [
+    {
+      "id": 65,
+      "slug": "the-greater-chennai-traffic-police-in-collaboration-with-hyundai-motor",
+      "title_en": "The Greater Chennai Traffic Police, in collaboration with Hyundai Motor...",
+      "title_ta": "கிரேட்டர் சென்னை போக்குவரத்து காவல்துறை, ஹூண்டாய் மோட்டார் நிறுவனத்துடன் இணைந்து...",
+      "category_en": "PUBLIC SAFETY",
+      "category_ta": "பொது பாதுகாப்பு",
+      "summary_en": "The Greater Chennai Traffic Police, in collaboration with Hyundai Motor India Foundation, introduced new road safety barricades at key traffic junctio...",
+      "summary_ta": "கிரேட்டர் சென்னை போக்குவரத்து காவல்துறை, ஹூண்டாய் மோட்டார் இந்தியா அறக்கட்டளையுடன் இணைந்து, போக்குவரத்து நிர்வாகத்தை மேம்படுத்தவும், பாதசாரிகளின் பாதுகாப்பை மேம்படுத்தவும் முக்கிய போக்குவரத்து சந்திப்புகளில் புதிய சாலை பாதுகாப்பு தடுப்புகளை அறிமுகப்படுத்தியது.  இந்த முயற்சி பாதுகாப்பான சாலை உள்கட்டமைப்பு, சிறந்த போக்குவரத்து ஆகியவற்றை ஆதரிக்கிறது என்று அதிகாரிகள் தெரிவித்தனர்",
+      "content_en": [
+        "The Greater Chennai Traffic Police, in collaboration with Hyundai Motor India Foundation, introduced new road safety barricades at key traffic junctions to improve traffic management and enhance pedestrian safety. Officials stated that the initiative supports safer road infrastructure, better traffic regulation, and improved visibility for motorists, especially during peak hours and adverse weather conditions.&nbsp;<span class=\"\" data-state=\"closed\"></span><span aria-hidden=\"true\" class=\"PDq2pG_selectionAnchor\"></span>",
+        ""
+      ],
+      "content_ta": [
+        "கிரேட்டர் சென்னை போக்குவரத்து காவல்துறை, ஹூண்டாய் மோட்டார் இந்தியா அறக்கட்டளையுடன் இணைந்து, போக்குவரத்து நிர்வாகத்தை மேம்படுத்தவும், பாதசாரிகளின் பாதுகாப்பை மேம்படுத்தவும் முக்கிய போக்குவரத்து சந்திப்புகளில் புதிய சாலை பாதுகாப்பு தடுப்புகளை அறிமுகப்படுத்தியது.  இந்த முயற்சியானது பாதுகாப்பான சாலை உள்கட்டமைப்பு, சிறந்த போக்குவரத்து ஒழுங்குமுறை மற்றும் வாகன ஓட்டிகளுக்கு, குறிப்பாக பீக் ஹவர்ஸ் மற்றும் பாதகமான வானிலையின் போது மேம்பட்ட பார்வையை ஆதரிக்கிறது என்று அதிகாரிகள் தெரிவித்தனர். "
+      ],
+      "image": "/uploads/upload_1785412225037.jpg",
+      "tags_en": [
+        "Chennai",
+        "Police",
+        "Traffic",
+        "Safety"
+      ],
+      "tags_ta": [
+        "Chennai (தமிழ்)",
+        "Police (தமிழ்)",
+        "Traffic (தமிழ்)",
+        "Safety (தமிழ்)"
+      ],
+      "section": "latest",
+      "published": 1,
+      "featured": 0,
+      "breaking": 0,
+      "latest": 1,
+      "homepage_visible": 1,
+      "views_count": 0,
+      "language": "Both",
+      "date": "July 30, 2026",
+      "author_en": "Greater Chennai Police Media Desk",
+      "author_ta": "சென்னை பெருநகர காவல் ஊடகப் பிரிவு",
+      "updated_at": "2026-07-30T11:50:34.144Z",
+      "created_at": "2026-07-30T11:50:34.144Z"
+    },
+    {
+      "id": 64,
+      "slug": "greater-chennai-police-commissioner-dr",
+      "title_en": "Greater Chennai Police Commissioner Dr...",
+      "title_ta": "கிரேட்டர் சென்னை போலீஸ் கமிஷனர் டாக்டர்...",
+      "category_en": "PUBLIC SAFETY",
+      "category_ta": "பொது பாதுகாப்பு",
+      "summary_en": "Greater Chennai Police Commissioner Dr. A. Amalraj has urged parents not to allow minors to ride motorcycles or drive cars, emphasizing that underage ...",
+      "summary_ta": "சிறியவர்கள் மோட்டார் சைக்கிள் ஓட்டவோ அல்லது கார் ஓட்டவோ பெற்றோர்களை அனுமதிக்க வேண்டாம் என்று சென்னை பெருநகர காவல் ஆணையர் டாக்டர். ஏ. அமல்ராஜ் வலியுறுத்தியுள்ளார். வயதுக்குட்பட்டவர்கள் வாகனம் ஓட்டுவது குழந்தைகளுக்கும், பொதுமக்களுக்கும் பெரும் ஆபத்தை விளைவிப்பதாக வலியுறுத்துகிறது.  சமீபத்தில் நடந்த சாலை பாதுகாப்பு விழிப்புணர்வு நிகழ்ச்சியின் போது, ​​போலீசார் இவரின் முக்கியத்துவத்தை எடுத்துரைத்தனர்",
+      "content_en": [
+        "Greater Chennai Police Commissioner Dr. A. Amalraj has urged parents not to allow minors to ride motorcycles or drive cars, emphasizing that underage driving poses serious risks to both the child and the public. During a recent road safety awareness programme, police highlighted the importance of helmet use, seat belts, and responsible driving habits. Officials appealed to parents, schools, and the public to work together in preventing accidents and promoting safer roads across Chennai.",
+        ""
+      ],
+      "content_ta": [
+        "சிறியவர்கள் மோட்டார் சைக்கிள் ஓட்டவோ அல்லது கார் ஓட்டவோ பெற்றோர்களை அனுமதிக்க வேண்டாம் என்று சென்னை பெருநகர காவல் ஆணையர் டாக்டர். ஏ. அமல்ராஜ் வலியுறுத்தியுள்ளார். வயதுக்குட்பட்டவர்கள் வாகனம் ஓட்டுவது குழந்தைகளுக்கும், பொதுமக்களுக்கும் பெரும் ஆபத்தை விளைவிப்பதாக வலியுறுத்துகிறது.  சமீபத்திய சாலை பாதுகாப்பு விழிப்புணர்வு நிகழ்ச்சியின் போது, ​​ஹெல்மெட் பயன்பாடு, சீட் பெல்ட்கள் மற்றும் பொறுப்புடன் வாகனம் ஓட்டும் பழக்கம் ஆகியவற்றின் முக்கியத்துவத்தை போலீசார் எடுத்துரைத்தனர்.  விபத்துகளைத் தடுக்கவும், சென்னை முழுவதும் பாதுகாப்பான சாலைகளை மேம்படுத்தவும் பெற்றோர்கள், பள்ளிகள் மற்றும் பொதுமக்கள் ஒன்றிணைந்து செயல்படுமாறு அதிகாரிகள் வேண்டுகோள் விடுத்துள்ளனர்."
+      ],
+      "image": "/uploads/upload_1785412163934.jpg",
+      "tags_en": [
+        "Chennai",
+        "Police",
+        "Safety"
+      ],
+      "tags_ta": [
+        "Chennai (தமிழ்)",
+        "Police (தமிழ்)",
+        "Safety (தமிழ்)"
+      ],
+      "section": "latest",
+      "published": 1,
+      "featured": 0,
+      "breaking": 0,
+      "latest": 1,
+      "homepage_visible": 1,
+      "views_count": 0,
+      "language": "Both",
+      "date": "July 30, 2026",
+      "author_en": "Greater Chennai Police Media Desk",
+      "author_ta": "சென்னை பெருநகர காவல் ஊடகப் பிரிவு",
+      "updated_at": "2026-07-30T11:49:32.503Z",
+      "created_at": "2026-07-30T11:49:32.503Z"
+    },
     {
       "id": 63,
       "slug": "greater-chennai-police-reiterated-the-availability-of-round-the-clock-emergency-assistance-for-women-through-official-helpline-services",
@@ -5881,6 +5977,24 @@
       "articleSlug": null,
       "category": "Police Update",
       "createdAt": "2026-07-30T11:40:29.504Z"
+    },
+    {
+      "id": 97,
+      "image": "/uploads/upload_1785412163934.jpg",
+      "title": "Upload 1785412163934",
+      "articleId": null,
+      "articleSlug": null,
+      "category": "Police Update",
+      "createdAt": "2026-07-30T11:49:23.939Z"
+    },
+    {
+      "id": 98,
+      "image": "/uploads/upload_1785412225037.jpg",
+      "title": "Upload 1785412225037",
+      "articleId": null,
+      "articleSlug": null,
+      "category": "Police Update",
+      "createdAt": "2026-07-30T11:50:25.037Z"
     }
   ],
   "police_stations": [
