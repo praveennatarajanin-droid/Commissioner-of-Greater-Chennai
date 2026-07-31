@@ -289,10 +289,10 @@ export default function WebStoriesManagement({ user, onTabChange }: WebStoriesMa
                       <span className="text-[8px] bg-[#d4af37] text-stone-950 font-black px-2 py-0.5 rounded-full uppercase tracking-wider self-start mb-2">
                         {slidesCount} Slides
                       </span>
-                      <h4 className="text-white font-bold text-xs uppercase line-clamp-2">
+                      <h4 className="text-white force-white font-bold text-xs uppercase line-clamp-2">
                         {story.title_en}
                       </h4>
-                      <p className="text-stone-300 text-[10px] italic line-clamp-1 mt-0.5">
+                      <p className="text-stone-300 force-stone-300 text-[10px] italic line-clamp-1 mt-0.5">
                         {story.title_ta}
                       </p>
                     </div>
@@ -674,7 +674,7 @@ export default function WebStoriesManagement({ user, onTabChange }: WebStoriesMa
                     </div>
                     <div>
                       <p className="text-[8px] font-black uppercase tracking-wider text-[#d4af37]">Chennai Guardian</p>
-                      <p className="text-[6px] text-stone-300 font-medium">Stories Live Feed</p>
+                      <p className="text-[6px] text-stone-300 force-stone-300 font-medium">Stories Live Feed</p>
                     </div>
                   </div>
                 </div>
@@ -697,7 +697,7 @@ export default function WebStoriesManagement({ user, onTabChange }: WebStoriesMa
                     <span className="text-[7px] uppercase font-black bg-rose-600 px-1.5 py-0.5 rounded tracking-wider">
                       Live Updates
                     </span>
-                    <span className="text-[7px] uppercase font-black text-stone-300">
+                    <span className="text-[7px] uppercase font-black text-stone-300 force-stone-300">
                       Slide {previewSlideIndex + 1} of {editingStory.slides.length}
                     </span>
                   </div>
@@ -705,10 +705,10 @@ export default function WebStoriesManagement({ user, onTabChange }: WebStoriesMa
                     {editingStory.title_en || "Untited Story"}
                   </h4>
                   <div className="space-y-1 border-t border-white/10 pt-1.5">
-                    <p className="text-[9px] leading-relaxed text-stone-100 font-bold">
+                    <p className="text-[9px] leading-relaxed text-stone-100 force-stone-100 font-bold">
                       {editingStory.slides[previewSlideIndex]?.caption_en || "Caption overlay placeholder text."}
                     </p>
-                    <p className="text-[8px] leading-relaxed text-stone-300 italic font-medium">
+                    <p className="text-[8px] leading-relaxed text-stone-300 force-stone-300 italic font-medium">
                       {editingStory.slides[previewSlideIndex]?.caption_ta || "தலைப்பு மேலடுக்கு உரை..."}
                     </p>
                   </div>

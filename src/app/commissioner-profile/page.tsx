@@ -6,20 +6,27 @@ import DynamicPageRenderer from "@/components/sections/DynamicPageRenderer";
 import Footer from "@/components/layout/Footer";
 import { db } from "@/lib/db";
 import type { Metadata } from "next";
+import { getMetadataForPage, getSchemaJsonForPage } from "@/lib/seoHelper";
 
 export const revalidate = 0; // Force dynamic fetching
 
-export const metadata: Metadata = {
-  title: "Commissioner Profile | Chennai Guardian",
-  description: "Official Biography, Career Timeline, Initiatives, and Vision of Dr. A. Amalraj IPS, Commissioner of Police, Greater Chennai.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return getMetadataForPage(
+    "commissioner_profile_page",
+    0,
+    "Commissioner Profile | Greater Chennai Police",
+    "Official Biography, Career Timeline, Initiatives, and Vision of Dr. A. Amalraj IPS, Commissioner of Police, Greater Chennai.",
+    "/commissioner-profile"
+  );
+}
 
 export default async function CommissionerProfilePage() {
-  const [menuItems, rawTicker, profile, dynamicContent] = await Promise.all([
+  const [menuItems, rawTicker, profile, dynamicContent, schemaJson] = await Promise.all([
     db.getMenuItems(),
     db.getTicker(),
     db.getCommissionerProfile(),
     db.getPageContent("commissioner-profile"),
+    getSchemaJsonForPage("commissioner_profile_page", 0)
   ]);
 
   const tickerItems = rawTicker
@@ -32,6 +39,12 @@ export default async function CommissionerProfilePage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100">
+      {schemaJson && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: schemaJson }}
+        />
+      )}
       {/* 1. Header Navigation Bar */}
       <Navbar customMenuItems={menuItems} />
       <NewsTicker customTickerItems={tickerItems} />

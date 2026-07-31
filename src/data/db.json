@@ -8,7 +8,7 @@
       "email": "superadmin@chennaiguardian.in",
       "status": "active",
       "createdAt": "2026-07-23T15:01:05.171Z",
-      "lastLogin": "2026-07-30T10:26:43.949Z",
+      "lastLogin": "2026-07-31T07:46:08.474Z",
       "failed_logins": 0
     },
     {
@@ -19,7 +19,7 @@
       "email": "admin@chennaiguardian.in",
       "status": "active",
       "createdAt": "2026-07-23T15:01:05.172Z",
-      "lastLogin": "2026-07-30T10:19:52.447Z",
+      "lastLogin": "2026-07-31T07:34:24.233Z",
       "failed_logins": 0
     },
     {
@@ -44,6 +44,208 @@
     }
   ],
   "activity_logs": [
+    {
+      "id": 110,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "User logged in successfully",
+      "module": "Auth",
+      "timestamp": "2026-07-31T07:46:08.485Z",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36 Edg/150.0.0.0"
+    },
+    {
+      "id": 109,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "User logged out",
+      "module": "Auth",
+      "timestamp": "2026-07-31T07:46:06.679Z"
+    },
+    {
+      "id": 108,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "User logged in successfully",
+      "module": "Auth",
+      "timestamp": "2026-07-31T07:37:58.374Z",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36 Edg/150.0.0.0"
+    },
+    {
+      "id": 107,
+      "username": "newseditormanager",
+      "role": "admin",
+      "ip_address": "::1",
+      "action": "User logged out",
+      "module": "Auth",
+      "timestamp": "2026-07-31T07:37:55.399Z"
+    },
+    {
+      "id": 106,
+      "username": "newseditormanager",
+      "role": "admin",
+      "ip_address": "::1",
+      "action": "User logged in successfully",
+      "module": "Auth",
+      "timestamp": "2026-07-31T07:34:24.251Z",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36 Edg/150.0.0.0"
+    },
+    {
+      "id": 105,
+      "username": "newseditormanager",
+      "role": "admin",
+      "ip_address": "::1",
+      "action": "User logged out",
+      "module": "Auth",
+      "timestamp": "2026-07-31T07:34:18.955Z"
+    },
+    {
+      "id": 104,
+      "username": "newseditormanager",
+      "role": "admin",
+      "ip_address": "::1",
+      "action": "User logged in successfully",
+      "module": "Auth",
+      "timestamp": "2026-07-31T07:34:15.675Z",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36 Edg/150.0.0.0"
+    },
+    {
+      "id": 103,
+      "username": "newseditormanager",
+      "role": "admin",
+      "ip_address": "::1",
+      "action": "User logged out",
+      "module": "Auth",
+      "timestamp": "2026-07-31T07:34:13.020Z"
+    },
+    {
+      "id": 102,
+      "username": "newseditormanager",
+      "role": "admin",
+      "ip_address": "::1",
+      "action": "User logged in successfully",
+      "module": "Auth",
+      "timestamp": "2026-07-31T07:33:51.450Z",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36 Edg/150.0.0.0"
+    },
+    {
+      "id": 101,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "User logged out",
+      "module": "Auth",
+      "timestamp": "2026-07-31T07:33:48.385Z"
+    },
+    {
+      "id": 100,
+      "username": "Digital_TN_GovMaster",
+      "action": "Deleted news article: Over 2 400 warrants executed 687 arrested in south T",
+      "timestamp": "2026-07-31T07:22:30.515Z"
+    },
+    {
+      "id": 99,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "User logged in successfully",
+      "module": "Auth",
+      "timestamp": "2026-07-31T06:57:50.462Z",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36 Edg/150.0.0.0"
+    },
+    {
+      "id": 98,
+      "username": "newseditormanager",
+      "role": "admin",
+      "ip_address": "::1",
+      "action": "User logged out",
+      "module": "Auth",
+      "timestamp": "2026-07-31T06:57:47.603Z"
+    },
+    {
+      "id": 97,
+      "username": "newseditormanager",
+      "action": "Created news article: The Greater Chennai Corporation has announced the redevelopment of spaces...",
+      "timestamp": "2026-07-31T06:56:34.113Z"
+    },
+    {
+      "id": 96,
+      "username": "newseditormanager",
+      "role": "admin",
+      "ip_address": "::1",
+      "action": "User logged in successfully",
+      "module": "Auth",
+      "timestamp": "2026-07-31T06:55:07.687Z",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36 Edg/150.0.0.0"
+    },
+    {
+      "id": 95,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "User logged out",
+      "module": "Auth",
+      "timestamp": "2026-07-31T06:55:04.880Z"
+    },
+    {
+      "id": 94,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "User logged in successfully",
+      "module": "Auth",
+      "timestamp": "2026-07-31T06:14:07.369Z",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36 Edg/150.0.0.0"
+    },
+    {
+      "id": 93,
+      "username": "newseditormanager",
+      "role": "admin",
+      "ip_address": "::1",
+      "action": "User logged out",
+      "module": "Auth",
+      "timestamp": "2026-07-31T06:14:03.750Z"
+    },
+    {
+      "id": 92,
+      "username": "newseditormanager",
+      "role": "admin",
+      "ip_address": "::1",
+      "action": "User logged in successfully",
+      "module": "Auth",
+      "timestamp": "2026-07-31T06:13:58.687Z",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36 Edg/150.0.0.0"
+    },
+    {
+      "id": 91,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "User logged out",
+      "module": "Auth",
+      "timestamp": "2026-07-31T06:13:55.772Z"
+    },
+    {
+      "id": 90,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "User logged in successfully",
+      "module": "Auth",
+      "timestamp": "2026-07-31T06:09:59.846Z",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36 Edg/150.0.0.0"
+    },
+    {
+      "id": 89,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "User logged out",
+      "module": "Auth",
+      "timestamp": "2026-07-30T12:09:48.735Z"
+    },
     {
       "id": 88,
       "username": "Digital_TN_GovMaster",
@@ -659,6 +861,45 @@
   ],
   "custom_roles": [],
   "news": [
+    {
+      "id": 66,
+      "slug": "the-greater-chennai-corporation-has-announced-the-redevelopment-of-spaces",
+      "title_en": "The Greater Chennai Corporation has announced the redevelopment of spaces...",
+      "title_ta": "பெருநகர சென்னை மாநகராட்சி, இடங்களை மறுசீரமைப்பதாக அறிவித்துள்ளது...",
+      "category_en": "PUBLIC SAFETY",
+      "category_ta": "பொது பாதுகாப்பு",
+      "summary_en": "The Greater Chennai Corporation has announced the redevelopment of spaces beneath ten city flyovers into public amenities such as parks, walking track...",
+      "summary_ta": "10 நகர மேம்பாலங்களுக்குக் கீழே உள்ள இடங்களை பூங்காக்கள், நடைப் பாதைகள், ஒழுங்கமைக்கப்பட்ட பார்க்கிங் பகுதிகள் மற்றும் மின்சார வாகனங்களை சார்ஜ் செய்யும் வசதிகள் போன்ற பொது வசதிகளாக மாற்றியமைக்கப்படும் என சென்னை மாநகராட்சி அறிவித்துள்ளது.  பெரும்பாலும் தவறாகப் பயன்படுத்தப்படும் புறக்கணிக்கப்பட்ட இடங்களை அகற்றுவதை இந்த திட்டம் நோக்கமாகக் கொண்டுள்ளது",
+      "content_en": [
+        "The Greater Chennai Corporation has announced the redevelopment of spaces beneath ten city flyovers into public amenities such as parks, walking tracks, organised parking areas, and electric vehicle charging facilities. The project aims to eliminate neglected spaces that have often been misused, while improving public safety, cleanliness, and accessibility for residents. Authorities expect the initiative to create safer and more welcoming community spaces throughout the city.",
+        ""
+      ],
+      "content_ta": [
+        "10 நகர மேம்பாலங்களுக்குக் கீழே உள்ள இடங்களை பூங்காக்கள், நடைப் பாதைகள், ஒழுங்கமைக்கப்பட்ட பார்க்கிங் பகுதிகள் மற்றும் மின்சார வாகனங்களை சார்ஜ் செய்யும் வசதிகள் போன்ற பொது வசதிகளாக மாற்றியமைக்கப்படும் என சென்னை மாநகராட்சி அறிவித்துள்ளது.  பொது பாதுகாப்பு, தூய்மை மற்றும் குடியிருப்பாளர்களுக்கான அணுகலை மேம்படுத்தும் அதே வேளையில், அடிக்கடி தவறாகப் பயன்படுத்தப்படும் புறக்கணிக்கப்பட்ட இடங்களை அகற்றுவதை இந்த திட்டம் நோக்கமாகக் கொண்டுள்ளது.  இந்த முயற்சியானது நகரம் முழுவதும் பாதுகாப்பான மற்றும் அதிக வரவேற்பு சமூக இடங்களை உருவாக்கும் என்று அதிகாரிகள் எதிர்பார்க்கின்றனர்."
+      ],
+      "image": "/uploads/upload_1785480991155.jpg",
+      "tags_en": [
+        "Chennai",
+        "Safety"
+      ],
+      "tags_ta": [
+        "Chennai (தமிழ்)",
+        "Safety (தமிழ்)"
+      ],
+      "section": "latest",
+      "published": 1,
+      "featured": 0,
+      "breaking": 0,
+      "latest": 1,
+      "homepage_visible": 1,
+      "views_count": 0,
+      "language": "Both",
+      "date": "July 31, 2026",
+      "author_en": "Greater Chennai Police Media Desk",
+      "author_ta": "சென்னை பெருநகர காவல் ஊடகப் பிரிவு",
+      "updated_at": "2026-07-31T06:56:34.029Z",
+      "created_at": "2026-07-31T06:56:34.029Z"
+    },
     {
       "id": 65,
       "slug": "the-greater-chennai-traffic-police-in-collaboration-with-hyundai-motor",
@@ -2383,73 +2624,6 @@
       "sourceUrl": "https://www.facebook.com/photo/?fbid=1368205968672565&set=a.356999586459880"
     },
     {
-      "id": 21,
-      "slug": "over-2-400-warrants-executed-687-arrested-in-south-t",
-      "title_en": "Over 2 400 warrants executed 687 arrested in south T",
-      "title_ta": "",
-      "category_en": "CYBER SAFETY",
-      "category_ta": "இணைய பாதுகாப்பு",
-      "summary_en": "Over 2,400 warrants executed, 687 arrested in south T.N. ‘Operation Shield’\nAmong these, 682 individuals were caught specifically for the sale and distribution of banned ganja and tobacco products\nUpd...",
-      "summary_ta": "",
-      "content_en": [
-        "Over 2,400 warrants executed, 687 arrested in south T.N. ‘Operation Shield’\nAmong these, 682 individuals were caught specifically for the sale and distribution of banned ganja and tobacco products\nUpdated - June 24, 2026 08:31 am IST - MADURAI In a massive, coordinated crackdown on crime and narcotics across south Tamil Nadu, the Southern Range Police have executed over 2,400 arrest warrants and apprehended 687 offenders under a specialised drive named ‘Operation Shield’.",
-        "The intensive operation, which commenced on May 20, spans 10 districts under the jurisdiction of the southern range: Madurai, Theni, Dindigul, Ramanathapuram, Sivaganga, Virudhunagar, Tirunelveli, Thoothukudi, Tenkasi, and Kanniyakumari.",
-        "According to Inspector General of Police (IG) Vijayendra Bidari, the initiative—digitally tracked under the hashtag #OperationSHIELDNET—was launched to heavily bolster crime prevention and dismantle illegal drug networks in the region.",
-        "A primary focus of the operation has been the eradication of banned substances.",
-        "Police registered 497 cases, leading to the arrest of 687 drug offenders.",
-        "Among these, 682 individuals were caught specifically for the sale and distribution of banned ganja and tobacco products.The localised raids yielded massive contraband seizures, including 401 kg of ganja and 4,458 kg of illegal tobacco products.",
-        "In a bid to tighten the legal noose around habitual offenders, the police did not just make fresh arrests but also targeted those out on bail, said police sources.",
-        "A total of 694 petitions were filed in court seeking the cancellation of bail for non-compliant individuals.Further, 2,441 pending arrest warrants were successfully executed during this period.",
-        "To ensure long-term public tranquility, the police have actively invoked preventive clauses.",
-        "Good conduct bonds were secured from 365 individuals identified as potential threats to public peace, legally binding them to maintain order.",
-        "The scope of Operation Shield also extended into civic discipline and local grievances.",
-        "Regional traffic enforcement saw a massive surge, resulting in the seizure of 55,336 two-wheelers for various motor vehicle violations.",
-        "Additionally, addressing root causes of local violence, the police initiated 127 legal actions under Section 164 of the Bharatiya Nagarik Suraksha Sanhita (BNSS) to resolve escalating property disputes before they turned into law-and-order issues.",
-        "Mr. Vijayendra Bidari emphasised that these intensive crime-prevention measures are being continuously maintained to ensure absolute safety and public order across all 10 southern districts."
-      ],
-      "content_ta": [
-        "Over 2,400 warrants executed, 687 arrested in south T.N. ‘Operation Shield’\nAmong these, 682 individuals were caught specifically for the sale and distribution of banned ganja and tobacco products\nUpdated - June 24, 2026 08:31 am IST - MADURAI In a massive, coordinated crackdown on crime and narcotics across south Tamil Nadu, the Southern Range Police have executed over 2,400 arrest warrants and apprehended 687 offenders under a specialised drive named ‘Operation Shield’.",
-        "The intensive operation, which commenced on May 20, spans 10 districts under the jurisdiction of the southern range: Madurai, Theni, Dindigul, Ramanathapuram, Sivaganga, Virudhunagar, Tirunelveli, Thoothukudi, Tenkasi, and Kanniyakumari.",
-        "According to Inspector General of Police (IG) Vijayendra Bidari, the initiative—digitally tracked under the hashtag #OperationSHIELDNET—was launched to heavily bolster crime prevention and dismantle illegal drug networks in the region.",
-        "A primary focus of the operation has been the eradication of banned substances.",
-        "Police registered 497 cases, leading to the arrest of 687 drug offenders.",
-        "Among these, 682 individuals were caught specifically for the sale and distribution of banned ganja and tobacco products.The localised raids yielded massive contraband seizures, including 401 kg of ganja and 4,458 kg of illegal tobacco products.",
-        "In a bid to tighten the legal noose around habitual offenders, the police did not just make fresh arrests but also targeted those out on bail, said police sources.",
-        "A total of 694 petitions were filed in court seeking the cancellation of bail for non-compliant individuals.Further, 2,441 pending arrest warrants were successfully executed during this period.",
-        "To ensure long-term public tranquility, the police have actively invoked preventive clauses.",
-        "Good conduct bonds were secured from 365 individuals identified as potential threats to public peace, legally binding them to maintain order.",
-        "The scope of Operation Shield also extended into civic discipline and local grievances.",
-        "Regional traffic enforcement saw a massive surge, resulting in the seizure of 55,336 two-wheelers for various motor vehicle violations.",
-        "Additionally, addressing root causes of local violence, the police initiated 127 legal actions under Section 164 of the Bharatiya Nagarik Suraksha Sanhita (BNSS) to resolve escalating property disputes before they turned into law-and-order issues.",
-        "Mr. Vijayendra Bidari emphasised that these intensive crime-prevention measures are being continuously maintained to ensure absolute safety and public order across all 10 southern districts."
-      ],
-      "image": "/uploads/upload_1782278983522.png",
-      "tags_en": [
-        "Greater Chennai Police",
-        "Traffic",
-        "Crime Prevention",
-        "Arrest",
-        "Drugs",
-        "Police"
-      ],
-      "tags_ta": [],
-      "section": "event",
-      "published": 1,
-      "featured": 0,
-      "breaking": 0,
-      "latest": 1,
-      "homepage_visible": 1,
-      "views_count": 412,
-      "language": "Both",
-      "date": "June 24, 2026",
-      "author_en": "Greater Chennai Police Media Desk",
-      "author_ta": "சென்னை பெருநகர காவல் ஊடகப் பிரிவு",
-      "sourceName": "Greater Chennai Police Desk",
-      "sourceUrl": "https://www.thehindu.com/news/cities/Madurai/over-2400-warrants-executed-687-arrested-in-south-tn-operation-shield/article71137362.ece",
-      "updated_at": "2026-06-24T05:33:17.654Z",
-      "created_at": "2026-06-24T05:33:17.654Z"
-    },
-    {
       "id": 20,
       "slug": "new-police-commissioners-for-madurai-tirupur-salem-",
       "title_en": "New police commissioners for Madurai, Tirupur, Salem;",
@@ -3877,7 +4051,7 @@
       "order_num": 1,
       "active": 1,
       "section": "main",
-      "views_count": 3
+      "views_count": 4
     },
     {
       "id": 2,
@@ -3887,7 +4061,8 @@
       "date": "June 14, 2026",
       "order_num": 2,
       "active": 1,
-      "section": "main"
+      "section": "main",
+      "views_count": 1
     },
     {
       "id": 3,
@@ -3944,6 +4119,18 @@
     }
   ],
   "alerts": [
+    {
+      "id": 108,
+      "title": "Tamil Nadu government transfers DVAC chief A. Arun; appoints IG Mageshwari",
+      "category": "LAW & ORDER",
+      "source": "thehindu.com",
+      "url": "https://news.google.com/rss/articles/CBMi2gFBVV95cUxOSGN5NzBRQk5nejZYekw4dUdqZG9zemVER251TzFfNF8tbkl0WlU5Qk5FUm1HS2w1dUJ3bERhX2VtQUFRSFlSdTQ3WEJIU2EwWnJjWTFVVmdvY3N1V0R3ajlodWh2Y21RTkpOZ0E2emJiU2VDU1NyMUNJVjFUR0ZmRnZsTGxqZk8zT2ZhdWlmb1d6dTJUOVFKZlFwWEVxQkVmZEl6UDU1M3JacWZhLUVWNU1PQVdfSDA4QkVpak5RQVhDVTc1LXJ5eWJDU1FXUmxWVkItaEpQOTVyd9IB4AFBVV95cUxNaDJIT1ZIRlJOSncwZUN6RjlPeU0tNGRFZnJaVkgtTDVfVmdnMXcycURrTHUzelFOOU5jZUcxdGZlcnVuTnJZZ0g4dDdmaVZFNEEyNDFYaUYtdkJ0NUN2aHJscUVqT1NralJwNm9BcUNaRzJoNnA1bEVrXzRoa1YxNTUzTnp5NlNiT00yejNCYnVxVVBoYkdYVnhHN3VITXhTcWk0ODdLb3llczMtLWRWNDRjcFY2UUh1Y0J4dW1tRkFSYXNCWkl1eXpTN0F1V0pBQnBnMEpGa3gwZTBqSTRCLQ?oc=5",
+      "published_at": "2026-07-13T07:00:00.000Z",
+      "approved": 0,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-07-31T05:51:07.914Z"
+    },
     {
       "id": 107,
       "title": "Chennai Police arrest man for using AI photos to blackmail women, minors on Instagram",
@@ -5234,7 +5421,7 @@
       "id": 1,
       "auto_fetch": 1,
       "require_approval": 1,
-      "last_fetched_at": "2026-07-30T11:15:22.867Z",
+      "last_fetched_at": "2026-07-31T07:45:59.791Z",
       "live_feed_enabled": 1,
       "approved_sources": "tnpolice.gov.in, gcp.tn.gov.in, greaterchennaipolice.in, tn.gov.in, pib.gov.in",
       "refresh_interval": 15
@@ -5265,7 +5452,44 @@
       "publisher_logo": "/images/gcp_logo.png"
     }
   ],
-  "article_seo": [],
+  "article_seo": [
+    {
+      "id": 1,
+      "content_type": "news_room_page",
+      "article_id": 0,
+      "seo_title": "News Room Archive | Greater Chennai Police",
+      "meta_description": "Access official press release journals, updates, news notifications, and media announcements from Greater Chennai Police.",
+      "image_alt": "Greater Chennai Police Department Overview",
+      "image_title": "Greater Chennai Police",
+      "robots": "index, follow",
+      "canonical_url": "https://chennaiguardian.in",
+      "updated_at": "2026-07-31T07:16:22.524Z"
+    },
+    {
+      "id": 2,
+      "content_type": "about_page",
+      "article_id": 0,
+      "seo_title": "About Us | Greater Chennai Police",
+      "meta_description": "Learn about the heritage, mission, jurisdiction, and leadership of Greater Chennai Police.",
+      "image_alt": "Greater Chennai Police Department Overview",
+      "image_title": "Greater Chennai Police",
+      "robots": "index, follow",
+      "canonical_url": "https://chennaiguardian.in",
+      "updated_at": "2026-07-31T07:41:25.533Z"
+    },
+    {
+      "id": 3,
+      "content_type": "homepage",
+      "article_id": 0,
+      "seo_title": "Chennai Guardian | Greater Chennai Police",
+      "meta_description": "Official executive dashboard and smart public safety portal of Greater Chennai Police.",
+      "image_alt": "Greater Chennai Police Department Overview",
+      "image_title": "Greater Chennai Police",
+      "robots": "index, follow",
+      "canonical_url": "https://chennaiguardian.in",
+      "updated_at": "2026-07-31T07:41:30.150Z"
+    }
+  ],
   "asset_metadata": [
     {
       "id": 6,
@@ -5995,6 +6219,15 @@
       "articleSlug": null,
       "category": "Police Update",
       "createdAt": "2026-07-30T11:50:25.037Z"
+    },
+    {
+      "id": 99,
+      "image": "/uploads/upload_1785480991155.jpg",
+      "title": "Upload 1785480991155",
+      "articleId": null,
+      "articleSlug": null,
+      "category": "Police Update",
+      "createdAt": "2026-07-31T06:56:31.153Z"
     }
   ],
   "police_stations": [
@@ -11054,7 +11287,133 @@
     }
   ],
   "service_requests": [],
-  "page_contents": [],
-  "content_versions": [],
-  "superadmin_config": {}
+  "page_contents": [
+    {
+      "id": 1,
+      "page_name": "videos",
+      "seo_title": "VIDEOS | Chennai Guardian",
+      "seo_description": "Content page for videos",
+      "draft_version_id": 1,
+      "published_version_id": 1,
+      "last_updated_by": "Digital_TN_GovMaster",
+      "last_updated_at": "2026-07-31T06:22:03.377Z"
+    },
+    {
+      "id": 2,
+      "page_name": "commissioner-profile",
+      "seo_title": "COMMISSIONER-PROFILE | Chennai Guardian",
+      "seo_description": "Content page for commissioner-profile",
+      "draft_version_id": 3,
+      "published_version_id": 2,
+      "last_updated_by": "Digital_TN_GovMaster",
+      "last_updated_at": "2026-07-31T06:36:14.464Z"
+    }
+  ],
+  "content_versions": [
+    {
+      "id": 1,
+      "page_content_id": 1,
+      "version_num": 1,
+      "sections_data": "[{\"section_type\":\"banner\",\"section_title\":\"Hero Section\",\"content_json\":{\"title_en\":\"Hero Section Title\",\"title_ta\":\"முகப்பு பிரிவு தலைப்பு\",\"subtitle_en\":\"Subtitle details go here.\",\"subtitle_ta\":\"துணைத் தலைப்பு விவரங்கள் இங்கே இருக்கும்.\",\"bg_image\":\"\",\"cta_text_en\":\"\",\"cta_link\":\"\"},\"display_order\":1},{\"section_type\":\"description\",\"section_title\":\"Content Section\",\"content_json\":{\"text_en\":\"<p>Welcome to our page. Use the editor to customize this content block.</p>\",\"text_ta\":\"<p>எங்கள் பக்கத்திற்கு வரவேற்கிறோம். இந்த உள்ளடக்கத் தொகுதியைத் தனிப்பயனாக்க எடிட்டரைப் பயன்படுத்தவும்.</p>\"},\"display_order\":2}]",
+      "seo_data": "{\"seo_title\":\"VIDEOS | Chennai Guardian\",\"seo_description\":\"Content page for videos\",\"seo_keywords\":\"videos\"}",
+      "status": "draft",
+      "updated_by": "Digital_TN_GovMaster",
+      "updated_at": "2026-07-31T06:22:03.372Z"
+    },
+    {
+      "id": 2,
+      "page_content_id": 2,
+      "version_num": 1,
+      "sections_data": "[{\"section_type\":\"banner\",\"section_title\":\"Hero Section\",\"content_json\":{\"title_en\":\"Hero Section Title\",\"title_ta\":\"முகப்பு பிரிவு தலைப்பு\",\"subtitle_en\":\"Subtitle details go here.\",\"subtitle_ta\":\"துணைத் தலைப்பு விவரங்கள் இங்கே இருக்கும்.\",\"bg_image\":\"\",\"cta_text_en\":\"\",\"cta_link\":\"\"},\"display_order\":1},{\"section_type\":\"description\",\"section_title\":\"Content Section\",\"content_json\":{\"text_en\":\"<p>Welcome to our page. Use the editor to customize this content block.</p>\",\"text_ta\":\"<p>எங்கள் பக்கத்திற்கு வரவேற்கிறோம். இந்த உள்ளடக்கத் தொகுதியைத் தனிப்பயனாக்க எடிட்டரைப் பயன்படுத்தவும்.</p>\"},\"display_order\":2}]",
+      "seo_data": "{\"seo_title\":\"COMMISSIONER-PROFILE | Chennai Guardian\",\"seo_description\":\"Content page for commissioner-profile\",\"seo_keywords\":\"commissioner-profile\"}",
+      "status": "draft",
+      "updated_by": "Digital_TN_GovMaster",
+      "updated_at": "2026-07-31T06:36:09.211Z"
+    },
+    {
+      "id": 3,
+      "page_content_id": 2,
+      "version_num": 2,
+      "sections_data": "[{\"section_type\":\"banner\",\"section_title\":\"Hero Section\",\"content_json\":{\"title_en\":\"Hero Section Title\",\"title_ta\":\"முகப்பு பிரிவு தலைப்பு\",\"subtitle_en\":\"Subtitle details go here.\",\"subtitle_ta\":\"துணைத் தலைப்பு விவரங்கள் இங்கே இருக்கும்.\",\"bg_image\":\"\",\"cta_text_en\":\"\",\"cta_link\":\"\"},\"display_order\":1},{\"section_type\":\"description\",\"section_title\":\"Content Section\",\"content_json\":{\"text_en\":\"<p>Welcome to our page. Use the editor to customize this content block.</p>\",\"text_ta\":\"<p>எங்கள் பக்கத்திற்கு வரவேற்கிறோம். இந்த உள்ளடக்கத் தொகுதியைத் தனிப்பயனாக்க எடிட்டரைப் பயன்படுத்தவும்.</p>\"},\"display_order\":2}]",
+      "seo_data": "{\"seo_title\":\"COMMISSIONER-PROFILE | Chennai Guardian\",\"seo_description\":\"Content page for commissioner-profile\",\"seo_keywords\":\"commissioner-profile\"}",
+      "status": "draft",
+      "updated_by": "Digital_TN_GovMaster",
+      "updated_at": "2026-07-31T06:36:14.459Z"
+    }
+  ],
+  "superadmin_config": {
+    "footer_config": {
+      "logo": "/images/gcp_logo.png",
+      "website_name_en": "Chennai Guardian News",
+      "website_name_ta": "சென்னை கார்டியன் செய்திகள்",
+      "description_en": "Official news platform of Chennai Guardian News, providing 24/7 updates on public safety, cyber alerts, and community-centered policing initiatives.",
+      "description_ta": "சென்னையின் முன்னணி சட்டம் ஒழுங்கு, குற்றப் புலனாய்வு மற்றும் மக்கள் விழிப்புணர்வு செய்திகளை உடனுக்குடன் வழங்கும் அதிகாரப்பூர்வ செய்தி ஊடகம்.",
+      "copyright_text_en": "© 2026 Greater Chennai Police. All rights reserved.",
+      "copyright_text_ta": "© 2026 சென்னை பெருநகர காவல். அனைத்து உரிமைகளும் பாதுகாக்கப்பட்டவை.",
+      "developer_credit_en": "Developed by GCP Media Team",
+      "developer_credit_ta": "சென்னை பெருநகர காவல் ஊடகக் குழுவால் உருவாக்கப்பட்டது",
+      "address_en": "Commissioner Office, Greater Chennai Police, Vepery, Chennai - 600007",
+      "address_ta": "காவல் ஆணையர் அலுவலகம், சென்னை பெருநகர காவல், வேப்பேரி, சென்னை - 600007",
+      "phone": "044-23452300",
+      "email": "cop@gcp.tn.gov.in",
+      "google_map_link": "https://maps.google.com/?q=Commissioner+Office+Greater+Chennai+Police+Vepery",
+      "social_facebook": "https://facebook.com",
+      "social_twitter": "https://twitter.com",
+      "social_youtube": "https://youtube.com",
+      "social_instagram": "https://instagram.com",
+      "background_image": "",
+      "background_color": "#1e40af",
+      "text_color": "#ffffff",
+      "footer_visible": true,
+      "quick_links": [
+        {
+          "id": "ql1",
+          "label_en": "Home",
+          "label_ta": "முகப்பு",
+          "url": "/",
+          "target_blank": false,
+          "active": true,
+          "order_index": 1
+        },
+        {
+          "id": "ql2",
+          "label_en": "Crime News",
+          "label_ta": "குற்றம்",
+          "url": "/category/crime",
+          "target_blank": false,
+          "active": true,
+          "order_index": 2
+        },
+        {
+          "id": "ql3",
+          "label_en": "Cyber Safety",
+          "label_ta": "இணைய பாதுகாப்பு",
+          "url": "/category/cyber-safety",
+          "target_blank": false,
+          "active": true,
+          "order_index": 3
+        }
+      ],
+      "government_links": [
+        {
+          "id": "gl1",
+          "label_en": "Tamil Nadu Government",
+          "label_ta": "தமிழ்நாடு அரசு",
+          "url": "https://www.tn.gov.in",
+          "target_blank": true,
+          "active": true,
+          "order_index": 1
+        },
+        {
+          "id": "gl2",
+          "label_en": "GCP Official Site",
+          "label_ta": "சென்னை காவல்துறை",
+          "url": "https://www.chennaipolice.gov.in",
+          "target_blank": true,
+          "active": true,
+          "order_index": 2
+        }
+      ]
+    }
+  }
 }

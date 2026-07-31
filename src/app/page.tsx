@@ -5,8 +5,20 @@ import BreakingNewsBanner from "@/components/sections/BreakingNewsBanner";
 import DynamicPageRenderer from "@/components/sections/DynamicPageRenderer";
 import { db } from "@/lib/db";
 import { syncTrafficNews } from "@/lib/trafficSync";
+import { getMetadataForPage } from "@/lib/seoHelper";
+import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata(): Promise<Metadata> {
+  return getMetadataForPage(
+    "homepage",
+    0,
+    "Chennai Guardian | Greater Chennai Police",
+    "Official smart public safety dashboard and executive portal of Greater Chennai Police.",
+    "/"
+  );
+}
 
 export default async function Home() {
   // Sync alerts in background

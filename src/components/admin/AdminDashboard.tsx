@@ -22,6 +22,7 @@ import {
   Phone,
   Upload,
   Tv,
+  Play,
   ExternalLink,
   Copy,
   Eye,
@@ -50,6 +51,7 @@ import FooterManagement from "./FooterManagement";
 import MenuManagement from "./MenuManagement";
 import PageEditor from "./PageEditor";
 import WebStoriesManagement from "./WebStoriesManagement";
+import SeoManager from "./SeoManager";
 
 const RichTextEditor = dynamic(() => import("./RichTextEditor"), {
   loading: () => <div className="h-64 bg-stone-50 dark:bg-stone-900 animate-pulse rounded-2xl w-full" />,
@@ -265,6 +267,18 @@ const ADMIN_LIGHT_CSS = `
     transition: all 200ms ease !important;
   }
 
+  #adm-root input.pl-9,
+  #adm-root input[type="text"].pl-9,
+  #adm-root .pl-9 {
+    padding-left: 2.25rem !important;
+  }
+
+  #adm-root input.pl-10,
+  #adm-root input[type="text"].pl-10,
+  #adm-root .pl-10 {
+    padding-left: 2.5rem !important;
+  }
+
   #adm-root input[type="text"]:focus,
   #adm-root input[type="password"]:focus,
   #adm-root input[type="email"]:focus,
@@ -275,6 +289,16 @@ const ADMIN_LIGHT_CSS = `
     border-color: var(--primary-blue) !important;
     box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15) !important;
     background-color: #ffffff !important;
+  }
+
+  #adm-root .force-white {
+    color: #ffffff !important;
+  }
+  #adm-root .force-stone-300 {
+    color: #cbd5e1 !important;
+  }
+  #adm-root .force-stone-100 {
+    color: #f1f5f9 !important;
   }
 
   #adm-root select option {
@@ -288,6 +312,14 @@ const ADMIN_LIGHT_CSS = `
     color: var(--text-primary) !important;
     margin-bottom: 6px !important;
     display: inline-block !important;
+  }
+
+  #adm-root label.flex {
+    display: flex !important;
+  }
+
+  #adm-root label.inline-flex {
+    display: inline-flex !important;
   }
 
   /* Cards - Gov Card Theme */
@@ -472,12 +504,31 @@ const ADMIN_LIGHT_CSS = `
     border: 1px solid var(--primary-blue) !important;
     border-radius: 10px !important;
     box-shadow: 0 4px 12px rgba(30, 64, 175, 0.15) !important;
+    padding: 8px 18px !important;
+    font-size: 11px !important;
+    font-weight: 800 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
   }
   #adm-root .nav-tab-inactive {
     background-color: #ffffff !important;
     color: var(--primary-blue) !important;
     border: 1px solid var(--border-gray) !important;
     border-radius: 10px !important;
+    padding: 8px 18px !important;
+    font-size: 11px !important;
+    font-weight: 800 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 200ms ease !important;
   }
   #adm-root .nav-tab-inactive:hover {
     background-color: var(--hover-blue-light) !important;
@@ -517,7 +568,7 @@ interface AdminDashboardProps {
   onTabChange?: (tab: any) => void;
 }
 
-type TabType = "dashboard" | "news" | "ticker" | "slider" | "profile" | "theme" | "footer" | "settings" | "videos" | "alerts" | "media" | "police-stations" | "emergency-contacts" | "department-links" | "menu-management" | "page-editor" | "superadmin" | "web-stories";
+type TabType = "dashboard" | "news" | "ticker" | "slider" | "profile" | "theme" | "footer" | "settings" | "videos" | "alerts" | "media" | "police-stations" | "emergency-contacts" | "department-links" | "menu-management" | "page-editor" | "superadmin" | "web-stories" | "seo";
 
 export default function AdminDashboard({ user, onLogout, activeTab: propActiveTab, subPage, onTabChange }: AdminDashboardProps) {
   const displayName = user.role === "superadmin" ? "Super Admin" : user.role === "admin" ? "Admin" : user.username;
@@ -525,6 +576,317 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
   const activeTab = propActiveTab !== undefined ? propActiveTab : localActiveTab;
 
   const sidebarScrollRef = useRef<HTMLDivElement>(null);
+
+  const [tabSeo, setTabSeo] = useState<any>(null);
+  const [savingSeo, setSavingSeo] = useState(false);
+
+  const TAB_SEO_MAP: Record<string, { contentType: string; label: string; defaultTitle: string; defaultDesc: string }> = {
+    dashboard: {
+      contentType: "homepage",
+      label: "Website Homepage",
+      defaultTitle: "Chennai Guardian | Greater Chennai Police",
+      defaultDesc: "Official executive dashboard and smart public safety portal of Greater Chennai Police."
+    },
+    superadmin: {
+      contentType: "about_page",
+      label: "About Us Page",
+      defaultTitle: "About Us | Greater Chennai Police",
+      defaultDesc: "Learn about the heritage, mission, jurisdiction, and leadership of Greater Chennai Police."
+    },
+    news: {
+      contentType: "news_room_page",
+      label: "Newsroom Archive Page",
+      defaultTitle: "News Room Archive | Greater Chennai Police",
+      defaultDesc: "Access official press release journals, updates, news notifications, and media announcements from Greater Chennai Police."
+    },
+    slider: {
+      contentType: "homepage",
+      label: "Homepage Banner Carousel",
+      defaultTitle: "Chennai Guardian | Greater Chennai Police",
+      defaultDesc: "Official executive dashboard and smart public safety portal of Greater Chennai Police."
+    },
+    videos: {
+      contentType: "video_gallery_page",
+      label: "Videos Gallery Page",
+      defaultTitle: "Videos & Media Gallery | Greater Chennai Police",
+      defaultDesc: "Watch latest press briefings, official video statements, and community campaigns from Greater Chennai Police."
+    },
+    alerts: {
+      contentType: "traffic_alerts_page",
+      label: "Official Alerts Page",
+      defaultTitle: "Official Alerts & Traffic Updates | Greater Chennai Police",
+      defaultDesc: "Get real-time traffic updates, public safety warnings, and official announcements from Greater Chennai Police."
+    },
+    "police-stations": {
+      contentType: "police_stations_page",
+      label: "Police Stations Directory Page",
+      defaultTitle: "Police Stations Directory & Citizen Services | Greater Chennai Police",
+      defaultDesc: "Find local Chennai police stations, access the dynamic citizen services desk request form, and view emergency helpline contacts."
+    },
+    "emergency-contacts": {
+      contentType: "emergency_contacts_page",
+      label: "Emergency Helplines Page",
+      defaultTitle: "Emergency Helplines & Helpdesk | Greater Chennai Police",
+      defaultDesc: "View 24/7 public service hotlines, emergency contact numbers, and support desk portals for Greater Chennai."
+    },
+    "department-links": {
+      contentType: "contact_us_page",
+      label: "Contact & Portal Links Page",
+      defaultTitle: "Contact Us & Portal Links | Greater Chennai Police",
+      defaultDesc: "Get in touch with the Greater Chennai Police Commissionerate, view portal links, or submit inquiries."
+    },
+    ticker: {
+      contentType: "homepage",
+      label: "News Ticker",
+      defaultTitle: "Chennai Guardian | Greater Chennai Police",
+      defaultDesc: "Official executive dashboard and smart public safety portal of Greater Chennai Police."
+    },
+    "web-stories": {
+      contentType: "web_stories_page",
+      label: "Web Stories Section",
+      defaultTitle: "Web Stories | Greater Chennai Police",
+      defaultDesc: "Visual web stories and highlights from Greater Chennai Police."
+    },
+    media: {
+      contentType: "commissioner_profile_page",
+      label: "Media Library",
+      defaultTitle: "Commissioner Media Library | Greater Chennai Police",
+      defaultDesc: "Official media library and gallery for the Commissioner of Police."
+    },
+    profile: {
+      contentType: "profile_settings",
+      label: "Commissioner Profile Settings",
+      defaultTitle: "Commissioner Profile | Greater Chennai Police",
+      defaultDesc: "Official Profile of the Commissioner of Police, Greater Chennai."
+    },
+    theme: {
+      contentType: "theme_settings",
+      label: "Branding Theme Configuration",
+      defaultTitle: "Official Portal | Greater Chennai Police",
+      defaultDesc: "Official theme configuration and branding guidelines."
+    },
+    footer: {
+      contentType: "footer_settings",
+      label: "Footer Management",
+      defaultTitle: "Footer Configuration | Greater Chennai Police",
+      defaultDesc: "Global footer and copyright settings for the portal."
+    },
+    "menu-management": {
+      contentType: "menu_settings",
+      label: "Navigation Menus",
+      defaultTitle: "Navigation | Greater Chennai Police",
+      defaultDesc: "Global navigation structure for the portal."
+    },
+    "page-editor": {
+      contentType: "dynamic_pages",
+      label: "Dynamic Page Editor",
+      defaultTitle: "Custom Page | Greater Chennai Police",
+      defaultDesc: "Dynamic portal pages configuration."
+    },
+    contact: {
+      contentType: "contact_directory",
+      label: "Contact Information",
+      defaultTitle: "Contact Us | Greater Chennai Police",
+      defaultDesc: "Official contact directory of Greater Chennai Police."
+    },
+    tts: {
+      contentType: "accessibility_settings",
+      label: "Accessibility Settings",
+      defaultTitle: "Accessibility | Greater Chennai Police",
+      defaultDesc: "Text-to-speech and accessibility features."
+    },
+    alert_settings: {
+      contentType: "alert_configuration",
+      label: "Alert Settings",
+      defaultTitle: "Alerts Configuration | Greater Chennai Police",
+      defaultDesc: "Global traffic and emergency alert settings."
+    },
+    users: {
+      contentType: "user_management",
+      label: "User Management",
+      defaultTitle: "User Roles | Greater Chennai Police",
+      defaultDesc: "Administrative user management system."
+    }
+  };
+
+  useEffect(() => {
+    const map = TAB_SEO_MAP[activeTab];
+    if (map) {
+      fetch("/api/admin/crud/article_seo")
+        .then(res => res.json())
+        .then(data => {
+          if (Array.isArray(data)) {
+            const record = data.find((x: any) => x.content_type === map.contentType);
+            if (record) {
+              setTabSeo(record);
+            } else {
+              setTabSeo({
+                content_type: map.contentType,
+                article_id: 0,
+                seo_title: map.defaultTitle,
+                meta_description: map.defaultDesc,
+                image_alt: `${map.label} - Greater Chennai Police`,
+                image_title: map.label,
+                focus_keyword: map.label.split(" ")[0] + " Greater Chennai Police",
+                robots: "index, follow",
+                canonical_url: "https://chennaiguardian.in"
+              });
+            }
+          }
+        })
+        .catch(err => console.warn("Failed to load tab seo:", err));
+    } else {
+      setTabSeo(null);
+    }
+  }, [activeTab]);
+
+  const handleSaveTabSeo = async () => {
+    if (!tabSeo) return;
+    setSavingSeo(true);
+    try {
+      const payload = {
+        ...tabSeo,
+        // Ensure content_type is always set correctly from the TAB_SEO_MAP
+        content_type: TAB_SEO_MAP[activeTab]?.contentType || tabSeo.content_type,
+        article_id: tabSeo.article_id ?? 0
+      };
+      const method = payload.id ? "PUT" : "POST";
+      const res = await fetch("/api/admin/crud/article_seo", {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        // Refresh to get the saved record back with the DB-assigned ID
+        const map = TAB_SEO_MAP[activeTab];
+        if (map) {
+          const refreshRes = await fetch("/api/admin/crud/article_seo");
+          const refreshData = await refreshRes.json();
+          if (Array.isArray(refreshData)) {
+            const saved = refreshData.find((x: any) => x.content_type === map.contentType);
+            if (saved) setTabSeo(saved);
+          }
+        }
+        triggerAlert("success", `${TAB_SEO_MAP[activeTab]?.label || "Section"} SEO saved successfully!`);
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        triggerAlert("error", errData?.error || "Failed to save SEO settings.");
+      }
+    } catch (e) {
+      triggerAlert("error", "Network error — could not save SEO settings.");
+    } finally {
+      setSavingSeo(false);
+    }
+  };
+
+  const renderSeoCard = () => {
+    const map = TAB_SEO_MAP[activeTab];
+    if (!map || !tabSeo) return null;
+
+    return (
+      <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm mt-6 text-left space-y-4">
+        <div className="flex items-center justify-between border-b border-stone-200 pb-3">
+          <h3 className="text-sm font-black text-indigo-955 uppercase tracking-wider flex items-center gap-2">
+            <Globe className="w-4.5 h-4.5 text-indigo-600" /> {`${map.label} Image Alt & Section SEO`}
+          </h3>
+          <span className="bg-brand-gold/10 text-brand-gold text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border border-brand-gold/20">
+            SEO Settings
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">
+              SEO Title Override
+            </label>
+            <input
+              type="text"
+              value={tabSeo.seo_title || ""}
+              onChange={e => setTabSeo({ ...tabSeo, seo_title: e.target.value })}
+              placeholder={`e.g. ${map.defaultTitle}`}
+              className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3.5 rounded-xl font-bold focus:border-brand-gold/50"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">
+              Focus Keyword
+            </label>
+            <input
+              type="text"
+              value={tabSeo.focus_keyword || ""}
+              onChange={e => setTabSeo({ ...tabSeo, focus_keyword: e.target.value })}
+              placeholder={`e.g. ${map.label.split(" ")[0]} Greater Chennai Police`}
+              className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3.5 rounded-xl font-bold focus:border-brand-gold/50"
+            />
+          </div>
+
+          <div className="col-span-1 md:col-span-2 space-y-1.5">
+            <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">
+              Meta Description
+            </label>
+            <textarea
+              value={tabSeo.meta_description || ""}
+              onChange={e => setTabSeo({ ...tabSeo, meta_description: e.target.value })}
+              placeholder={map.defaultDesc || "Enter search engine snippet description..."}
+              rows={2}
+              className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3.5 rounded-xl font-semibold focus:border-brand-gold/50"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">
+              Section Images Alt Text
+            </label>
+            <input
+              type="text"
+              value={tabSeo.image_alt || ""}
+              onChange={e => setTabSeo({ ...tabSeo, image_alt: e.target.value })}
+              placeholder={`e.g. ${map.label} - Greater Chennai Police`}
+              className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3.5 rounded-xl font-bold focus:border-brand-gold/50"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">
+              Section Images Title
+            </label>
+            <input
+              type="text"
+              value={tabSeo.image_title || ""}
+              onChange={e => setTabSeo({ ...tabSeo, image_title: e.target.value })}
+              placeholder={`e.g. ${map.label} Visuals`}
+              className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3.5 rounded-xl font-bold focus:border-brand-gold/50"
+            />
+          </div>
+        </div>
+
+        <p className="text-[10px] text-stone-500 font-semibold leading-relaxed normal-case">
+          These attributes will be bound to all active images in this section for search engine crawler indexation.
+        </p>
+
+        <div className="flex justify-end pt-2">
+          <button
+            onClick={handleSaveTabSeo}
+            disabled={savingSeo}
+            className="flex items-center gap-2 px-4 py-2 bg-brand-gold hover:bg-brand-gold-dark disabled:opacity-60 disabled:cursor-not-allowed text-stone-950 rounded-lg text-xs font-black uppercase tracking-wider transition border border-brand-gold-dark shadow-sm"
+          >
+            {savingSeo ? (
+              <>
+                <svg className="animate-spin w-3.5 h-3.5" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+                Saving...
+              </>
+            ) : (
+              "Save Section SEO"
+            )}
+          </button>
+        </div>
+      </div>
+    );
+  };
 
   const handleSidebarScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const scrollPos = e.currentTarget.scrollTop;
@@ -1417,6 +1779,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                   { tab: "footer", icon: <Layout className="w-5 h-5" />, label: "Footer Management" },
                   { tab: "theme", icon: <Palette className="w-5 h-5" />, label: "Branding Theme" },
                   { tab: "profile", icon: <User className="w-5 h-5" />, label: "Profile Settings" },
+                  { tab: "seo", icon: <Globe className="w-5 h-5" />, label: "SEO Management" },
                   { tab: "settings", icon: <Settings className="w-5 h-5" />, label: "Console Config" },
                 ]
               }
@@ -1577,7 +1940,9 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
         <div className="flex-grow overflow-y-auto p-3 sm:p-4 pt-3 sm:pt-4">
           
           {/* ==================== TAB: OVERVIEW - COMMAND CENTER ==================== */}
-          {activeTab === "dashboard" && (() => {
+          {activeTab === "dashboard" && (
+            <div className="space-y-6">
+              {(() => {
             const publishedNews = news.filter(n => n.published === 1);
             const draftNews = news.filter(n => n.published !== 1);
             const activeContacts = contacts.filter(c => c.category === "phone" || c.category === "helpline" || c.category === "emergency");
@@ -1957,6 +2322,8 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
               </div>
             );
           })()}
+            </div>
+          )}
 
           {activeTab === "news" && (
             <div className="space-y-6">
@@ -2132,7 +2499,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                   <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                       <thead>
-                        <tr className="bg-stone-50 dark:bg-stone-955 border-b border-stone-200 dark:border-stone-850 text-stone-400 dark:text-stone-400 text-[10px] font-black uppercase tracking-wider">
+                        <tr className="bg-stone-50 dark:bg-stone-955 border-b border-stone-200 dark:border-stone-850 text-stone-400 dark:text-stone-400 text-[10px] font-black uppercase tracking-wider whitespace-nowrap">
                           <th className="p-4 w-16 text-left">Image</th>
                           <th className="p-4 min-w-[200px] text-left">Article Details</th>
                           <th className="p-4 w-32 text-left">Category</th>
@@ -2169,11 +2536,11 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                                 </div>
                               </td>
                               <td className="p-4 text-left">
-                                <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-brand-maroon/5 dark:bg-brand-gold/5 text-brand-maroon dark:text-brand-gold border border-brand-maroon/10 dark:border-brand-gold/10">
+                                <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-brand-maroon/5 dark:bg-brand-gold/5 text-brand-maroon dark:text-brand-gold border border-brand-maroon/10 dark:border-brand-gold/10 whitespace-nowrap inline-block">
                                   {item.category_en || "General"}
                                 </span>
                               </td>
-                              <td className="p-4 text-left text-xs font-bold text-slate-600 dark:text-stone-400">
+                              <td className="p-4 text-left text-xs font-bold text-slate-600 dark:text-stone-400 whitespace-nowrap">
                                 {item.date || "No Date"}
                               </td>
                               <td className="p-4 text-center">
@@ -2194,7 +2561,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                               <td className="p-4 text-right text-xs font-bold text-slate-650 dark:text-stone-400">
                                 {getViewsCount(item).toLocaleString()}
                               </td>
-                              <td className="p-4 text-left text-[10px] text-slate-500 dark:text-stone-500">
+                              <td className="p-4 text-left text-[10px] text-slate-500 dark:text-stone-500 whitespace-nowrap">
                                 {item.updated_at ? new Date(item.updated_at).toLocaleString("en-IN") : "N/A"}
                               </td>
                               <td className="p-4">
@@ -3071,6 +3438,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                   </div>
                 </div>
               )}
+              {renderSeoCard()}
             </div>
           )}
 
@@ -3302,6 +3670,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                   )}
                 </div>
               </div>
+              {renderSeoCard()}
             </div>
           )}
 
@@ -3357,7 +3726,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                           </select>
                         </div>
                         <div className="flex items-center px-4 py-3 bg-stone-955 border border-stone-850 rounded-xl">
-                          <p className="text-[10px] text-stone-500 leading-normal font-medium">
+                          <p className="text-[10px] text-slate-900 leading-normal font-bold">
                             Adjusts the scrolling speed of the Breaking News bar on the frontend. A slower speed is highly recommended for readability of long announcements.
                           </p>
                         </div>
@@ -3470,7 +3839,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                   </div>
                 </div>
               )}
-
+              {renderSeoCard()}
             </div>
           )}
 
@@ -3897,10 +4266,10 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                   </div>
 
                   <div className="flex gap-3 justify-end pt-4 border-t border-stone-855">
-                    <button onClick={() => { setEditingItem(null); setIsAdding(false); }} className="px-4 py-2 bg-stone-950 hover:bg-stone-850 border border-stone-800 rounded-lg text-xs font-black uppercase tracking-wider transition">
+                    <button onClick={() => { setEditingItem(null); setIsAdding(false); }} className="px-4 py-2 bg-stone-950 hover:bg-stone-855 border border-stone-800 rounded-lg text-xs font-black uppercase tracking-wider transition">
                       Cancel
                     </button>
-                    <button onClick={() => handleSave("slider")} className="px-4 py-2 bg-brand-gold hover:bg-brand-gold-dark text-stone-950 rounded-lg text-xs font-black uppercase tracking-wider transition border border-brand-gold-dark">
+                    <button onClick={() => handleSave("slider")} className="px-4 py-2 bg-brand-gold hover:bg-brand-gold-dark text-stone-955 rounded-lg text-xs font-black uppercase tracking-wider transition border border-brand-gold-dark">
                       Save Slide
                     </button>
                   </div>
@@ -3909,34 +4278,36 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
 
               {/* Slider lists */}
               {!editingItem && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {slider.map((item) => (
-                    <div key={item.id} className="bg-stone-900 border border-stone-850 rounded-xl overflow-hidden flex flex-col shadow-sm">
-                      <div className="relative w-full h-[150px] bg-black">
-                        <Image src={item.src} alt="" fill className="object-cover object-center"  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
-                        <div className="absolute top-2 right-2 bg-black/50 text-[9px] font-bold text-white px-2 py-0.5 rounded backdrop-blur">
-                          Order #{item.order_num} | {item.active ? "Active" : "Hidden"}
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {slider.map((item) => (
+                      <div key={item.id} className="bg-stone-900 border border-stone-850 rounded-xl overflow-hidden flex flex-col shadow-sm">
+                        <div className="relative w-full h-[150px] bg-black">
+                          <Image src={item.src} alt="" fill className="object-cover object-center"  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
+                          <div className="absolute top-2 right-2 bg-black/50 text-[9px] font-bold text-white px-2 py-0.5 rounded backdrop-blur">
+                            Order #{item.order_num} | {item.active ? "Active" : "Hidden"}
+                          </div>
+                        </div>
+                        <div className="p-4 flex-grow flex flex-col justify-between space-y-4">
+                          <div>
+                            <span className="text-[8px] font-black uppercase text-brand-gold tracking-widest">{item.category_en}</span>
+                            <h4 className="font-bold text-xs text-white line-clamp-1 mt-0.5">{item.title_en}</h4>
+                          </div>
+                          <div className="flex items-center gap-2 border-t border-stone-850/50 pt-3">
+                            <button onClick={() => { setEditingItem(item); setIsAdding(false); }} className="flex-grow flex justify-center items-center gap-1.5 py-2 bg-stone-955 hover:bg-stone-850 rounded-lg border border-stone-800 text-[10px] font-black uppercase tracking-wider text-stone-300 hover:text-white transition cursor-pointer">
+                              <Edit className="w-3.5 h-3.5" /> Modify
+                            </button>
+                            <button onClick={() => handleDelete("slider", item.id)} className="p-2 text-stone-500 hover:text-rose-400 hover:bg-stone-855 rounded-lg border border-stone-800 transition cursor-pointer">
+                              <Trash className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         </div>
                       </div>
-                      <div className="p-4 flex-grow flex flex-col justify-between space-y-4">
-                        <div>
-                          <span className="text-[8px] font-black uppercase text-brand-gold tracking-widest">{item.category_en}</span>
-                          <h4 className="font-bold text-xs text-white line-clamp-1 mt-0.5">{item.title_en}</h4>
-                        </div>
-                        <div className="flex items-center gap-2 border-t border-stone-850/50 pt-3">
-                          <button onClick={() => { setEditingItem(item); setIsAdding(false); }} className="flex-grow flex justify-center items-center gap-1.5 py-2 bg-stone-950 hover:bg-stone-850 rounded-lg border border-stone-800 text-[10px] font-black uppercase tracking-wider text-stone-300 hover:text-white transition cursor-pointer">
-                            <Edit className="w-3.5 h-3.5" /> Modify
-                          </button>
-                          <button onClick={() => handleDelete("slider", item.id)} className="p-2 text-stone-500 hover:text-rose-400 hover:bg-stone-850 rounded-lg border border-stone-800 transition cursor-pointer">
-                            <Trash className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                </>
               )}
-
+              {renderSeoCard()}
             </div>
           )}
 
@@ -3946,10 +4317,13 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
 
               {/* Controls bar */}
               {!editingItem && (
-                <div className="flex justify-between items-center bg-stone-900 p-4 rounded-xl border border-stone-850">
+                <div className="flex justify-between items-center bg-white p-6 rounded-2xl border border-stone-200 shadow-sm">
                   <div className="flex items-center gap-2">
-                    <Tv className="w-4 h-4 text-brand-gold" />
-                    <span className="text-xs text-stone-400 font-bold uppercase tracking-wider">Video & Media Center — {videos.length} Videos</span>
+                    <Tv className="w-5 h-5 text-indigo-600" />
+                    <div>
+                      <h2 className="text-sm font-black text-indigo-955 uppercase tracking-wider">Video &amp; Media Gallery</h2>
+                      <span className="text-[10px] text-stone-400 font-semibold">{videos.length} YouTube Video entries</span>
+                    </div>
                   </div>
                   <button
                     onClick={() => {
@@ -3965,7 +4339,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                         section: "main"
                       });
                     }}
-                    className="flex items-center gap-1.5 px-4 py-2 bg-brand-maroon hover:bg-brand-maroon-dark text-white rounded-lg text-xs font-black uppercase tracking-widest transition cursor-pointer border border-brand-maroon-dark"
+                    className="flex items-center gap-1.5 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-black uppercase tracking-wider transition cursor-pointer shadow-sm"
                   >
                     <Plus className="w-4 h-4" /> Add Video
                   </button>
@@ -3974,19 +4348,19 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
 
               {/* Video Edit Form */}
               {editingItem && (
-                <div className="bg-stone-900 border border-stone-850 rounded-2xl p-8 space-y-6 w-full">
-                  <h3 className="font-display font-black text-sm uppercase tracking-widest text-brand-gold border-b border-stone-850 pb-2">
-                    {isAdding ? "Add New YouTube Video" : `Edit Video (ID: ${editingItem.id})`}
+                <div className="bg-white border border-stone-200 rounded-2xl p-8 space-y-6 w-full shadow-sm text-left">
+                  <h3 className="font-display font-black text-sm uppercase tracking-widest text-indigo-950 border-b border-stone-200 pb-2">
+                    {isAdding ? "Add New YouTube Video Entry" : `Modify Video (ID: ${editingItem.id})`}
                   </h3>
 
                   {/* YouTube URL paste field */}
-                  <div className="space-y-3">
-                    <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase text-stone-500 tracking-wider">
                       YouTube URL — paste URL to auto-extract Video ID &amp; preview thumbnail
                     </label>
                     <div className="flex gap-2 items-center">
                       <div className="relative flex-grow">
-                        <svg viewBox="0 0 24 24" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-red-500" fill="currentColor"><path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.53 3.545 12 3.545 12 3.545s-7.53 0-9.388.508a3.003 3.003 0 0 0-2.11 2.11C0 8.017 0 12 0 12s0 3.983.502 5.837a3.003 3.003 0 0 0 2.11 2.11c1.858.507 9.388.507 9.388.507s7.53 0 9.388-.507a3.003 3.003 0 0 0 2.11-2.11C24 15.983 24 12 24 12s0-3.983-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                        <svg viewBox="0 0 24 24" className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-red-500" fill="currentColor"><path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.53 3.545 12 3.545 12 3.545s-7.53 0-9.388.508a3.003 3.003 0 0 0-2.11 2.11C0 8.017 0 12 0 12s0 3.983.502 5.837a3.003 3.003 0 0 0 2.11 2.11c1.858.507 9.388.507 9.388.507s7.53 0 9.388-.507a3.003 3.003 0 0 0 2.11-2.11C24 15.983 24 12 24 12s0-3.983-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
                         <input
                           type="text"
                           placeholder="https://www.youtube.com/watch?v=... or https://youtu.be/..."
@@ -3994,10 +4368,9 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                           onChange={(e) => {
                             const url = e.target.value;
                             setVideoYoutubeUrl(url);
-                            // Extract video ID from various YouTube URL formats
                             const patterns = [
                               /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/,
-                              /^([a-zA-Z0-9_-]{11})$/ // bare ID
+                              /^([a-zA-Z0-9_-]{11})$/
                             ];
                             let extractedId = "";
                             for (const pattern of patterns) {
@@ -4006,7 +4379,6 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                             }
                             if (extractedId) {
                               setEditingItem((prev: any) => ({ ...prev, youtube_id: extractedId }));
-                              // Automatically fetch video title and metadata via oEmbed
                               fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${extractedId}`)
                                 .then((res) => res.json())
                                 .then((data) => {
@@ -4021,28 +4393,28 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                                 .catch((err) => console.log("oEmbed fetch failed", err));
                             }
                           }}
-                          className="w-full bg-stone-950 border border-stone-850 outline-none text-xs text-white p-3 pl-9 rounded-xl focus:border-brand-gold/50"
+                          className="w-full bg-stone-50 border border-stone-250 outline-none text-xs text-stone-850 p-3.5 pl-10 rounded-xl focus:border-indigo-500 focus:bg-white transition"
                         />
                       </div>
                     </div>
                     {/* Thumbnail preview + ID display */}
                     {editingItem.youtube_id && (
-                      <div className="flex items-start gap-4 p-4 bg-stone-950 border border-stone-800 rounded-xl">
+                      <div className="flex items-start gap-4 p-4 bg-stone-50 border border-stone-200 rounded-xl">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={`https://img.youtube.com/vi/${editingItem.youtube_id}/hqdefault.jpg`}
                           alt="YouTube Thumbnail Preview"
-                          className="w-32 h-20 object-cover rounded-lg border border-stone-700 shrink-0"
+                          className="w-32 h-20 object-cover rounded-lg border border-stone-200 shrink-0 shadow-sm"
                           onError={(e) => { e.currentTarget.style.opacity = "0.3"; }}
                         />
                         <div className="space-y-1 min-w-0">
-                          <span className="text-[9px] uppercase font-black text-brand-gold tracking-widest block">Thumbnail Auto-Generated</span>
-                          <p className="text-xs text-white font-bold break-all">{editingItem.youtube_id}</p>
+                          <span className="text-[9px] uppercase font-black text-amber-600 tracking-widest block font-display">Thumbnail Loaded</span>
+                          <p className="text-xs text-indigo-950 font-bold break-all">{editingItem.youtube_id}</p>
                           <a
                             href={`https://www.youtube.com/watch?v=${editingItem.youtube_id}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-[10px] text-brand-gold hover:text-amber-400 font-bold"
+                            className="inline-flex items-center gap-1 text-[10px] text-blue-600 hover:text-blue-705 font-bold"
                           >
                             <ExternalLink className="w-3 h-3" /> Open on YouTube
                           </a>
@@ -4050,14 +4422,14 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                       </div>
                     )}
                     {/* Manual ID override */}
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">YouTube Video ID (auto-extracted, or type manually)</label>
+                    <div className="space-y-1.5 pt-2">
+                      <label className="text-[10px] font-black uppercase text-stone-500 tracking-wider">YouTube Video ID (auto-extracted, or type manually)</label>
                       <input
                         type="text"
                         value={editingItem.youtube_id || ""}
                         placeholder="e.g. WrQduPat2Nw"
                         onChange={(e) => setEditingItem({ ...editingItem, youtube_id: e.target.value })}
-                        className="w-full bg-stone-950 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl focus:border-brand-gold/50"
+                        className="w-full bg-stone-50 border border-stone-250 outline-none text-xs text-stone-800 p-3.5 rounded-xl focus:border-indigo-500 focus:bg-white transition"
                       />
                     </div>
                   </div>
@@ -4065,23 +4437,23 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                   {/* Title & Category */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Video Title</label>
+                      <label className="text-[10px] font-black uppercase text-stone-500 tracking-wider">Video Title</label>
                       <input
                         type="text"
                         value={editingItem.title || ""}
                         placeholder="Enter video title..."
                         onChange={(e) => setEditingItem({ ...editingItem, title: e.target.value })}
-                        className="w-full bg-stone-950 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl focus:border-brand-gold/50"
+                        className="w-full bg-stone-50 border border-stone-250 outline-none text-xs text-stone-800 p-3.5 rounded-xl focus:border-indigo-500 focus:bg-white transition"
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Category</label>
+                      <label className="text-[10px] font-black uppercase text-stone-500 tracking-wider">Category</label>
                       <input
                         type="text"
                         value={editingItem.category || ""}
-                        placeholder="e.g. Press Briefing, Chennai Police News..."
+                        placeholder="e.g. Traffic Safety, Crime Prevention..."
                         onChange={(e) => setEditingItem({ ...editingItem, category: e.target.value })}
-                        className="w-full bg-stone-950 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl focus:border-brand-gold/50"
+                        className="w-full bg-stone-50 border border-stone-250 outline-none text-xs text-stone-800 p-3.5 rounded-xl focus:border-indigo-500 focus:bg-white transition"
                       />
                     </div>
                   </div>
@@ -4089,41 +4461,41 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                   {/* Date, Section, Order, Active */}
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Date</label>
+                      <label className="text-[10px] font-black uppercase text-stone-500 tracking-wider">Date</label>
                       <input
                         type="text"
                         value={editingItem.date || ""}
                         placeholder="e.g. June 14, 2026"
                         onChange={(e) => setEditingItem({ ...editingItem, date: e.target.value })}
-                        className="w-full bg-stone-950 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl focus:border-brand-gold/50"
+                        className="w-full bg-stone-50 border border-stone-250 outline-none text-xs text-stone-800 p-3.5 rounded-xl focus:border-indigo-500 focus:bg-white transition"
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Gallery Section</label>
+                      <label className="text-[10px] font-black uppercase text-stone-500 tracking-wider">Gallery Section</label>
                       <select
                         value={editingItem.section || "main"}
                         onChange={(e) => setEditingItem({ ...editingItem, section: e.target.value })}
-                        className="w-full bg-stone-950 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl focus:border-brand-gold/50"
+                        className="w-full bg-stone-50 border border-stone-250 outline-none text-xs text-stone-800 p-3.5 rounded-xl focus:border-indigo-500 focus:bg-white transition cursor-pointer font-bold"
                       >
                         <option value="main">Main (Related Clips sidebar)</option>
                         <option value="bottom">Bottom (Preview Cards row)</option>
                       </select>
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Order #</label>
+                      <label className="text-[10px] font-black uppercase text-stone-500 tracking-wider">Order #</label>
                       <input
                         type="number"
                         value={editingItem.order_num || 1}
                         onChange={(e) => setEditingItem({ ...editingItem, order_num: parseInt(e.target.value) })}
-                        className="w-full bg-stone-950 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl focus:border-brand-gold/50"
+                        className="w-full bg-stone-50 border border-stone-250 outline-none text-xs text-stone-800 p-3.5 rounded-xl focus:border-indigo-500 focus:bg-white transition"
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Visibility</label>
+                      <label className="text-[10px] font-black uppercase text-stone-500 tracking-wider">Visibility</label>
                       <select
                         value={editingItem.active}
                         onChange={(e) => setEditingItem({ ...editingItem, active: parseInt(e.target.value) })}
-                        className="w-full bg-stone-950 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl focus:border-brand-gold/50"
+                        className="w-full bg-stone-50 border border-stone-250 outline-none text-xs text-stone-800 p-3.5 rounded-xl focus:border-indigo-500 focus:bg-white transition cursor-pointer font-bold"
                       >
                         <option value={1}>Active (visible on website)</option>
                         <option value={0}>Hidden</option>
@@ -4132,17 +4504,17 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                   </div>
 
                   {/* Save / Cancel */}
-                  <div className="flex gap-3 justify-end pt-4 border-t border-stone-855">
+                  <div className="flex gap-3 justify-end pt-4 border-t border-stone-200">
                     <button
                       onClick={() => { setEditingItem(null); setIsAdding(false); setVideoYoutubeUrl(""); }}
-                      className="px-4 py-2 bg-stone-950 hover:bg-stone-850 border border-stone-800 rounded-lg text-xs font-black uppercase tracking-wider transition cursor-pointer"
+                      className="px-5 py-2.5 bg-white border border-stone-200 hover:bg-stone-50 text-stone-600 rounded-xl text-xs font-black uppercase tracking-wider transition cursor-pointer"
                     >
                       Cancel
                     </button>
                     <button
                       onClick={() => handleSave("videos")}
                       disabled={!editingItem.youtube_id?.trim()}
-                      className="px-4 py-2 bg-brand-gold hover:bg-brand-gold-dark text-stone-950 rounded-lg text-xs font-black uppercase tracking-wider transition border border-brand-gold-dark disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                      className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-black uppercase tracking-wider transition disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-sm"
                     >
                       Save Video
                     </button>
@@ -4152,39 +4524,42 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
 
               {/* Videos list grid */}
               {!editingItem && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
                   {videos.map((item) => (
-                    <div key={item.id} className="bg-stone-900 border border-stone-850 rounded-xl overflow-hidden flex flex-col shadow-sm">
-                      <div className="relative w-full h-[130px] bg-black">
+                    <div key={item.id} className="bg-white border border-stone-200 rounded-2xl overflow-hidden flex flex-col shadow-sm hover:shadow-md transition duration-300">
+                      <div className="relative w-full h-[160px] bg-stone-900">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={`https://img.youtube.com/vi/${item.youtube_id}/hqdefault.jpg`}
                           alt={item.title}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90"
                           onError={(e) => { e.currentTarget.style.opacity = "0.3"; }}
                         />
-                        <div className="absolute top-2 left-2 flex gap-1.5">
-                          <span className={`text-[8px] font-black px-2 py-0.5 rounded backdrop-blur ${item.active ? "bg-emerald-500/80 text-white" : "bg-stone-700/80 text-stone-300"}`}>
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/25">
+                          <Play className="w-10 h-10 fill-white text-white opacity-90 filter drop-shadow-md" />
+                        </div>
+                        <div className="absolute top-3 left-3 flex gap-1.5">
+                          <span className={`text-[9px] font-black px-2.5 py-0.5 rounded-full ${item.active ? "bg-emerald-100 text-emerald-800 border border-emerald-200" : "bg-stone-100 text-stone-600 border border-stone-200"}`}>
                             {item.active ? "ACTIVE" : "HIDDEN"}
                           </span>
-                          <span className="text-[8px] font-black px-2 py-0.5 rounded backdrop-blur bg-brand-gold/80 text-stone-950 uppercase">
+                          <span className="text-[9px] font-black px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100 uppercase">
                             {item.section}
                           </span>
                         </div>
-                        <div className="absolute top-2 right-2 bg-black/50 text-[8px] font-bold text-white px-2 py-0.5 rounded backdrop-blur">
-                          #{item.order_num}
+                        <div className="absolute top-3 right-3 bg-black/60 text-[9px] font-black text-white px-2 py-0.5 rounded-md">
+                          Order #{item.order_num}
                         </div>
                       </div>
-                      <div className="p-4 flex-grow flex flex-col justify-between space-y-3">
+                      <div className="p-5 flex-grow flex flex-col justify-between space-y-4 text-left">
                         <div>
-                          <span className="text-[8px] font-black uppercase text-brand-gold tracking-widest">{item.category}</span>
-                          <h4 className="font-bold text-xs text-white line-clamp-2 mt-0.5 leading-snug">{item.title || item.youtube_id}</h4>
-                          <span className="text-[9px] text-stone-500 mt-1 block">{item.date}</span>
+                          <span className="text-[9px] font-black uppercase text-amber-600 tracking-wider">{item.category || "Media Gallery"}</span>
+                          <h4 className="font-bold text-xs text-indigo-955 line-clamp-2 mt-1 leading-snug">{item.title || item.youtube_id}</h4>
+                          <span className="text-[9px] font-semibold text-stone-400 mt-2 block">{item.date}</span>
                         </div>
-                        <div className="flex items-center gap-2 border-t border-stone-850/50 pt-3">
+                        <div className="flex items-center gap-2 border-t border-stone-150 pt-3">
                           <button
                             onClick={() => { setVideoYoutubeUrl(`https://www.youtube.com/watch?v=${item.youtube_id}`); setEditingItem(item); setIsAdding(false); }}
-                            className="flex-grow flex justify-center items-center gap-1.5 py-2 bg-stone-950 hover:bg-stone-850 rounded-lg border border-stone-800 text-[10px] font-black uppercase tracking-wider text-stone-300 hover:text-white transition cursor-pointer"
+                            className="flex-grow flex justify-center items-center gap-1.5 py-2.5 bg-stone-50 hover:bg-stone-100 rounded-xl border border-stone-200 text-[10px] font-black uppercase tracking-wider text-stone-600 hover:text-stone-905 transition cursor-pointer"
                           >
                             <Edit className="w-3.5 h-3.5" /> Edit
                           </button>
@@ -4192,14 +4567,14 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                             href={`https://www.youtube.com/watch?v=${item.youtube_id}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="p-2 text-stone-500 hover:text-brand-gold hover:bg-stone-850 rounded-lg border border-stone-800 transition"
+                            className="p-2.5 text-stone-400 hover:text-red-650 hover:bg-red-50 rounded-xl border border-stone-200 hover:border-red-100 transition"
                             title="Open on YouTube"
                           >
-                            <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" fill="currentColor"><path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.53 3.545 12 3.545 12 3.545s-7.53 0-9.388.508a3.003 3.003 0 0 0-2.11 2.11C0 8.017 0 12 0 12s0 3.983.502 5.837a3.003 3.003 0 0 0 2.11 2.11c1.858.507 9.388.507 9.388.507s7.53 0 9.388-.507a3.003 3.003 0 0 0 2.11-2.11C24 15.983 24 12 24 12s0-3.983-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                            <ExternalLink className="w-3.5 h-3.5" />
                           </a>
                           <button
                             onClick={() => handleDelete("videos", item.id)}
-                            className="p-2 text-stone-500 hover:text-rose-400 hover:bg-stone-850 rounded-lg border border-stone-800 transition cursor-pointer"
+                            className="p-2.5 text-stone-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl border border-stone-200 hover:border-rose-100 transition cursor-pointer"
                             title="Delete"
                           >
                             <Trash className="w-3.5 h-3.5" />
@@ -4209,12 +4584,13 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                     </div>
                   ))}
                   {videos.length === 0 && (
-                    <div className="col-span-full text-center py-16 text-stone-500 text-xs">
+                    <div className="col-span-full text-center py-16 text-stone-500 text-xs bg-white rounded-2xl border border-stone-200 shadow-sm">
                       No videos added yet. Click "Add Video" to paste a YouTube URL.
                     </div>
                   )}
                 </div>
               )}
+              {renderSeoCard()}
             </div>
           )}
 
@@ -4842,6 +5218,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                 </div>
 
               </div>
+              {renderSeoCard()}
             </div>
           )}
 
@@ -5121,6 +5498,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                     </p>
                   </div>
                 )}
+                {renderSeoCard()}
               </div>
             </div>
           )}
@@ -5241,7 +5619,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                   />
                 </div>
               </div>
-
+              {renderSeoCard()}
             </div>
           )}
 
@@ -5388,33 +5766,35 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
 
                 </div>
               )}
-
+              {renderSeoCard()}
             </div>
           )}
 
           {/* ==================== TAB: SUPER ADMIN CONSOLE ==================== */}
           {activeTab === "superadmin" && (
-            (() => {
-              const isAllowedConsole = hasModulePermission("superadmin", "view");
-              if (!isAllowedConsole) {
-                return (
-                  <div className="flex flex-col items-center justify-center p-12 text-center bg-white border border-slate-200 rounded-2xl shadow-sm min-h-[450px]">
-                    <ShieldAlert className="w-16 h-16 text-rose-600 mb-4 animate-bounce" />
-                    <h2 className="text-xl font-black uppercase text-slate-800 tracking-wider">403 - Access Denied</h2>
-                    <p className="text-xs text-slate-500 mt-2 max-w-md leading-relaxed">
-                      You do not have permission to view the Access Management Module. This action has been logged for security audit.
-                    </p>
-                    <button
-                      onClick={() => setActiveTab("dashboard")}
-                      className="mt-6 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition cursor-pointer"
-                    >
-                      Return to Overview
-                    </button>
-                  </div>
-                );
-              }
-              return <SuperAdminConsole user={user} onTabChange={setActiveTab} />;
-            })()
+            <div className="space-y-6">
+              {(() => {
+                const isAllowedConsole = hasModulePermission("superadmin", "view");
+                if (!isAllowedConsole) {
+                  return (
+                    <div className="flex flex-col items-center justify-center p-12 text-center bg-white border border-slate-200 rounded-2xl shadow-sm min-h-[450px]">
+                      <ShieldAlert className="w-16 h-16 text-rose-600 mb-4 animate-bounce" />
+                      <h2 className="text-xl font-black uppercase text-slate-800 tracking-wider">403 - Access Denied</h2>
+                      <p className="text-xs text-slate-500 mt-2 max-w-md leading-relaxed">
+                        You do not have permission to view the Access Management Module. This action has been logged for security audit.
+                      </p>
+                      <button
+                        onClick={() => setActiveTab("dashboard")}
+                        className="mt-6 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition cursor-pointer"
+                      >
+                        Return to Overview
+                      </button>
+                    </div>
+                  );
+                }
+                return <SuperAdminConsole user={user} onTabChange={setActiveTab} />;
+              })()}
+            </div>
           )}
 
           {/* ==================== TAB: POLICE STATIONS ==================== */}
@@ -5717,7 +6097,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                       <div key={item.id} className="p-4 flex justify-between items-center hover:bg-stone-955/20 transition">
                         <div>
                           <div className="flex items-center gap-2">
-                            <span className="text-[9px] font-black text-brand-gold uppercase tracking-wider border border-brand-gold/30 px-1.5 py-0.5 rounded bg-brand-gold/10">
+                            <span className="text-[9px] font-black text-brand-gold uppercase tracking-wider border border-brand-gold/30 px-1.5 py-0.5 rounded bg-brand-gold/10 whitespace-nowrap inline-block">
                               {item.type}
                             </span>
                             <span className="text-[9px] font-bold text-stone-500">
@@ -5742,7 +6122,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                   </div>
                 </div>
               )}
-
+              {renderSeoCard()}
             </div>
           )}
 
@@ -5860,6 +6240,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                   </div>
                 </div>
               )}
+              {renderSeoCard()}
             </div>
           )}
 
@@ -5980,27 +6361,52 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                   </div>
                 </div>
               )}
+              {renderSeoCard()}
             </div>
           )}
 
           {/* ==================== TAB: DYNAMIC MENU & PAGE BUILDER ==================== */}
           {activeTab === "menu-management" && (
-            <MenuManagement user={user} onTabChange={setActiveTab} />
+            <div className="space-y-6 w-full">
+              <MenuManagement user={user} onTabChange={setActiveTab} />
+              {renderSeoCard()}
+            </div>
           )}
 
           {/* ==================== TAB: WORDPRESS-STYLE PAGE EDITOR ==================== */}
           {activeTab === "page-editor" && (
-            <PageEditor user={user} subPage={subPage} onTabChange={(path: string) => setActiveTab(path as any)} />
+            <div className="space-y-6 w-full">
+              <PageEditor user={user} subPage={subPage} onTabChange={(path: string) => setActiveTab(path as any)} />
+              {renderSeoCard()}
+            </div>
           )}
 
           {/* ==================== TAB: FOOTER MANAGEMENT ==================== */}
           {activeTab === "footer" && (
-            <FooterManagement onAlert={triggerAlert} />
+            <div className="space-y-6 w-full">
+              <FooterManagement onAlert={triggerAlert} />
+              {renderSeoCard()}
+            </div>
           )}
 
           {/* ==================== TAB: WEB STORIES ==================== */}
           {activeTab === "web-stories" && (
-            <WebStoriesManagement user={user} onTabChange={setActiveTab} />
+            <div className="space-y-6">
+              <WebStoriesManagement user={user} onTabChange={setActiveTab} />
+              {renderSeoCard()}
+            </div>
+          )}
+
+          {/* ==================== TAB: SEO MANAGEMENT ==================== */}
+          {activeTab === "seo" && (
+            <SeoManager
+              news={news}
+              videos={videos}
+              alerts={alerts}
+              slider={slider}
+              profile={profile}
+              onAlert={triggerAlert}
+            />
           )}
 
         </div>

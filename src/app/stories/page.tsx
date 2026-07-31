@@ -2,21 +2,28 @@ import React from "react";
 import { db } from "@/lib/db";
 import StoriesPageClient from "@/components/StoriesPageClient";
 import type { Metadata } from "next";
+import { getMetadataForPage, getSchemaJsonForPage } from "@/lib/seoHelper";
 
 export const revalidate = 0; // force dynamic fetching
 
-export const metadata: Metadata = {
-  title: "Web Stories | Chennai Guardian",
-  description: "Browse immersive full-screen tap-through stories and visual safety briefs from Greater Chennai Police.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return getMetadataForPage(
+    "web_stories_page",
+    0,
+    "Web Stories | Greater Chennai Police",
+    "Browse immersive full-screen tap-through stories and visual safety briefs from Greater Chennai Police.",
+    "/stories"
+  );
+}
 
 export default async function StoriesPage() {
-  const [menuItems, rawTicker, allStories, profile, allNews] = await Promise.all([
+  const [menuItems, rawTicker, allStories, profile, allNews, schemaJson] = await Promise.all([
     db.getMenuItems(),
     db.getTicker(),
     db.getWebStories(),
     db.getCommissionerProfile(),
     db.getNews(),
+    getSchemaJsonForPage("web_stories_page", 0)
   ]);
 
   const tickerItems = rawTicker
@@ -31,12 +38,20 @@ export default async function StoriesPage() {
   const publishedNews = allNews.filter((n) => n.published === 1);
 
   return (
-    <StoriesPageClient
-      stories={activeStories}
-      news={publishedNews}
-      menuItems={menuItems}
-      ticker={tickerItems}
-      profile={profile}
-    />
+    <>
+      {schemaJson && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: schemaJson }}
+        />
+      )}
+      <StoriesPageClient
+        stories={activeStories}
+        news={publishedNews}
+        menuItems={menuItems}
+        ticker={tickerItems}
+        profile={profile}
+      />
+    </>
   );
 }

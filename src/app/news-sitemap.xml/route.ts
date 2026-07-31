@@ -8,6 +8,7 @@ export async function GET() {
   const baseUrl = seoSettings.site_url || "https://chennaiguardian.in";
   const news = await db.getNews();
   const publishedNews = news.filter(n => n.published === 1);
+  const articleSeoList = await db.getArticleSeo();
 
   let xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
@@ -15,6 +16,14 @@ export async function GET() {
 `;
 
   for (const article of publishedNews) {
+    const custom = articleSeoList.find(s => s.content_type === "news" && s.article_id === article.id);
+    if (custom && custom.include_in_sitemap === false) {
+      continue;
+    }
+    
+    const slug = custom?.seo_slug || article.slug;
+    const title = custom?.seo_title || article.title_en;
+    
     const pubDate = article.created_at || article.date || new Date().toISOString();
     let isoDate: string;
     try {
@@ -24,15 +33,15 @@ export async function GET() {
     }
 
     xml += `  <url>
-    <loc>${baseUrl}/news/${article.slug}</loc>
+    <loc>${baseUrl}/news/${slug}</loc>
     <news:news>
       <news:publication>
         <news:name>${escapeXml(seoSettings.publisher_name || "Greater Chennai Police")}</news:name>
         <news:language>en</news:language>
       </news:publication>
       <news:publication_date>${isoDate}</news:publication_date>
-      <news:title>${escapeXml(article.title_en)}</news:title>
-      <news:keywords>${escapeXml((article.tags_en || []).join(", "))}</news:keywords>
+      <news:title>${escapeXml(title)}</news:title>
+      <news:keywords>${escapeXml(custom?.meta_keywords || (article.tags_en || []).join(", "))}</news:keywords>
     </news:news>
   </url>
 `;

@@ -417,6 +417,11 @@ export interface DBArticleSeo {
   hreflang_ta: string;
   seo_score: number;
   updated_at: string;
+  include_in_sitemap?: boolean;
+  sitemap_priority?: number;
+  sitemap_changefreq?: string;
+  robots_indexing?: string;
+  robots_following?: string;
 }
 
 export interface DBServiceRequest {
@@ -1372,7 +1377,44 @@ class ChennaiGuardianDatabase {
 
   // Superadmin Config
   public async getSuperadminConfig(): Promise<Record<string, any>> {
-    return jsonDb.getTable("superadmin_config") as Record<string, any>;
+    const raw = jsonDb.getTable("superadmin_config") as Record<string, any>;
+    if (!raw || !raw.footer_config) {
+      raw.footer_config = {
+        logo: "/images/gcp_logo.png",
+        website_name_en: "Chennai Guardian News",
+        website_name_ta: "சென்னை கார்டியன் செய்திகள்",
+        description_en: "Official news platform of Chennai Guardian News, providing 24/7 updates on public safety, cyber alerts, and community-centered policing initiatives.",
+        description_ta: "சென்னையின் முன்னணி சட்டம் ஒழுங்கு, குற்றப் புலனாய்வு மற்றும் மக்கள் விழிப்புணர்வு செய்திகளை உடனுக்குடன் வழங்கும் அதிகாரப்பூர்வ செய்தி ஊடகம்.",
+        copyright_text_en: "© 2026 Greater Chennai Police. All rights reserved.",
+        copyright_text_ta: "© 2026 சென்னை பெருநகர காவல். அனைத்து உரிமைகளும் பாதுகாக்கப்பட்டவை.",
+        developer_credit_en: "Developed by GCP Media Team",
+        developer_credit_ta: "சென்னை பெருநகர காவல் ஊடகக் குழுவால் உருவாக்கப்பட்டது",
+        address_en: "Commissioner Office, Greater Chennai Police, Vepery, Chennai - 600007",
+        address_ta: "காவல் ஆணையர் அலுவலகம், சென்னை பெருநகர காவல், வேப்பேரி, சென்னை - 600007",
+        phone: "044-23452300",
+        email: "cop@gcp.tn.gov.in",
+        google_map_link: "https://maps.google.com/?q=Commissioner+Office+Greater+Chennai+Police+Vepery",
+        social_facebook: "https://facebook.com",
+        social_twitter: "https://twitter.com",
+        social_youtube: "https://youtube.com",
+        social_instagram: "https://instagram.com",
+        background_image: "",
+        background_color: "#1e40af",
+        text_color: "#ffffff",
+        footer_visible: true,
+        quick_links: [
+          { id: "ql1", label_en: "Home", label_ta: "முகப்பு", url: "/", target_blank: false, active: true, order_index: 1 },
+          { id: "ql2", label_en: "Crime News", label_ta: "குற்றம்", url: "/category/crime", target_blank: false, active: true, order_index: 2 },
+          { id: "ql3", label_en: "Cyber Safety", label_ta: "இணைய பாதுகாப்பு", url: "/category/cyber-safety", target_blank: false, active: true, order_index: 3 }
+        ],
+        government_links: [
+          { id: "gl1", label_en: "Tamil Nadu Government", label_ta: "தமிழ்நாடு அரசு", url: "https://www.tn.gov.in", target_blank: true, active: true, order_index: 1 },
+          { id: "gl2", label_en: "GCP Official Site", label_ta: "சென்னை காவல்துறை", url: "https://www.chennaipolice.gov.in", target_blank: true, active: true, order_index: 2 }
+        ]
+      };
+      jsonDb.setTable("superadmin_config", raw);
+    }
+    return raw;
   }
   public async saveSuperadminConfig(key: string, value: any) {
     const cfg = await this.getSuperadminConfig();

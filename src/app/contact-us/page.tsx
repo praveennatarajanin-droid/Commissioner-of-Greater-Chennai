@@ -6,29 +6,27 @@ import ContactUsClient from "@/components/sections/ContactUsClient";
 import DynamicPageRenderer from "@/components/sections/DynamicPageRenderer";
 import { db } from "@/lib/db";
 import type { Metadata } from "next";
+import { getMetadataForPage, getSchemaJsonForPage } from "@/lib/seoHelper";
 
 export const revalidate = 0;
 
-export const metadata: Metadata = {
-  title: "Contact Us | Greater Chennai Police – Chennai Guardian",
-  description:
+export async function generateMetadata(): Promise<Metadata> {
+  return getMetadataForPage(
+    "contact_us_page",
+    0,
+    "Contact Us | Greater Chennai Police – Chennai Guardian",
     "Contact Greater Chennai Police Commissioner's Office. Reach emergency helplines, citizen desks, file grievances, and get directions to the Commissioner's Office in Vepery, Chennai.",
-  keywords:
-    "Contact Chennai Police, Greater Chennai Police contact, Chennai Police helpline, 100, 112, police emergency, cop@tncctns.gov.in",
-  openGraph: {
-    title: "Contact Chennai Guardian | Greater Chennai Police",
-    description:
-      "Connect with Greater Chennai Police. Access emergency numbers, contact desks, send messages and find the Commissioner's Office.",
-    type: "website",
-  },
-};
+    "/contact-us"
+  );
+}
 
 export default async function ContactUsPage() {
-  const [menuItems, rawTicker, profile, dynamicContent] = await Promise.all([
+  const [menuItems, rawTicker, profile, dynamicContent, schemaJson] = await Promise.all([
     db.getMenuItems(),
     db.getTicker(),
     db.getCommissionerProfile(),
     db.getPageContent("contact-us"),
+    getSchemaJsonForPage("contact_us_page", 0)
   ]);
 
   const tickerItems = rawTicker
@@ -41,6 +39,12 @@ export default async function ContactUsPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100">
+      {schemaJson && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: schemaJson }}
+        />
+      )}
       <Navbar customMenuItems={menuItems} />
       <NewsTicker customTickerItems={tickerItems} />
 
