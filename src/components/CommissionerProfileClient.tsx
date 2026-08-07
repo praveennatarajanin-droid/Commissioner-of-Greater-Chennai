@@ -473,7 +473,7 @@ export default function CommissionerProfileClient({ profile }: CommissionerProfi
             <div className="lg:col-span-8 bg-white dark:bg-stone-900 rounded-2xl border border-slate-200/50 dark:border-stone-850 p-6 md:p-8 shadow-sm flex flex-col justify-between text-left">
               <div className="space-y-6">
                 <h3 className="text-lg font-display font-black text-[#1E2A78] dark:text-white border-b border-slate-100 dark:border-stone-850 pb-3 flex items-center gap-2">
-                  <Info className="w-5 h-5 text-[#E41E26]" />
+                  <Phone className="w-5 h-5 text-[#E41E26]" />
                   <span>{l.contact}</span>
                 </h3>
 
