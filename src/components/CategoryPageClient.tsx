@@ -217,7 +217,7 @@ export default function CategoryPageClient({
     setMounted(true);
   }, []);
 
-  if (!mounted) return null;
+
 
   const catInfo = CATEGORY_MAP[id] || {
     title_en: id.toUpperCase().replace("-", " "),

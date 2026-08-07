@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { db } from "@/lib/db";
+import { cookies } from "next/headers";
+import Script from "next/script";
 import "./globals.css";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -44,6 +46,8 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const initialLanguage = (cookieStore.get("preferred-language")?.value || "en") as "en" | "ta";
   const themeSettings = await db.getThemeSettings();
   const seoSettings = await db.getSeoSettings();
   const baseUrl = seoSettings.site_url || "https://chennaiguardian.in";
@@ -99,8 +103,9 @@ export default async function RootLayout({
   };
 
   return (
-    <html lang="en" className="h-full antialiased scroll-smooth" suppressHydrationWarning data-scroll-behavior="smooth">
+    <html lang={initialLanguage} className="h-full antialiased scroll-smooth" suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
+        <Script src="/theme-detector.js" strategy="beforeInteractive" />
         <style dangerouslySetInnerHTML={{ __html: inlineStyles }} />
         <link rel="icon" href="/favicon.ico?v=2" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=2" />
@@ -146,7 +151,7 @@ export default async function RootLayout({
             />
           </noscript>
         )}
-        <LanguageProvider>
+        <LanguageProvider initialLanguage={initialLanguage}>
           <ThemeProvider>
             {children}
           </ThemeProvider>

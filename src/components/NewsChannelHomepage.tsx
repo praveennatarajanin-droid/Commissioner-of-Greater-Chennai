@@ -377,7 +377,7 @@ export default function NewsChannelHomepage({
     setVisibleCount(prev => Math.min(prev + 12, sortedNews.length));
   };
 
-  if (!mounted) return null;
+
 
   // 1. Breaking ticker items
   const breakingList = news.filter((n) => n.breaking === 1);

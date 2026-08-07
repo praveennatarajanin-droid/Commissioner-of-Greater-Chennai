@@ -249,11 +249,13 @@ export default function Footer({ customProfile }: FooterProps = {}) {
 
       {/* ── Copyright & Designer Credit: centered ── */}
       <div className="max-w-[1700px] mx-auto px-6 pt-5 pb-2 border-t border-white/10 flex flex-col items-center gap-2 text-center">
-        <p className="text-white/55 text-sm font-normal">
+        <div className="text-xs font-bold tracking-wider space-y-1">
+          {(developerCredit || "").split("\n").map((line: string, i: number) => (
+            <p key={i}>{line}</p>
+          ))}
+        </div>
+        <p className="text-white/55 text-sm font-normal mt-1">
           {copyrightText}
-        </p>
-        <p className="text-xs font-bold tracking-wider">
-          {developerCredit}
         </p>
       </div>
     </footer>

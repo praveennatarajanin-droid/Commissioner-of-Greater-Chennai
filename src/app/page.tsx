@@ -21,10 +21,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Home() {
-  // Sync alerts in background
-  try { await db.syncAlerts(false); } catch { }
-  // Sync traffic news in background
-  try { await syncTrafficNews(); } catch { }
+  // Sync alerts in background (non-blocking)
+  db.syncAlerts(false).catch((e) => console.error("Background syncAlerts error:", e));
+  // Sync traffic news in background (non-blocking)
+  syncTrafficNews().catch((e) => console.error("Background syncTrafficNews error:", e));
 
   const [menuItems, rawTicker, news, allVideos, allAlerts, profile, allSlider, dynamicContent, rawStories] = await Promise.all([
     db.getMenuItems(),

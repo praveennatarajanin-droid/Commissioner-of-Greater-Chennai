@@ -446,6 +446,10 @@ const JSON_DB_PATH = path.join(process.cwd(), "src", "data", "db.json");
 
 // Standalone JSON Database Manager
 class JSONDatabaseManager {
+  private lastChecked = 0;
+  private lastMtime = 0;
+  private isLoaded = false;
+
   private data: {
     users: DBUser[];
     activity_logs: DBActivityLog[];
@@ -509,11 +513,23 @@ class JSONDatabaseManager {
   }
 
   private init() {
+    const now = Date.now();
+    if (this.isLoaded && now - this.lastChecked < 50) {
+      return;
+    }
+
     if (fs.existsSync(JSON_DB_PATH)) {
       try {
+        const stat = fs.statSync(JSON_DB_PATH);
+        this.lastChecked = now;
+        if (this.isLoaded && stat.mtimeMs <= this.lastMtime) {
+          return;
+        }
         const raw = fs.readFileSync(JSON_DB_PATH, "utf8");
         const parsed = JSON.parse(raw);
         this.data = { ...this.data, ...parsed };
+        this.lastMtime = stat.mtimeMs;
+        this.isLoaded = true;
         
         let modified = false;
 
@@ -712,6 +728,9 @@ class JSONDatabaseManager {
         fs.mkdirSync(dir, { recursive: true });
       }
       fs.writeFileSync(JSON_DB_PATH, JSON.stringify(this.data, null, 2), "utf8");
+      this.lastMtime = fs.statSync(JSON_DB_PATH).mtimeMs;
+      this.lastChecked = Date.now();
+      this.isLoaded = true;
     } catch (err) {
       console.error("Failed to save JSON Database:", err);
     }

@@ -358,37 +358,65 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
             {finalNavItems.map((item: any, idx) => {
               const isActive = pathname === item.href;
               const hasSub = item.subMenus && item.subMenus.length > 0;
+              const isExternal = item.href && (item.href.startsWith("http://") || item.href.startsWith("https://") || item.href.startsWith("www."));
+              const navLinkClass = `flex items-center justify-center w-full uppercase font-black tracking-wider hover:bg-[#1e2060] transition border-r border-white/10 whitespace-nowrap cursor-pointer ${
+                language === "ta"
+                  ? "gap-1 px-1 lg:px-1.5 xl:px-2 text-[8px] lg:text-[9px] xl:text-[10px]"
+                  : "gap-1 px-1.5 lg:px-2 xl:px-3 text-[8.5px] lg:text-[9.5px] xl:text-[11px]"
+              } ${isActive ? "bg-[#1e2060] text-[#c5a059] border-b-2 border-[#c5a059]" : ""}`;
               return (
                 <div key={idx} className="relative group flex items-stretch flex-1 shrink md:shrink-0">
-                  <Link
-                    href={item.href}
-                    target={item.openInNewTab ? "_blank" : undefined}
-                    className={`flex items-center justify-center w-full uppercase font-black tracking-wider hover:bg-[#1e2060] transition border-r border-white/10 whitespace-nowrap cursor-pointer ${
-                      language === "ta"
-                        ? "gap-1 px-1 lg:px-1.5 xl:px-2 text-[8px] lg:text-[9px] xl:text-[10px]"
-                        : "gap-1 px-1.5 lg:px-2 xl:px-3 text-[8.5px] lg:text-[9.5px] xl:text-[11px]"
-                    } ${isActive ? "bg-[#1e2060] text-[#c5a059] border-b-2 border-[#c5a059]" : ""}`}
-                    style={{ minHeight: "48px" }}
-                  >
-                    <span>{shortenTamilLabel(item.label)}</span>
-                    {hasSub && <ChevronDown className="w-2.5 h-2.5 xl:w-3 xl:h-3 ml-0.5 text-white/70 group-hover:text-[#c5a059] transition" />}
-                  </Link>
+                  {isExternal ? (
+                    <a
+                      href={item.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={navLinkClass}
+                      style={{ minHeight: "48px" }}
+                    >
+                      <span>{shortenTamilLabel(item.label)}</span>
+                      {hasSub && <ChevronDown className="w-2.5 h-2.5 xl:w-3 xl:h-3 ml-0.5 text-white/70 group-hover:text-[#c5a059] transition" />}
+                    </a>
+                  ) : (
+                    <Link
+                      href={item.href}
+                      target={item.openInNewTab ? "_blank" : undefined}
+                      className={navLinkClass}
+                      style={{ minHeight: "48px" }}
+                    >
+                      <span>{shortenTamilLabel(item.label)}</span>
+                      {hasSub && <ChevronDown className="w-2.5 h-2.5 xl:w-3 xl:h-3 ml-0.5 text-white/70 group-hover:text-[#c5a059] transition" />}
+                    </Link>
+                  )}
                   {hasSub && (
                     <div
-                      className={`absolute left-0 top-[48px] flex-col bg-brand-blue border-t-2 border-[#c5a059] shadow-xl min-w-[220px] z-50 ${activeDropdown === idx ? "flex" : "hidden group-hover:flex"
-                        }`}
+                      className={`absolute left-0 top-[48px] flex-col bg-brand-blue border-t-2 border-[#c5a059] shadow-xl min-w-[220px] z-50 ${activeDropdown === idx ? "flex" : "hidden group-hover:flex"}`}
                     >
-                      {item.subMenus.map((sub: any, sIdx: number) => (
-                        <Link
-                          key={sIdx}
-                          href={sub.href}
-                          target={sub.openInNewTab ? "_blank" : undefined}
-                          onClick={() => setActiveDropdown(null)}
-                          className="px-4 py-3 text-[10px] sm:text-xs uppercase font-black tracking-wider text-white hover:bg-[#1e2060] hover:text-[#c5a059] border-b border-white/5 transition whitespace-nowrap text-left block"
-                        >
-                          {sub.label}
-                        </Link>
-                      ))}
+                      {item.subMenus.map((sub: any, sIdx: number) => {
+                        const isSubExternal = sub.href && (sub.href.startsWith("http://") || sub.href.startsWith("https://") || sub.href.startsWith("www."));
+                        return isSubExternal ? (
+                          <a
+                            key={sIdx}
+                            href={sub.href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={() => setActiveDropdown(null)}
+                            className="px-4 py-3 text-[10px] sm:text-xs uppercase font-black tracking-wider text-white hover:bg-[#1e2060] hover:text-[#c5a059] border-b border-white/5 transition whitespace-nowrap text-left block"
+                          >
+                            {sub.label}
+                          </a>
+                        ) : (
+                          <Link
+                            key={sIdx}
+                            href={sub.href}
+                            target={sub.openInNewTab ? "_blank" : undefined}
+                            onClick={() => setActiveDropdown(null)}
+                            className="px-4 py-3 text-[10px] sm:text-xs uppercase font-black tracking-wider text-white hover:bg-[#1e2060] hover:text-[#c5a059] border-b border-white/5 transition whitespace-nowrap text-left block"
+                          >
+                            {sub.label}
+                          </Link>
+                        );
+                      })}
                     </div>
                   )}
                 </div>
@@ -426,27 +454,28 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
                 const isActive = pathname === item.href;
                 const hasSub = item.subMenus && item.subMenus.length > 0;
                 const isExpanded = expandedMobileItems[idx];
+                const isMobileExternal = item.href && (item.href.startsWith("http://") || item.href.startsWith("https://") || item.href.startsWith("www."));
+                const mobileLinkClass = `flex-grow flex items-center py-3.5 px-4 text-[13px] uppercase font-bold tracking-wider hover:bg-[#1e2060]/70 rounded-lg transition text-left min-h-[44px] cursor-pointer ${isActive ? "bg-[#1e2060] text-[#c5a059]" : "text-stone-100"}`;
 
                 return (
                   <div key={idx} className="flex flex-col border-b border-white/5 last:border-b-0">
                     <div className="flex items-center justify-between w-full">
-                      {hasSub ? (
-                        <Link
+                      {isMobileExternal ? (
+                        <a
                           href={item.href}
-                          target={item.openInNewTab ? "_blank" : undefined}
+                          target="_blank"
+                          rel="noopener noreferrer"
                           onClick={() => setMobileMenuOpen(false)}
-                          className={`flex-grow flex items-center py-3.5 px-4 text-[13px] uppercase font-bold tracking-wider hover:bg-[#1e2060]/70 rounded-lg transition text-left min-h-[44px] cursor-pointer ${isActive ? "bg-[#1e2060] text-[#c5a059]" : "text-stone-100"
-                            }`}
+                          className={mobileLinkClass}
                         >
                           {item.label}
-                        </Link>
+                        </a>
                       ) : (
                         <Link
                           href={item.href}
                           target={item.openInNewTab ? "_blank" : undefined}
                           onClick={() => setMobileMenuOpen(false)}
-                          className={`flex-grow flex items-center py-3.5 px-4 text-[13px] uppercase font-bold tracking-wider hover:bg-[#1e2060]/70 rounded-lg transition text-left min-h-[44px] ${isActive ? "bg-[#1e2060] text-[#c5a059]" : "text-stone-100"
-                            }`}
+                          className={mobileLinkClass}
                         >
                           {item.label}
                         </Link>

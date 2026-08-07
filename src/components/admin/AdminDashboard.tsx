@@ -865,7 +865,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
           These attributes will be bound to all active images in this section for search engine crawler indexation.
         </p>
 
-        <div className="flex justify-end pt-2">
+        <div className="flex justify-center pt-2">
           <button
             onClick={handleSaveTabSeo}
             disabled={savingSeo}
@@ -1151,6 +1151,8 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
   const autoGenTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [clearingCache, setClearingCache] = useState(false);
+  const [cacheCleared, setCacheCleared] = useState(false);
 
   // AI Auto-Fill States & Handlers
   const [showConfirmAiModal, setShowConfirmAiModal] = useState(false);
@@ -1873,6 +1875,53 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
               <ExternalLink className="w-4 h-4" /> Launch Live Portal
             </a>
             
+            {/* Clear Cache Button */}
+            <button
+              onClick={async () => {
+                if (clearingCache) return;
+                setClearingCache(true);
+                setCacheCleared(false);
+                try {
+                  const res = await fetch("/api/admin/cache", { method: "POST" });
+                  const data = await res.json();
+                  if (data.success) {
+                    setCacheCleared(true);
+                    triggerAlert("success", `✅ Cache cleared! All frontend pages refreshed.`);
+                    setTimeout(() => setCacheCleared(false), 4000);
+                  } else {
+                    triggerAlert("error", data.error || "Failed to clear cache.");
+                  }
+                } catch {
+                  triggerAlert("error", "Network error while clearing cache.");
+                } finally {
+                  setClearingCache(false);
+                }
+              }}
+              disabled={clearingCache}
+              title="Clear Next.js page cache — forces all frontend pages to re-fetch fresh data"
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold border transition-all duration-200 shadow-sm cursor-pointer ${
+                cacheCleared
+                  ? "bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100"
+                  : clearingCache
+                  ? "bg-amber-50 border-amber-200 text-amber-700 cursor-wait"
+                  : "bg-white border-[#E5E7EB] text-[#64748B] hover:bg-orange-50 hover:border-orange-300 hover:text-orange-700"
+              }`}
+            >
+              {clearingCache ? (
+                <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+              ) : cacheCleared ? (
+                <Check className="w-4 h-4" />
+              ) : (
+                <RefreshCw className="w-4 h-4" />
+              )}
+              <span className="hidden sm:inline">
+                {clearingCache ? "Clearing..." : cacheCleared ? "Cleared!" : "Clear Cache"}
+              </span>
+            </button>
+
             {/* Notification Icon */}
             <button 
               onClick={() => setActiveTab("alerts")} 
@@ -4596,18 +4645,13 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
 
           {/* ==================== TAB: PROFILE ==================== */}
           {activeTab === "profile" && profile && (
-            <div className="bg-stone-900 border border-stone-850 rounded-2xl p-8 w-full space-y-6">
-              <div className="flex items-center justify-between border-b border-stone-850 pb-4">
-                <h3 className="font-display font-black text-sm uppercase tracking-widest text-brand-gold">
-                  Edit Commissioner Profile Configuration
-                </h3>
-                <button
-                  onClick={saveProfile}
-                  className="px-4 py-2 bg-brand-gold hover:bg-brand-gold-dark text-stone-950 rounded-lg text-xs font-black uppercase tracking-wider transition border border-brand-gold-dark"
-                >
-                  Save Changes
-                </button>
-              </div>
+            <div className="space-y-6 w-full">
+              <div className="bg-stone-900 border border-stone-850 rounded-2xl p-8 w-full space-y-6">
+                <div className="flex items-center justify-between border-b border-stone-850 pb-4">
+                  <h3 className="font-display font-black text-sm uppercase tracking-widest text-brand-gold">
+                    Edit Commissioner Profile Configuration
+                  </h3>
+                </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                 
@@ -5218,9 +5262,21 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                 </div>
 
               </div>
-              {renderSeoCard()}
+
+              {/* Save button centered at the bottom of Profile Settings */}
+              <div className="flex justify-center pt-6 border-t border-stone-850">
+                <button
+                  onClick={saveProfile}
+                  className="px-5 py-2.5 bg-brand-gold hover:bg-brand-gold-dark text-stone-950 rounded-xl text-xs font-black uppercase tracking-wider transition border border-brand-gold-dark shadow-md"
+                >
+                  Save Changes
+                </button>
+              </div>
+
             </div>
-          )}
+            {renderSeoCard()}
+          </div>
+        )}
 
           {/* ==================== TAB: ALERTS ==================== */}
           {activeTab === "alerts" && (
@@ -5505,120 +5561,127 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
 
           {/* ==================== TAB: THEME ==================== */}
           {activeTab === "theme" && theme && (
-            <div className="bg-stone-900 border border-stone-850 rounded-2xl p-8 w-full space-y-6">
-              <div className="flex items-center justify-between border-b border-stone-850 pb-4">
-                <div>
-                  <h3 className="font-display font-black text-sm uppercase tracking-widest text-brand-gold">
-                    Theme Color & Logo settings
-                  </h3>
-                  <p className="text-[9px] uppercase font-bold text-stone-400 mt-0.5">
-                    Modifying this dynamically alters active CSS overrides.
-                  </p>
+            <div className="space-y-6 w-full">
+              <div className="bg-stone-900 border border-stone-850 rounded-2xl p-8 w-full space-y-6">
+                <div className="flex items-center justify-between border-b border-stone-850 pb-4">
+                  <div>
+                    <h3 className="font-display font-black text-sm uppercase tracking-widest text-brand-gold">
+                      Theme Color & Logo settings
+                    </h3>
+                    <p className="text-[9px] uppercase font-bold text-stone-400 mt-0.5">
+                      Modifying this dynamically alters active CSS overrides.
+                    </p>
+                  </div>
                 </div>
-                
-                <button
-                  onClick={saveTheme}
-                  className="px-4 py-2 bg-brand-gold hover:bg-brand-gold-dark text-stone-950 rounded-lg text-xs font-black uppercase tracking-wider transition border border-brand-gold-dark"
-                >
-                  Save Theme Configurations
-                </button>
-              </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                
-                {/* Primary Color Card */}
-                <div className="bg-stone-955 p-4 rounded-xl border border-stone-850 space-y-3">
-                  <span className="text-[10px] uppercase font-black tracking-wider text-stone-400 block">Primary (Maroon/Red)</span>
-                  <div className="flex gap-2">
-                    <input
-                      type="color"
-                      value={theme.primary_color}
-                      onChange={(e) => setTheme({ ...theme, primary_color: e.target.value })}
-                      className="w-10 h-10 border-0 rounded cursor-pointer bg-transparent"
-                    />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  
+                  {/* Primary Color Card */}
+                  <div className="bg-stone-955 p-4 rounded-xl border border-stone-850 space-y-3">
+                    <span className="text-[10px] uppercase font-black tracking-wider text-stone-400 block">Primary (Maroon/Red)</span>
+                    <div className="flex gap-2">
+                      <input
+                        type="color"
+                        value={theme.primary_color}
+                        onChange={(e) => setTheme({ ...theme, primary_color: e.target.value })}
+                        className="w-10 h-10 border-0 rounded cursor-pointer bg-transparent"
+                      />
+                      <input
+                        type="text"
+                        value={theme.primary_color}
+                        onChange={(e) => setTheme({ ...theme, primary_color: e.target.value })}
+                        className="flex-grow bg-stone-900 border border-stone-800 outline-none text-xs text-white px-3 rounded-lg"
+                      />
+                    </div>
+                    {/* Live Patch preview */}
+                    <div className="h-6 w-full rounded border border-stone-800 transition" style={{ backgroundColor: theme.primary_color }} />
+                  </div>
+
+                  {/* Secondary Color Card */}
+                  <div className="bg-stone-955 p-4 rounded-xl border border-stone-850 space-y-3">
+                    <span className="text-[10px] uppercase font-black tracking-wider text-stone-400 block">Secondary (Navy/Blue)</span>
+                    <div className="flex gap-2">
+                      <input
+                        type="color"
+                        value={theme.secondary_color}
+                        onChange={(e) => setTheme({ ...theme, secondary_color: e.target.value })}
+                        className="w-10 h-10 border-0 rounded cursor-pointer bg-transparent"
+                      />
+                      <input
+                        type="text"
+                        value={theme.secondary_color}
+                        onChange={(e) => setTheme({ ...theme, secondary_color: e.target.value })}
+                        className="flex-grow bg-stone-900 border border-stone-800 outline-none text-xs text-white px-3 rounded-lg"
+                      />
+                    </div>
+                    <div className="h-6 w-full rounded border border-stone-800 transition" style={{ backgroundColor: theme.secondary_color }} />
+                  </div>
+
+                  {/* Accent Color Card */}
+                  <div className="bg-stone-955 p-4 rounded-xl border border-stone-850 space-y-3">
+                    <span className="text-[10px] uppercase font-black tracking-wider text-stone-400 block">Accent (Gold/Olive)</span>
+                    <div className="flex gap-2">
+                      <input
+                        type="color"
+                        value={theme.accent_color}
+                        onChange={(e) => setTheme({ ...theme, accent_color: e.target.value })}
+                        className="w-10 h-10 border-0 rounded cursor-pointer bg-transparent"
+                      />
+                      <input
+                        type="text"
+                        value={theme.accent_color}
+                        onChange={(e) => setTheme({ ...theme, accent_color: e.target.value })}
+                        className="flex-grow bg-stone-900 border border-stone-800 outline-none text-xs text-white px-3 rounded-lg"
+                      />
+                    </div>
+                    <div className="h-6 w-full rounded border border-stone-800 transition" style={{ backgroundColor: theme.accent_color }} />
+                  </div>
+
+                </div>
+
+                {/* Logo assets input */}
+                <div className="space-y-4 pt-4 border-t border-stone-850">
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Primary System Crest Logo Path</label>
                     <input
                       type="text"
-                      value={theme.primary_color}
-                      onChange={(e) => setTheme({ ...theme, primary_color: e.target.value })}
-                      className="flex-grow bg-stone-900 border border-stone-800 outline-none text-xs text-white px-3 rounded-lg"
+                      value={theme.logo_path}
+                      onChange={(e) => setTheme({ ...theme, logo_path: e.target.value })}
+                      className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
                     />
                   </div>
-                  {/* Live Patch preview */}
-                  <div className="h-6 w-full rounded border border-stone-800 transition" style={{ backgroundColor: theme.primary_color }} />
-                </div>
-
-                {/* Secondary Color Card */}
-                <div className="bg-stone-955 p-4 rounded-xl border border-stone-850 space-y-3">
-                  <span className="text-[10px] uppercase font-black tracking-wider text-stone-400 block">Secondary (Navy/Blue)</span>
-                  <div className="flex gap-2">
-                    <input
-                      type="color"
-                      value={theme.secondary_color}
-                      onChange={(e) => setTheme({ ...theme, secondary_color: e.target.value })}
-                      className="w-10 h-10 border-0 rounded cursor-pointer bg-transparent"
-                    />
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Footer Crest Logo Path</label>
                     <input
                       type="text"
-                      value={theme.secondary_color}
-                      onChange={(e) => setTheme({ ...theme, secondary_color: e.target.value })}
-                      className="flex-grow bg-stone-900 border border-stone-800 outline-none text-xs text-white px-3 rounded-lg"
+                      value={theme.footer_logo_path}
+                      onChange={(e) => setTheme({ ...theme, footer_logo_path: e.target.value })}
+                      className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
                     />
                   </div>
-                  <div className="h-6 w-full rounded border border-stone-800 transition" style={{ backgroundColor: theme.secondary_color }} />
-                </div>
-
-                {/* Accent Color Card */}
-                <div className="bg-stone-955 p-4 rounded-xl border border-stone-850 space-y-3">
-                  <span className="text-[10px] uppercase font-black tracking-wider text-stone-400 block">Accent (Gold/Olive)</span>
-                  <div className="flex gap-2">
-                    <input
-                      type="color"
-                      value={theme.accent_color}
-                      onChange={(e) => setTheme({ ...theme, accent_color: e.target.value })}
-                      className="w-10 h-10 border-0 rounded cursor-pointer bg-transparent"
-                    />
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">System Favicon Path</label>
                     <input
                       type="text"
-                      value={theme.accent_color}
-                      onChange={(e) => setTheme({ ...theme, accent_color: e.target.value })}
-                      className="flex-grow bg-stone-900 border border-stone-800 outline-none text-xs text-white px-3 rounded-lg"
+                      value={theme.favicon_path}
+                      onChange={(e) => setTheme({ ...theme, favicon_path: e.target.value })}
+                      className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
                     />
                   </div>
-                  <div className="h-6 w-full rounded border border-stone-800 transition" style={{ backgroundColor: theme.accent_color }} />
                 </div>
 
-              </div>
-
-              {/* Logo assets input */}
-              <div className="space-y-4 pt-4 border-t border-stone-850">
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Primary System Crest Logo Path</label>
-                  <input
-                    type="text"
-                    value={theme.logo_path}
-                    onChange={(e) => setTheme({ ...theme, logo_path: e.target.value })}
-                    className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Footer Crest Logo Path</label>
-                  <input
-                    type="text"
-                    value={theme.footer_logo_path}
-                    onChange={(e) => setTheme({ ...theme, footer_logo_path: e.target.value })}
-                    className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">System Favicon Path</label>
-                  <input
-                    type="text"
-                    value={theme.favicon_path}
-                    onChange={(e) => setTheme({ ...theme, favicon_path: e.target.value })}
-                    className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
-                  />
+                {/* Save button centered at the bottom of the Theme Settings card */}
+                <div className="flex justify-center pt-4 border-t border-stone-850">
+                  <button
+                    onClick={saveTheme}
+                    className="px-5 py-2.5 bg-brand-gold hover:bg-brand-gold-dark text-stone-950 rounded-xl text-xs font-black uppercase tracking-wider transition border border-brand-gold-dark shadow-md"
+                  >
+                    Save Theme Configurations
+                  </button>
                 </div>
               </div>
+              
+              {/* Separate SEO card */}
               {renderSeoCard()}
             </div>
           )}
@@ -5637,12 +5700,6 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                         Text-to-speech Configuration
                       </h4>
                     </div>
-                    <button
-                      onClick={saveTts}
-                      className="px-3.5 py-1.5 bg-brand-gold hover:bg-brand-gold-dark text-stone-950 rounded-lg text-[10px] font-black uppercase tracking-wider transition border border-brand-gold-dark cursor-pointer"
-                    >
-                      Save TTS Settings
-                    </button>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
@@ -5698,6 +5755,16 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                       />
                     </div>
 
+                  </div>
+
+                  {/* Centered Save Button */}
+                  <div className="flex justify-center pt-4 border-t border-stone-850">
+                    <button
+                      onClick={saveTts}
+                      className="px-5 py-2.5 bg-brand-gold hover:bg-brand-gold-dark text-stone-950 rounded-xl text-xs font-black uppercase tracking-wider transition border border-brand-gold-dark shadow-md"
+                    >
+                      Save TTS Settings
+                    </button>
                   </div>
                 </div>
               )}

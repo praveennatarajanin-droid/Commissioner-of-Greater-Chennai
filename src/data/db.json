@@ -8,7 +8,7 @@
       "email": "superadmin@chennaiguardian.in",
       "status": "active",
       "createdAt": "2026-07-23T15:01:05.171Z",
-      "lastLogin": "2026-07-31T07:46:08.474Z",
+      "lastLogin": "2026-08-07T08:58:41.181Z",
       "failed_logins": 0
     },
     {
@@ -19,7 +19,7 @@
       "email": "admin@chennaiguardian.in",
       "status": "active",
       "createdAt": "2026-07-23T15:01:05.172Z",
-      "lastLogin": "2026-07-31T07:34:24.233Z",
+      "lastLogin": "2026-08-07T06:35:13.205Z",
       "failed_logins": 0
     },
     {
@@ -44,6 +44,223 @@
     }
   ],
   "activity_logs": [
+    {
+      "id": 135,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "User logged in successfully",
+      "module": "Auth",
+      "timestamp": "2026-08-07T08:58:41.196Z",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151.0.0.0"
+    },
+    {
+      "id": 134,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "User logged out",
+      "module": "Auth",
+      "timestamp": "2026-08-07T08:58:39.258Z"
+    },
+    {
+      "id": 133,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "User logged in successfully",
+      "module": "Auth",
+      "timestamp": "2026-08-07T06:35:51.704Z",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151.0.0.0"
+    },
+    {
+      "id": 132,
+      "username": "newseditormanager",
+      "role": "admin",
+      "ip_address": "::1",
+      "action": "User logged out",
+      "module": "Auth",
+      "timestamp": "2026-08-07T06:35:48.300Z"
+    },
+    {
+      "id": 131,
+      "username": "newseditormanager",
+      "role": "admin",
+      "ip_address": "::1",
+      "action": "User logged in successfully",
+      "module": "Auth",
+      "timestamp": "2026-08-07T06:35:13.236Z",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151.0.0.0"
+    },
+    {
+      "id": 130,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "User logged out",
+      "module": "Auth",
+      "timestamp": "2026-08-07T06:35:09.773Z"
+    },
+    {
+      "id": 129,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "User logged in successfully",
+      "module": "Auth",
+      "timestamp": "2026-08-07T06:19:20.620Z",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151.0.0.0"
+    },
+    {
+      "id": 128,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "User logged out",
+      "module": "Auth",
+      "timestamp": "2026-08-07T06:19:16.953Z"
+    },
+    {
+      "id": 127,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "User logged in successfully",
+      "module": "Auth",
+      "timestamp": "2026-08-07T06:15:30.579Z",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36"
+    },
+    {
+      "id": 126,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "User logged in successfully",
+      "module": "Auth",
+      "timestamp": "2026-08-07T06:10:03.620Z",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151.0.0.0"
+    },
+    {
+      "id": 125,
+      "username": "newseditormanager",
+      "role": "admin",
+      "ip_address": "::1",
+      "action": "User logged out",
+      "module": "Auth",
+      "timestamp": "2026-08-07T06:10:00.284Z"
+    },
+    {
+      "id": 124,
+      "username": "newseditormanager",
+      "role": "admin",
+      "ip_address": "::1",
+      "action": "User logged in successfully",
+      "module": "Auth",
+      "timestamp": "2026-08-07T06:09:49.209Z",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151.0.0.0"
+    },
+    {
+      "id": 123,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "User logged out",
+      "module": "Auth",
+      "timestamp": "2026-08-07T06:09:39.206Z"
+    },
+    {
+      "id": 122,
+      "username": "Digital_TN_GovMaster",
+      "action": "Updated configuration: footer_config",
+      "timestamp": "2026-08-07T06:08:30.402Z"
+    },
+    {
+      "id": 121,
+      "username": "Digital_TN_GovMaster",
+      "action": "Updated configuration: footer_config",
+      "timestamp": "2026-08-07T06:02:06.049Z"
+    },
+    {
+      "id": 120,
+      "username": "Digital_TN_GovMaster",
+      "action": "Updated configuration: footer_config",
+      "timestamp": "2026-08-07T06:00:28.822Z"
+    },
+    {
+      "id": 119,
+      "username": "Digital_TN_GovMaster",
+      "action": "Updated configuration: footer_config",
+      "timestamp": "2026-08-07T05:55:00.899Z"
+    },
+    {
+      "id": 118,
+      "username": "Digital_TN_GovMaster",
+      "action": "Updated configuration: footer_config",
+      "timestamp": "2026-08-07T05:53:21.851Z"
+    },
+    {
+      "id": 117,
+      "username": "Digital_TN_GovMaster",
+      "action": "Updated configuration: footer_config",
+      "timestamp": "2026-08-07T05:51:59.708Z"
+    },
+    {
+      "id": 116,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "User logged in successfully",
+      "module": "Auth",
+      "timestamp": "2026-08-07T05:50:30.229Z",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151.0.0.0"
+    },
+    {
+      "id": 115,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "User logged out",
+      "module": "Auth",
+      "timestamp": "2026-08-06T16:17:05.892Z"
+    },
+    {
+      "id": 114,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "User logged in successfully",
+      "module": "Auth",
+      "timestamp": "2026-08-06T16:06:09.128Z",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151.0.0.0"
+    },
+    {
+      "id": 113,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "User logged out",
+      "module": "Auth",
+      "timestamp": "2026-08-06T16:06:06.632Z"
+    },
+    {
+      "id": 112,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "User logged in successfully",
+      "module": "Auth",
+      "timestamp": "2026-08-06T15:57:09.696Z",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151.0.0.0"
+    },
+    {
+      "id": 111,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "User logged out",
+      "module": "Auth",
+      "timestamp": "2026-08-06T15:57:04.027Z"
+    },
     {
       "id": 110,
       "username": "Digital_TN_GovMaster",
@@ -3678,7 +3895,7 @@
       "bio_en2": "His academic credentials include a BSc and MSc in Physics, followed by an MBA in Human Resource Management, and a PhD from Madurai Kamaraj University. He has spent three decades serving across various district, commissionerate, and state-level divisions in Tamil Nadu, including leadership roles in Coimbatore, Salem, Trichy, and Tambaram.",
       "bio_ta1": "டாக்டர் ஏ. அமல்ராஜ் 1996 பேட்ச் மூத்த இந்திய காவல் பணி (IPS) அதிகாரி ஆவார். தமிழ்நாட்டின் கன்னியாகுமரி மாவட்டத்தைப் பூர்வீகமாகக் கொண்ட இவரது நிர்வாகத் தத்துவம் அறிவியல் பகுப்பாய்வு முறைகள், நவீன மனிதவள நடைமுறைகள் மற்றும் செயலூக்கமான சமூக ஈடுபாடு ஆகியவற்றை ஒருங்கிணைக்கிறது.",
       "bio_ta2": "இவரது கல்விச் சான்றுகளில் இயற்பியலில் பிஎஸ்சி மற்றும் எம்எஸ்சி, அதைத் தொடர்ந்து மனிதவள மேலாண்மையில் எம்பிஏ மற்றும் மதுரை காமராஜர் பல்கலைக்கழகத்தில் பிஎச்டி பட்டம் ஆகியவை அடங்கும். கோயம்புத்தூர், சேலம், திருச்சி மற்றும் தாம்பரம் ஆகிய இடங்களில் தலைமைப் பொறுப்புகள் உட்பட தமிழ்நாட்டின் பல்வேறு மாவட்ட, ஆணையர் மற்றும் மாநில அளவிலான பிரிவுகளில் மூன்று தசாப்தங்களாக பணியாற்றியுள்ளார்.",
-      "photo": "/images/amalraj_portrait.png",
+      "photo": "/uploads/upload_1786087749948.png",
       "facebook": "https://www.facebook.com/Chennai.Police/",
       "twitter": "https://x.com/chennaipolice_?lang=en",
       "instagram": "https://www.instagram.com/greater_chennai_police_/?hl=en",
@@ -3689,7 +3906,12 @@
       "gallery": [
         "/images/amalraj_portrait.png",
         "/images/amalraj_header.png"
-      ]
+      ],
+      "ips_batch": "1996",
+      "years_of_service": "30",
+      "initiatives": [],
+      "awards": [],
+      "timeline": []
     }
   ],
   "theme_settings": [
@@ -3850,7 +4072,7 @@
       "slug": "traffic",
       "icon": "Car",
       "display_order": 7,
-      "url": "/category/traffic",
+      "url": "https://gctp.in/chennai-home",
       "page_type": "news_category",
       "status": "active",
       "open_in_new_tab": 0
@@ -3910,7 +4132,7 @@
       "slug": "contact-us",
       "icon": "Phone",
       "display_order": 12,
-      "url": "/contact-us",
+      "url": "contact-us",
       "page_type": "static",
       "status": "active",
       "open_in_new_tab": 0
@@ -4051,7 +4273,7 @@
       "order_num": 1,
       "active": 1,
       "section": "main",
-      "views_count": 4
+      "views_count": 6
     },
     {
       "id": 2,
@@ -4094,7 +4316,7 @@
       "order_num": 5,
       "active": 1,
       "section": "main",
-      "views_count": 1
+      "views_count": 2
     },
     {
       "id": 6,
@@ -4115,10 +4337,94 @@
       "date": "June 30, 2026",
       "order_num": 7,
       "active": 1,
-      "section": "main"
+      "section": "main",
+      "views_count": 1
+    },
+    {
+      "id": 8,
+      "youtube_id": "DBjTsBmKsL8",
+      "title": "🔴 LIVE : தமிழ்நாடு சட்டமன்றப் பேரவை கூட்டத்தொடர் - நிதிநிலை அறிக்கை மீது விவாதம்",
+      "category": "Media Gallery",
+      "date": "August 07, 2026",
+      "order_num": 8,
+      "active": 1,
+      "section": "main",
+      "views_count": 2
     }
   ],
   "alerts": [
+    {
+      "id": 114,
+      "title": "Chennai Police Inspector arrested for extorting several lakhs from businessman citing Armstrong murder case",
+      "category": "LAW & ORDER",
+      "source": "DT Next",
+      "url": "https://news.google.com/rss/articles/CBMi5wFBVV95cUxQYUVBV0tHRkZCVmRTU3ZFMHROblgzcWIwSzJVUmpJRy1KMmtKX1F2VVNwQmFENWE5WFFVWGc2UGwyQnZGUU5jNEpYLVRvQnVnQ2RpVkY4cnB3aE5lMHM1ZFdJZ2R2R0M5ODJWMW9oN2ZMcXVPRzk1Q3E4WExSSEFCbHVULXJUczROSm5MZlRIX1hNWktid3JsbXk0SFV6WHNGaFVWVzFtV0N2Tkp5Q2dSdmVFaWp4ZXhLRnRycURxYjJrWHJXT0JZZ2JxZHNBbVVOUGdxcGtpYktvejVYakJxYjR6U25QS0nSAecBQVVfeXFMUGFFQVdLR0ZGQlZkU1N2RTB0Tm5YM3FiMEsyVVJqSUctSjJrSl9RdlVTcEJhRDVhOVhRVVhnNlBsMkJ2RlFOYzRKWC1Ub0J1Z0NkaVZGOHJwd2hOZTBzNWRXSWdkdkdDOTgyVjFvaDdmTHF1T0c5NUNxOFhMUkhBQmx1VC1yVHM0TkpuTGZUSF9YTVpLYndybG15NEhVelhzRmhVVlcxbVdDdk5KeUNnUnZlRWlqeGV4S0Z0cnFEcWIya1hyV09CWWdicWRzQW1VTlBncXBraWJLb3o1WGpCcWI0elNuUEtJ?oc=5",
+      "published_at": "2026-08-04T03:12:00.000Z",
+      "approved": 1,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-08-06T15:46:52.712Z"
+    },
+    {
+      "id": 109,
+      "title": "Police inspector arrested in Chennai for extortion by threats to implicate businessman in Armstrong murder case",
+      "category": "LAW & ORDER",
+      "source": "thehindu.com",
+      "url": "https://news.google.com/rss/articles/CBMijgJBVV95cUxNTFBjSzhYMXpKZ3ljekdObE5tekw3U3hzSzIzOXVMOEtDbHRLb2tqMHY0b0h5M1ZfbWMxbVo3SXl4am5UMnZfb25acTI1bmxtT01qUWM3Wjd1RUY0N1I0M05kQmJzWjAxNXVtVGN0Qy1fRURDaThsYUl5WnV2ajBSWWxuQWkzOVFhRWtOdGtINWFJLXJOdnY1STk1dF9oNDZ3NVVSaTV0Z21paXUxSGZjXzlxVzRuSlViTnBSSFFNb2F5eml3aUlqNjdBNmxLOVUtcUdmTVdCQTg2TTZFVnFoTGxSTmlOSTRENXhUZS1pZFJRY1JhREhnZENYQ3RNQWhFMUtBX2hYaW0wWDVxU0HSAZQCQVVfeXFMT0pwOEZnUDFieXVIemloVWdOd3ZDVG82dXNUNkk1SEFwdGxRcnZwT0ZpWXRaNWczNS11cVN0Wk1jVnNxU2d0QVppUG5rV29IRWctZTN5SkhZNUx0YkZEWDhDSVUxejJMR3RuMDFWLWpuS083SFo0Vm5rSW8tNGJnUF95aGxhVF9ieklzeE9JaUpTSm9DMVVid2JON2tPUDhqNURTcTNSUFREZk5nc1EtTjh6QS11VzA5ZFZXY3R1YmdMUEY4ZGl1N0NrQkpFOFVfZGp6bnBtWENKZUs4cjF3UmI3YngyWFBITFgtVmQybUtWekNCYi02SHNCRWxLVm91U0hpTWFjaEJuYnBHM0FpSXVBY0NF?oc=5",
+      "published_at": "2026-08-04T07:44:52.000Z",
+      "approved": 1,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-08-06T15:29:20.668Z"
+    },
+    {
+      "id": 110,
+      "title": "A day of twists and turns before Udhayanidhi is let go",
+      "category": "LAW & ORDER",
+      "source": "The New Indian Express",
+      "url": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxNUTZMQjlWakZLMVlSQmpUdWtRRmlmd1BKeVhXSk94V1hVNDFydllyOTlzaGo1Y3FVQm9xTkd4aHRpWmdZcXkxQ0pHZEd5NTh4NXpQNVhBdjF6Y2luYmZHQ1RUSWNwYWNRLVBRTlNXWFZiWGlTbVdPbGVyYUh1MXBxVWZGLVd1Y1NBLUdIejhtV20zTHhPQmhHeXJMdWszQUpvQU9mLTkxejRSWHFITVRSblA0UXQ1enZT0gHGAUFVX3lxTE5BcTBzMTVQSk5qbnNKWTBBc1Njc2xVNjM4MXQ1ZGlpQXhEbGtTZExYOHJiTXdkbDhvZF93WS1fWVJwMk9xSW1GakRIQTI0ZktFY1dpMXN1QmV6bWFVb1cxNlRRcEpqbk9tS3k2Nm9XVmZaUG56eGJNdGN0dlIyS1VHeUNQYTFpdkdJMlZMbjJUTWZQMzFZTFR4WlJwUm1Yd0ZOWDUyVkFMR3RfcTJDT1FIRms2VFF4SGk4RlZnT3dnNmNnb1JXZw?oc=5",
+      "published_at": "2026-08-05T01:57:55.000Z",
+      "approved": 1,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-08-06T15:29:20.668Z"
+    },
+    {
+      "id": 111,
+      "title": "Udhayanidhi Stalin Arrested Over Alleged Remarks About Actor Trisha; Controversy Sparks Political Row in Tamil Nadu",
+      "category": "LAW & ORDER",
+      "source": "The Hollywood Reporter India",
+      "url": "https://news.google.com/rss/articles/CBMi_wFBVV95cUxQUTVwSVo3MmVWa1UtaTZWV3pwaUZTV2JHVkozZ2FkdzY4OEV0OV9WaFBxOEkxdjkxcldIbnpyT1VoVWl1UTYxamVGa0Z5VVU0NEc1U1YwLUxHUmw1VXhrM0d4YWVfaEVQSDBkalFhdHVybVdLUktfWVRRRWt2UlZnUnJmaDdKcF9yaVhYek91MURENHlCN0pIcDE5ZXRMcUJMd2ZnaEo1Mm82VkJ2bUZyUFNqSGJFR1dMdS1xQlRVUWZ6VEx3S1BhMWNzeUFkOWNvdEdFbTdlTW4yTWdwR3RscVdGU0Q4QWpYY2NiakQyQ3NTNF9CeHFNRlZfUUJ5b1XSAYwCQVVfeXFMTzN3SFVzMnJNTEF2dElQa2R0M0laazl1TnpNdHB5N2pvT0VZY0xCaHd3VThqQTBHdWliUFBQTGxfeTRwUzJLVVQ1MGhMLUNEQmtjYzVzcDZlSU1xY2U2RW5vSjV3VWM1cWdwNEFRU0xNYmh1cEY2VGNtWnZ1dGg1YkQ4TDhPbGN0bEZaM2czUkxMX0Zqanc2U1NtNGk5U2Q0bThVX0picU9YOFI4OXhtMGNyWjczRXFJV05KVnVLYnJ2RTJaTERoRGZYNFMxbGp3Q2t2N3ZNc2F4RGJqamtOZEkybFU4UjVZU1lOakhaOWtRb2hrNWkzNDNPOWg0S3g4clJHVXNFc3NVS1J6OA?oc=5",
+      "published_at": "2026-08-04T07:46:22.000Z",
+      "approved": 1,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-08-06T15:29:20.668Z"
+    },
+    {
+      "id": 112,
+      "title": "CM Vijay presents medals to police and other personnel",
+      "category": "AWARDS & DECORATIONS",
+      "source": "thehindu.com",
+      "url": "https://news.google.com/rss/articles/CBMiwgFBVV95cUxPRGl4Y0U1Rlg1TnppYVhfVDRxdVNwZ2pFTUo3MlJQM3huV0o0YWlONHdXZFd0cTZZSWlDMmFtSEVsaEt5YVlKNEZBXzRDcnE0bHFmUW5iWkM2VXhYWUt0THNRTk9BT3pCTGYtektXNTQ2TEtNVzE1WFhRVWQ2WEVleEZWcVI4VVdOSTdIWWZkajdhYUM1ZktRVWE0aEtELWw5b0hxdTZJb3dIemxyRmtJV2xMcHNrTmV0SHFOVWRlbU5wUdIByAFBVV95cUxOU0J0dy11Z0VMZUppdHpiNWctd09hMElmRzBfRXgtak0yNUkxdTFxQUhBMWRPZklMeW5IdDcwdC15R1NuSFVTcnF4UDFpb1ppTFBJTzRiX1FVSExIOXpUNmxaWWxnV0pNMnU1TFB1UE9Fd29ZT3N0TEdHbi1GMGR6bGNMMTg4Zk90ZzM4UXZDakxOcWs5LUlsNnY4anc3bTFGS3NycWc0U0o4OTVlR0NOYlBMTFRDVVYyeERYQlpOSEl2MzA1cWZ6UQ?oc=5",
+      "published_at": "2026-07-31T13:55:59.000Z",
+      "approved": 1,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-08-06T15:29:20.668Z"
+    },
+    {
+      "id": 113,
+      "title": "CM Vijay hands over police medals to 630, flags off vehicles for coastal security",
+      "category": "AWARDS & DECORATIONS",
+      "source": "The New Indian Express",
+      "url": "https://news.google.com/rss/articles/CBMi2wFBVV95cUxQa283UHo0REtwTVVySFVESHZFeWItME9EQWVlczFKTndDV3BiM1kxbUd2RWZ1NEJCYTU5bmNIdkUybVVrZ2REVm5hQ1lHR0RBVUZQOUQwMERZdVB0ZUtya2o0N0E2RE51VUIxclN5ODR4aWNySVFuMUhnMENoOXNmeGV5Mzg4ekFfcFBnR08yVkNwODlodHJSbjlUSDhJRTNyOGJINWFOb2JoY2FIUFNlblZTdzdnNFlNb3o3Z1hUTWJoLVFRdXdqcnRPRWxYMmxXTnB4d1ZrdkJtaGfSAegBQVVfeXFMTUtmQkszYTRMaTJOaTdZQ3dUd0JQSnU4RHh2V0laRXJiWktfdzJnU08yUXZJUzZzZDJ0SmRZNnNLRW5pV3d6UVFjNWdMT3ZwVmhGNndUbFJnZUhXT2pzWWNkZVEzYUQyUDY3QVpCVzk5aHk3S1pIcFl0ODUxYVJ1Rnd1TDg2ZFQ3QmZib3ZpR0Z2R2N4bmZUalVqRS1YVmdaTXVvb1hZdnBqM3FUbjlYMlVTVW5qbE9KQ2UzamZTYnlHSG1fWTkwU2dGR2JpcS0zVEJrems4T3ZfSzhEbEl3TERHNUo5SU5MNg?oc=5",
+      "published_at": "2026-08-01T03:13:06.000Z",
+      "approved": 1,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-08-06T15:29:20.668Z"
+    },
     {
       "id": 108,
       "title": "Tamil Nadu government transfers DVAC chief A. Arun; appoints IG Mageshwari",
@@ -5421,7 +5727,7 @@
       "id": 1,
       "auto_fetch": 1,
       "require_approval": 1,
-      "last_fetched_at": "2026-07-31T07:45:59.791Z",
+      "last_fetched_at": "2026-08-07T09:21:30.345Z",
       "live_feed_enabled": 1,
       "approved_sources": "tnpolice.gov.in, gcp.tn.gov.in, greaterchennaipolice.in, tn.gov.in, pib.gov.in",
       "refresh_interval": 15
@@ -6228,6 +6534,42 @@
       "articleSlug": null,
       "category": "Police Update",
       "createdAt": "2026-07-31T06:56:31.153Z"
+    },
+    {
+      "id": 100,
+      "image": "/uploads/upload_1786031840305.png",
+      "title": "Upload 1786031840305",
+      "articleId": null,
+      "articleSlug": null,
+      "category": "Police Update",
+      "createdAt": "2026-08-06T15:57:20.312Z"
+    },
+    {
+      "id": 101,
+      "image": "/uploads/upload_1786031957313.png",
+      "title": "Upload 1786031957313",
+      "articleId": null,
+      "articleSlug": null,
+      "category": "Police Update",
+      "createdAt": "2026-08-06T15:59:17.314Z"
+    },
+    {
+      "id": 102,
+      "image": "/uploads/upload_1786087729640.png",
+      "title": "Upload 1786087729640",
+      "articleId": null,
+      "articleSlug": null,
+      "category": "Police Update",
+      "createdAt": "2026-08-07T07:28:49.655Z"
+    },
+    {
+      "id": 103,
+      "image": "/uploads/upload_1786087749948.png",
+      "title": "Upload 1786087749948",
+      "articleId": null,
+      "articleSlug": null,
+      "category": "Police Update",
+      "createdAt": "2026-08-07T07:29:09.946Z"
     }
   ],
   "police_stations": [
@@ -11350,8 +11692,8 @@
       "description_ta": "சென்னையின் முன்னணி சட்டம் ஒழுங்கு, குற்றப் புலனாய்வு மற்றும் மக்கள் விழிப்புணர்வு செய்திகளை உடனுக்குடன் வழங்கும் அதிகாரப்பூர்வ செய்தி ஊடகம்.",
       "copyright_text_en": "© 2026 Greater Chennai Police. All rights reserved.",
       "copyright_text_ta": "© 2026 சென்னை பெருநகர காவல். அனைத்து உரிமைகளும் பாதுகாக்கப்பட்டவை.",
-      "developer_credit_en": "Developed by GCP Media Team",
-      "developer_credit_ta": "சென்னை பெருநகர காவல் ஊடகக் குழுவால் உருவாக்கப்பட்டது",
+      "developer_credit_en": "Website Content developed, Managed and Content owned by: Greater Chennai Police, Chennai \nDesigned, Developed and Hosted by: MCC-MRF Innovation Park",
+      "developer_credit_ta": "இணையதள உள்ளடக்கம் உருவாக்கப்பட்டது, நிர்வகிக்கப்பட்டது மற்றும் உடைமையானது: பெரிய சென்னை போலீஸ், சென்னை \nவடிவமைப்பு, உருவாக்கம் மற்றும் ஹோஸ்டிங்: MCC-MRF இனோவேஷன் பார்க்",
       "address_en": "Commissioner Office, Greater Chennai Police, Vepery, Chennai - 600007",
       "address_ta": "காவல் ஆணையர் அலுவலகம், சென்னை பெருநகர காவல், வேப்பேரி, சென்னை - 600007",
       "phone": "044-23452300",

@@ -14,25 +14,22 @@ interface LanguageContextType {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
-export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguage] = useState<Language>("en");
-  const [mounted, setMounted] = useState(false);
+export function LanguageProvider({ children, initialLanguage = "en" }: { children: React.ReactNode; initialLanguage?: Language }) {
+  const [language, setLanguage] = useState<Language>(initialLanguage);
 
   useEffect(() => {
     // Perform client-side retrieval of language preference
     const saved = localStorage.getItem("preferred-language");
-    if (saved === "en" || saved === "ta") {
-      setLanguage(saved);
-      if (typeof document !== "undefined") {
-        document.documentElement.lang = saved;
-      }
+    if (saved && saved !== language && (saved === "en" || saved === "ta")) {
+      setLanguage(saved as Language);
+      document.cookie = `preferred-language=${saved};path=/;max-age=31536000`;
     }
-    setMounted(true);
-  }, []);
+  }, [language]);
 
   const changeLanguage = (lang: Language) => {
     setLanguage(lang);
     localStorage.setItem("preferred-language", lang);
+    document.cookie = `preferred-language=${lang};path=/;max-age=31536000`;
     if (typeof document !== "undefined") {
       document.documentElement.lang = lang;
     }

@@ -90,6 +90,8 @@ interface MenuItem {
   page_type: string; // 'static' | 'dynamic' | 'news_category' | 'external' | 'custom'
   status: string; // 'active' | 'disabled'
   open_in_new_tab: number;
+  target_url?: string;
+  custom_url?: string;
 }
 
 interface SubMenuItem {
@@ -1369,6 +1371,9 @@ export default function MenuManagement({
     if (pageType === "external") {
       return { name: "External Link Redirect", icon: <ExternalLink className="w-3.5 h-3.5" />, color: "bg-slate-50 text-slate-800 border-slate-200" };
     }
+    if (pageType === "custom_url") {
+      return { name: "Custom URL Link", icon: <ExternalLink className="w-3.5 h-3.5" />, color: "bg-slate-50 text-slate-800 border-slate-200" };
+    }
     return { name: "Custom Content CMS", icon: <Settings className="w-3.5 h-3.5" />, color: "bg-cyan-50 text-cyan-800 border-cyan-200" };
   };
 
@@ -1522,13 +1527,19 @@ export default function MenuManagement({
     }
   };
 
-  // Apply changes to database (Standard submit logic)
   const handleMenuSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!canWrite()) return showToast("Permission Denied: Unauthorized role", "error");
-    if (!editingMenu?.name_en || !editingMenu?.name_ta || !editingMenu?.slug || !editingMenu?.url) {
-      return showToast("Please fill all required fields", "error");
+
+    const finalUrl = (editingMenu?.custom_url || editingMenu?.target_url || "").trim();
+    if (!editingMenu?.name_en || !editingMenu?.name_ta || !editingMenu?.slug || !finalUrl) {
+      return showToast("Please fill all required fields (Menu Name, Slug, and either Target URL or Custom URL)", "error");
     }
+
+    const payload = {
+      ...editingMenu,
+      url: finalUrl
+    };
 
     const isEdit = !!editingMenu.id;
     const url = "/api/admin/menus";
@@ -1538,7 +1549,7 @@ export default function MenuManagement({
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(editingMenu)
+        body: JSON.stringify(payload)
       });
       const data = await res.json();
       if (data.success) {
@@ -2099,7 +2110,7 @@ export default function MenuManagement({
                     {isSuper && (
                       <button
                         onClick={() => {
-                          setEditingMenu({ status: "active", page_type: "static", open_in_new_tab: 0, display_order: menus.length + 1 });
+                          setEditingMenu({ status: "active", page_type: "static", open_in_new_tab: 0, display_order: menus.length + 1, target_url: "", custom_url: "" });
                           setShowMenuModal(true);
                         }}
                         className="w-full md:w-auto flex items-center justify-center gap-2 px-5 py-3 bg-brand-maroon hover:bg-red-700 !text-white rounded-xl text-xs uppercase font-black tracking-wider transition cursor-pointer shadow-md hover:-translate-y-0.5 duration-200"
@@ -2165,6 +2176,7 @@ export default function MenuManagement({
                         <th className="p-4">Menu Name (EN / TA)</th>
                         <th className="p-4">Slug</th>
                         <th className="p-4">Target URL</th>
+                        <th className="p-4">Custom URL</th>
                         <th className="p-4">Page Type</th>
                         <th className="p-4">Content Source</th>
                         <th className="p-4">Status</th>
@@ -2199,7 +2211,20 @@ export default function MenuManagement({
                                    <div className="text-[10px] text-slate-400 font-medium mt-0.5">{menu.name_ta}</div>
                                  </td>
                                  <td className="p-4 font-mono font-bold text-slate-500 whitespace-nowrap">{menu.slug}</td>
-                                 <td className="p-4 font-mono text-slate-405 max-w-[140px] truncate">{menu.url}</td>
+                                 <td className="p-4 font-mono text-slate-405 max-w-[140px] truncate">
+                                   {(() => {
+                                     const isExternal = menu.url && (menu.url.startsWith("http://") || menu.url.startsWith("https://") || menu.url.startsWith("www."));
+                                     return isExternal ? <span className="text-slate-300 text-[10px] italic">—</span> : (menu.url || <span className="text-slate-300 text-[10px] italic">—</span>);
+                                   })()}
+                                 </td>
+                                 <td className="p-4 font-mono text-[#1e40af] max-w-[160px] truncate">
+                                   {(() => {
+                                     const isExternal = menu.url && (menu.url.startsWith("http://") || menu.url.startsWith("https://") || menu.url.startsWith("www."));
+                                     return isExternal ? (
+                                       <a href={menu.url} target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-700 text-[10px] truncate block max-w-[160px]" title={menu.url}>{menu.url}</a>
+                                     ) : <span className="text-slate-300 text-[10px] italic">—</span>;
+                                   })()}
+                                 </td>
                                  <td className="p-4">
                                    <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-slate-100 text-slate-600">
                                      {menu.page_type}
@@ -2234,7 +2259,12 @@ export default function MenuManagement({
                                      {isSuper && (
                                        <button
                                          onClick={() => {
-                                           setEditingMenu(menu);
+                                            const isCustom = menu.url && (menu.url.startsWith("http://") || menu.url.startsWith("https://") || menu.url.startsWith("www.") || (!menu.url.startsWith("/") && menu.url.includes(".")));
+                                            setEditingMenu({
+                                              ...menu,
+                                              target_url: isCustom ? "" : (menu.url || ""),
+                                              custom_url: isCustom ? (menu.url || "") : ""
+                                            });
                                            setShowMenuModal(true);
                                          }}
                                          className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg transition"
@@ -2462,6 +2492,7 @@ export default function MenuManagement({
                         <th className="p-4">Submenu Name (EN / TA)</th>
                         <th className="p-4">Slug</th>
                         <th className="p-4">Target URL</th>
+                        <th className="p-4">Custom URL</th>
                         <th className="p-4">Status</th>
                         <th className="p-4 text-right">Actions</th>
                       </tr>
@@ -2495,7 +2526,20 @@ export default function MenuManagement({
                                 <div className="text-[10px] text-slate-400 font-medium ml-5 mt-0.5">{sub.name_ta}</div>
                               </td>
                               <td className="p-4 font-mono font-bold text-slate-500 whitespace-nowrap">{sub.slug}</td>
-                              <td className="p-4 font-mono text-slate-400 max-w-[200px] truncate">{sub.url}</td>
+                              <td className="p-4 font-mono text-slate-400 max-w-[160px] truncate">
+                                {(() => {
+                                  const isExtSub = sub.url && (sub.url.startsWith("http://") || sub.url.startsWith("https://") || sub.url.startsWith("www."));
+                                  return isExtSub ? <span className="text-slate-300 text-[10px] italic">—</span> : (sub.url || <span className="text-slate-300 text-[10px] italic">—</span>);
+                                })()}
+                              </td>
+                              <td className="p-4 font-mono text-[#1e40af] max-w-[160px] truncate">
+                                {(() => {
+                                  const isExtSub = sub.url && (sub.url.startsWith("http://") || sub.url.startsWith("https://") || sub.url.startsWith("www."));
+                                  return isExtSub ? (
+                                    <a href={sub.url} target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-700 text-[10px] truncate block max-w-[160px]" title={sub.url}>{sub.url}</a>
+                                  ) : <span className="text-slate-300 text-[10px] italic">—</span>;
+                                })()}
+                              </td>
                               <td className="p-4">
                                 <span
                                   className={`px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider ${
@@ -3446,14 +3490,35 @@ export default function MenuManagement({
                   />
                 </div>
                 <div className="space-y-1">
-                  <label>Target URL <span className="text-rose-500">*</span></label>
+                  <label>Target URL (Optional)</label>
                   <input
                     type="text"
-                    value={editingMenu.url || ""}
-                    placeholder="e.g. /category/outreach"
-                    onChange={(e) => setEditingMenu({ ...editingMenu, url: e.target.value })}
+                    value={editingMenu.target_url || ""}
+                    placeholder="e.g. category/outreach"
+                    onChange={(e) => setEditingMenu({ ...editingMenu, target_url: e.target.value, custom_url: "" })}
                     className="w-full border border-slate-200 rounded-xl p-2.5 bg-slate-55 outline-none focus:border-brand-blue"
-                    required
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label>Custom URL (Optional)</label>
+                  <input
+                    type="text"
+                    value={editingMenu.custom_url || ""}
+                    placeholder="e.g. https://google.com"
+                    onChange={(e) => setEditingMenu({ ...editingMenu, custom_url: e.target.value, target_url: "" })}
+                    className="w-full border border-slate-200 rounded-xl p-2.5 bg-slate-55 outline-none focus:border-brand-blue"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label>Lucide Icon Name (optional)</label>
+                  <input
+                    type="text"
+                    value={editingMenu.icon || ""}
+                    placeholder="e.g. Shield, Lock, User"
+                    onChange={(e) => setEditingMenu({ ...editingMenu, icon: e.target.value })}
+                    className="w-full border border-slate-200 rounded-xl p-2.5 bg-slate-55 outline-none focus:border-brand-blue"
                   />
                 </div>
               </div>
@@ -3473,14 +3538,15 @@ export default function MenuManagement({
                   </select>
                 </div>
                 <div className="space-y-1">
-                  <label>Lucide Icon Name (optional)</label>
-                  <input
-                    type="text"
-                    value={editingMenu.icon || ""}
-                    placeholder="e.g. Shield, Lock, User"
-                    onChange={(e) => setEditingMenu({ ...editingMenu, icon: e.target.value })}
-                    className="w-full border border-slate-200 rounded-xl p-2.5 bg-slate-55 outline-none focus:border-brand-blue"
-                  />
+                  <label>Open link in new tab?</label>
+                  <select
+                    value={editingMenu.open_in_new_tab || 0}
+                    onChange={(e) => setEditingMenu({ ...editingMenu, open_in_new_tab: parseInt(e.target.value, 10) })}
+                    className="w-full border border-slate-200 rounded-xl p-2.5 bg-white outline-none focus:border-brand-blue"
+                  >
+                    <option value={0}>No (load in same tab)</option>
+                    <option value={1}>Yes (open new tab)</option>
+                  </select>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -3493,17 +3559,6 @@ export default function MenuManagement({
                   >
                     <option value="active">Active (Visible)</option>
                     <option value="disabled">Disabled (Hidden)</option>
-                  </select>
-                </div>
-                <div className="space-y-1">
-                  <label>Open link in new tab?</label>
-                  <select
-                    value={editingMenu.open_in_new_tab || 0}
-                    onChange={(e) => setEditingMenu({ ...editingMenu, open_in_new_tab: parseInt(e.target.value, 10) })}
-                    className="w-full border border-slate-200 rounded-xl p-2.5 bg-white outline-none focus:border-brand-blue"
-                  >
-                    <option value={0}>No (load in same tab)</option>
-                    <option value={1}>Yes (open new tab)</option>
                   </select>
                 </div>
               </div>

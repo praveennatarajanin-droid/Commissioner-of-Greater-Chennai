@@ -70,7 +70,7 @@ export default function VideosPageClient({
 }: VideosPageClientProps) {
   const { language } = useTranslation();
   const [mounted, setMounted] = useState(false);
-  const [activeVideo, setActiveVideo] = useState<DBVideoItem | null>(null);
+  const [activeVideo, setActiveVideo] = useState<DBVideoItem | null>(videos[0] || null);
   const [activeTab, setActiveTab] = useState("all");
 
   useEffect(() => {
@@ -78,18 +78,10 @@ export default function VideosPageClient({
   }, []);
 
   useEffect(() => {
-    if (videos.length > 0 && !activeVideo) {
-      setActiveVideo(videos[0]);
-    }
-  }, [videos]);
-
-  useEffect(() => {
     if (activeVideo && activeVideo.id) {
       fetch(`/api/videos/${activeVideo.id}/view`, { method: "POST" }).catch(() => {});
     }
   }, [activeVideo]);
-
-  if (!mounted) return null;
 
   const getFilteredVideos = () => {
     if (activeTab === "all") return videos;

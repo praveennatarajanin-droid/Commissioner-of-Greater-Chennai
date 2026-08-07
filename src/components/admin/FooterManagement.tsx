@@ -325,11 +325,11 @@ export default function FooterManagement({ onAlert }: FooterManagementProps) {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
                   <label className={labelCls}>Developed By (English)</label>
-                  <input type="text" value={config.developer_credit_en} onChange={(e) => upd("developer_credit_en", e.target.value)} className={inputCls} />
+                  <textarea rows={2} value={config.developer_credit_en} onChange={(e) => upd("developer_credit_en", e.target.value)} className={`${inputCls} resize-y`} />
                 </div>
                 <div className="space-y-1">
                   <label className={labelCls}>வடிவமைப்பு கடன் (தமிழ்)</label>
-                  <input type="text" value={config.developer_credit_ta} onChange={(e) => upd("developer_credit_ta", e.target.value)} className={inputCls} />
+                  <textarea rows={2} value={config.developer_credit_ta} onChange={(e) => upd("developer_credit_ta", e.target.value)} className={`${inputCls} resize-y`} />
                 </div>
               </div>
 
@@ -572,10 +572,14 @@ export default function FooterManagement({ onAlert }: FooterManagementProps) {
               </div>
 
               {/* Copyright */}
-              <div className="pt-3 flex flex-col items-center gap-1 text-center text-[9px] text-white/50">
-                <p>{previewLanguage === "ta" ? config.copyright_text_ta : config.copyright_text_en}</p>
-                <p className="text-[8px] font-bold text-white/70">
-                  Designed by <span className="text-brand-gold">{previewLanguage === "ta" ? config.developer_credit_ta : config.developer_credit_en}</span>
+              <div className="pt-3 flex flex-col items-center gap-1 text-center">
+                <div className="text-[8px] font-bold text-white/70 space-y-0.5">
+                  {((previewLanguage === "ta" ? config.developer_credit_ta : config.developer_credit_en) || "").split("\n").map((line: string, i: number) => (
+                    <p key={i}>{line}</p>
+                  ))}
+                </div>
+                <p className="text-[9px] text-white/50 mt-1">
+                  {previewLanguage === "ta" ? config.copyright_text_ta : config.copyright_text_en}
                 </p>
               </div>
             </footer>

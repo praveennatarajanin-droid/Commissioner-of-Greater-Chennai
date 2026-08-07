@@ -18,8 +18,8 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function TrafficPage() {
-  // Sync traffic news in background
-  try { await syncTrafficNews(); } catch { }
+  // Sync traffic news in background (non-blocking)
+  syncTrafficNews().catch((e) => console.error("Background syncTrafficNews error:", e));
 
   const [menuItems, rawTicker, allNews, profile, schemaJson] = await Promise.all([
     db.getMenuItems(),
