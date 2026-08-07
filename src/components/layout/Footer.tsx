@@ -197,6 +197,7 @@ export default function Footer({ customProfile }: FooterProps = {}) {
                 fill
                 sizes="(max-w-768px) 100vw, 250px"
                 className="object-cover object-center"
+                priority={true}
               />
             </div>
             
