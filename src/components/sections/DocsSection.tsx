@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { Download, FileText, ChevronRight, BookOpen } from "lucide-react";
 
@@ -18,15 +18,28 @@ const documents: DocumentItem[] = [
 ];
 
 export default function DocsSection() {
+  const [profile, setProfile] = useState<any>(null);
+
+  useEffect(() => {
+    fetch("/api/admin/crud/profile")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data && data.photo !== undefined) setProfile(data);
+      })
+      .catch(() => {});
+  }, []);
+
+  const photo = profile?.photo && profile.photo.trim() !== "" ? profile.photo : "/images/amalraj_portrait.png";
+
   return (
     <section className="w-full bg-white dark:bg-stone-950 py-12 px-6 border-b border-stone-200 dark:border-stone-850">
       <div className="max-w-[1700px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
         
         {/* Left Column: Official Graphic Banner Placeholder (6 cols) */}
-        <div className="lg:col-span-6 flex flex-col bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-850 shadow-sm overflow-hidden p-5">
-          <div className="space-y-4">
-            <span className="text-[10px] uppercase tracking-widest font-black text-brand-maroon dark:text-brand-gold block">
-              Administrative Command
+        <div className="lg:col-span-6 bg-stone-50 dark:bg-stone-900/50 p-6 rounded-2xl border border-stone-200 dark:border-stone-850 space-y-4">
+          <div className="flex flex-col gap-3">
+            <span className="text-[10px] font-black uppercase text-brand-gold tracking-widest block text-left">
+              LEADERSHIP VISION & ORDERS
             </span>
             <div className="grid grid-cols-2 gap-4">
               <div className="relative w-full h-[180px] rounded-xl overflow-hidden bg-slate-950/20">
@@ -39,11 +52,16 @@ export default function DocsSection() {
               </div>
               <div className="relative w-full h-[180px] rounded-xl overflow-hidden bg-slate-950/20">
                 <Image
-                  src="/images/amalraj_portrait.png"
-                  alt="Dr. A. Amalraj IPS Portrait"
+                  src={photo}
+                  alt="Commissioner Portrait"
                   fill
                   className="object-cover object-center"
-                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
+                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                 onError={(e) => {
+                   const target = e.target as HTMLImageElement;
+                   if (target) target.src = "/images/amalraj_portrait.png";
+                 }}
+                />
               </div>
             </div>
             <div className="bg-brand-maroon/5 dark:bg-brand-maroon/10 p-3 rounded-lg border border-brand-maroon/10 dark:border-brand-gold/20">

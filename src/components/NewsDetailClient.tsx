@@ -52,11 +52,19 @@ export default function NewsDetailClient({ article }: { article: NewsItem }) {
   const [showShareOptions, setShowShareOptions] = useState(true);
   // Live news from DB for related/recommended/sidebar/search
   const [liveNews, setLiveNews] = useState<NewsItem[]>([]);
+  const [commProfile, setCommProfile] = useState<any>(null);
 
   const searchRef = useRef<HTMLDivElement>(null);
 
-  // Fetch live news once on mount for sidebar, related, search widgets
+  // Fetch live news & profile on mount for sidebar widgets
   useEffect(() => {
+    fetch("/api/admin/crud/profile")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data && data.photo !== undefined) setCommProfile(data);
+      })
+      .catch(() => {});
+
     if (article && article.id) {
       fetch(`/api/news/${article.id}/view`, { method: "POST" }).catch(() => {});
     }
@@ -1215,11 +1223,15 @@ export default function NewsDetailClient({ article }: { article: NewsItem }) {
               <div className="flex items-center gap-3 text-left">
                 <div className="relative w-11 h-11 shrink-0 bg-white border border-brand-gold/30 rounded-full overflow-hidden shadow-inner">
                   <Image
-                    src="/images/amalraj_portrait.png"
-                    alt="Dr. A. Amalraj IPS portrait"
+                    src={commProfile?.photo && commProfile.photo.trim() !== "" ? commProfile.photo : "/images/amalraj_portrait.png"}
+                    alt="Commissioner portrait"
                     fill
                     sizes="44px"
                     className="object-cover"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      if (target) target.src = "/images/amalraj_portrait.png";
+                    }}
                   />
                 </div>
                 <div className="text-left">

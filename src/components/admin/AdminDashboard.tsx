@@ -4656,20 +4656,60 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                 
                 {/* Photo modification */}
-                <div className="lg:col-span-4 flex flex-col items-center gap-4">
-                  <div className="relative w-36 h-36 rounded-full overflow-hidden bg-stone-955 border border-stone-800 shadow-lg">
-                    <Image src={profile.photo} alt="" fill className="object-cover object-center"  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
-                  </div>
-                  
-                  <label className="px-4 py-2 bg-stone-950 border border-stone-800 hover:border-brand-gold/30 rounded-lg text-[10px] font-black uppercase tracking-wider text-white transition cursor-pointer flex items-center gap-1.5 shadow">
-                    {uploading ? (
-                      <div className="w-3.5 h-3.5 border border-white border-t-transparent animate-spin" />
-                    ) : (
-                      <Upload className="w-3.5 h-3.5 text-brand-gold" />
-                    )}
-                    Change Profile Photo
-                    <input type="file" onChange={handleProfileImageUpload} className="hidden" accept="image/*" />
+                <div className="lg:col-span-4 flex flex-col items-center gap-4 bg-stone-955 p-6 rounded-2xl border border-stone-850">
+                  <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider text-center">
+                    Profile Photo Preview
                   </label>
+                  
+                  <div className="relative w-36 h-36 rounded-full overflow-hidden bg-stone-900 border-2 border-brand-gold/40 shadow-xl">
+                    <Image 
+                      src={profile?.photo && profile.photo.trim() !== "" ? profile.photo : "/images/amalraj_portrait.png"} 
+                      alt="Commissioner Profile Photo" 
+                      fill 
+                      className="object-cover object-center" 
+                      sizes="(max-width: 768px) 100vw, 150px"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        if (target) target.src = "/images/amalraj_portrait.png";
+                      }}
+                    />
+                  </div>
+
+                  <div className="w-full space-y-3 pt-2">
+                    <div className="space-y-1 text-left">
+                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">
+                        Photo Path / URL (Alter directly)
+                      </label>
+                      <input
+                        type="text"
+                        value={profile?.photo ?? ""}
+                        placeholder="/images/amalraj_portrait.png"
+                        onChange={(e) => setProfile(profile ? { ...profile, photo: e.target.value } : null)}
+                        className="w-full bg-stone-900 border border-stone-800 outline-none text-xs text-white p-2.5 rounded-xl font-mono"
+                      />
+                    </div>
+
+                    <div className="flex flex-col gap-2">
+                      <label className="w-full px-4 py-2 bg-brand-maroon hover:bg-brand-maroon-dark text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition cursor-pointer flex items-center justify-center gap-2 shadow">
+                        {uploading ? (
+                          <div className="w-3.5 h-3.5 border border-white border-t-transparent animate-spin rounded-full" />
+                        ) : (
+                          <Upload className="w-3.5 h-3.5 text-white" />
+                        )}
+                        <span>Upload New Image File</span>
+                        <input type="file" onChange={handleProfileImageUpload} className="hidden" accept="image/*" />
+                      </label>
+
+                      <button
+                        type="button"
+                        onClick={() => setProfile(profile ? { ...profile, photo: "/images/amalraj_portrait.png" } : null)}
+                        className="w-full px-3 py-2 bg-stone-900 hover:bg-stone-850 text-stone-400 hover:text-white rounded-xl text-[10px] font-bold uppercase tracking-wider transition border border-stone-800 flex items-center justify-center gap-1.5 cursor-pointer"
+                      >
+                        <RefreshCw className="w-3 h-3 text-stone-400" />
+                        <span>Reset to Default Image</span>
+                      </button>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Form fields */}

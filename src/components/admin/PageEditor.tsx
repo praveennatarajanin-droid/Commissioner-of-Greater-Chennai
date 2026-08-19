@@ -723,7 +723,15 @@ export default function PageEditor({
                         {node.id === "personal_bio" && (
                           <div className="grid grid-cols-1 md:grid-cols-12 gap-4 text-left">
                             <div className="md:col-span-3 bg-stone-900 rounded-xl overflow-hidden h-28 relative">
-                              {profileData?.photo && <img src={profileData.photo} alt="" className="w-full h-full object-cover" />}
+                              <img 
+                                src={profileData?.photo && profileData.photo.trim() !== "" ? profileData.photo : "/images/amalraj_portrait.png"} 
+                                alt="" 
+                                className="w-full h-full object-cover" 
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  if (target) target.src = "/images/amalraj_portrait.png";
+                                }}
+                              />
                             </div>
                             <div className="md:col-span-9 space-y-2">
                               <h4 className="font-display font-black text-sm text-[#1e40af] uppercase">

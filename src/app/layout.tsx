@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { LanguageProvider } from "@/context/LanguageContext";
+import ContentProtection from "@/components/security/ContentProtection";
 import { db } from "@/lib/db";
 import { cookies } from "next/headers";
 import Script from "next/script";
@@ -153,6 +154,7 @@ export default async function RootLayout({
         )}
         <LanguageProvider initialLanguage={initialLanguage}>
           <ThemeProvider>
+            <ContentProtection />
             {children}
           </ThemeProvider>
         </LanguageProvider>

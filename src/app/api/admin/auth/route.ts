@@ -2,12 +2,21 @@ import { NextResponse } from "next/server";
 import { db, hashPassword } from "@/lib/db";
 import { cookies } from "next/headers";
 import { getIpAddress } from "@/lib/auth";
+import { verifyCaptchaToken } from "@/lib/captcha";
 
 export async function POST(req: Request) {
   try {
-    const { username, password } = await req.json();
+    const { username, password, captchaInput, captchaToken } = await req.json();
     if (!username || !password) {
       return NextResponse.json({ error: "Username and password required" }, { status: 400 });
+    }
+
+    // Server-side CAPTCHA verification check
+    if (!captchaInput || !captchaToken || !verifyCaptchaToken(captchaInput, captchaToken)) {
+      return NextResponse.json(
+        { error: "Invalid security verification code. Please try again." },
+        { status: 400 }
+      );
     }
 
     const users = await db.getUsers();

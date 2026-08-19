@@ -237,3 +237,42 @@ body {
     animation-play-state: running;
   }
 }
+
+/* ============================================================
+   Global Anti-Theft & Content Protection Styles
+   ============================================================ */
+body:not(.admin-mode) {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+body:not(.admin-mode) img,
+body:not(.admin-mode) video {
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+  user-drag: none;
+  pointer-events: auto;
+}
+
+@media print {
+  body::before {
+    content: "OFFICIAL GREATER CHENNAI POLICE PORTAL — PROTECTED CONTENT — PRINTING & COPYING PROHIBITED";
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-30deg);
+    font-size: 24pt;
+    font-weight: 900;
+    color: rgba(239, 68, 68, 0.4);
+    text-transform: uppercase;
+    text-align: center;
+    width: 90%;
+    z-index: 99999;
+    pointer-events: none;
+  }
+}
+

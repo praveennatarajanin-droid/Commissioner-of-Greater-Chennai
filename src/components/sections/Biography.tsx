@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { GraduationCap, Award, ChevronRight } from "lucide-react";
@@ -14,12 +14,23 @@ interface BiographyProps {
 
 export default function Biography({ customProfile }: BiographyProps = {}) {
   const { t, language } = useTranslation();
+  const [profile, setProfile] = useState<DBCommissionerProfile | undefined>(customProfile);
 
-  const name = customProfile ? (language === "ta" ? customProfile.name_ta : customProfile.name_en) : t("biography.name");
-  const designation = customProfile ? (language === "ta" ? customProfile.designation_ta : customProfile.designation_en) : t("biography.role");
-  const bio1 = customProfile ? (language === "ta" ? customProfile.bio_ta1 : customProfile.bio_en1) : t("biography.para1");
-  const bio2 = customProfile ? (language === "ta" ? customProfile.bio_ta2 : customProfile.bio_en2) : t("biography.para2");
-  const photo = customProfile?.photo || "/images/amalraj_portrait.png";
+  useEffect(() => {
+    if (customProfile) setProfile(customProfile);
+    fetch("/api/admin/crud/profile")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data && data.photo !== undefined) setProfile(data);
+      })
+      .catch(() => {});
+  }, [customProfile]);
+
+  const name = profile ? (language === "ta" ? profile.name_ta : profile.name_en) : t("biography.name");
+  const designation = profile ? (language === "ta" ? profile.designation_ta : profile.designation_en) : t("biography.role");
+  const bio1 = profile ? (language === "ta" ? profile.bio_ta1 : profile.bio_en1) : t("biography.para1");
+  const bio2 = profile ? (language === "ta" ? profile.bio_ta2 : profile.bio_en2) : t("biography.para2");
+  const photo = profile?.photo && profile.photo.trim() !== "" ? profile.photo : "/images/amalraj_portrait.png";
 
   return (
     <section id="about" className="w-full bg-white dark:bg-stone-950 py-16 px-6 border-b border-stone-200 dark:border-stone-850">
@@ -38,6 +49,10 @@ export default function Biography({ customProfile }: BiographyProps = {}) {
                 sizes="(max-w-768px) 100vw, (max-w-1024px) 600px, 600px"
                 className="object-cover object-center"
                 priority
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  if (target) target.src = "/images/amalraj_portrait.png";
+                }}
               />
             </div>
           </div>

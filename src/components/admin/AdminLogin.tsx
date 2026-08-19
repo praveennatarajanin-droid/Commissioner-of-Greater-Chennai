@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { ShieldCheck, Lock, User, AlertCircle, Eye, EyeOff } from "lucide-react";
+import { ShieldCheck, Lock, User, AlertCircle, Eye, EyeOff, RefreshCw } from "lucide-react";
 
 interface AdminLoginProps {
   onLoginSuccess: (user: { username: string; role: string }) => void;
@@ -16,8 +16,40 @@ export default function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // CAPTCHA States
+  const [captchaInput, setCaptchaInput] = useState("");
+  const [captchaToken, setCaptchaToken] = useState("");
+  const [captchaSvg, setCaptchaSvg] = useState("");
+  const [captchaLoading, setCaptchaLoading] = useState(false);
+
+  const refreshCaptcha = async () => {
+    setCaptchaLoading(true);
+    setCaptchaInput("");
+    try {
+      const res = await fetch("/api/admin/captcha");
+      if (res.ok) {
+        const data = await res.json();
+        setCaptchaToken(data.captchaToken || "");
+        setCaptchaSvg(data.captchaSvg || "");
+      }
+    } catch (err) {
+      console.error("Failed to fetch CAPTCHA challenge:", err);
+    } finally {
+      setCaptchaLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    refreshCaptcha();
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!captchaInput.trim()) {
+      setError("Invalid security verification code. Please try again.");
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
@@ -25,17 +57,19 @@ export default function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
       const res = await fetch("/api/admin/auth", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ username, password, captchaInput, captchaToken }),
       });
       const data = await res.json();
       if (res.ok) {
         onLoginSuccess(data.user);
       } else {
-        setError(data.error || "Authentication failed. Please check your credentials.");
+        setError(data.error || "Invalid security verification code. Please try again.");
+        refreshCaptcha();
       }
     } catch (err) {
       console.error(err);
       setError("Server connection failure. Please try again.");
+      refreshCaptcha();
     } finally {
       setLoading(false);
     }
@@ -819,6 +853,95 @@ export default function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
               >
                 Keep me signed in on this device
               </label>
+            </div>
+
+            {/* CAPTCHA Security Verification */}
+            <div className="space-y-2 pt-1">
+              <label
+                className="block text-[11px] font-black uppercase tracking-wider"
+                style={{ color: "#374151" }}
+              >
+                Security Verification
+              </label>
+              
+              {/* CAPTCHA Challenge Image & Refresh Button */}
+              <div className="flex items-center gap-2">
+                <div
+                  className="flex-1 h-[46px] rounded-xl overflow-hidden flex items-center justify-center relative select-none border"
+                  style={{
+                    background: "#0f172a",
+                    borderColor: "#cbd5e1"
+                  }}
+                >
+                  {captchaSvg ? (
+                    <img
+                      src={captchaSvg}
+                      alt="Security Verification Code"
+                      className="w-full h-full object-contain pointer-events-none select-none"
+                    />
+                  ) : (
+                    <div className="text-xs text-slate-400 font-medium animate-pulse">
+                      Loading CAPTCHA...
+                    </div>
+                  )}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={refreshCaptcha}
+                  disabled={captchaLoading}
+                  title="Refresh CAPTCHA"
+                  aria-label="Refresh CAPTCHA"
+                  className="p-3 rounded-xl transition-all duration-200 cursor-pointer shrink-0 border flex items-center justify-center"
+                  style={{
+                    background: "#f8fafc",
+                    borderColor: "#e2e8f0",
+                    color: "#1e40af"
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = "#eff6ff";
+                    e.currentTarget.style.borderColor = "#1e40af";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = "#f8fafc";
+                    e.currentTarget.style.borderColor = "#e2e8f0";
+                  }}
+                >
+                  <RefreshCw className={`w-4 h-4 ${captchaLoading ? "animate-spin" : ""}`} />
+                </button>
+              </div>
+
+              {/* CAPTCHA Input Field */}
+              <div className="relative flex items-center">
+                <ShieldCheck
+                  className="absolute left-3.5 w-4 h-4 pointer-events-none"
+                  style={{ color: "#94a3b8" }}
+                />
+                <input
+                  type="text"
+                  required
+                  autoComplete="off"
+                  placeholder="Enter CAPTCHA"
+                  value={captchaInput}
+                  onChange={(e) => setCaptchaInput(e.target.value)}
+                  className="w-full text-sm py-3.5 pl-10 pr-4 rounded-xl outline-none transition-all duration-200 font-mono tracking-wider uppercase"
+                  style={{
+                    background: "#f8fafc",
+                    border: "1.5px solid #e2e8f0",
+                    color: "#1e293b",
+                  }}
+                  onFocus={(e) => {
+                    e.currentTarget.style.border = "1.5px solid #1e40af";
+                    e.currentTarget.style.background = "#fff";
+                    e.currentTarget.style.boxShadow = "0 0 0 3px rgba(30,64,175,0.08)";
+                  }}
+                  onBlur={(e) => {
+                    e.currentTarget.style.border = "1.5px solid #e2e8f0";
+                    e.currentTarget.style.background = "#f8fafc";
+                    e.currentTarget.style.boxShadow = "none";
+                  }}
+                />
+              </div>
             </div>
 
             {/* Login Button */}

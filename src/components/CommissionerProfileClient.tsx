@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import {
   Calendar,
@@ -43,18 +43,31 @@ const SectionDivider = () => (
 export default function CommissionerProfileClient({ profile }: CommissionerProfileClientProps) {
   const { language } = useTranslation();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [activeProfile, setActiveProfile] = useState<DBCommissionerProfile>(profile);
+
+  useEffect(() => {
+    if (profile) setActiveProfile(profile);
+    fetch("/api/admin/crud/profile")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data && data.photo !== undefined) setActiveProfile(data);
+      })
+      .catch(() => {});
+  }, [profile]);
+
+  const photoSrc = activeProfile?.photo && activeProfile.photo.trim() !== "" ? activeProfile.photo : "/images/amalraj_portrait.png";
 
   // Localization helpers
-  const name = language === "ta" ? profile.name_ta : profile.name_en;
-  const designation = language === "ta" ? profile.designation_ta : profile.designation_en;
-  const motto = language === "ta" ? profile.motto_ta : profile.motto_en;
-  const birthplace = language === "ta" ? profile.birthplace_ta : profile.birthplace_en;
-  const education = language === "ta" ? profile.education_ta : profile.education_en;
-  const vision = language === "ta" ? profile.vision_ta : profile.vision_en;
-  const officeAddress = language === "ta" ? profile.office_address_ta : profile.office_address_en;
+  const name = language === "ta" ? activeProfile.name_ta : activeProfile.name_en;
+  const designation = language === "ta" ? activeProfile.designation_ta : activeProfile.designation_en;
+  const motto = language === "ta" ? activeProfile.motto_ta : activeProfile.motto_en;
+  const birthplace = language === "ta" ? activeProfile.birthplace_ta : activeProfile.birthplace_en;
+  const education = language === "ta" ? activeProfile.education_ta : activeProfile.education_en;
+  const vision = language === "ta" ? activeProfile.vision_ta : activeProfile.vision_en;
+  const officeAddress = language === "ta" ? activeProfile.office_address_ta : activeProfile.office_address_en;
 
-  const bio1 = language === "ta" ? profile.bio_ta1 : profile.bio_en1;
-  const bio2 = language === "ta" ? profile.bio_ta2 : profile.bio_en2;
+  const bio1 = language === "ta" ? activeProfile.bio_ta1 : activeProfile.bio_en1;
+  const bio2 = language === "ta" ? activeProfile.bio_ta2 : activeProfile.bio_en2;
 
   // Labels based on language
   const l = {
@@ -135,12 +148,16 @@ export default function CommissionerProfileClient({ profile }: CommissionerProfi
             <div className="relative p-2 bg-gradient-to-tr from-[#D4AF37] via-white to-[#D4AF37] rounded-2xl shadow-2xl w-full max-w-[360px] aspect-[4/5] overflow-hidden group">
               <div className="relative w-full h-full rounded-xl overflow-hidden bg-stone-950">
                 <Image
-                  src={profile.photo || "/images/amalraj_portrait.png"}
-                  alt={profile.name_en}
+                  src={photoSrc}
+                  alt={name || "Commissioner"}
                   fill
                   priority
                   className="object-cover object-center group-hover:scale-105 transition-transform duration-700"
                   sizes="(max-w-768px) 100vw, 360px"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    if (target) target.src = "/images/amalraj_portrait.png";
+                  }}
                 />
               </div>
             </div>

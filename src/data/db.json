@@ -8,7 +8,7 @@
       "email": "superadmin@chennaiguardian.in",
       "status": "active",
       "createdAt": "2026-07-23T15:01:05.171Z",
-      "lastLogin": "2026-08-07T08:58:41.181Z",
+      "lastLogin": "2026-08-19T16:42:39.805Z",
       "failed_logins": 0
     },
     {
@@ -19,7 +19,7 @@
       "email": "admin@chennaiguardian.in",
       "status": "active",
       "createdAt": "2026-07-23T15:01:05.172Z",
-      "lastLogin": "2026-08-07T06:35:13.205Z",
+      "lastLogin": "2026-08-19T16:43:01.302Z",
       "failed_logins": 0
     },
     {
@@ -44,6 +44,54 @@
     }
   ],
   "activity_logs": [
+    {
+      "id": 140,
+      "username": "newseditormanager",
+      "role": "admin",
+      "ip_address": "::1",
+      "action": "User logged in successfully",
+      "module": "Auth",
+      "timestamp": "2026-08-19T16:43:01.317Z",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151.0.0.0"
+    },
+    {
+      "id": 139,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "User logged out",
+      "module": "Auth",
+      "timestamp": "2026-08-19T16:42:43.020Z"
+    },
+    {
+      "id": 138,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "User logged in successfully",
+      "module": "Auth",
+      "timestamp": "2026-08-19T16:42:39.817Z",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151.0.0.0"
+    },
+    {
+      "id": 137,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "User logged out",
+      "module": "Auth",
+      "timestamp": "2026-08-19T16:42:19.884Z"
+    },
+    {
+      "id": 136,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "User logged in successfully",
+      "module": "Auth",
+      "timestamp": "2026-08-19T16:20:15.436Z",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151.0.0.0"
+    },
     {
       "id": 135,
       "username": "Digital_TN_GovMaster",
@@ -3895,7 +3943,7 @@
       "bio_en2": "His academic credentials include a BSc and MSc in Physics, followed by an MBA in Human Resource Management, and a PhD from Madurai Kamaraj University. He has spent three decades serving across various district, commissionerate, and state-level divisions in Tamil Nadu, including leadership roles in Coimbatore, Salem, Trichy, and Tambaram.",
       "bio_ta1": "டாக்டர் ஏ. அமல்ராஜ் 1996 பேட்ச் மூத்த இந்திய காவல் பணி (IPS) அதிகாரி ஆவார். தமிழ்நாட்டின் கன்னியாகுமரி மாவட்டத்தைப் பூர்வீகமாகக் கொண்ட இவரது நிர்வாகத் தத்துவம் அறிவியல் பகுப்பாய்வு முறைகள், நவீன மனிதவள நடைமுறைகள் மற்றும் செயலூக்கமான சமூக ஈடுபாடு ஆகியவற்றை ஒருங்கிணைக்கிறது.",
       "bio_ta2": "இவரது கல்விச் சான்றுகளில் இயற்பியலில் பிஎஸ்சி மற்றும் எம்எஸ்சி, அதைத் தொடர்ந்து மனிதவள மேலாண்மையில் எம்பிஏ மற்றும் மதுரை காமராஜர் பல்கலைக்கழகத்தில் பிஎச்டி பட்டம் ஆகியவை அடங்கும். கோயம்புத்தூர், சேலம், திருச்சி மற்றும் தாம்பரம் ஆகிய இடங்களில் தலைமைப் பொறுப்புகள் உட்பட தமிழ்நாட்டின் பல்வேறு மாவட்ட, ஆணையர் மற்றும் மாநில அளவிலான பிரிவுகளில் மூன்று தசாப்தங்களாக பணியாற்றியுள்ளார்.",
-      "photo": "/uploads/upload_1786087749948.png",
+      "photo": "/uploads/upload_1787156977642.png",
       "facebook": "https://www.facebook.com/Chennai.Police/",
       "twitter": "https://x.com/chennaipolice_?lang=en",
       "instagram": "https://www.instagram.com/greater_chennai_police_/?hl=en",
@@ -4353,6 +4401,42 @@
     }
   ],
   "alerts": [
+    {
+      "id": 115,
+      "title": "Tamil Nadu Police announces Internal vigilance cells all over state",
+      "category": "LAW & ORDER",
+      "source": "DT Next",
+      "url": "https://news.google.com/rss/articles/CBMipwFBVV95cUxNYUZPQ3lqcWx5d0c3eV9rR3FHdFdRbmxZVDh6OGdES1pEdlNZZUQ1MkJYcXNxbHBzZHRVTmNuQVRacHZmeEZOd09XV01TUmt0THhKZVlfRjYzT3c5WERFTkx6Mm92bnZUVDhwemY5NWQ3UlJpY28wZWxBQmlYQ0x4anBGbXpzcEd3cTlKVEU0WFUxdVlRN2xDZ3BLa2lKTTQ5V2QzOUN5Z9IBtAFBVV95cUxQdVhUU0pZTkE4dkdaaVozVWZsTjJZNDBEM2RpRWpCb2hnc2xrQUVGV1RZYkY2RzM3ckxLeEtYRG5qcHhpdkVpQnF3QzZZVVlERkw1U2MtcXFCSzF4T1VNYUlHOXBpcW0wdGt3SW5HMHRXUWo5NVg5cHJfTmVLV3Q3cUpENTVNY0otWm1QbG53b3lrWXNHWEFoWlhBQlFnYVc2NWprcE1xMms4cG5UU2FDMjQ3Mk8?oc=5",
+      "published_at": "2026-08-19T15:56:30.000Z",
+      "approved": 1,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-08-19T16:20:02.930Z"
+    },
+    {
+      "id": 116,
+      "title": "Independence Day 2026: Chennai traffic diversions and parking rules",
+      "category": "TRAFFIC UPDATE",
+      "source": "India Today",
+      "url": "https://news.google.com/rss/articles/CBMi1gFBVV95cUxPQ3A4cWZNR0hLSXN3dDVXc19UT2lndEY2cnBaNVhtTl9CWU9jNDFmaDc4dVhIUmw5UTlBREgzazJQR2RkcUZETGlNLVd4SWdxYTliVHVrb0V1TUcxeUlwekNwUndKZ2E2YkthMXRmZzFpRTNvengxaUdYOVVCNC01VlBTUmFUcVdSQmNnRndYRHBMNlBSd2JxcW1zNnI0Q0hmR3pqSzFFWVU2SnRlU0FXQlpzcElfTzFWajZJam53VlRaczRYb0dtSGt5REhmZ3NIZnA0N3h30gHbAUFVX3lxTE02S29EemR3NFYzNWtLS204MTRRdV9hY0h3eFZ1ODd4U3hna0NTMjg5WVZLREZ4LXZOblRtTWhQcXo0NFllb1JFc041NEh0ZUFwSWxoZjh4YlRVYmp6eFJNVW9sTDlkTXhMNUZGOGNwby1ndVkzZG04Q1pFNG5KTVN4MDF6bXZzUkNqMjlYNU9pTV82RG1aQ3hMMUk4elpHTWstbjlGRWlpdTdGU2JJRWlyT0huRnkyNThqWWtuY2lGSXBNOUl0akdEV0pSa2k1VVdfTHdYMTVId2FLNA?oc=5",
+      "published_at": "2026-08-13T07:04:03.000Z",
+      "approved": 1,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-08-19T16:20:02.930Z"
+    },
+    {
+      "id": 117,
+      "title": "Amalraj to helm Chennai police; Modak moved to CB-CID",
+      "category": "LAW & ORDER",
+      "source": "DT Next",
+      "url": "https://news.google.com/rss/articles/CBMimwFBVV95cUxPZ05pcEN6RUtYbGowR1pYVjRrUnBPREg5Z1psRHRJbHFTaUtXZ2xhVURBdDJtZWxCQVJ3cHNQLUlBMF81TlZ0cko0ZkxERkRFX3pZTjFuSTNKTFgxZTZYTXE0ZU81c0szNF9TTjZ0cEhERXd1UXZHajNzZTBVVm9fX0VvM2NKRWo5Z1FZUldDMTBvU0N2dWVabV95TdIBqAFBVV95cUxPZWV4YXBpbWx0Qi1WdHFUME9MalRIZTkxd0VYMlRiRzJWeWMxbkpZTnEzNFh3TGVpZ2syTGl5WTVNSWFkR084WmhqVk5udDVoZE9xYUlnWFVGRTNpNHhpVUFtbm5VT3M0UGMteHJEMl82eHotZUlaYmE4S2xyNlNsbzlvVFhueUJlVGRyanRjd2dBOC03aTZpd00xbGgyVlV5X3lrUFVsZWc?oc=5",
+      "published_at": "2026-05-21T07:00:00.000Z",
+      "approved": 1,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-08-19T16:20:02.930Z"
+    },
     {
       "id": 114,
       "title": "Chennai Police Inspector arrested for extorting several lakhs from businessman citing Armstrong murder case",
@@ -5727,7 +5811,7 @@
       "id": 1,
       "auto_fetch": 1,
       "require_approval": 1,
-      "last_fetched_at": "2026-08-07T09:21:30.345Z",
+      "last_fetched_at": "2026-08-19T16:40:54.088Z",
       "live_feed_enabled": 1,
       "approved_sources": "tnpolice.gov.in, gcp.tn.gov.in, greaterchennaipolice.in, tn.gov.in, pib.gov.in",
       "refresh_interval": 15
@@ -6570,6 +6654,42 @@
       "articleSlug": null,
       "category": "Police Update",
       "createdAt": "2026-08-07T07:29:09.946Z"
+    },
+    {
+      "id": 104,
+      "image": "/uploads/upload_1787156431478.jpg",
+      "title": "Upload 1787156431478",
+      "articleId": null,
+      "articleSlug": null,
+      "category": "Police Update",
+      "createdAt": "2026-08-19T16:20:31.479Z"
+    },
+    {
+      "id": 105,
+      "image": "/uploads/upload_1787156446563.png",
+      "title": "Upload 1787156446563",
+      "articleId": null,
+      "articleSlug": null,
+      "category": "Police Update",
+      "createdAt": "2026-08-19T16:20:46.567Z"
+    },
+    {
+      "id": 106,
+      "image": "/uploads/upload_1787156470338.png",
+      "title": "Upload 1787156470338",
+      "articleId": null,
+      "articleSlug": null,
+      "category": "Police Update",
+      "createdAt": "2026-08-19T16:21:10.330Z"
+    },
+    {
+      "id": 107,
+      "image": "/uploads/upload_1787156977642.png",
+      "title": "Upload 1787156977642",
+      "articleId": null,
+      "articleSlug": null,
+      "category": "Police Update",
+      "createdAt": "2026-08-19T16:29:37.651Z"
     }
   ],
   "police_stations": [

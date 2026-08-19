@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { Quote, CheckCircle, Shield, Award, Target, Eye } from "lucide-react";
 import { useTranslation } from "@/context/LanguageContext";
@@ -8,12 +8,30 @@ import { useTranslation } from "@/context/LanguageContext";
 export default function GcpCommissionerMandate() {
   const { language } = useTranslation();
   const [activeTab, setActiveTab] = useState<"message" | "mission" | "vision">("message");
+  const [profile, setProfile] = useState<any>(null);
+
+  useEffect(() => {
+    fetch("/api/admin/crud/profile")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data && data.photo !== undefined) setProfile(data);
+      })
+      .catch(() => {});
+  }, []);
+
+  const photo = profile?.photo && profile.photo.trim() !== "" ? profile.photo : "/images/amalraj_portrait.png";
+  const name = profile ? (language === "ta" ? profile.name_ta : profile.name_en) : "Dr. A. Amalraj, IPS";
+  const designation = profile
+    ? (language === "ta" ? profile.designation_ta : profile.designation_en)
+    : (language === "ta" ? "காவல் ஆணையர், சென்னை பெருநகரம்" : "COMMISSIONER OF POLICE, GREATER CHENNAI POLICE");
+  const ipsBatch = profile?.ips_batch
+    ? (language === "ta" ? `${profile.ips_batch} பேட்ச் ஐபிஎஸ் அதிகாரி` : `${profile.ips_batch.toUpperCase()} IPS OFFICER`)
+    : (language === "ta" ? "1996 பேட்ச் ஐபிஎஸ் அதிகாரி" : "1996 BATCH IPS OFFICER");
 
   return (
     <section className="w-full bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-850 p-6 md:p-8 shadow-sm text-left relative overflow-hidden">
       {/* Decorative background logo tint */}
       <div className="absolute top-1/2 right-0 -translate-y-1/2 w-80 h-80 bg-brand-blue/5 rounded-full blur-3xl pointer-events-none" />
-
 
       <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
@@ -26,11 +44,15 @@ export default function GcpCommissionerMandate() {
             {/* Portrait */}
             <div className="absolute top-10 w-32 h-32 rounded-full border-[5px] border-[#c5a059] overflow-hidden bg-white shadow-xl">
               <Image
-                src="/images/amalraj_portrait.png"
-                alt="Dr. A. Amalraj IPS, Commissioner of Police"
+                src={photo}
+                alt={name}
                 fill
                 className="object-cover object-top scale-105"
                 sizes="(max-width: 768px) 128px, 128px"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  if (target) target.src = "/images/amalraj_portrait.png";
+                }}
               />
             </div>
           </div>
@@ -46,15 +68,15 @@ export default function GcpCommissionerMandate() {
           {/* Profile Details */}
           <div className="px-6 mt-3 space-y-1">
             <h3 className="font-display font-black text-xl tracking-wide text-brand-blue dark:text-white uppercase leading-tight">
-              Dr. A. Amalraj, IPS
+              {name}
             </h3>
             <p className="text-[9px] font-black uppercase text-brand-maroon dark:text-brand-gold tracking-wider leading-relaxed">
-              {language === "ta" ? "காவல் ஆணையர், சென்னை பெருநகரம்" : "COMMISSIONER OF POLICE, GREATER CHENNAI POLICE"}
+              {designation}
             </p>
             
             <div className="pt-2 flex justify-center">
               <span className="inline-flex items-center px-4 py-1.5 rounded-full text-[9px] font-black tracking-widest text-white bg-brand-blue uppercase shadow-sm border border-white/10">
-                {language === "ta" ? "1996 பேட்ச் ஐபிஎஸ் அதிகாரி" : "1996 BATCH IPS OFFICER"}
+                {ipsBatch}
               </span>
             </div>
           </div>
