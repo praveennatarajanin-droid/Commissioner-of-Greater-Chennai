@@ -563,12 +563,30 @@ export async function PUT(req: Request, { params }: { params: Promise<{ module: 
         return NextResponse.json({ success: true });
       }
       case "police-stations": {
-        const id = data.id || data.data?.id;
+        const targetId = Number(data.id || data.data?.id || 0);
         const stationObj = data.data || data;
         let items = await db.getPoliceStations();
-        items = items.map((i) => (i.id === id ? { ...i, ...stationObj, id } : i));
+        const targetName = (stationObj.station_name || stationObj.name_en || "").trim().toLowerCase();
+
+        items = items.map((i) => {
+          const isMatchById = targetId > 0 && Number(i.id) === targetId;
+          const isMatchByName = !isMatchById && targetName && ((i.station_name || i.name_en || "").trim().toLowerCase() === targetName);
+
+          if (isMatchById || isMatchByName) {
+            return {
+              ...i,
+              ...stationObj,
+              id: i.id || targetId,
+              zone: stationObj.zone || stationObj.zone_en || i.zone || "North Zone",
+              zone_en: stationObj.zone_en || stationObj.zone || i.zone_en || "North Zone",
+              zone_ta: stationObj.zone_ta || i.zone_ta || "வடக்கு மண்டலம்"
+            };
+          }
+          return i;
+        });
+
         await db.savePoliceStations(items);
-        await db.addActivityLog(auth.username, `Updated police station: ${stationObj.station_name || stationObj.name_en || id}`);
+        await db.addActivityLog(auth.username, `Updated police station: ${stationObj.station_name || stationObj.name_en || targetId}`);
         return NextResponse.json({ success: true });
       }
       case "emergency-contacts": {

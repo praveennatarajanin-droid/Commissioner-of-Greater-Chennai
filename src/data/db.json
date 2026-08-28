@@ -6943,7 +6943,7 @@
   ],
   "police_stations": [
     {
-      "id": 0,
+      "id": 1001,
       "station_name": "G1 Vepery TR PS",
       "station_name_ta": "ஜி1 வேபெரி டிஆர் பிஎஸ்",
       "district": "Chennai District",
@@ -6972,10 +6972,11 @@
       "zone_ta": "கிழக்கு மண்டலம்",
       "category": "Law & Order",
       "type": "Law & Order",
-      "station_type": "Law & Order"
+      "station_type": "Law & Order",
+      "slug": "g1-vepery-tr-ps"
     },
     {
-      "id": 0,
+      "id": 1002,
       "station_name": "G1 Vepery TR PS",
       "station_name_ta": "ஜி1 வேபெரி டிஆர் பிஎஸ்",
       "district": "Chennai District",
@@ -7004,10 +7005,11 @@
       "zone_ta": "கிழக்கு மண்டலம்",
       "category": "Law & Order",
       "type": "Law & Order",
-      "station_type": "Law & Order"
+      "station_type": "Law & Order",
+      "slug": "g1-vepery-tr-ps-1002"
     },
     {
-      "id": 0,
+      "id": 1003,
       "station_name": "G1 Vepery TR PS",
       "station_name_ta": "ஜி1 வேபெரி டிஆர் பிஎஸ்",
       "district": "Chennai District",
@@ -7036,10 +7038,11 @@
       "zone_ta": "கிழக்கு மண்டலம்",
       "category": "Law & Order",
       "type": "Law & Order",
-      "station_type": "Law & Order"
+      "station_type": "Law & Order",
+      "slug": "g1-vepery-tr-ps-1003"
     },
     {
-      "id": 0,
+      "id": 1004,
       "station_name": "G1 Vepery TR PS",
       "station_name_ta": "ஜி1 வேபெரி டிஆர் பிஎஸ்",
       "district": "Chennai District",
@@ -7068,10 +7071,11 @@
       "zone_ta": "கிழக்கு மண்டலம்",
       "category": "Law & Order",
       "type": "Law & Order",
-      "station_type": "Law & Order"
+      "station_type": "Law & Order",
+      "slug": "g1-vepery-tr-ps-1004"
     },
     {
-      "id": 0,
+      "id": 1005,
       "station_name": "G1 Vepery TR PS",
       "station_name_ta": "ஜி1 வேபெரி டிஆர் பிஎஸ்",
       "district": "Chennai District",
@@ -7100,10 +7104,11 @@
       "zone_ta": "கிழக்கு மண்டலம்",
       "category": "Law & Order",
       "type": "Law & Order",
-      "station_type": "Law & Order"
+      "station_type": "Law & Order",
+      "slug": "g1-vepery-tr-ps-1005"
     },
     {
-      "id": 0,
+      "id": 1006,
       "station_name": "G1 Vepery TR PS",
       "station_name_ta": "ஜி1 வேபெரி டிஆர் பிஎஸ்",
       "district": "Chennai District",
@@ -7132,7 +7137,8 @@
       "zone_ta": "கிழக்கு மண்டலம்",
       "category": "Law & Order",
       "type": "Law & Order",
-      "station_type": "Law & Order"
+      "station_type": "Law & Order",
+      "slug": "g1-vepery-tr-ps-1006"
     }
   ],
   "emergency_contacts": [
