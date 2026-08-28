@@ -416,7 +416,7 @@ export default function PoliceStationsManagement({ user, onTabChange }: PoliceSt
 
                   return (
                     <tr key={`mgmt-st-${st.id || "0"}-${idx}`} className={`hover:bg-stone-50 dark:hover:bg-stone-850/50 transition ${!isActive ? "opacity-60 bg-rose-50/20" : ""}`}>
-                      <td className="p-3 font-mono text-[10px] text-stone-400">{st.id || idx + 1}</td>
+                      <td className="p-3 font-mono text-[10px] text-stone-400 font-bold">{String(st.id || idx + 1).padStart(2, "0")}</td>
                       <td className="p-3 font-bold text-slate-800 dark:text-white uppercase whitespace-nowrap">
                         🚔 {sName}
                       </td>
