@@ -22,7 +22,8 @@ export async function GET() {
     const allSdosSet = new Set<string>([...REQUIRED_SDOS, ...dbSdos]);
     const sortedSdos = Array.from(allSdosSet).sort((a, b) => a.localeCompare(b));
 
-    return NextResponse.json({ success: true, zones: sortedSdos, sdos: sortedSdos });
+    const standardZones = ["North Zone", "South Zone", "East Zone", "West Zone", "Central Zone"];
+    return NextResponse.json({ success: true, zones: standardZones, sdos: sortedSdos });
   } catch (err: any) {
     console.error("API /api/police-stations/zones error:", err);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

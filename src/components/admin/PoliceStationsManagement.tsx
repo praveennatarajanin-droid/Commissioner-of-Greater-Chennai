@@ -21,6 +21,7 @@ const EMPTY_STATION = {
   lat: 13.0827,
   lon: 80.2707,
   sdo: "",
+  zone: "North Zone",
   range: "Metropolitan Range",
   ps_address: "",
   pincode: "600001",
@@ -34,6 +35,7 @@ export default function PoliceStationsManagement({ user, onTabChange }: PoliceSt
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [districtFilter, setDistrictFilter] = useState("ALL");
+  const [zoneFilter, setZoneFilter] = useState("ALL");
   const [editingStation, setEditingStation] = useState<any | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -80,6 +82,9 @@ export default function PoliceStationsManagement({ user, onTabChange }: PoliceSt
     const phoneVal = station.phone_no || station.phone || "";
     const addrVal = station.ps_address || station.address || station.address_en || "";
 
+    const rawZ = station.zone || station.zone_en || "";
+    const currentZone = /^(north|south|east|west|central)/i.test(rawZ) ? rawZ : "North Zone";
+
     setEditingStation({
       id: station.id,
       station_name: station.station_name || station.name_en || "",
@@ -90,7 +95,8 @@ export default function PoliceStationsManagement({ user, onTabChange }: PoliceSt
       lat: latVal,
       lon: lonVal,
       sdo: station.sdo || "Sub-Divisional Officer",
-      range: station.range || station.range_name || station.zone || "Metropolitan Range",
+      zone: currentZone,
+      range: station.range || station.range_name || "Metropolitan Range",
       ps_address: addrVal,
       pincode: station.pincode || (addrVal.match(/\b6\d{5}\b/)?.[0] ?? "600001"),
       status: station.status || (station.is_active === 0 ? "INACTIVE" : "ACTIVE"),
@@ -130,6 +136,11 @@ export default function PoliceStationsManagement({ user, onTabChange }: PoliceSt
     setSaving(true);
 
     const isActiveVal = editingStation.status === "ACTIVE" ? 1 : 0;
+    const selectedZone = editingStation.zone || "North Zone";
+    const zoneTa = selectedZone === "South Zone" ? "தெற்கு மண்டலம்" :
+                   selectedZone === "East Zone" ? "கிழக்கு மண்டலம்" :
+                   selectedZone === "West Zone" ? "மேற்கு மண்டலம்" :
+                   selectedZone === "Central Zone" ? "மத்திய மண்டலம்" : "வடக்கு மண்டலம்";
 
     const payload = {
       ...editingStation,
@@ -149,10 +160,11 @@ export default function PoliceStationsManagement({ user, onTabChange }: PoliceSt
       lng: parseFloat(editingStation.lon),
       longitude: parseFloat(editingStation.lon),
       sdo: editingStation.sdo,
-      range: editingStation.range,
-      range_name: editingStation.range,
-      zone: editingStation.range,
-      zone_en: editingStation.range,
+      zone: selectedZone,
+      zone_en: selectedZone,
+      zone_ta: zoneTa,
+      range: editingStation.range || "Metropolitan Range",
+      range_name: editingStation.range || "Metropolitan Range",
       ps_address: editingStation.ps_address,
       address: editingStation.ps_address,
       address_en: editingStation.ps_address,
@@ -248,6 +260,7 @@ export default function PoliceStationsManagement({ user, onTabChange }: PoliceSt
   };
 
   const uniqueDistricts = Array.from(new Set(stations.map(s => s.district).filter(Boolean)));
+  const uniqueZones = ["North Zone", "South Zone", "East Zone", "West Zone", "Central Zone"];
 
   const filteredStations = stations.filter(s => {
     const q = searchQuery.toLowerCase();
@@ -264,8 +277,9 @@ export default function PoliceStationsManagement({ user, onTabChange }: PoliceSt
       (statusFilter === "INACTIVE" && (s.status === "INACTIVE" || s.is_active === 0));
 
     const matchesDistrict = districtFilter === "ALL" || s.district === districtFilter;
+    const matchesZone = zoneFilter === "ALL" || s.zone === zoneFilter || s.zone_en === zoneFilter;
 
-    return matchesSearch && matchesStatus && matchesDistrict;
+    return matchesSearch && matchesStatus && matchesDistrict && matchesZone;
   });
 
   return (
@@ -304,7 +318,7 @@ export default function PoliceStationsManagement({ user, onTabChange }: PoliceSt
 
       {/* Search & Filter Controls */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
-        <div className="md:col-span-6 relative">
+        <div className="md:col-span-5 relative">
           <input
             type="text"
             placeholder="Search by station name, district, address, or pincode..."
@@ -315,19 +329,19 @@ export default function PoliceStationsManagement({ user, onTabChange }: PoliceSt
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400 pointer-events-none" />
         </div>
 
-        <div className="md:col-span-3">
+        <div className="md:col-span-2">
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
             className="w-full bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-2.5 rounded-xl text-xs font-bold text-slate-800 dark:text-stone-300 outline-none cursor-pointer"
           >
-            <option value="ALL">All Status (Active & Inactive)</option>
+            <option value="ALL">All Status</option>
             <option value="ACTIVE">ACTIVE Only</option>
             <option value="INACTIVE">INACTIVE Only</option>
           </select>
         </div>
 
-        <div className="md:col-span-3">
+        <div className="md:col-span-2">
           <select
             value={districtFilter}
             onChange={(e) => setDistrictFilter(e.target.value)}
@@ -336,6 +350,19 @@ export default function PoliceStationsManagement({ user, onTabChange }: PoliceSt
             <option value="ALL">All Districts</option>
             {uniqueDistricts.map(d => (
               <option key={d} value={d}>{d}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className="md:col-span-3">
+          <select
+            value={zoneFilter}
+            onChange={(e) => setZoneFilter(e.target.value)}
+            className="w-full bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-2.5 rounded-xl text-xs font-bold text-slate-800 dark:text-stone-300 outline-none cursor-pointer"
+          >
+            <option value="ALL">All Zones</option>
+            {uniqueZones.map(z => (
+              <option key={z} value={z}>{z}</option>
             ))}
           </select>
         </div>
@@ -360,10 +387,9 @@ export default function PoliceStationsManagement({ user, onTabChange }: PoliceSt
                   <th className="p-3 !text-white">#</th>
                   <th className="p-3 !text-white">Police Station</th>
                   <th className="p-3 !text-white">District</th>
+                  <th className="p-3 !text-white">Zone</th>
                   <th className="p-3 !text-white">Category</th>
                   <th className="p-3 !text-white">Phone</th>
-                  <th className="p-3 !text-white">Latitude</th>
-                  <th className="p-3 !text-white">Longitude</th>
                   <th className="p-3 !text-white">SDO</th>
                   <th className="p-3 !text-white">Range</th>
                   <th className="p-3 !text-white">Address</th>
@@ -382,7 +408,9 @@ export default function PoliceStationsManagement({ user, onTabChange }: PoliceSt
                   const isTambaram = sName.includes("Tambaram") || sName.includes("Selaiyur");
                   const distVal = st.district || (isTambaram ? "Tambaram District" : "Chennai District");
                   const sdoVal = st.sdo || "Sub-Divisional Officer";
-                  const rangeVal = st.range || st.range_name || st.zone || "Metropolitan Range";
+                  const rawZ = st.zone || st.zone_en || "";
+                  const zoneVal = /^(north|south|east|west|central)/i.test(rawZ) ? rawZ : "North Zone";
+                  const rangeVal = st.range || st.range_name || "Metropolitan Range";
                   const pinVal = st.pincode || (addrVal.match(/\b6\d{5}\b/)?.[0] ?? "600001");
                   const isActive = (st.status === "ACTIVE" || st.is_active === 1 || st.is_active === undefined) && st.status !== "INACTIVE";
 
@@ -395,6 +423,9 @@ export default function PoliceStationsManagement({ user, onTabChange }: PoliceSt
                       <td className="p-3 whitespace-nowrap text-[#2e3192] dark:text-[#c5a059] font-bold">
                         {distVal}
                       </td>
+                      <td className="p-3 whitespace-nowrap text-purple-600 font-bold">
+                        {zoneVal}
+                      </td>
                       <td className="p-3 whitespace-nowrap">
                         <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
                           {st.category || st.type || st.station_type || "Law & Order"}
@@ -402,12 +433,6 @@ export default function PoliceStationsManagement({ user, onTabChange }: PoliceSt
                       </td>
                       <td className="p-3 whitespace-nowrap font-mono">
                         {phoneVal}
-                      </td>
-                      <td className="p-3 whitespace-nowrap font-mono text-amber-600">
-                        {typeof latVal === "number" ? latVal.toFixed(4) : latVal}
-                      </td>
-                      <td className="p-3 whitespace-nowrap font-mono text-amber-600">
-                        {typeof lonVal === "number" ? lonVal.toFixed(4) : lonVal}
                       </td>
                       <td className="p-3 whitespace-nowrap text-emerald-600 font-bold">
                         {sdoVal}
@@ -623,6 +648,25 @@ export default function PoliceStationsManagement({ user, onTabChange }: PoliceSt
                   <option value="North 2- Washermenpet Traffic Sub Division Office" />
                   <option value="North -3 PULIANTHOPE Traffic Sub Division Office" />
                 </datalist>
+              </div>
+
+              {/* Zone */}
+              <div className="space-y-1">
+                <label className="block text-[10px] font-black uppercase text-stone-500 tracking-wider">
+                  Zone *
+                </label>
+                <select
+                  required
+                  value={editingStation.zone || "North Zone"}
+                  onChange={(e) => setEditingStation({ ...editingStation, zone: e.target.value, zone_en: e.target.value })}
+                  className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 p-2.5 rounded-xl text-xs font-bold text-slate-800 dark:text-white outline-none focus:border-[#2e3192] cursor-pointer"
+                >
+                  <option value="North Zone">North Zone</option>
+                  <option value="South Zone">South Zone</option>
+                  <option value="East Zone">East Zone</option>
+                  <option value="West Zone">West Zone</option>
+                  <option value="Central Zone">Central Zone</option>
+                </select>
               </div>
 
               {/* Range */}

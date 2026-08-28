@@ -40,7 +40,9 @@ const StationCard = React.memo(({ station, language }: { station: DBPoliceStatio
   const isTambaram = sName.includes("Tambaram") || sName.includes("Selaiyur");
   const districtVal = station.district || (isTambaram ? "Tambaram District" : "Chennai District");
   const sdoVal = station.sdo || "Sub-Divisional Officer";
-  const rangeVal = station.range || station.zone_en || station.zone || "Metropolitan Range";
+  const rawZ = station.zone || station.zone_en || "";
+  const zoneVal = /^(north|south|east|west|central)/i.test(rawZ) ? rawZ : "North Zone";
+  const rangeVal = station.range || station.range_name || "Metropolitan Range";
   const pincodeVal = station.pincode || (psAddress.match(/\b6\d{5}\b/)?.[0] ?? "600001");
 
   return (
@@ -50,6 +52,9 @@ const StationCard = React.memo(({ station, language }: { station: DBPoliceStatio
       <div className="space-y-4">
         {/* Badges */}
         <div className="flex items-center justify-between gap-2 flex-wrap">
+          <span className="text-[9px] font-black uppercase tracking-wider bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 px-2.5 py-0.5 rounded-full border border-purple-200 dark:border-purple-800">
+            🏛️ {zoneVal}
+          </span>
           <span className="text-[9px] font-black uppercase tracking-wider bg-brand-blue/10 dark:bg-brand-blue/20 text-brand-blue dark:text-brand-gold px-2.5 py-0.5 rounded-full border border-brand-blue/20">
             {rangeVal}
           </span>
@@ -74,7 +79,7 @@ const StationCard = React.memo(({ station, language }: { station: DBPoliceStatio
           </div>
         </div>
 
-        {/* 9 Detail Grid: District, Phone No, Lat/Lon, SDO, Pincode */}
+        {/* 9 Detail Grid: District, Phone No, Lat/Lon, SDO, Zone, Pincode */}
         <div className="grid grid-cols-2 gap-2 text-[11px] pt-3 border-t border-stone-100 dark:border-stone-800 text-stone-600 dark:text-stone-400">
           <div>
             <span className="text-[9px] uppercase font-bold text-stone-400 block">district</span>
@@ -91,12 +96,16 @@ const StationCard = React.memo(({ station, language }: { station: DBPoliceStatio
             <span className="font-bold text-emerald-600 truncate block">{sdoVal}</span>
           </div>
           <div>
+            <span className="text-[9px] uppercase font-bold text-stone-400 block">Zone</span>
+            <span className="font-bold text-purple-600 truncate block">{zoneVal}</span>
+          </div>
+          <div>
             <span className="text-[9px] uppercase font-bold text-stone-400 block">Lat / Lon</span>
             <span className="font-mono font-bold text-amber-600 truncate block">{typeof latVal === "number" ? latVal.toFixed(4) : latVal}, {typeof lonVal === "number" ? lonVal.toFixed(4) : lonVal}</span>
           </div>
-          <div className="col-span-2">
+          <div>
             <span className="text-[9px] uppercase font-bold text-stone-400 block">Pincode</span>
-            <span className="font-mono font-bold text-purple-600">{pincodeVal}</span>
+            <span className="font-mono font-bold text-stone-700 dark:text-stone-300">{pincodeVal}</span>
           </div>
         </div>
       </div>
@@ -127,6 +136,7 @@ export default function StationsPageClient({
   const [searchInput, setSearchInput] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSdo, setSelectedSdo] = useState("All");
+  const [selectedZone, setSelectedZone] = useState("All");
   const [selectedDivision, setSelectedDivision] = useState("All");
   const [selectedType, setSelectedType] = useState("All");
 
@@ -249,6 +259,11 @@ export default function StationsPageClient({
     return Array.from(sdoSet).sort((a, b) => a.localeCompare(b));
   }, [initialStations, stations, sdos]);
 
+  // Standard Zone options list (North, South, East, West, Central)
+  const zonesList = useMemo(() => {
+    return ["North Zone", "South Zone", "East Zone", "West Zone", "Central Zone"];
+  }, []);
+
   // Client-side instant filtering and priority-based sorting
   const filteredStations = useMemo(() => {
     let list = userCoords ? stations : initialStations;
@@ -257,6 +272,13 @@ export default function StationsPageClient({
     if (selectedSdo !== "All") {
       list = list.filter(
         (s) => s.sdo === selectedSdo || s.incharge_en === selectedSdo
+      );
+    }
+
+    // Filter by Zone
+    if (selectedZone !== "All") {
+      list = list.filter(
+        (s) => s.zone === selectedZone || s.zone_en === selectedZone
       );
     }
 
@@ -451,7 +473,7 @@ export default function StationsPageClient({
         </div>
 
         {/* Search & Filters */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-stone-50 dark:bg-stone-900 p-5 rounded-2xl border border-stone-200 dark:border-stone-850">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 bg-stone-50 dark:bg-stone-900 p-5 rounded-2xl border border-stone-200 dark:border-stone-850">
           
           {/* Search Input */}
           <div className="relative">
@@ -478,6 +500,25 @@ export default function StationsPageClient({
               <option className="bg-white dark:bg-stone-950 text-stone-900 dark:text-white" value="All">{language === "ta" ? "அனைத்து SDO அதிகாரிகள்" : "All SDOs"}</option>
               {sdosList.map((sdo, idx) => (
                 <option className="bg-white dark:bg-stone-950 text-stone-900 dark:text-white" key={`sdo-opt-${sdo}-${idx}`} value={sdo}>{sdo}</option>
+              ))}
+            </select>
+            <Filter className="absolute right-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-stone-400 pointer-events-none" />
+          </div>
+
+          {/* Zone Filter */}
+          <div className="relative">
+            <select
+              value={selectedZone}
+              onChange={(e) => setSelectedZone(e.target.value)}
+              className="w-full px-4 py-2.5 bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 text-xs text-stone-800 dark:text-white rounded-xl focus:border-brand-gold focus:outline-none transition-colors appearance-none cursor-pointer font-bold"
+            >
+              <option className="bg-white dark:bg-stone-950 text-stone-900 dark:text-white" value="All">{language === "ta" ? "அனைத்து மண்டலங்கள்" : "All Zones"}</option>
+              {zonesList.map((zone, idx) => (
+                <option className="bg-white dark:bg-stone-950 text-stone-900 dark:text-white" key={`zone-opt-${zone}-${idx}`} value={zone}>
+                  {language === "ta" 
+                    ? (zone === "North Zone" ? "வடக்கு மண்டலம்" : zone === "South Zone" ? "தெற்கு மண்டலம்" : zone === "East Zone" ? "கிழக்கு மண்டலம்" : zone === "West Zone" ? "மேற்கு மண்டலம்" : "மத்திய மண்டலம்")
+                    : zone}
+                </option>
               ))}
             </select>
             <Filter className="absolute right-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-stone-400 pointer-events-none" />
