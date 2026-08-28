@@ -317,7 +317,7 @@ export default function PoliceStationDirectory() {
       {/* Directory Cards Grid */}
       {filteredStations.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {filteredStations.map((s) => {
+          {filteredStations.map((s, idx) => {
             const name = language === "ta" ? s.name_ta : s.name_en;
             const address = language === "ta" ? s.address_ta : s.address_en;
             const incharge = language === "ta" ? s.incharge_ta : s.incharge_en;
@@ -326,7 +326,7 @@ export default function PoliceStationDirectory() {
 
             return (
               <div
-                key={s.id}
+                key={`psdir-${s.id || "0"}-${idx}`}
                 className="bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-850 p-4 rounded-xl flex flex-col justify-between hover:border-brand-maroon/20 dark:hover:border-brand-gold/25 transition-all duration-300 relative overflow-hidden"
               >
                 {/* Station card body */}

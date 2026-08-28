@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 // In-memory cache for police stations
 let stationsCache: any[] | null = null;
 let cacheTime = 0;
-const CACHE_TTL = 30000; // 30 seconds cache TTL
+const CACHE_TTL = 1000; // 1 second cache TTL to ensure instant DB updates reflect on frontend
 
 async function getStationsCached() {
   const now = Date.now();

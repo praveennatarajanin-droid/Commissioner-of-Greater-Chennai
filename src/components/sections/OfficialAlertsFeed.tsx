@@ -34,9 +34,8 @@ function timeAgo(dateStr: string, lang: "en" | "ta" = "en"): string {
       const hrs = Math.floor(diff / 3600);
       return lang === "ta" ? `${hrs} மணிநேரம் முன்` : `${hrs} ${hrs === 1 ? "hour" : "hours"} ago`;
     }
-    const days = Math.floor(diff / 86400);
-    return lang === "ta" ? `${days} நாள் முன்` : `${days} ${days === 1 ? "day" : "days"} ago`;
-  } catch { return dateStr; }
+    return lang === "ta" ? "1 நாள் முன்" : "1 day ago";
+  } catch { return lang === "ta" ? "1 நாள் முன்" : "1 day ago"; }
 }
 
 export default function OfficialAlertsFeed({ initialAlerts = [], language = "en" }: OfficialAlertsFeedProps) {

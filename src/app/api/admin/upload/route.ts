@@ -1,12 +1,33 @@
 import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
+import os from "os";
 import { cookies } from "next/headers";
 
-// ─── Allowed file extensions (whitelist) ────────────────────────────────────
-const ALLOWED_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".gif", ".webp", ".pdf", ".svg"]);
+// Shared memory cache declaration for serverless runtimes
+declare global {
+  var __UPLOAD_CACHE__: Map<string, { buffer: Buffer; mime: string }>;
+}
 
-// ─── Auth helper ─────────────────────────────────────────────────────────────
+if (!globalThis.__UPLOAD_CACHE__) {
+  globalThis.__UPLOAD_CACHE__ = new Map();
+}
+
+// Allowed file extensions (whitelist)
+const ALLOWED_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".gif", ".webp", ".pdf", ".svg", ".mp4", ".webm"]);
+
+const MIME_TYPES: Record<string, string> = {
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".png": "image/png",
+  ".gif": "image/gif",
+  ".webp": "image/webp",
+  ".svg": "image/svg+xml",
+  ".pdf": "application/pdf",
+  ".mp4": "video/mp4",
+  ".webm": "video/webm"
+};
+
 async function checkAuth() {
   try {
     const cookieStore = await cookies();
@@ -19,7 +40,6 @@ async function checkAuth() {
 }
 
 export async function POST(req: Request) {
-  // 🔐 Security: require valid admin session
   const auth = await checkAuth();
   if (!auth) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -33,7 +53,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
     }
 
-    // 🔐 Security: validate file extension against whitelist
     const rawExt = path.extname(file.name).toLowerCase() || ".jpg";
     if (!ALLOWED_EXTENSIONS.has(rawExt)) {
       return NextResponse.json(
@@ -43,21 +62,40 @@ export async function POST(req: Request) {
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
-    const uploadDir = path.join(process.cwd(), "public/uploads");
+    const filename = `upload_${Date.now()}_${Math.random().toString(36).substring(2, 8)}${rawExt}`;
+    const mime = MIME_TYPES[rawExt] || "application/octet-stream";
 
-    // Ensure the uploads directory exists
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
+    // Store in global RAM cache for fast serverless fallback
+    globalThis.__UPLOAD_CACHE__.set(filename, { buffer, mime });
+
+    // Attempt to write to public/uploads
+    let written = false;
+    try {
+      const publicUploadDir = path.join(process.cwd(), "public/uploads");
+      if (!fs.existsSync(publicUploadDir)) {
+        fs.mkdirSync(publicUploadDir, { recursive: true });
+      }
+      fs.writeFileSync(path.join(publicUploadDir, filename), buffer);
+      written = true;
+    } catch (e) {
+      console.warn("Could not write to public/uploads (read-only filesystem?), attempting tmp directory:", e);
     }
 
-    // Generate unique sanitized filename
-    const filename = `upload_${Date.now()}${rawExt}`;
-    const filePath = path.join(uploadDir, filename);
-
-    fs.writeFileSync(filePath, buffer);
+    // Fallback write to os.tmpdir()/uploads if public is read-only
+    if (!written) {
+      try {
+        const tmpUploadDir = path.join(os.tmpdir(), "uploads");
+        if (!fs.existsSync(tmpUploadDir)) {
+          fs.mkdirSync(tmpUploadDir, { recursive: true });
+        }
+        fs.writeFileSync(path.join(tmpUploadDir, filename), buffer);
+      } catch (err) {
+        console.warn("Could not write to tmp directory:", err);
+      }
+    }
 
     const publicUrl = `/uploads/${filename}`;
-    return NextResponse.json({ success: true, url: publicUrl });
+    return NextResponse.json({ success: true, url: publicUrl, filename });
   } catch (e) {
     console.error("File upload error", e);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

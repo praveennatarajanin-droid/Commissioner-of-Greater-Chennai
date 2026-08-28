@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Plus, Trash2, Edit2, ArrowUp, ArrowDown, Eye, Save, X, ShieldAlert, Sparkles, Image as ImageIcon, Upload, Loader2 } from "lucide-react";
+import ConfirmModal from "./ConfirmModal";
+import ToastNotification from "./ToastNotification";
 
 interface WebStoriesManagementProps {
   user: { username: string; role: string };
@@ -13,6 +15,18 @@ export default function WebStoriesManagement({ user, onTabChange }: WebStoriesMa
   const [editingStory, setEditingStory] = useState<any | null>(null); // null means list view, object means edit/create
   const [isAdding, setIsAdding] = useState(false);
   const [saving, setSaving] = useState(false);
+  
+  // Custom UI Modals & Toast State
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    confirmText?: string;
+    danger?: boolean;
+    onConfirm: () => void;
+  } | null>(null);
+
+  const [toast, setToast] = useState<{ type: "success" | "error" | "info"; text: string } | null>(null);
   
   // Slide Preview State
   const [previewSlideIndex, setPreviewSlideIndex] = useState(0);
@@ -153,18 +167,28 @@ export default function WebStoriesManagement({ user, onTabChange }: WebStoriesMa
     }
   };
 
-  const handleDelete = async (id: any) => {
-    if (!confirm("Are you sure you want to delete this Web Story?")) return;
-    try {
-      const res = await fetch(`/api/admin/crud/web-stories?id=${id}`, { method: "DELETE" });
-      if (res.ok) {
-        fetchStories();
-      } else {
-        alert("Failed to delete story.");
+  const handleDelete = (id: any) => {
+    setConfirmModal({
+      isOpen: true,
+      title: "Delete Web Story",
+      message: "Are you sure you want to delete this Web Story? This action cannot be undone.",
+      confirmText: "Delete Story",
+      danger: true,
+      onConfirm: async () => {
+        try {
+          const res = await fetch(`/api/admin/crud/web-stories?id=${id}`, { method: "DELETE" });
+          if (res.ok) {
+            fetchStories();
+            setToast({ type: "success", text: "Web Story deleted successfully." });
+          } else {
+            setToast({ type: "error", text: "Failed to delete story." });
+          }
+        } catch (e) {
+          console.error("Delete error", e);
+          setToast({ type: "error", text: "Error deleting web story." });
+        }
       }
-    } catch (e) {
-      console.error("Delete error", e);
-    }
+    });
   };
 
   const handleAddSlide = () => {
@@ -724,6 +748,22 @@ export default function WebStoriesManagement({ user, onTabChange }: WebStoriesMa
           </div>
         </div>
       )}
+
+      {/* Custom Confirmation Modal */}
+      {confirmModal && (
+        <ConfirmModal
+          isOpen={confirmModal.isOpen}
+          title={confirmModal.title}
+          message={confirmModal.message}
+          confirmText={confirmModal.confirmText}
+          danger={confirmModal.danger}
+          onConfirm={confirmModal.onConfirm}
+          onClose={() => setConfirmModal(null)}
+        />
+      )}
+
+      {/* Custom Executive Toast Notification */}
+      <ToastNotification toast={toast} onClose={() => setToast(null)} />
 
     </div>
   );

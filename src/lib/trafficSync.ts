@@ -20,6 +20,7 @@ const OFFICIAL_BULLETINS = [
     tags_en: ["Koyambedu", "Traffic Diversion", "Flyover Repair", "Chennai Traffic Police"],
     tags_ta: ["கோயம்பேடு", "போக்குவரத்து மாற்றம்", "மேம்பால பழுது", "சென்னை போக்குவரத்து போலீஸ்"],
     sourceUrl: "https://www.greaterchennaipolice.gov.in/press-release/koyambedu-traffic",
+    image: "/images/traffic_flyover_diversion.jpg"
   },
   {
     title_en: "Road Closure on Velachery Main Road for Stormwater Drain Construction",
@@ -39,6 +40,7 @@ const OFFICIAL_BULLETINS = [
     tags_en: ["Velachery", "Road Closure", "Stormwater Drain", "Commuter Advisory"],
     tags_ta: ["வேளச்சேரி", "சாலை மூடல்", "மழைநீர் வடிகால்", "வாகன ஓட்டிகள் அறிவுரை"],
     sourceUrl: "https://www.greaterchennaipolice.gov.in/press-release/velachery-drainage-work",
+    image: "/images/traffic_road_closure.jpg"
   },
   {
     title_en: "Festival Traffic Arrangements for Upcoming Pongal Celebrations in Chennai",
@@ -58,6 +60,7 @@ const OFFICIAL_BULLETINS = [
     tags_en: ["Pongal Festival", "Special Traffic Plan", "CMBT", "Kilambakkam", "Travel Alert"],
     tags_ta: ["பொங்கல் பண்டிகை", "சிறப்பு போக்குவரத்து திட்டம்", "கிளாம்பாக்கம்", "பயண எச்சரிக்கை"],
     sourceUrl: "https://www.greaterchennaipolice.gov.in/press-release/pongal-traffic-advisory",
+    image: "/images/night_patrol.png"
   },
   {
     title_en: "Chennai Traffic Police Advisory on Drunk Driving Penalties and Speed Limits",
@@ -77,13 +80,14 @@ const OFFICIAL_BULLETINS = [
     tags_en: ["Traffic Police Advisory", "Drunk Driving Penalty", "Speed Limits", "Road Safety"],
     tags_ta: ["போக்குவரத்து போலீஸ் அறிவுரை", "மதுபோதை அபராதம்", "வேகக் கட்டுப்பாடு", "சாலை பாதுகாப்பு"],
     sourceUrl: "https://www.greaterchennaipolice.gov.in/press-release/road-safety-drive",
+    image: "/images/tn_police_patrol.jpg"
   }
 ];
 
 export async function syncTrafficNews() {
   try {
     console.log("Starting Traffic News Synchronization...");
-    const existingNews = await db.getNews();
+    const existingNews = await db.getAllRawNews();
     let updated = false;
 
     // Check each official bulletin
@@ -110,7 +114,7 @@ export async function syncTrafficNews() {
           summary_ta: bulletin.summary_ta,
           content_en: bulletin.content_en,
           content_ta: bulletin.content_ta,
-          image: "/images/public_safety_banner_bg.png", // Stand-in image
+          image: bulletin.image || "/images/tn_police_patrol.jpg",
           date: new Date().toLocaleDateString("en-US", {
             month: "long",
             day: "2-digit",

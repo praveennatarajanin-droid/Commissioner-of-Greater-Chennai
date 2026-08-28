@@ -182,7 +182,7 @@ async function runMigration() {
           dbType = 'LONGTEXT'; 
         } else {
           const colLower = col.toLowerCase();
-          const longTextKeys = ['content_en', 'content_ta', 'summary_en', 'summary_ta', 'description', 'message', 'bio_en1', 'bio_en2', 'bio_ta1', 'bio_ta2', 'action', 'schema_json', 'default_keywords', 'site_description', 'meta_description', 'meta_keywords', 'address', 'address_en', 'address_ta', 'landmark', 'jurisdiction_areas', 'google_map_link'];
+          const longTextKeys = ['content_en', 'content_ta', 'summary_en', 'summary_ta', 'description', 'message', 'bio_en1', 'bio_en2', 'bio_ta1', 'bio_ta2', 'action', 'schema_json', 'default_keywords', 'site_description', 'meta_description', 'meta_keywords', 'address', 'address_en', 'address_ta', 'ps_address', 'landmark', 'jurisdiction_areas', 'google_map_link', 'district', 'sdo', 'range', 'pincode', 'phone_no'];
           if (
             longTextKeys.includes(col) || 
             colLower.includes('url') || 

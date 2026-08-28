@@ -35,7 +35,7 @@ const slugify = (name: string) => {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const stations = await db.getPoliceStations();
-  const station = stations.find(s => slugify(s.station_name || s.name_en || "") === slug);
+  const station = stations.find(s => s.id.toString() === slug || slugify(s.station_name || s.name_en || "") === slug);
 
   if (!station) {
     return {
@@ -52,7 +52,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function StationDetailPage({ params }: PageProps) {
   const { slug } = await params;
   const stations = await db.getPoliceStations();
-  const station = stations.find(s => slugify(s.station_name || s.name_en || "") === slug);
+  const station = stations.find(s => s.id.toString() === slug || slugify(s.station_name || s.name_en || "") === slug);
 
   if (!station) {
     return (

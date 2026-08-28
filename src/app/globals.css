@@ -30,6 +30,7 @@
   --color-sky-800: #0c0d3b;
   --color-sky-900: #050624;
   --color-sky-950: #020314;
+  --color-stone-955: #0c0a09;
 
   /* Redefine text sizing scale for globally larger, more readable text */
   --text-xs: 0.775rem;   /* ~12.4px */
@@ -275,4 +276,43 @@ body:not(.admin-mode) video {
     pointer-events: none;
   }
 }
+
+/* Global Fix: Force pure white text (#ffffff) on all blue buttons, active navigation tabs, and blue table headers */
+button.bg-\[\#2e3192\],
+button.bg-\[\#1E40AF\],
+button.bg-\[\#1e2060\],
+.bg-\[\#2e3192\],
+.bg-\[\#1E40AF\],
+.bg-\[\#1e2060\],
+.bg-brand-blue,
+thead.bg-\[\#2e3192\],
+tr.bg-\[\#2e3192\],
+[data-active="true"] {
+  color: #ffffff !important;
+}
+
+button.bg-\[\#2e3192\] *,
+button.bg-\[\#1E40AF\] *,
+button.bg-\[\#1e2060\] *,
+thead.bg-\[\#2e3192\] th,
+tr.bg-\[\#2e3192\] th,
+.bg-\[\#2e3192\] th,
+.bg-\[\#1E40AF\] th,
+.bg-\[\#2e3192\] td,
+.bg-\[\#1E40AF\] td,
+.bg-\[\#2e3192\] span,
+.bg-\[\#1E40AF\] span,
+.bg-\[\#2e3192\] p,
+.bg-\[\#1E40AF\] p,
+.bg-\[\#2e3192\] svg,
+.bg-\[\#1E40AF\] svg,
+[data-active="true"] *,
+[data-active="true"] span,
+[data-active="true"] svg,
+[data-active="true"] div,
+[data-active="true"] p,
+[data-active="true"] a {
+  color: #ffffff !important;
+}
+
 

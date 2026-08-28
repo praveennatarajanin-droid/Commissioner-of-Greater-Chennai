@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
+import ConfirmModal from "./ConfirmModal";
 import {
   LayoutDashboard,
   FileText,
@@ -52,6 +53,7 @@ import MenuManagement from "./MenuManagement";
 import PageEditor from "./PageEditor";
 import WebStoriesManagement from "./WebStoriesManagement";
 import SeoManager from "./SeoManager";
+import PoliceStationsManagement from "./PoliceStationsManagement";
 
 const RichTextEditor = dynamic(() => import("./RichTextEditor"), {
   loading: () => <div className="h-64 bg-stone-50 dark:bg-stone-900 animate-pulse rounded-2xl w-full" />,
@@ -574,6 +576,14 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
   const displayName = user.role === "superadmin" ? "Super Admin" : user.role === "admin" ? "Admin" : user.username;
   const [localActiveTab, setLocalActiveTab] = useState<TabType>("dashboard");
   const activeTab = propActiveTab !== undefined ? propActiveTab : localActiveTab;
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    confirmText?: string;
+    danger?: boolean;
+    onConfirm: () => void;
+  } | null>(null);
 
   const sidebarScrollRef = useRef<HTMLDivElement>(null);
 
@@ -959,7 +969,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
   const [contacts, setContacts] = useState<DBContact[]>([]);
   const [tts, setTts] = useState<DBTtsSettings | null>(null);
   const [users, setUsers] = useState<DBUser[]>([]);
-   const [videos, setVideos] = useState<DBVideoItem[]>([]);
+  const [videos, setVideos] = useState<DBVideoItem[]>([]);
   const [videoYoutubeUrl, setVideoYoutubeUrl] = useState("");
   const [alerts, setAlerts] = useState<DBAlertItem[]>([]);
   const [alertSettings, setAlertSettings] = useState<DBAlertSettings | null>(null);
@@ -972,7 +982,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
   const [newAnnouncement, setNewAnnouncement] = useState("");
   const [announcements, setAnnouncements] = useState<{ id: number; text: string; time: string; type: string }[]>([]);
   const [portalHealth] = useState({ db: true, api: true, admin: true, website: true });
-  
+
   // News CMS States
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
@@ -999,7 +1009,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
   const [userFormRole, setUserFormRole] = useState("editor");
   const [userFormEmail, setUserFormEmail] = useState("");
   const [editingUser, setEditingUser] = useState<DBUser | null>(null);
-  
+
   // Media Library States
   const [mediaFiles, setMediaFiles] = useState<{ name: string; url: string; size: number; updatedAt: string }[]>([]);
   const [mediaLoading, setMediaLoading] = useState(false);
@@ -1198,7 +1208,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
       if (res.ok) {
         const data = await res.json();
         setAiLoadingStep(3); // ✅ Filling form fields...
-        
+
         await new Promise((resolve) => setTimeout(resolve, 800));
 
         if (data.success && data.fields) {
@@ -1232,7 +1242,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
 
     setEditingItem((prev: any) => {
       const updated = { ...prev };
-      
+
       const copyIfSelected = (fieldKey: string, dbKey: string) => {
         if (selectedAiSuggestions[fieldKey] && aiSuggestions[fieldKey]) {
           updated[dbKey] = aiSuggestions[fieldKey].value;
@@ -1581,7 +1591,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
   const handleDelete = (mod: string, id: number) => {
     let title = "Confirm Delete";
     let msg = "Are you sure you want to delete this record? This action is irreversible.";
-    
+
     if (mod === "slider") {
       title = "Delete Hero Banner Slide";
       msg = "Are you sure you want to delete this hero slide banner? This action is irreversible.";
@@ -1717,9 +1727,8 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
 
       {/* ==================== LEFT SIDEBAR ==================== */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-72 h-screen flex flex-col justify-between shrink-0 bg-white border-r border-stone-200/80 transition-transform duration-300 transform lg:translate-x-0 lg:static lg:h-screen overflow-hidden ${
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed inset-y-0 left-0 z-50 w-72 h-screen flex flex-col justify-between shrink-0 bg-white border-r border-stone-200/80 transition-transform duration-300 transform lg:translate-x-0 lg:static lg:h-screen overflow-hidden ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
         style={{ background: "#ffffff" }}
       >
         {/* Logo Brand Header - Height matches navbar (shrink-0) */}
@@ -1727,7 +1736,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
           className="h-16 px-6 flex items-center gap-3 border-b border-stone-200/80 shrink-0"
         >
           <div className="relative w-9 h-9 rounded-full bg-white p-0.5 border border-[#D4AF37]/30 shrink-0">
-            <Image src="/images/gcp_logo.png" alt="" fill className="object-contain"  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
+            <Image src="/images/gcp_logo.png" alt="" fill className="object-contain" sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
           </div>
           <div className="flex flex-col justify-center gap-0.5">
             <h3 className="font-display font-bold text-[11px] tracking-wider uppercase text-slate-800 leading-none">
@@ -1740,7 +1749,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
         </div>
 
         {/* Scrollable Navigation links (flex-1) */}
-        <div 
+        <div
           ref={sidebarScrollRef}
           onScroll={handleSidebarScroll}
           className="flex-1 overflow-y-auto min-h-0 py-4"
@@ -1812,19 +1821,18 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                             setIsAdding(false);
                             setIsSidebarOpen(false);
                           }}
-                          className={`w-full flex items-center justify-between px-4 py-3 rounded-[12px] text-[15px] font-semibold transition-all duration-200 relative group ${
-                            isAllowed
+                          className={`w-full flex items-center justify-between px-4 py-3 rounded-[12px] text-[15px] font-semibold transition-all duration-200 relative group ${isAllowed
                               ? isActive
                                 ? "bg-[#1E40AF] text-white shadow-md cursor-pointer"
                                 : "hover:bg-[#E8F0FE] hover:text-[#1E40AF] text-[#64748B] cursor-pointer"
                               : "cursor-not-allowed opacity-40 text-[#64748B]"
-                          }`}
+                            }`}
                         >
                           <div className="flex items-center gap-3">
-                            <span className={isActive ? "text-white" : "text-[#64748B] group-hover:text-[#1E40AF] transition-colors"}>
+                            <span className={isActive ? "!text-white" : "text-[#64748B] group-hover:text-[#1E40AF] transition-colors"}>
                               {icon}
                             </span>
-                            <span className="leading-none">{label}</span>
+                            <span className={`leading-none ${isActive ? "!text-white font-bold" : ""}`}>{label}</span>
                           </div>
                           {isActive && (
                             <div className="absolute right-0 top-1/4 bottom-1/4 w-1 bg-[#D4AF37] rounded-l-md" />
@@ -1843,7 +1851,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
 
       {/* ==================== MAIN PANEL FRAME ==================== */}
       <main className="flex-grow flex flex-col overflow-hidden bg-[#F8FAFC]">
-        
+
         {/* Header Ribbon - Compact h-16, Aligned with Sidebar Header */}
         <header
           className="h-16 flex items-center justify-between px-6 sticky top-0 z-30 shrink-0 bg-white"
@@ -1874,7 +1882,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
             >
               <ExternalLink className="w-4 h-4" /> Launch Live Portal
             </a>
-            
+
             {/* Clear Cache Button */}
             <button
               onClick={async () => {
@@ -1899,13 +1907,12 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
               }}
               disabled={clearingCache}
               title="Clear Next.js page cache — forces all frontend pages to re-fetch fresh data"
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold border transition-all duration-200 shadow-sm cursor-pointer ${
-                cacheCleared
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold border transition-all duration-200 shadow-sm cursor-pointer ${cacheCleared
                   ? "bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100"
                   : clearingCache
-                  ? "bg-amber-50 border-amber-200 text-amber-700 cursor-wait"
-                  : "bg-white border-[#E5E7EB] text-[#64748B] hover:bg-orange-50 hover:border-orange-300 hover:text-orange-700"
-              }`}
+                    ? "bg-amber-50 border-amber-200 text-amber-700 cursor-wait"
+                    : "bg-white border-[#E5E7EB] text-[#64748B] hover:bg-orange-50 hover:border-orange-300 hover:text-orange-700"
+                }`}
             >
               {clearingCache ? (
                 <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
@@ -1923,8 +1930,8 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
             </button>
 
             {/* Notification Icon */}
-            <button 
-              onClick={() => setActiveTab("alerts")} 
+            <button
+              onClick={() => setActiveTab("alerts")}
               className="p-2 text-[#64748B] hover:text-[#1E40AF] hover:bg-[#E8F0FE] rounded-xl cursor-pointer transition relative animate-fadeIn"
               title="Official Alerts"
             >
@@ -1933,8 +1940,8 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
             </button>
 
             {/* Settings Icon */}
-            <button 
-              onClick={() => setActiveTab("settings")} 
+            <button
+              onClick={() => setActiveTab("settings")}
               className="p-2 text-[#64748B] hover:text-[#1E40AF] hover:bg-[#E8F0FE] rounded-xl cursor-pointer transition mr-1"
               title="Console Config"
             >
@@ -1987,396 +1994,396 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
 
         {/* Content Body container */}
         <div className="flex-grow overflow-y-auto p-3 sm:p-4 pt-3 sm:pt-4">
-          
+
           {/* ==================== TAB: OVERVIEW - COMMAND CENTER ==================== */}
           {activeTab === "dashboard" && (
             <div className="space-y-6">
               {(() => {
-            const publishedNews = news.filter(n => n.published === 1);
-            const draftNews = news.filter(n => n.published !== 1);
-            const activeContacts = contacts.filter(c => c.category === "phone" || c.category === "helpline" || c.category === "emergency");
-            const activeSlider = slider.filter(s => s.active === 1);
-            const activeTicker = ticker.filter(t => t.active === 1);
-            const activeVideosCount = videos.filter(v => v.active === 1).length;
-            const catMap: Record<string, number> = {};
-            news.forEach(n => { const cat = n.category_en || "Other"; catMap[cat] = (catMap[cat] || 0) + 1; });
-            const topCats = Object.entries(catMap).sort((a, b) => b[1] - a[1]).slice(0, 6);
-            const maxCatCount = topCats[0]?.[1] || 1;
-            const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-            const monthlyMap: Record<string, number> = {};
-            news.forEach(n => { if (n.date) { const mon = n.date.split(" ")[0]?.slice(0,3); if (mon && monthNames.includes(mon)) monthlyMap[mon] = (monthlyMap[mon] || 0) + 1; } });
-            const now2 = new Date();
-            const last6 = monthNames.slice(Math.max(0, now2.getMonth() - 5), now2.getMonth() + 1);
-            const monthlyData = last6.map(m => ({ month: m, count: monthlyMap[m] || 0 }));
-            const maxMonthly = Math.max(...monthlyData.map(m => m.count), 1);
-            const formatViewsCount = (num?: number) => {
-              if (num === undefined || num === null) return "0";
-              if (num >= 1000000) return `${(num / 1000000).toFixed(1).replace(/\.0$/, "")}M`;
-              if (num >= 1000) return `${(num / 1000).toFixed(1).replace(/\.0$/, "")}K`;
-              return num.toString();
-            };
-            const totalNewsViews = news.reduce((acc, item) => acc + (item.views_count || 0), 0);
-            const totalVideoViews = videos.reduce((acc, item) => acc + (item.views_count || 0), 0);
-            const totalViews = totalNewsViews + totalVideoViews;
-            const kpiCards = [
-              { label: "News Articles", value: news.length, sub: `${publishedNews.length} live · ${draftNews.length} drafts`, icon: <FileText className="w-5 h-5" />, color: "#1e40af", bg: "rgba(30,64,175,0.1)", border: "rgba(30,64,175,0.2)", tab: "news" as TabType },
-              { label: "Hero Slider", value: activeSlider.length, sub: `${slider.length} total slides`, icon: <ImageIcon className="w-5 h-5" />, color: "#d4af37", bg: "rgba(212,175,55,0.1)", border: "rgba(212,175,55,0.2)", tab: "slider" as TabType },
-              { label: "Live Ticker", value: activeTicker.length, sub: `${ticker.length} total items`, icon: <Radio className="w-5 h-5" />, color: "#ed1b24", bg: "rgba(237,27,36,0.1)", border: "rgba(237,27,36,0.2)", tab: "ticker" as TabType },
-              { label: "Videos", value: videos.length, sub: `${activeVideosCount} active in gallery`, icon: <Tv className="w-5 h-5" />, color: "#7c3aed", bg: "rgba(124,58,237,0.1)", border: "rgba(124,58,237,0.2)", tab: "videos" as TabType },
-              { label: "Helplines", value: activeContacts.length, sub: `${contacts.length} total contacts`, icon: <Phone className="w-5 h-5" />, color: "#059669", bg: "rgba(5,150,105,0.1)", border: "rgba(5,150,105,0.2)", tab: "settings" as TabType },
-              { label: "Total Views", value: formatViewsCount(totalViews), sub: `${formatViewsCount(totalNewsViews)} news · ${formatViewsCount(totalVideoViews)} videos`, icon: <Eye className="w-5 h-5" />, color: "#0ea5e9", bg: "rgba(14,165,233,0.1)", border: "rgba(14,165,233,0.2)", tab: "dashboard" as TabType },
-            ];
-            return (
-              <div className="space-y-5">
-                {/* Welcome Banner */}
-                <div className="rounded-2xl p-5 flex items-center justify-between" style={{ background: "linear-gradient(135deg,#1e1b4b 0%,#1e40af 60%,#1d4ed8 100%)", border: "1px solid rgba(212,175,55,0.3)" }}>
-                  <div>
-                    <p className="text-[10px] uppercase font-black tracking-widest text-blue-300">Greater Chennai Police - Admin Control Panel</p>
-                    <h2
-                      className="font-display mt-1"
-                      style={{
-                        fontSize: "40px",
-                        fontWeight: 800,
-                        color: "#FFFFFF",
-                        textShadow: "0 2px 8px rgba(0,0,0,0.25)",
-                        filter: "drop-shadow(0 0 10px rgba(255,255,255,0.15))",
-                        lineHeight: "1.1"
-                      }}
-                    >
-                      Command Center Dashboard
-                    </h2>
-                    <p
-                      className="mt-2"
-                      style={{
-                        fontSize: "18px",
-                        color: "rgba(255,255,255,0.9)",
-                        lineHeight: "1.4"
-                      }}
-                    >
-                      Welcome back, <span className="text-brand-gold font-black">{displayName}</span> &middot; {new Date().toLocaleDateString("en-IN", { weekday: "long", day: "2-digit", month: "long", year: "numeric" })}
-                    </p>
-                  </div>
-                  <div className="hidden md:flex items-center gap-4 shrink-0">
-                    <div className="text-right">
-                      <p className="text-[9px] text-blue-300 uppercase font-black tracking-widest">Portal Status</p>
-                      <div className="flex items-center gap-1.5 mt-1">
-                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse inline-block" />
-                        <span className="text-xs font-black text-emerald-300">ALL SYSTEMS LIVE</span>
+                const publishedNews = news.filter(n => n.published === 1);
+                const draftNews = news.filter(n => n.published !== 1);
+                const activeContacts = contacts.filter(c => c.category === "phone" || c.category === "helpline" || c.category === "emergency");
+                const activeSlider = slider.filter(s => s.active === 1);
+                const activeTicker = ticker.filter(t => t.active === 1);
+                const activeVideosCount = videos.filter(v => v.active === 1).length;
+                const catMap: Record<string, number> = {};
+                news.forEach(n => { const cat = n.category_en || "Other"; catMap[cat] = (catMap[cat] || 0) + 1; });
+                const topCats = Object.entries(catMap).sort((a, b) => b[1] - a[1]).slice(0, 6);
+                const maxCatCount = topCats[0]?.[1] || 1;
+                const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                const monthlyMap: Record<string, number> = {};
+                news.forEach(n => { if (n.date) { const mon = n.date.split(" ")[0]?.slice(0, 3); if (mon && monthNames.includes(mon)) monthlyMap[mon] = (monthlyMap[mon] || 0) + 1; } });
+                const now2 = new Date();
+                const last6 = monthNames.slice(Math.max(0, now2.getMonth() - 5), now2.getMonth() + 1);
+                const monthlyData = last6.map(m => ({ month: m, count: monthlyMap[m] || 0 }));
+                const maxMonthly = Math.max(...monthlyData.map(m => m.count), 1);
+                const formatViewsCount = (num?: number) => {
+                  if (num === undefined || num === null) return "0";
+                  if (num >= 1000000) return `${(num / 1000000).toFixed(1).replace(/\.0$/, "")}M`;
+                  if (num >= 1000) return `${(num / 1000).toFixed(1).replace(/\.0$/, "")}K`;
+                  return num.toString();
+                };
+                const totalNewsViews = news.reduce((acc, item) => acc + (item.views_count || 0), 0);
+                const totalVideoViews = videos.reduce((acc, item) => acc + (item.views_count || 0), 0);
+                const totalViews = totalNewsViews + totalVideoViews;
+                const kpiCards = [
+                  { label: "News Articles", value: news.length, sub: `${publishedNews.length} live · ${draftNews.length} drafts`, icon: <FileText className="w-5 h-5" />, color: "#1e40af", bg: "rgba(30,64,175,0.1)", border: "rgba(30,64,175,0.2)", tab: "news" as TabType },
+                  { label: "Hero Slider", value: activeSlider.length, sub: `${slider.length} total slides`, icon: <ImageIcon className="w-5 h-5" />, color: "#d4af37", bg: "rgba(212,175,55,0.1)", border: "rgba(212,175,55,0.2)", tab: "slider" as TabType },
+                  { label: "Live Ticker", value: activeTicker.length, sub: `${ticker.length} total items`, icon: <Radio className="w-5 h-5" />, color: "#ed1b24", bg: "rgba(237,27,36,0.1)", border: "rgba(237,27,36,0.2)", tab: "ticker" as TabType },
+                  { label: "Videos", value: videos.length, sub: `${activeVideosCount} active in gallery`, icon: <Tv className="w-5 h-5" />, color: "#7c3aed", bg: "rgba(124,58,237,0.1)", border: "rgba(124,58,237,0.2)", tab: "videos" as TabType },
+                  { label: "Helplines", value: activeContacts.length, sub: `${contacts.length} total contacts`, icon: <Phone className="w-5 h-5" />, color: "#059669", bg: "rgba(5,150,105,0.1)", border: "rgba(5,150,105,0.2)", tab: "settings" as TabType },
+                  { label: "Total Views", value: formatViewsCount(totalViews), sub: `${formatViewsCount(totalNewsViews)} news · ${formatViewsCount(totalVideoViews)} videos`, icon: <Eye className="w-5 h-5" />, color: "#0ea5e9", bg: "rgba(14,165,233,0.1)", border: "rgba(14,165,233,0.2)", tab: "dashboard" as TabType },
+                ];
+                return (
+                  <div className="space-y-5">
+                    {/* Welcome Banner */}
+                    <div className="rounded-2xl p-5 flex items-center justify-between" style={{ background: "linear-gradient(135deg,#1e1b4b 0%,#1e40af 60%,#1d4ed8 100%)", border: "1px solid rgba(212,175,55,0.3)" }}>
+                      <div>
+                        <p className="text-[10px] uppercase font-black tracking-widest text-blue-300">Greater Chennai Police - Admin Control Panel</p>
+                        <h2
+                          className="font-display mt-1"
+                          style={{
+                            fontSize: "40px",
+                            fontWeight: 800,
+                            color: "#FFFFFF",
+                            textShadow: "0 2px 8px rgba(0,0,0,0.25)",
+                            filter: "drop-shadow(0 0 10px rgba(255,255,255,0.15))",
+                            lineHeight: "1.1"
+                          }}
+                        >
+                          Command Center Dashboard
+                        </h2>
+                        <p
+                          className="mt-2"
+                          style={{
+                            fontSize: "18px",
+                            color: "rgba(255,255,255,0.9)",
+                            lineHeight: "1.4"
+                          }}
+                        >
+                          Welcome back, <span className="text-brand-gold font-black">{displayName}</span> &middot; {new Date().toLocaleDateString("en-IN", { weekday: "long", day: "2-digit", month: "long", year: "numeric" })}
+                        </p>
+                      </div>
+                      <div className="hidden md:flex items-center gap-4 shrink-0">
+                        <div className="text-right">
+                          <p className="text-[9px] text-blue-300 uppercase font-black tracking-widest">Portal Status</p>
+                          <div className="flex items-center gap-1.5 mt-1">
+                            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse inline-block" />
+                            <span className="text-xs font-black text-emerald-300">ALL SYSTEMS LIVE</span>
+                          </div>
+                        </div>
+                        <div className="p-3 rounded-xl bg-white/10 border border-white/20">
+                          <LayoutDashboard className="w-6 h-6 text-white" />
+                        </div>
                       </div>
                     </div>
-                    <div className="p-3 rounded-xl bg-white/10 border border-white/20">
-                      <LayoutDashboard className="w-6 h-6 text-white" />
-                    </div>
-                  </div>
-                </div>
 
-                {/* KPI Cards */}
-                <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
-                  {kpiCards.map((k) => (
-                    <button key={k.label} onClick={() => { setActiveTab(k.tab); setEditingItem(null); setIsAdding(false); }}
-                      className="bg-stone-900 border border-stone-850 p-4 rounded-2xl flex flex-col items-start shadow-sm hover:shadow-md transition cursor-pointer group text-left w-full">
-                      <div className="p-2 rounded-lg mb-3 group-hover:scale-110 transition-transform" style={{ background: k.bg, border: `1px solid ${k.border}`, color: k.color }}>
-                        {k.icon}
-                      </div>
-                      <h3 className="text-2xl font-display font-black text-white">{k.value}</h3>
-                      <p className="text-[10px] font-black text-stone-400 uppercase tracking-wider mt-0.5">{k.label}</p>
-                      <p className="text-[9px] text-stone-500 mt-0.5 leading-tight">{k.sub}</p>
-                    </button>
-                  ))}
-                </div>
-
-                {/* Row 2: Quick Actions + Commissioner */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-                  <div className="lg:col-span-2 bg-stone-900 border border-stone-850 rounded-2xl p-5 space-y-4">
-                    <div className="flex items-center gap-2 border-b border-stone-850 pb-3">
-                      <Plus className="w-4 h-4 text-brand-gold" />
-                      <h4 className="font-display font-black text-xs uppercase tracking-widest text-white">Quick Actions</h4>
-                    </div>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                      {([
-                        { label: "Add News", icon: <FileText className="w-5 h-5" />, color: "#1e40af", action: () => { setActiveTab("news" as TabType); setIsAdding(true); setEditingItem({ title_en: "", title_ta: "", category_en: "", category_ta: "", summary_en: "", summary_ta: "", content_en: [""], content_ta: [""], image: "", tags_en: [], tags_ta: [], section: "latest", published: 1, date: new Date().toLocaleDateString("en-US", { month: "long", day: "2-digit", year: "numeric" }), author_en: "Greater Chennai Police Media Desk", author_ta: "" }); } },
-                        { label: "Add Slider", icon: <ImageIcon className="w-5 h-5" />, color: "#d4af37", action: () => { setActiveTab("slider" as TabType); setIsAdding(true); setEditingItem({ src: "", title_en: "", title_ta: "", desc_en: "", desc_ta: "", category_en: "", category_ta: "", order_num: slider.length + 1, active: 1 }); } },
-                        { label: "Add Video", icon: <Tv className="w-5 h-5" />, color: "#7c3aed", action: () => { setActiveTab("videos" as TabType); setIsAdding(true); setVideoYoutubeUrl(""); setEditingItem({ youtube_id: "", title: "", category: "", date: new Date().toLocaleDateString("en-US", { month: "long", day: "2-digit", year: "numeric" }), order_num: videos.length + 1, active: 1, section: "main" }); } },
-                        { label: "Add Ticker", icon: <Radio className="w-5 h-5" />, color: "#ed1b24", action: () => { setActiveTab("ticker" as TabType); setIsAdding(true); setEditingItem({ text_en: "", text_ta: "", active: 1, order_num: ticker.length + 1 }); } },
-                        { label: "Edit Profile", icon: <User className="w-5 h-5" />, color: "#059669", action: () => setActiveTab("profile" as TabType) },
-                        { label: "Branding", icon: <Palette className="w-5 h-5" />, color: "#d97706", action: () => setActiveTab("theme" as TabType) },
-                        { label: "Config", icon: <Settings className="w-5 h-5" />, color: "#64748b", action: () => setActiveTab("settings" as TabType) },
-                        { label: "Live Portal", icon: <ExternalLink className="w-5 h-5" />, color: "#1e40af", action: () => window.open("/", "_blank") },
-                      ] as { label: string; icon: React.ReactNode; color: string; action: () => void }[]).map((a) => (
-                        <button key={a.label} onClick={a.action}
-                          className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border border-stone-800 hover:border-brand-gold/40 bg-stone-950 hover:bg-stone-850 transition cursor-pointer group text-center">
-                          <div className="p-2.5 rounded-xl group-hover:scale-110 transition-transform" style={{ background: `${a.color}18`, border: `1px solid ${a.color}33`, color: a.color }}>{a.icon}</div>
-                          <span className="text-[10px] font-black uppercase text-stone-300 group-hover:text-white tracking-wider leading-tight">{a.label}</span>
+                    {/* KPI Cards */}
+                    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
+                      {kpiCards.map((k) => (
+                        <button key={k.label} onClick={() => { setActiveTab(k.tab); setEditingItem(null); setIsAdding(false); }}
+                          className="bg-stone-900 border border-stone-850 p-4 rounded-2xl flex flex-col items-start shadow-sm hover:shadow-md transition cursor-pointer group text-left w-full">
+                          <div className="p-2 rounded-lg mb-3 group-hover:scale-110 transition-transform" style={{ background: k.bg, border: `1px solid ${k.border}`, color: k.color }}>
+                            {k.icon}
+                          </div>
+                          <h3 className="text-2xl font-display font-black text-white">{k.value}</h3>
+                          <p className="text-[10px] font-black text-stone-400 uppercase tracking-wider mt-0.5">{k.label}</p>
+                          <p className="text-[9px] text-stone-500 mt-0.5 leading-tight">{k.sub}</p>
                         </button>
                       ))}
                     </div>
-                  </div>
 
-                  <div className="bg-stone-900 border border-stone-850 rounded-2xl p-5 flex flex-col">
-                    <div className="flex items-center gap-2 border-b border-stone-850 pb-3 mb-4">
-                      <User className="w-4 h-4 text-brand-gold" />
-                      <h4 className="font-display font-black text-xs uppercase tracking-widest text-white">Commissioner</h4>
-                    </div>
-                    {profile ? (
-                      <div className="flex flex-col items-center text-center gap-4 flex-grow">
-                        <div className="relative w-20 h-20 rounded-full overflow-hidden bg-stone-950 border-2 border-brand-gold/40 shadow-xl">
-                          <Image src={profile.photo} alt="" fill className="object-cover object-center"  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
+                    {/* Row 2: Quick Actions + Commissioner */}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+                      <div className="lg:col-span-2 bg-stone-900 border border-stone-850 rounded-2xl p-5 space-y-4">
+                        <div className="flex items-center gap-2 border-b border-stone-850 pb-3">
+                          <Plus className="w-4 h-4 text-brand-gold" />
+                          <h4 className="font-display font-black text-xs uppercase tracking-widest text-white">Quick Actions</h4>
                         </div>
-                        <div>
-                          <span className="text-[8px] uppercase font-black text-brand-gold tracking-widest block">Active Executive</span>
-                          <h4 className="font-display font-black text-sm text-white mt-0.5">{profile.name_en}</h4>
-                          <p className="text-[10px] text-stone-400 leading-snug mt-0.5">{profile.designation_en}</p>
-                        </div>
-                        <div className="flex flex-col gap-2 w-full mt-auto">
-                          <button onClick={() => setActiveTab("profile")} className="w-full py-2 bg-stone-950 border border-stone-800 hover:border-brand-gold/40 rounded-lg text-[10px] font-black uppercase tracking-wider text-white transition cursor-pointer">Edit Profile</button>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                          {([
+                            { label: "Add News", icon: <FileText className="w-5 h-5" />, color: "#1e40af", action: () => { setActiveTab("news" as TabType); setIsAdding(true); setEditingItem({ title_en: "", title_ta: "", category_en: "", category_ta: "", summary_en: "", summary_ta: "", content_en: [""], content_ta: [""], image: "", tags_en: [], tags_ta: [], section: "latest", published: 1, date: new Date().toLocaleDateString("en-US", { month: "long", day: "2-digit", year: "numeric" }), author_en: "Greater Chennai Police Media Desk", author_ta: "" }); } },
+                            { label: "Add Slider", icon: <ImageIcon className="w-5 h-5" />, color: "#d4af37", action: () => { setActiveTab("slider" as TabType); setIsAdding(true); setEditingItem({ src: "", title_en: "", title_ta: "", desc_en: "", desc_ta: "", category_en: "", category_ta: "", order_num: slider.length + 1, active: 1 }); } },
+                            { label: "Add Video", icon: <Tv className="w-5 h-5" />, color: "#7c3aed", action: () => { setActiveTab("videos" as TabType); setIsAdding(true); setVideoYoutubeUrl(""); setEditingItem({ youtube_id: "", title: "", category: "", date: new Date().toLocaleDateString("en-US", { month: "long", day: "2-digit", year: "numeric" }), order_num: videos.length + 1, active: 1, section: "main" }); } },
+                            { label: "Add Ticker", icon: <Radio className="w-5 h-5" />, color: "#ed1b24", action: () => { setActiveTab("ticker" as TabType); setIsAdding(true); setEditingItem({ text_en: "", text_ta: "", active: 1, order_num: ticker.length + 1 }); } },
+                            { label: "Edit Profile", icon: <User className="w-5 h-5" />, color: "#059669", action: () => setActiveTab("profile" as TabType) },
+                            { label: "Branding", icon: <Palette className="w-5 h-5" />, color: "#d97706", action: () => setActiveTab("theme" as TabType) },
+                            { label: "Config", icon: <Settings className="w-5 h-5" />, color: "#64748b", action: () => setActiveTab("settings" as TabType) },
+                            { label: "Live Portal", icon: <ExternalLink className="w-5 h-5" />, color: "#1e40af", action: () => window.open("/", "_blank") },
+                          ] as { label: string; icon: React.ReactNode; color: string; action: () => void }[]).map((a) => (
+                            <button key={a.label} onClick={a.action}
+                              className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border border-stone-800 hover:border-brand-gold/40 bg-stone-950 hover:bg-stone-850 transition cursor-pointer group text-center">
+                              <div className="p-2.5 rounded-xl group-hover:scale-110 transition-transform" style={{ background: `${a.color}18`, border: `1px solid ${a.color}33`, color: a.color }}>{a.icon}</div>
+                              <span className="text-[10px] font-black uppercase text-stone-300 group-hover:text-white tracking-wider leading-tight">{a.label}</span>
+                            </button>
+                          ))}
                         </div>
                       </div>
-                    ) : (
-                      <div className="flex-grow flex items-center justify-center text-stone-500 text-xs">No profile data</div>
-                    )}
-                  </div>
-                </div>
 
-                {/* Row 3: Recent News + Activity Log */}
-                <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
-                  <div className="xl:col-span-2 bg-stone-900 border border-stone-850 rounded-2xl overflow-hidden">
-                    <div className="flex items-center justify-between p-4 border-b border-stone-850">
-                      <div className="flex items-center gap-2">
-                        <FileText className="w-4 h-4 text-brand-gold" />
-                        <h4 className="font-display font-black text-xs uppercase tracking-widest text-white">Latest Articles</h4>
-                      </div>
-                      <button onClick={() => setActiveTab("news")} className="text-[9px] uppercase font-black text-brand-gold hover:text-amber-400 tracking-widest cursor-pointer">View All</button>
-                    </div>
-                    <div className="divide-y divide-stone-850">
-                      {news.slice(0, 8).map((n) => (
-                        <div key={n.id} className="flex items-center gap-3 p-3 hover:bg-stone-850/40 transition">
-                          <div className="relative w-12 h-9 rounded-lg overflow-hidden bg-stone-800 shrink-0">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            {n.image && <img src={n.image} alt="" className="w-full h-full object-cover" />}
-                          </div>
-                          <div className="flex-grow min-w-0">
-                            <p className="text-[11px] font-bold text-white line-clamp-1">{n.title_en}</p>
-                            <div className="flex items-center gap-2 mt-0.5">
-                              <span className="text-[8px] font-black uppercase text-brand-gold tracking-wider">{n.category_en}</span>
-                              <span className="text-[8px] text-stone-500">{n.date}</span>
+                      <div className="bg-stone-900 border border-stone-850 rounded-2xl p-5 flex flex-col">
+                        <div className="flex items-center gap-2 border-b border-stone-850 pb-3 mb-4">
+                          <User className="w-4 h-4 text-brand-gold" />
+                          <h4 className="font-display font-black text-xs uppercase tracking-widest text-white">Commissioner</h4>
+                        </div>
+                        {profile ? (
+                          <div className="flex flex-col items-center text-center gap-4 flex-grow">
+                            <div className="relative w-20 h-20 rounded-full overflow-hidden bg-stone-950 border-2 border-brand-gold/40 shadow-xl">
+                              <Image src={profile.photo} alt="" fill className="object-cover object-center" sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
+                            </div>
+                            <div>
+                              <span className="text-[8px] uppercase font-black text-brand-gold tracking-widest block">Active Executive</span>
+                              <h4 className="font-display font-black text-sm text-white mt-0.5">{profile.name_en}</h4>
+                              <p className="text-[10px] text-stone-400 leading-snug mt-0.5">{profile.designation_en}</p>
+                            </div>
+                            <div className="flex flex-col gap-2 w-full mt-auto">
+                              <button onClick={() => setActiveTab("profile")} className="w-full py-2 bg-stone-950 border border-stone-800 hover:border-brand-gold/40 rounded-lg text-[10px] font-black uppercase tracking-wider text-white transition cursor-pointer">Edit Profile</button>
                             </div>
                           </div>
-                          <div className="flex items-center gap-1.5 shrink-0">
-                            <span className={`text-[8px] font-black px-2 py-0.5 rounded-full ${n.published ? "bg-emerald-500/15 text-emerald-400" : "bg-stone-700 text-stone-400"}`}>{n.published ? "LIVE" : "DRAFT"}</span>
-                            <button onClick={() => { setActiveTab("news"); setEditingItem(n); setIsAdding(false); }} className="p-1.5 rounded-lg hover:bg-stone-800 text-stone-500 hover:text-white transition cursor-pointer" title="Edit"><Edit className="w-3 h-3" /></button>
+                        ) : (
+                          <div className="flex-grow flex items-center justify-center text-stone-500 text-xs">No profile data</div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Row 3: Recent News + Activity Log */}
+                    <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
+                      <div className="xl:col-span-2 bg-stone-900 border border-stone-850 rounded-2xl overflow-hidden">
+                        <div className="flex items-center justify-between p-4 border-b border-stone-850">
+                          <div className="flex items-center gap-2">
+                            <FileText className="w-4 h-4 text-brand-gold" />
+                            <h4 className="font-display font-black text-xs uppercase tracking-widest text-white">Latest Articles</h4>
+                          </div>
+                          <button onClick={() => setActiveTab("news")} className="text-[9px] uppercase font-black text-brand-gold hover:text-amber-400 tracking-widest cursor-pointer">View All</button>
+                        </div>
+                        <div className="divide-y divide-stone-850">
+                          {news.slice(0, 8).map((n) => (
+                            <div key={n.id} className="flex items-center gap-3 p-3 hover:bg-stone-850/40 transition">
+                              <div className="relative w-12 h-9 rounded-lg overflow-hidden bg-stone-800 shrink-0">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                {n.image && <img src={n.image} alt="" className="w-full h-full object-cover" />}
+                              </div>
+                              <div className="flex-grow min-w-0">
+                                <p className="text-[11px] font-bold text-white line-clamp-1">{n.title_en}</p>
+                                <div className="flex items-center gap-2 mt-0.5">
+                                  <span className="text-[8px] font-black uppercase text-brand-gold tracking-wider">{n.category_en}</span>
+                                  <span className="text-[8px] text-stone-500">{n.date}</span>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-1.5 shrink-0">
+                                <span className={`text-[8px] font-black px-2 py-0.5 rounded-full ${n.published ? "bg-emerald-500/15 text-emerald-400" : "bg-stone-700 text-stone-400"}`}>{n.published ? "LIVE" : "DRAFT"}</span>
+                                <button onClick={() => { setActiveTab("news"); setEditingItem(n); setIsAdding(false); }} className="p-1.5 rounded-lg hover:bg-stone-800 text-stone-500 hover:text-white transition cursor-pointer" title="Edit"><Edit className="w-3 h-3" /></button>
+                              </div>
+                            </div>
+                          ))}
+                          {news.length === 0 && <div className="p-8 text-center text-stone-500 text-xs">No articles yet.</div>}
+                        </div>
+                      </div>
+
+                      <div className="bg-stone-900 border border-stone-850 rounded-2xl overflow-hidden flex flex-col">
+                        <div className="flex items-center gap-2 p-4 border-b border-stone-850">
+                          <Radio className="w-4 h-4 text-brand-gold" />
+                          <h4 className="font-display font-black text-xs uppercase tracking-widest text-white">Live Activity</h4>
+                          <span className="ml-auto w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                        </div>
+                        <div className="overflow-y-auto divide-y divide-stone-850/60" style={{ maxHeight: "360px" }}>
+                          {activityLog.map((entry, i) => (
+                            <div key={i} className="flex gap-3 items-start p-3 hover:bg-stone-850/30 transition">
+                              <div className="w-6 h-6 rounded-full shrink-0 flex items-center justify-center text-[8px] font-black text-white mt-0.5" style={{ backgroundColor: entry.color }}>{entry.icon}</div>
+                              <div className="min-w-0">
+                                <p className="text-[10px] text-white leading-snug line-clamp-2">{entry.msg}</p>
+                                <span className="text-[9px] text-stone-500 mt-0.5 block">{entry.time}</span>
+                              </div>
+                            </div>
+                          ))}
+                          {activityLog.length === 0 && <div className="p-6 text-center text-stone-500 text-xs">Loading activity...</div>}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Row 3.5: Top Viewed Articles & Videos */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                      {/* Top 10 News */}
+                      <div className="bg-stone-900 border border-stone-850 rounded-2xl p-5 space-y-4 text-left">
+                        <div className="flex items-center gap-2 border-b border-stone-850 pb-3">
+                          <Eye className="w-4 h-4 text-brand-gold" />
+                          <h4 className="font-display font-black text-xs uppercase tracking-widest text-white">Top 10 Most Viewed Articles</h4>
+                        </div>
+                        <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1" style={{ scrollbarWidth: "thin" }}>
+                          {news
+                            .slice()
+                            .sort((a, b) => (b.views_count || 0) - (a.views_count || 0))
+                            .slice(0, 10)
+                            .map((item, idx) => (
+                              <div key={item.id} className="flex justify-between items-center text-xs p-2 rounded hover:bg-stone-850/50 bg-stone-950/20 border border-stone-850/40">
+                                <span className="text-stone-400 font-bold w-6 text-center">{idx + 1}</span>
+                                <span className="text-white font-bold truncate flex-grow max-w-[280px]">{item.title_en}</span>
+                                <span className="text-brand-gold font-black uppercase tracking-wider text-[10px] shrink-0 ml-2">{formatViewsCount(item.views_count)} Views</span>
+                              </div>
+                            ))}
+                          {news.length === 0 && <div className="text-stone-500 text-xs py-4 text-center">No news views tracked yet.</div>}
+                        </div>
+                      </div>
+
+                      {/* Top 10 Videos */}
+                      <div className="bg-stone-900 border border-stone-850 rounded-2xl p-5 space-y-4 text-left">
+                        <div className="flex items-center gap-2 border-b border-stone-850 pb-3">
+                          <Tv className="w-4 h-4 text-[#0ea5e9]" />
+                          <h4 className="font-display font-black text-xs uppercase tracking-widest text-white">Top 10 Most Viewed Videos</h4>
+                        </div>
+                        <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1" style={{ scrollbarWidth: "thin" }}>
+                          {videos
+                            .slice()
+                            .sort((a, b) => (b.views_count || 0) - (a.views_count || 0))
+                            .slice(0, 10)
+                            .map((item, idx) => (
+                              <div key={item.id} className="flex justify-between items-center text-xs p-2 rounded hover:bg-stone-850/50 bg-stone-950/20 border border-stone-850/40">
+                                <span className="text-stone-400 font-bold w-6 text-center">{idx + 1}</span>
+                                <span className="text-white font-bold truncate flex-grow max-w-[280px]">{item.title}</span>
+                                <span className="text-[#0ea5e9] font-black uppercase tracking-wider text-[10px] shrink-0 ml-2">{formatViewsCount(item.views_count)} Views</span>
+                              </div>
+                            ))}
+                          {videos.length === 0 && <div className="text-stone-500 text-xs py-4 text-center">No video views tracked yet.</div>}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Row 4: Category Chart + Content Status + Portal Health */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                      <div className="bg-stone-900 border border-stone-850 rounded-2xl p-5 space-y-4">
+                        <div className="flex items-center gap-2 border-b border-stone-850 pb-3">
+                          <Palette className="w-4 h-4 text-brand-gold" />
+                          <h4 className="font-display font-black text-xs uppercase tracking-widest text-white">News Categories</h4>
+                        </div>
+                        <div className="space-y-2.5">
+                          {topCats.length > 0 ? topCats.map(([cat, count]) => (
+                            <div key={cat}>
+                              <div className="flex justify-between items-center mb-1">
+                                <span className="text-[10px] font-bold text-stone-300 truncate max-w-[130px]">{cat}</span>
+                                <span className="text-[9px] font-black text-brand-gold">{count}</span>
+                              </div>
+                              <div className="h-1.5 rounded-full bg-stone-800 overflow-hidden">
+                                <div className="h-full rounded-full transition-all duration-700" style={{ width: `${(count / maxCatCount) * 100}%`, background: "linear-gradient(90deg,#1e40af,#d4af37)" }} />
+                              </div>
+                            </div>
+                          )) : <p className="text-stone-500 text-xs text-center py-4">No category data</p>}
+                        </div>
+                      </div>
+
+                      <div className="bg-stone-900 border border-stone-850 rounded-2xl p-5 space-y-4">
+                        <div className="flex items-center gap-2 border-b border-stone-850 pb-3">
+                          <CheckCircle className="w-4 h-4 text-brand-gold" />
+                          <h4 className="font-display font-black text-xs uppercase tracking-widest text-white">Content Status</h4>
+                        </div>
+                        <div className="space-y-3">
+                          {[
+                            { label: "Published News", count: publishedNews.length, total: Math.max(news.length, 1), color: "#059669" },
+                            { label: "Drafts", count: draftNews.length, total: Math.max(news.length, 1), color: "#d97706" },
+                            { label: "Active Slider", count: activeSlider.length, total: Math.max(slider.length, 1), color: "#d4af37" },
+                            { label: "Ticker Active", count: activeTicker.length, total: Math.max(ticker.length, 1), color: "#1e40af" },
+                            { label: "Videos Active", count: activeVideosCount, total: Math.max(videos.length, 1), color: "#7c3aed" },
+                            { label: "Contacts", count: activeContacts.length, total: Math.max(contacts.length, 1), color: "#ed1b24" },
+                          ].map(({ label, count, total, color }) => (
+                            <div key={label}>
+                              <div className="flex justify-between items-center mb-1">
+                                <span className="text-[10px] font-bold text-stone-300">{label}</span>
+                                <span className="text-[9px] font-black" style={{ color }}>{count}/{total}</span>
+                              </div>
+                              <div className="h-2 rounded-full bg-stone-800 overflow-hidden">
+                                <div className="h-full rounded-full transition-all duration-700" style={{ width: `${Math.min((count / total) * 100, 100)}%`, backgroundColor: color }} />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="space-y-4">
+                        <div className="bg-stone-900 border border-stone-850 rounded-2xl p-5 space-y-3">
+                          <div className="flex items-center gap-2 border-b border-stone-850 pb-3">
+                            <AlertTriangle className="w-4 h-4 text-brand-gold" />
+                            <h4 className="font-display font-black text-xs uppercase tracking-widest text-white">Portal Health</h4>
+                          </div>
+                          {[
+                            { label: "Database", key: "db" },
+                            { label: "API Gateway", key: "api" },
+                            { label: "Admin Console", key: "admin" },
+                            { label: "Live Website", key: "website" },
+                          ].map(({ label, key }) => {
+                            const ok = portalHealth[key as keyof typeof portalHealth];
+                            return (
+                              <div key={key} className="flex items-center justify-between">
+                                <span className="text-[10px] font-bold text-stone-300">{label}</span>
+                                <div className={`flex items-center gap-1.5 text-[9px] font-black uppercase tracking-wider ${ok ? "text-emerald-400" : "text-rose-400"}`}>
+                                  <span className={`w-2 h-2 rounded-full ${ok ? "bg-emerald-400 animate-pulse" : "bg-rose-400"}`} />
+                                  {ok ? "Healthy" : "Issue"}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                        <div className="bg-stone-900 border border-stone-850 rounded-2xl p-4">
+                          <p className="text-[10px] font-black uppercase text-stone-400 tracking-wider mb-3">Monthly News Volume</p>
+                          <div className="flex items-end gap-1 h-16">
+                            {monthlyData.map(({ month, count }) => (
+                              <div key={month} className="flex flex-col items-center gap-0.5 flex-1 min-w-0">
+                                <span className="text-[7px] text-stone-500 font-bold">{count || ""}</span>
+                                <div className="w-full rounded-t transition-all duration-700" style={{ height: `${Math.max((count / maxMonthly) * 52, count > 0 ? 4 : 2)}px`, background: count > 0 ? "linear-gradient(180deg,#d4af37,#1e40af)" : "#2d2d2d" }} />
+                                <span className="text-[7px] text-stone-500 font-bold">{month}</span>
+                              </div>
+                            ))}
                           </div>
                         </div>
-                      ))}
-                      {news.length === 0 && <div className="p-8 text-center text-stone-500 text-xs">No articles yet.</div>}
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="bg-stone-900 border border-stone-850 rounded-2xl overflow-hidden flex flex-col">
-                    <div className="flex items-center gap-2 p-4 border-b border-stone-850">
-                      <Radio className="w-4 h-4 text-brand-gold" />
-                      <h4 className="font-display font-black text-xs uppercase tracking-widest text-white">Live Activity</h4>
-                      <span className="ml-auto w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                    </div>
-                    <div className="overflow-y-auto divide-y divide-stone-850/60" style={{ maxHeight: "360px" }}>
-                      {activityLog.map((entry, i) => (
-                        <div key={i} className="flex gap-3 items-start p-3 hover:bg-stone-850/30 transition">
-                          <div className="w-6 h-6 rounded-full shrink-0 flex items-center justify-center text-[8px] font-black text-white mt-0.5" style={{ backgroundColor: entry.color }}>{entry.icon}</div>
-                          <div className="min-w-0">
-                            <p className="text-[10px] text-white leading-snug line-clamp-2">{entry.msg}</p>
-                            <span className="text-[9px] text-stone-500 mt-0.5 block">{entry.time}</span>
-                          </div>
-                        </div>
-                      ))}
-                      {activityLog.length === 0 && <div className="p-6 text-center text-stone-500 text-xs">Loading activity...</div>}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Row 3.5: Top Viewed Articles & Videos */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                  {/* Top 10 News */}
-                  <div className="bg-stone-900 border border-stone-850 rounded-2xl p-5 space-y-4 text-left">
-                    <div className="flex items-center gap-2 border-b border-stone-850 pb-3">
-                      <Eye className="w-4 h-4 text-brand-gold" />
-                      <h4 className="font-display font-black text-xs uppercase tracking-widest text-white">Top 10 Most Viewed Articles</h4>
-                    </div>
-                    <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1" style={{ scrollbarWidth: "thin" }}>
-                      {news
-                        .slice()
-                        .sort((a, b) => (b.views_count || 0) - (a.views_count || 0))
-                        .slice(0, 10)
-                        .map((item, idx) => (
-                          <div key={item.id} className="flex justify-between items-center text-xs p-2 rounded hover:bg-stone-850/50 bg-stone-950/20 border border-stone-850/40">
-                            <span className="text-stone-400 font-bold w-6 text-center">{idx + 1}</span>
-                            <span className="text-white font-bold truncate flex-grow max-w-[280px]">{item.title_en}</span>
-                            <span className="text-brand-gold font-black uppercase tracking-wider text-[10px] shrink-0 ml-2">{formatViewsCount(item.views_count)} Views</span>
-                          </div>
-                        ))}
-                      {news.length === 0 && <div className="text-stone-500 text-xs py-4 text-center">No news views tracked yet.</div>}
-                    </div>
-                  </div>
-
-                  {/* Top 10 Videos */}
-                  <div className="bg-stone-900 border border-stone-850 rounded-2xl p-5 space-y-4 text-left">
-                    <div className="flex items-center gap-2 border-b border-stone-850 pb-3">
-                      <Tv className="w-4 h-4 text-[#0ea5e9]" />
-                      <h4 className="font-display font-black text-xs uppercase tracking-widest text-white">Top 10 Most Viewed Videos</h4>
-                    </div>
-                    <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1" style={{ scrollbarWidth: "thin" }}>
-                      {videos
-                        .slice()
-                        .sort((a, b) => (b.views_count || 0) - (a.views_count || 0))
-                        .slice(0, 10)
-                        .map((item, idx) => (
-                          <div key={item.id} className="flex justify-between items-center text-xs p-2 rounded hover:bg-stone-850/50 bg-stone-950/20 border border-stone-850/40">
-                            <span className="text-stone-400 font-bold w-6 text-center">{idx + 1}</span>
-                            <span className="text-white font-bold truncate flex-grow max-w-[280px]">{item.title}</span>
-                            <span className="text-[#0ea5e9] font-black uppercase tracking-wider text-[10px] shrink-0 ml-2">{formatViewsCount(item.views_count)} Views</span>
-                          </div>
-                        ))}
-                      {videos.length === 0 && <div className="text-stone-500 text-xs py-4 text-center">No video views tracked yet.</div>}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Row 4: Category Chart + Content Status + Portal Health */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                  <div className="bg-stone-900 border border-stone-850 rounded-2xl p-5 space-y-4">
-                    <div className="flex items-center gap-2 border-b border-stone-850 pb-3">
-                      <Palette className="w-4 h-4 text-brand-gold" />
-                      <h4 className="font-display font-black text-xs uppercase tracking-widest text-white">News Categories</h4>
-                    </div>
-                    <div className="space-y-2.5">
-                      {topCats.length > 0 ? topCats.map(([cat, count]) => (
-                        <div key={cat}>
-                          <div className="flex justify-between items-center mb-1">
-                            <span className="text-[10px] font-bold text-stone-300 truncate max-w-[130px]">{cat}</span>
-                            <span className="text-[9px] font-black text-brand-gold">{count}</span>
-                          </div>
-                          <div className="h-1.5 rounded-full bg-stone-800 overflow-hidden">
-                            <div className="h-full rounded-full transition-all duration-700" style={{ width: `${(count / maxCatCount) * 100}%`, background: "linear-gradient(90deg,#1e40af,#d4af37)" }} />
-                          </div>
-                        </div>
-                      )) : <p className="text-stone-500 text-xs text-center py-4">No category data</p>}
-                    </div>
-                  </div>
-
-                  <div className="bg-stone-900 border border-stone-850 rounded-2xl p-5 space-y-4">
-                    <div className="flex items-center gap-2 border-b border-stone-850 pb-3">
-                      <CheckCircle className="w-4 h-4 text-brand-gold" />
-                      <h4 className="font-display font-black text-xs uppercase tracking-widest text-white">Content Status</h4>
-                    </div>
-                    <div className="space-y-3">
-                      {[
-                        { label: "Published News", count: publishedNews.length, total: Math.max(news.length,1), color: "#059669" },
-                        { label: "Drafts", count: draftNews.length, total: Math.max(news.length,1), color: "#d97706" },
-                        { label: "Active Slider", count: activeSlider.length, total: Math.max(slider.length,1), color: "#d4af37" },
-                        { label: "Ticker Active", count: activeTicker.length, total: Math.max(ticker.length,1), color: "#1e40af" },
-                        { label: "Videos Active", count: activeVideosCount, total: Math.max(videos.length,1), color: "#7c3aed" },
-                        { label: "Contacts", count: activeContacts.length, total: Math.max(contacts.length,1), color: "#ed1b24" },
-                      ].map(({ label, count, total, color }) => (
-                        <div key={label}>
-                          <div className="flex justify-between items-center mb-1">
-                            <span className="text-[10px] font-bold text-stone-300">{label}</span>
-                            <span className="text-[9px] font-black" style={{ color }}>{count}/{total}</span>
-                          </div>
-                          <div className="h-2 rounded-full bg-stone-800 overflow-hidden">
-                            <div className="h-full rounded-full transition-all duration-700" style={{ width: `${Math.min((count/total)*100,100)}%`, backgroundColor: color }} />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    <div className="bg-stone-900 border border-stone-850 rounded-2xl p-5 space-y-3">
+                    {/* Row 5: Announcements */}
+                    <div className="bg-stone-900 border border-stone-850 rounded-2xl p-5 space-y-4">
                       <div className="flex items-center gap-2 border-b border-stone-850 pb-3">
-                        <AlertTriangle className="w-4 h-4 text-brand-gold" />
-                        <h4 className="font-display font-black text-xs uppercase tracking-widest text-white">Portal Health</h4>
+                        <Volume2 className="w-4 h-4 text-brand-gold" />
+                        <h4 className="font-display font-black text-xs uppercase tracking-widest text-white">Internal Announcements Board</h4>
+                        <span className="ml-auto text-[9px] font-black text-stone-500 uppercase tracking-wider">Admin Only</span>
                       </div>
-                      {[
-                        { label: "Database", key: "db" },
-                        { label: "API Gateway", key: "api" },
-                        { label: "Admin Console", key: "admin" },
-                        { label: "Live Website", key: "website" },
-                      ].map(({ label, key }) => {
-                        const ok = portalHealth[key as keyof typeof portalHealth];
-                        return (
-                          <div key={key} className="flex items-center justify-between">
-                            <span className="text-[10px] font-bold text-stone-300">{label}</span>
-                            <div className={`flex items-center gap-1.5 text-[9px] font-black uppercase tracking-wider ${ok ? "text-emerald-400" : "text-rose-400"}`}>
-                              <span className={`w-2 h-2 rounded-full ${ok ? "bg-emerald-400 animate-pulse" : "bg-rose-400"}`} />
-                              {ok ? "Healthy" : "Issue"}
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                    <div className="bg-stone-900 border border-stone-850 rounded-2xl p-4">
-                      <p className="text-[10px] font-black uppercase text-stone-400 tracking-wider mb-3">Monthly News Volume</p>
-                      <div className="flex items-end gap-1 h-16">
-                        {monthlyData.map(({ month, count }) => (
-                          <div key={month} className="flex flex-col items-center gap-0.5 flex-1 min-w-0">
-                            <span className="text-[7px] text-stone-500 font-bold">{count || ""}</span>
-                            <div className="w-full rounded-t transition-all duration-700" style={{ height: `${Math.max((count/maxMonthly)*52, count > 0 ? 4 : 2)}px`, background: count > 0 ? "linear-gradient(180deg,#d4af37,#1e40af)" : "#2d2d2d" }} />
-                            <span className="text-[7px] text-stone-500 font-bold">{month}</span>
-                          </div>
-                        ))}
+                      <div className="flex gap-3 flex-wrap sm:flex-nowrap">
+                        <input type="text" value={newAnnouncement} onChange={(e) => setNewAnnouncement(e.target.value)}
+                          onKeyDown={(e) => { if (e.key === "Enter" && newAnnouncement.trim()) { const sel = (document.getElementById("ann-type") as HTMLSelectElement)?.value || "notice"; setAnnouncements(prev => [{ id: Date.now(), text: newAnnouncement.trim(), time: new Date().toLocaleString("en-IN"), type: sel }, ...prev].slice(0, 10)); setNewAnnouncement(""); } }}
+                          placeholder="Type internal notice, circular, or maintenance alert and press Enter..."
+                          className="flex-grow bg-stone-950 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl focus:border-brand-gold/50 placeholder-stone-600 min-w-0" />
+                        <select id="ann-type" className="bg-stone-950 border border-stone-850 outline-none text-xs text-white px-3 rounded-xl shrink-0">
+                          <option value="notice">Notice</option>
+                          <option value="circular">Circular</option>
+                          <option value="alert">Alert</option>
+                        </select>
+                        <button onClick={() => { if (!newAnnouncement.trim()) return; const sel = (document.getElementById("ann-type") as HTMLSelectElement)?.value || "notice"; setAnnouncements(prev => [{ id: Date.now(), text: newAnnouncement.trim(), time: new Date().toLocaleString("en-IN"), type: sel }, ...prev].slice(0, 10)); setNewAnnouncement(""); }}
+                          className="px-4 py-2 bg-brand-gold hover:bg-brand-gold-dark text-stone-950 rounded-xl text-xs font-black uppercase tracking-wider transition cursor-pointer shrink-0">Post</button>
                       </div>
+                      {announcements.length > 0 ? (
+                        <div className="space-y-2 max-h-48 overflow-y-auto">
+                          {announcements.map((ann) => {
+                            const typeColor = ann.type === "alert" ? "#ed1b24" : ann.type === "circular" ? "#1e40af" : "#d4af37";
+                            return (
+                              <div key={ann.id} className="flex items-start gap-3 p-3 rounded-xl border" style={{ background: `${typeColor}12`, borderColor: `${typeColor}30` }}>
+                                <span className="text-[8px] font-black uppercase px-2 py-0.5 rounded-full shrink-0 mt-0.5 text-white" style={{ background: typeColor }}>{ann.type}</span>
+                                <div className="min-w-0 flex-grow">
+                                  <p className="text-xs text-white font-bold">{ann.text}</p>
+                                  <span className="text-[9px] text-stone-500">{ann.time}</span>
+                                </div>
+                                <button onClick={() => setAnnouncements(prev => prev.filter(a => a.id !== ann.id))} className="text-stone-500 hover:text-rose-400 transition cursor-pointer shrink-0" title="Dismiss"><Trash className="w-3.5 h-3.5" /></button>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <div className="py-6 text-center text-stone-500 text-xs border border-dashed border-stone-800 rounded-xl">No announcements. Type above and press Enter or click Post.</div>
+                      )}
                     </div>
-                  </div>
-                </div>
 
-                {/* Row 5: Announcements */}
-                <div className="bg-stone-900 border border-stone-850 rounded-2xl p-5 space-y-4">
-                  <div className="flex items-center gap-2 border-b border-stone-850 pb-3">
-                    <Volume2 className="w-4 h-4 text-brand-gold" />
-                    <h4 className="font-display font-black text-xs uppercase tracking-widest text-white">Internal Announcements Board</h4>
-                    <span className="ml-auto text-[9px] font-black text-stone-500 uppercase tracking-wider">Admin Only</span>
                   </div>
-                  <div className="flex gap-3 flex-wrap sm:flex-nowrap">
-                    <input type="text" value={newAnnouncement} onChange={(e) => setNewAnnouncement(e.target.value)}
-                      onKeyDown={(e) => { if (e.key === "Enter" && newAnnouncement.trim()) { const sel = (document.getElementById("ann-type") as HTMLSelectElement)?.value || "notice"; setAnnouncements(prev => [{ id: Date.now(), text: newAnnouncement.trim(), time: new Date().toLocaleString("en-IN"), type: sel }, ...prev].slice(0,10)); setNewAnnouncement(""); } }}
-                      placeholder="Type internal notice, circular, or maintenance alert and press Enter..."
-                      className="flex-grow bg-stone-950 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl focus:border-brand-gold/50 placeholder-stone-600 min-w-0" />
-                    <select id="ann-type" className="bg-stone-950 border border-stone-850 outline-none text-xs text-white px-3 rounded-xl shrink-0">
-                      <option value="notice">Notice</option>
-                      <option value="circular">Circular</option>
-                      <option value="alert">Alert</option>
-                    </select>
-                    <button onClick={() => { if (!newAnnouncement.trim()) return; const sel = (document.getElementById("ann-type") as HTMLSelectElement)?.value || "notice"; setAnnouncements(prev => [{ id: Date.now(), text: newAnnouncement.trim(), time: new Date().toLocaleString("en-IN"), type: sel }, ...prev].slice(0,10)); setNewAnnouncement(""); }}
-                      className="px-4 py-2 bg-brand-gold hover:bg-brand-gold-dark text-stone-950 rounded-xl text-xs font-black uppercase tracking-wider transition cursor-pointer shrink-0">Post</button>
-                  </div>
-                  {announcements.length > 0 ? (
-                    <div className="space-y-2 max-h-48 overflow-y-auto">
-                      {announcements.map((ann) => {
-                        const typeColor = ann.type === "alert" ? "#ed1b24" : ann.type === "circular" ? "#1e40af" : "#d4af37";
-                        return (
-                          <div key={ann.id} className="flex items-start gap-3 p-3 rounded-xl border" style={{ background: `${typeColor}12`, borderColor: `${typeColor}30` }}>
-                            <span className="text-[8px] font-black uppercase px-2 py-0.5 rounded-full shrink-0 mt-0.5 text-white" style={{ background: typeColor }}>{ann.type}</span>
-                            <div className="min-w-0 flex-grow">
-                              <p className="text-xs text-white font-bold">{ann.text}</p>
-                              <span className="text-[9px] text-stone-500">{ann.time}</span>
-                            </div>
-                            <button onClick={() => setAnnouncements(prev => prev.filter(a => a.id !== ann.id))} className="text-stone-500 hover:text-rose-400 transition cursor-pointer shrink-0" title="Dismiss"><Trash className="w-3.5 h-3.5" /></button>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <div className="py-6 text-center text-stone-500 text-xs border border-dashed border-stone-800 rounded-xl">No announcements. Type above and press Enter or click Post.</div>
-                  )}
-                </div>
-
-              </div>
-            );
-          })()}
+                );
+              })()}
             </div>
           )}
 
           {activeTab === "news" && (
             <div className="space-y-6">
-              
+
               {/* Dashboard Overview Stats */}
               {!editingItem && (
                 <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
@@ -2595,11 +2602,10 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                               <td className="p-4 text-center">
                                 <button
                                   onClick={() => togglePublish(item)}
-                                  className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wider transition cursor-pointer ${
-                                    item.published === 1
+                                  className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wider transition cursor-pointer ${item.published === 1
                                       ? "bg-emerald-550/10 border border-emerald-550/25 text-emerald-605 dark:text-emerald-400 hover:bg-emerald-500/20"
                                       : "bg-amber-550/10 border border-amber-550/25 text-amber-605 dark:text-amber-400 hover:bg-amber-500/20"
-                                  }`}
+                                    }`}
                                 >
                                   {item.published === 1 ? "Published" : "Draft"}
                                 </button>
@@ -2690,7 +2696,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                   <h3 className="font-display font-black text-sm uppercase tracking-widest text-brand-gold border-b border-stone-200 dark:border-stone-850 pb-2">
                     {isAdding ? "Register New Article Record" : `Modify Article (ID: ${editingItem.id})`}
                   </h3>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
                     {/* Title English */}
                     <div className="space-y-1.5 xl:col-span-2">
@@ -2857,8 +2863,8 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                         value={editingItem.published}
                         onChange={(e) => {
                           const pubVal = parseInt(e.target.value);
-                          const dateVal = pubVal === 1 
-                            ? new Date().toLocaleDateString("en-US", { month: "long", day: "2-digit", year: "numeric" }) 
+                          const dateVal = pubVal === 1
+                            ? new Date().toLocaleDateString("en-US", { month: "long", day: "2-digit", year: "numeric" })
                             : editingItem.date;
                           setEditingItem({ ...editingItem, published: pubVal, date: dateVal });
                         }}
@@ -3267,7 +3273,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
               {showAiReviewModal && aiSuggestions && (
                 <div className="fixed inset-0 z-[150] bg-stone-950/80 backdrop-blur-sm flex items-center justify-center p-4">
                   <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-850 rounded-2xl w-full max-w-6xl h-[85vh] overflow-hidden flex flex-col shadow-2xl">
-                    
+
                     {/* Modal Header */}
                     <div className="bg-slate-50 dark:bg-stone-955 p-4 border-b border-stone-200 dark:border-stone-850 flex justify-between items-center shrink-0">
                       <div className="flex items-center gap-2">
@@ -3286,7 +3292,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
 
                     {/* Modal Content */}
                     <div className="flex-grow grid grid-cols-1 lg:grid-cols-12 overflow-hidden">
-                      
+
                       {/* Left: Scrollable Fields Review Panel */}
                       <div className="lg:col-span-7 flex flex-col h-full overflow-hidden border-r border-stone-200 dark:border-stone-800">
                         <div className="p-4 bg-slate-50/50 dark:bg-stone-900 border-b border-stone-200 dark:border-stone-800 flex items-center justify-between shrink-0">
@@ -3317,24 +3323,23 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                             const isSelected = selectedAiSuggestions[fieldKey];
                             const confidence = item.confidence || 0;
                             const isLowConfidence = confidence < 60;
-                            
+
                             // HSL tailored color code for confidence badge
-                            const badgeColor = confidence >= 80 
-                              ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800" 
+                            const badgeColor = confidence >= 80
+                              ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800"
                               : confidence >= 50
-                              ? "bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-400 border-amber-200 dark:border-amber-800"
-                              : "bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-400 border-rose-200 dark:border-rose-800";
+                                ? "bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-400 border-amber-200 dark:border-amber-800"
+                                : "bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-400 border-rose-200 dark:border-rose-800";
 
                             return (
                               <div
                                 key={fieldKey}
                                 onMouseEnter={() => setHoveredAiField(fieldKey)}
                                 onFocus={() => setHoveredAiField(fieldKey)}
-                                className={`p-3 border rounded-xl transition ${
-                                  hoveredAiField === fieldKey 
+                                className={`p-3 border rounded-xl transition ${hoveredAiField === fieldKey
                                     ? "bg-stone-50 dark:bg-stone-955/40 border-brand-gold/40 shadow-sm"
                                     : "border-slate-100 dark:border-stone-850 bg-white dark:bg-stone-900"
-                                }`}
+                                  }`}
                               >
                                 <div className="flex items-center justify-between gap-3 mb-1.5">
                                   <label className="flex items-center gap-2 cursor-pointer">
@@ -3403,7 +3408,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                                           className="flex-grow bg-slate-55 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 outline-none text-xs text-slate-800 dark:text-white p-2 rounded-xl"
                                         />
                                       </div>
-                                      
+
                                       {/* Tamil match fields translation preview (if exists) */}
                                       {aiSuggestions[fieldKey + "_ta"] && (
                                         <div className="flex gap-2">
@@ -3428,7 +3433,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                                   <div className="mt-2 text-[10px] text-rose-600 dark:text-rose-450 font-bold bg-rose-50 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/35 p-2 rounded-xl flex items-start gap-1">
                                     <span className="shrink-0">⚠️</span>
                                     <span>
-                                      Low confidence in {fieldKey.replace("_en", "").replace("_ta", "")}. Please verify manually. 
+                                      Low confidence in {fieldKey.replace("_en", "").replace("_ta", "")}. Please verify manually.
                                       {item.extracted_from ? ` (AI match quote: "${item.extracted_from}")` : ""}
                                     </span>
                                   </div>
@@ -3674,21 +3679,28 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                               </button>
                               {user.role !== "editor" && (
                                 <button
-                                  onClick={async () => {
-                                    if (confirm(`Are you sure you want to permanently delete "${file.name}"?`)) {
-                                      try {
-                                        const res = await fetch(`/api/admin/media?file=${encodeURIComponent(file.name)}`, { method: "DELETE" });
-                                        if (res.ok) {
-                                          triggerAlert("success", "File deleted successfully.");
-                                          fetchMedia();
-                                        } else {
-                                          const data = await res.json();
-                                          triggerAlert("error", data.error || "Delete failed.");
+                                  onClick={() => {
+                                    setConfirmModal({
+                                      isOpen: true,
+                                      title: "Delete Media Asset",
+                                      message: `Are you sure you want to permanently delete "${file.name}"? This action cannot be undone.`,
+                                      confirmText: "Delete File",
+                                      danger: true,
+                                      onConfirm: async () => {
+                                        try {
+                                          const res = await fetch(`/api/admin/media?file=${encodeURIComponent(file.name)}`, { method: "DELETE" });
+                                          if (res.ok) {
+                                            triggerAlert("success", "File deleted successfully.");
+                                            fetchMedia();
+                                          } else {
+                                            const data = await res.json();
+                                            triggerAlert("error", data.error || "Delete failed.");
+                                          }
+                                        } catch {
+                                          triggerAlert("error", "Delete error.");
                                         }
-                                      } catch {
-                                        triggerAlert("error", "Delete error.");
                                       }
-                                    }
+                                    });
                                   }}
                                   className="p-2 rounded-lg bg-red-605/80 hover:bg-red-600 text-white transition hover:scale-105"
                                   title="Delete File"
@@ -3726,7 +3738,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
           {/* ==================== TAB: TICKER ==================== */}
           {activeTab === "ticker" && (
             <div className="space-y-6">
-              
+
               {!editingItem && (
                 <>
                   {/* Ticker Status Panel */}
@@ -3760,7 +3772,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                           Save Speed Settings
                         </button>
                       </div>
-                      
+
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-1.5">
                           <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider font-mono">Breaking News Ticker Speed</label>
@@ -3804,7 +3816,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                   <h3 className="font-display font-black text-sm uppercase tracking-widest text-brand-gold border-b border-stone-850 pb-2">
                     {isAdding ? "Add Live Updates Ticker Link" : "Edit Ticker Link"}
                   </h3>
-                  
+
                   <div className="space-y-3">
                     <div className="space-y-1.5">
                       <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Ticker Alert Text (English)</label>
@@ -3874,7 +3886,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                           <h4 className="font-bold text-xs text-white mt-0.5">{item.text_en}</h4>
                           <p className="text-[10px] text-stone-500 mt-0.5">{item.text_ta}</p>
                         </div>
-                        
+
                         <div className="flex items-center gap-2">
                           <button onClick={() => { setEditingItem(item); setIsAdding(false); }} className="p-2 text-stone-400 hover:text-brand-gold hover:bg-stone-855 rounded-lg transition cursor-pointer">
                             <Edit className="w-4 h-4" />
@@ -3895,7 +3907,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
           {/* ==================== TAB: SLIDER ==================== */}
           {activeTab === "slider" && (
             <div className="space-y-6">
-              
+
               {!editingItem && (
                 <div className="flex justify-between items-center bg-stone-900 p-4 rounded-xl border border-stone-850">
                   <div className="flex items-center gap-2">
@@ -3939,7 +3951,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                   <h3 className="font-display font-black text-sm uppercase tracking-widest text-brand-gold border-b border-stone-850 pb-2">
                     {isAdding ? "Add Hero Slide Banner" : "Edit Hero Slide"}
                   </h3>
-                  
+
                   <div className="space-y-3">
                     {/* ── Slider Image – Paste / Upload / Drag-Drop with Aspect Ratio Check ── */}
                     <div className="space-y-2">
@@ -4142,10 +4154,10 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                                 setEditingItem((prev: any) => ({
                                   ...prev,
                                   category_en: data.category_en || prev.category_en,
-                                  title_en:    data.title_en    || prev.title_en,
+                                  title_en: data.title_en || prev.title_en,
                                   category_ta: data.category_ta || prev.category_ta,
-                                  title_ta:    data.title_ta    || prev.title_ta,
-                                  desc_ta:     data.desc_ta     || prev.desc_ta,
+                                  title_ta: data.title_ta || prev.title_ta,
+                                  desc_ta: data.desc_ta || prev.desc_ta,
                                 }));
                                 setSliderGenSource(data.source === "ai" ? "ai" : "rules");
                               } else triggerAlert("error", data.error || "Generation failed.");
@@ -4158,7 +4170,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                           {sliderGenerating ? (
                             <><div className="w-3 h-3 rounded-full border border-brand-gold border-t-transparent animate-spin" />Generating...</>
                           ) : (
-                            <><Sliders className="w-3 h-3" />Auto-Generate</>  
+                            <><Sliders className="w-3 h-3" />Auto-Generate</>
                           )}
                         </button>
                       </div>
@@ -4185,10 +4197,10 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                                   setEditingItem((prev: any) => ({
                                     ...prev,
                                     category_en: data.category_en || prev.category_en,
-                                    title_en:    data.title_en    || prev.title_en,
+                                    title_en: data.title_en || prev.title_en,
                                     category_ta: data.category_ta || prev.category_ta,
-                                    title_ta:    data.title_ta    || prev.title_ta,
-                                    desc_ta:     data.desc_ta     || prev.desc_ta,
+                                    title_ta: data.title_ta || prev.title_ta,
+                                    desc_ta: data.desc_ta || prev.desc_ta,
                                   }));
                                   setSliderGenSource(data.source === "ai" ? "ai" : "rules");
                                 }
@@ -4332,7 +4344,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                     {slider.map((item) => (
                       <div key={item.id} className="bg-stone-900 border border-stone-850 rounded-xl overflow-hidden flex flex-col shadow-sm">
                         <div className="relative w-full h-[150px] bg-black">
-                          <Image src={item.src} alt="" fill className="object-cover object-center"  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
+                          <Image src={item.src} alt="" fill className="object-cover object-center" sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
                           <div className="absolute top-2 right-2 bg-black/50 text-[9px] font-bold text-white px-2 py-0.5 rounded backdrop-blur">
                             Order #{item.order_num} | {item.active ? "Active" : "Hidden"}
                           </div>
@@ -4409,7 +4421,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                     </label>
                     <div className="flex gap-2 items-center">
                       <div className="relative flex-grow">
-                        <svg viewBox="0 0 24 24" className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-red-500" fill="currentColor"><path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.53 3.545 12 3.545 12 3.545s-7.53 0-9.388.508a3.003 3.003 0 0 0-2.11 2.11C0 8.017 0 12 0 12s0 3.983.502 5.837a3.003 3.003 0 0 0 2.11 2.11c1.858.507 9.388.507 9.388.507s7.53 0 9.388-.507a3.003 3.003 0 0 0 2.11-2.11C24 15.983 24 12 24 12s0-3.983-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                        <svg viewBox="0 0 24 24" className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-red-500" fill="currentColor"><path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.53 3.545 12 3.545 12 3.545s-7.53 0-9.388.508a3.003 3.003 0 0 0-2.11 2.11C0 8.017 0 12 0 12s0 3.983.502 5.837a3.003 3.003 0 0 0 2.11 2.11c1.858.507 9.388.507 9.388.507s7.53 0 9.388-.507a3.003 3.003 0 0 0 2.11-2.11C24 15.983 24 12 24 12s0-3.983-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" /></svg>
                         <input
                           type="text"
                           placeholder="https://www.youtube.com/watch?v=... or https://youtu.be/..."
@@ -4653,675 +4665,675 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                   </h3>
                 </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                
-                {/* Photo modification */}
-                <div className="lg:col-span-4 flex flex-col items-center gap-4 bg-stone-955 p-6 rounded-2xl border border-stone-850">
-                  <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider text-center">
-                    Profile Photo Preview
-                  </label>
-                  
-                  <div className="relative w-36 h-36 rounded-full overflow-hidden bg-stone-900 border-2 border-brand-gold/40 shadow-xl">
-                    <Image 
-                      src={profile?.photo && profile.photo.trim() !== "" ? profile.photo : "/images/amalraj_portrait.png"} 
-                      alt="Commissioner Profile Photo" 
-                      fill 
-                      className="object-cover object-center" 
-                      sizes="(max-width: 768px) 100vw, 150px"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        if (target) target.src = "/images/amalraj_portrait.png";
-                      }}
-                    />
-                  </div>
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
-                  <div className="w-full space-y-3 pt-2">
-                    <div className="space-y-1 text-left">
-                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">
-                        Photo Path / URL (Alter directly)
-                      </label>
-                      <input
-                        type="text"
-                        value={profile?.photo ?? ""}
-                        placeholder="/images/amalraj_portrait.png"
-                        onChange={(e) => setProfile(profile ? { ...profile, photo: e.target.value } : null)}
-                        className="w-full bg-stone-900 border border-stone-800 outline-none text-xs text-white p-2.5 rounded-xl font-mono"
-                      />
-                    </div>
+                  {/* Photo modification */}
+                  <div className="lg:col-span-4 flex flex-col items-center gap-4 bg-stone-955 p-6 rounded-2xl border border-stone-850">
+                    <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider text-center">
+                      Profile Photo Preview
+                    </label>
 
-                    <div className="flex flex-col gap-2">
-                      <label className="w-full px-4 py-2 bg-brand-maroon hover:bg-brand-maroon-dark text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition cursor-pointer flex items-center justify-center gap-2 shadow">
-                        {uploading ? (
-                          <div className="w-3.5 h-3.5 border border-white border-t-transparent animate-spin rounded-full" />
-                        ) : (
-                          <Upload className="w-3.5 h-3.5 text-white" />
-                        )}
-                        <span>Upload New Image File</span>
-                        <input type="file" onChange={handleProfileImageUpload} className="hidden" accept="image/*" />
-                      </label>
-
-                      <button
-                        type="button"
-                        onClick={() => setProfile(profile ? { ...profile, photo: "/images/amalraj_portrait.png" } : null)}
-                        className="w-full px-3 py-2 bg-stone-900 hover:bg-stone-850 text-stone-400 hover:text-white rounded-xl text-[10px] font-bold uppercase tracking-wider transition border border-stone-800 flex items-center justify-center gap-1.5 cursor-pointer"
-                      >
-                        <RefreshCw className="w-3 h-3 text-stone-400" />
-                        <span>Reset to Default Image</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Form fields */}
-                <div className="lg:col-span-8 space-y-6">
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Commissioner Name (EN)</label>
-                      <input
-                        type="text"
-                        value={profile.name_en}
-                        onChange={(e) => setProfile({ ...profile, name_en: e.target.value })}
-                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">பெயர் (TA)</label>
-                      <input
-                        type="text"
-                        value={profile.name_ta}
-                        onChange={(e) => setProfile({ ...profile, name_ta: e.target.value })}
-                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
-                      />
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Official Role Title (EN)</label>
-                      <input
-                        type="text"
-                        value={profile.designation_en}
-                        onChange={(e) => setProfile({ ...profile, designation_en: e.target.value })}
-                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">பதவி (TA)</label>
-                      <input
-                        type="text"
-                        value={profile.designation_ta}
-                        onChange={(e) => setProfile({ ...profile, designation_ta: e.target.value })}
-                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
-                      />
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">IPS Batch</label>
-                      <input
-                        type="text"
-                        value={profile.ips_batch ?? ""}
-                        placeholder="e.g. 1996 Batch"
-                        onChange={(e) => setProfile({ ...profile, ips_batch: e.target.value })}
-                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Years of Service</label>
-                      <input
-                        type="text"
-                        value={profile.years_of_service ?? ""}
-                        placeholder="e.g. 30 Years"
-                        onChange={(e) => setProfile({ ...profile, years_of_service: e.target.value })}
-                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
-                      />
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Official Motto (EN)</label>
-                      <input
-                        type="text"
-                        value={profile.motto_en ?? ""}
-                        onChange={(e) => setProfile({ ...profile, motto_en: e.target.value })}
-                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">அதிகாரப்பூர்வ கொள்கை (TA)</label>
-                      <input
-                        type="text"
-                        value={profile.motto_ta ?? ""}
-                        onChange={(e) => setProfile({ ...profile, motto_ta: e.target.value })}
-                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
-                      />
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Birthplace (EN)</label>
-                      <input
-                        type="text"
-                        value={profile.birthplace_en ?? ""}
-                        onChange={(e) => setProfile({ ...profile, birthplace_en: e.target.value })}
-                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">பிறந்த இடம் (TA)</label>
-                      <input
-                        type="text"
-                        value={profile.birthplace_ta ?? ""}
-                        onChange={(e) => setProfile({ ...profile, birthplace_ta: e.target.value })}
-                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Education Background (EN)</label>
-                    <input
-                      type="text"
-                      value={profile.education_en ?? ""}
-                      onChange={(e) => setProfile({ ...profile, education_en: e.target.value })}
-                      className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">கல்வித் தகுதி (TA)</label>
-                    <input
-                      type="text"
-                      value={profile.education_ta ?? ""}
-                      onChange={(e) => setProfile({ ...profile, education_ta: e.target.value })}
-                      className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Biography Paragraph 1 (EN)</label>
-                    <textarea
-                      value={profile.bio_en1}
-                      onChange={(e) => setProfile({ ...profile, bio_en1: e.target.value })}
-                      rows={3}
-                      className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">சுயசரிதை பத்தி 1 (TA)</label>
-                    <textarea
-                      value={profile.bio_ta1}
-                      onChange={(e) => setProfile({ ...profile, bio_ta1: e.target.value })}
-                      rows={3}
-                      className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Biography Paragraph 2 (EN)</label>
-                    <textarea
-                      value={profile.bio_en2}
-                      onChange={(e) => setProfile({ ...profile, bio_en2: e.target.value })}
-                      rows={3}
-                      className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">சுயசரிதை பத்தி 2 (TA)</label>
-                    <textarea
-                      value={profile.bio_ta2}
-                      onChange={(e) => setProfile({ ...profile, bio_ta2: e.target.value })}
-                      rows={3}
-                      className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Email Contact</label>
-                      <input
-                        type="text"
-                        value={profile.email ?? ""}
-                        onChange={(e) => setProfile({ ...profile, email: e.target.value })}
-                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Phone Helpline</label>
-                      <input
-                        type="text"
-                        value={profile.phone ?? ""}
-                        onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
-                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
-                      />
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Office Address (EN)</label>
-                      <input
-                        type="text"
-                        value={profile.office_address_en ?? ""}
-                        onChange={(e) => setProfile({ ...profile, office_address_en: e.target.value })}
-                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">அலுவலக முகவரி (TA)</label>
-                      <input
-                        type="text"
-                        value={profile.office_address_ta ?? ""}
-                        onChange={(e) => setProfile({ ...profile, office_address_ta: e.target.value })}
-                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
-                      />
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Facebook Link</label>
-                      <input
-                        type="text"
-                        value={profile.facebook ?? ""}
-                        onChange={(e) => setProfile({ ...profile, facebook: e.target.value })}
-                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Twitter/X Link</label>
-                      <input
-                        type="text"
-                        value={profile.twitter ?? ""}
-                        onChange={(e) => setProfile({ ...profile, twitter: e.target.value })}
-                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
-                      />
-                    </div>
-
-                    <div className="space-y-1.5 md:col-span-2">
-                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Instagram Link</label>
-                      <input
-                        type="text"
-                        value={profile.instagram ?? ""}
-                        onChange={(e) => setProfile({ ...profile, instagram: e.target.value })}
-                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Vision Statement Fields */}
-                  <div className="border-t border-stone-850 pt-6 space-y-4">
-                    <h4 className="text-xs uppercase tracking-widest font-black text-brand-gold">Vision Statement</h4>
-                    <div className="space-y-3">
-                      <div className="space-y-1.5">
-                        <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Vision Statement (EN)</label>
-                        <textarea
-                          value={profile.vision_en ?? ""}
-                          onChange={(e) => setProfile({ ...profile, vision_en: e.target.value })}
-                          rows={3}
-                          className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
-                        />
-                      </div>
-                      <div className="space-y-1.5">
-                        <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">கொள்கை நோக்கம் (TA)</label>
-                        <textarea
-                          value={profile.vision_ta ?? ""}
-                          onChange={(e) => setProfile({ ...profile, vision_ta: e.target.value })}
-                          rows={3}
-                          className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Timeline Editor */}
-                  <div className="border-t border-stone-850 pt-6 space-y-4">
-                    <div className="flex justify-between items-center">
-                      <h4 className="text-xs uppercase tracking-widest font-black text-brand-gold">Career Timeline</h4>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const updatedTimeline = [...(profile.timeline || []), { year: "", event_en: "", event_ta: "" }];
-                          setProfile({ ...profile, timeline: updatedTimeline });
+                    <div className="relative w-36 h-36 rounded-full overflow-hidden bg-stone-900 border-2 border-brand-gold/40 shadow-xl">
+                      <Image
+                        src={profile?.photo && profile.photo.trim() !== "" ? profile.photo : "/images/amalraj_portrait.png"}
+                        alt="Commissioner Profile Photo"
+                        fill
+                        className="object-cover object-center"
+                        sizes="(max-width: 768px) 100vw, 150px"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          if (target) target.src = "/images/amalraj_portrait.png";
                         }}
-                        className="px-3 py-1 bg-stone-950 hover:bg-stone-850 text-white rounded border border-stone-800 text-[10px] uppercase font-bold flex items-center gap-1 transition"
-                      >
-                        <Plus className="w-3.5 h-3.5 text-brand-gold" /> Add Year/Event
-                      </button>
+                      />
                     </div>
-                    <div className="space-y-3">
-                      {(profile.timeline || []).map((t, idx) => (
-                        <div key={idx} className="grid grid-cols-1 md:grid-cols-12 gap-3 p-4 bg-stone-955 rounded-xl border border-stone-850 items-end">
-                          <div className="md:col-span-2 space-y-1">
-                            <label className="text-[9px] uppercase font-bold text-stone-400">Year</label>
-                            <input
-                              type="text"
-                              value={t.year}
-                              onChange={(e) => {
-                                const updatedTimeline = [...(profile.timeline || [])];
-                                updatedTimeline[idx] = { ...t, year: e.target.value };
-                                setProfile({ ...profile, timeline: updatedTimeline });
-                              }}
-                              className="w-full bg-stone-950 border border-stone-800 text-xs text-white p-2 rounded outline-none"
-                            />
-                          </div>
-                          <div className="md:col-span-5 space-y-1">
-                            <label className="text-[9px] uppercase font-bold text-stone-400">Event (EN)</label>
-                            <input
-                              type="text"
-                              value={t.event_en}
-                              onChange={(e) => {
-                                const updatedTimeline = [...(profile.timeline || [])];
-                                updatedTimeline[idx] = { ...t, event_en: e.target.value };
-                                setProfile({ ...profile, timeline: updatedTimeline });
-                              }}
-                              className="w-full bg-stone-955 border border-stone-800 text-xs text-white p-2 rounded outline-none"
-                            />
-                          </div>
-                          <div className="md:col-span-4 space-y-1">
-                            <label className="text-[9px] uppercase font-bold text-stone-400">நிகழ்வு (TA)</label>
-                            <input
-                              type="text"
-                              value={t.event_ta}
-                              onChange={(e) => {
-                                const updatedTimeline = [...(profile.timeline || [])];
-                                updatedTimeline[idx] = { ...t, event_ta: e.target.value };
-                                setProfile({ ...profile, timeline: updatedTimeline });
-                              }}
-                              className="w-full bg-stone-955 border border-stone-800 text-xs text-white p-2 rounded outline-none"
-                            />
-                          </div>
-                          <div className="md:col-span-1 text-center">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const updatedTimeline = (profile.timeline || []).filter((_, i) => i !== idx);
-                                setProfile({ ...profile, timeline: updatedTimeline });
-                              }}
-                              className="p-2 bg-stone-950 hover:bg-rose-950 hover:text-rose-400 text-stone-400 rounded transition border border-stone-800"
-                            >
-                              <Trash className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
+
+                    <div className="w-full space-y-3 pt-2">
+                      <div className="space-y-1 text-left">
+                        <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">
+                          Photo Path / URL (Alter directly)
+                        </label>
+                        <input
+                          type="text"
+                          value={profile?.photo ?? ""}
+                          placeholder="/images/amalraj_portrait.png"
+                          onChange={(e) => setProfile(profile ? { ...profile, photo: e.target.value } : null)}
+                          className="w-full bg-stone-900 border border-stone-800 outline-none text-xs text-white p-2.5 rounded-xl font-mono"
+                        />
+                      </div>
+
+                      <div className="flex flex-col gap-2">
+                        <label className="w-full px-4 py-2 bg-brand-maroon hover:bg-brand-maroon-dark text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition cursor-pointer flex items-center justify-center gap-2 shadow">
+                          {uploading ? (
+                            <div className="w-3.5 h-3.5 border border-white border-t-transparent animate-spin rounded-full" />
+                          ) : (
+                            <Upload className="w-3.5 h-3.5 text-white" />
+                          )}
+                          <span>Upload New Image File</span>
+                          <input type="file" onChange={handleProfileImageUpload} className="hidden" accept="image/*" />
+                        </label>
+
+                        <button
+                          type="button"
+                          onClick={() => setProfile(profile ? { ...profile, photo: "/images/amalraj_portrait.png" } : null)}
+                          className="w-full px-3 py-2 bg-stone-900 hover:bg-stone-850 text-stone-400 hover:text-white rounded-xl text-[10px] font-bold uppercase tracking-wider transition border border-stone-800 flex items-center justify-center gap-1.5 cursor-pointer"
+                        >
+                          <RefreshCw className="w-3 h-3 text-stone-400" />
+                          <span>Reset to Default Image</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Form fields */}
+                  <div className="lg:col-span-8 space-y-6">
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Commissioner Name (EN)</label>
+                        <input
+                          type="text"
+                          value={profile.name_en}
+                          onChange={(e) => setProfile({ ...profile, name_en: e.target.value })}
+                          className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">பெயர் (TA)</label>
+                        <input
+                          type="text"
+                          value={profile.name_ta}
+                          onChange={(e) => setProfile({ ...profile, name_ta: e.target.value })}
+                          className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Official Role Title (EN)</label>
+                        <input
+                          type="text"
+                          value={profile.designation_en}
+                          onChange={(e) => setProfile({ ...profile, designation_en: e.target.value })}
+                          className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">பதவி (TA)</label>
+                        <input
+                          type="text"
+                          value={profile.designation_ta}
+                          onChange={(e) => setProfile({ ...profile, designation_ta: e.target.value })}
+                          className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">IPS Batch</label>
+                        <input
+                          type="text"
+                          value={profile.ips_batch ?? ""}
+                          placeholder="e.g. 1996 Batch"
+                          onChange={(e) => setProfile({ ...profile, ips_batch: e.target.value })}
+                          className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Years of Service</label>
+                        <input
+                          type="text"
+                          value={profile.years_of_service ?? ""}
+                          placeholder="e.g. 30 Years"
+                          onChange={(e) => setProfile({ ...profile, years_of_service: e.target.value })}
+                          className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Official Motto (EN)</label>
+                        <input
+                          type="text"
+                          value={profile.motto_en ?? ""}
+                          onChange={(e) => setProfile({ ...profile, motto_en: e.target.value })}
+                          className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">அதிகாரப்பூர்வ கொள்கை (TA)</label>
+                        <input
+                          type="text"
+                          value={profile.motto_ta ?? ""}
+                          onChange={(e) => setProfile({ ...profile, motto_ta: e.target.value })}
+                          className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Birthplace (EN)</label>
+                        <input
+                          type="text"
+                          value={profile.birthplace_en ?? ""}
+                          onChange={(e) => setProfile({ ...profile, birthplace_en: e.target.value })}
+                          className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">பிறந்த இடம் (TA)</label>
+                        <input
+                          type="text"
+                          value={profile.birthplace_ta ?? ""}
+                          onChange={(e) => setProfile({ ...profile, birthplace_ta: e.target.value })}
+                          className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Education Background (EN)</label>
+                      <input
+                        type="text"
+                        value={profile.education_en ?? ""}
+                        onChange={(e) => setProfile({ ...profile, education_en: e.target.value })}
+                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">கல்வித் தகுதி (TA)</label>
+                      <input
+                        type="text"
+                        value={profile.education_ta ?? ""}
+                        onChange={(e) => setProfile({ ...profile, education_ta: e.target.value })}
+                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Biography Paragraph 1 (EN)</label>
+                      <textarea
+                        value={profile.bio_en1}
+                        onChange={(e) => setProfile({ ...profile, bio_en1: e.target.value })}
+                        rows={3}
+                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">சுயசரிதை பத்தி 1 (TA)</label>
+                      <textarea
+                        value={profile.bio_ta1}
+                        onChange={(e) => setProfile({ ...profile, bio_ta1: e.target.value })}
+                        rows={3}
+                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Biography Paragraph 2 (EN)</label>
+                      <textarea
+                        value={profile.bio_en2}
+                        onChange={(e) => setProfile({ ...profile, bio_en2: e.target.value })}
+                        rows={3}
+                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">சுயசரிதை பத்தி 2 (TA)</label>
+                      <textarea
+                        value={profile.bio_ta2}
+                        onChange={(e) => setProfile({ ...profile, bio_ta2: e.target.value })}
+                        rows={3}
+                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Email Contact</label>
+                        <input
+                          type="text"
+                          value={profile.email ?? ""}
+                          onChange={(e) => setProfile({ ...profile, email: e.target.value })}
+                          className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Phone Helpline</label>
+                        <input
+                          type="text"
+                          value={profile.phone ?? ""}
+                          onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
+                          className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Office Address (EN)</label>
+                        <input
+                          type="text"
+                          value={profile.office_address_en ?? ""}
+                          onChange={(e) => setProfile({ ...profile, office_address_en: e.target.value })}
+                          className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">அலுவலக முகவரி (TA)</label>
+                        <input
+                          type="text"
+                          value={profile.office_address_ta ?? ""}
+                          onChange={(e) => setProfile({ ...profile, office_address_ta: e.target.value })}
+                          className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Facebook Link</label>
+                        <input
+                          type="text"
+                          value={profile.facebook ?? ""}
+                          onChange={(e) => setProfile({ ...profile, facebook: e.target.value })}
+                          className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Twitter/X Link</label>
+                        <input
+                          type="text"
+                          value={profile.twitter ?? ""}
+                          onChange={(e) => setProfile({ ...profile, twitter: e.target.value })}
+                          className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                        />
+                      </div>
+
+                      <div className="space-y-1.5 md:col-span-2">
+                        <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Instagram Link</label>
+                        <input
+                          type="text"
+                          value={profile.instagram ?? ""}
+                          onChange={(e) => setProfile({ ...profile, instagram: e.target.value })}
+                          className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Vision Statement Fields */}
+                    <div className="border-t border-stone-850 pt-6 space-y-4">
+                      <h4 className="text-xs uppercase tracking-widest font-black text-brand-gold">Vision Statement</h4>
+                      <div className="space-y-3">
+                        <div className="space-y-1.5">
+                          <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Vision Statement (EN)</label>
+                          <textarea
+                            value={profile.vision_en ?? ""}
+                            onChange={(e) => setProfile({ ...profile, vision_en: e.target.value })}
+                            rows={3}
+                            className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                          />
                         </div>
-                      ))}
+                        <div className="space-y-1.5">
+                          <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">கொள்கை நோக்கம் (TA)</label>
+                          <textarea
+                            value={profile.vision_ta ?? ""}
+                            onChange={(e) => setProfile({ ...profile, vision_ta: e.target.value })}
+                            rows={3}
+                            className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
+                          />
+                        </div>
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Awards & Honors Editor */}
-                  <div className="border-t border-stone-850 pt-6 space-y-4">
-                    <div className="flex justify-between items-center">
-                      <h4 className="text-xs uppercase tracking-widest font-black text-brand-gold">Awards & Honors</h4>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const updatedAwards = [...(profile.awards || []), { title_en: "", title_ta: "", desc_en: "", desc_ta: "", year: "" }];
-                          setProfile({ ...profile, awards: updatedAwards });
-                        }}
-                        className="px-3 py-1 bg-stone-950 hover:bg-stone-850 text-white rounded border border-stone-800 text-[10px] uppercase font-bold flex items-center gap-1 transition"
-                      >
-                        <Plus className="w-3.5 h-3.5 text-brand-gold" /> Add Award
-                      </button>
-                    </div>
-                    <div className="space-y-4">
-                      {(profile.awards || []).map((award, idx) => (
-                        <div key={idx} className="p-4 bg-stone-955 rounded-xl border border-stone-850 space-y-3">
-                          <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
-                            <div className="md:col-span-5 space-y-1">
-                              <label className="text-[9px] uppercase font-bold text-stone-400">Award Title (EN)</label>
-                              <input
-                                type="text"
-                                value={award.title_en}
-                                onChange={(e) => {
-                                                                  const updatedAwards = [...(profile.awards || [])];
-                                                                  updatedAwards[idx] = { ...award, title_en: e.target.value };
-                                                                  setProfile({ ...profile, awards: updatedAwards });
-                                                                }}
-                                className="w-full bg-stone-950 border border-stone-800 text-xs text-white p-2 rounded outline-none"
-                              />
-                            </div>
-                            <div className="md:col-span-5 space-y-1">
-                              <label className="text-[9px] uppercase font-bold text-stone-400">விருது பெயர் (TA)</label>
-                              <input
-                                type="text"
-                                value={award.title_ta}
-                                onChange={(e) => {
-                                                                  const updatedAwards = [...(profile.awards || [])];
-                                                                  updatedAwards[idx] = { ...award, title_ta: e.target.value };
-                                                                  setProfile({ ...profile, awards: updatedAwards });
-                                                                }}
-                                className="w-full bg-stone-950 border border-stone-800 text-xs text-white p-2 rounded outline-none"
-                              />
-                            </div>
+                    {/* Timeline Editor */}
+                    <div className="border-t border-stone-850 pt-6 space-y-4">
+                      <div className="flex justify-between items-center">
+                        <h4 className="text-xs uppercase tracking-widest font-black text-brand-gold">Career Timeline</h4>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updatedTimeline = [...(profile.timeline || []), { year: "", event_en: "", event_ta: "" }];
+                            setProfile({ ...profile, timeline: updatedTimeline });
+                          }}
+                          className="px-3 py-1 bg-stone-950 hover:bg-stone-850 text-white rounded border border-stone-800 text-[10px] uppercase font-bold flex items-center gap-1 transition"
+                        >
+                          <Plus className="w-3.5 h-3.5 text-brand-gold" /> Add Year/Event
+                        </button>
+                      </div>
+                      <div className="space-y-3">
+                        {(profile.timeline || []).map((t, idx) => (
+                          <div key={idx} className="grid grid-cols-1 md:grid-cols-12 gap-3 p-4 bg-stone-955 rounded-xl border border-stone-850 items-end">
                             <div className="md:col-span-2 space-y-1">
-                              <label className="text-[9px] uppercase font-bold text-stone-400">Year (Optional)</label>
+                              <label className="text-[9px] uppercase font-bold text-stone-400">Year</label>
                               <input
                                 type="text"
-                                value={award.year ?? ""}
+                                value={t.year}
                                 onChange={(e) => {
-                                                                  const updatedAwards = [...(profile.awards || [])];
-                                                                  updatedAwards[idx] = { ...award, year: e.target.value };
-                                                                  setProfile({ ...profile, awards: updatedAwards });
-                                                                }}
+                                  const updatedTimeline = [...(profile.timeline || [])];
+                                  updatedTimeline[idx] = { ...t, year: e.target.value };
+                                  setProfile({ ...profile, timeline: updatedTimeline });
+                                }}
                                 className="w-full bg-stone-950 border border-stone-800 text-xs text-white p-2 rounded outline-none"
                               />
                             </div>
-                          </div>
-
-                          <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
                             <div className="md:col-span-5 space-y-1">
-                              <label className="text-[9px] uppercase font-bold text-stone-400">Award Description (EN)</label>
+                              <label className="text-[9px] uppercase font-bold text-stone-400">Event (EN)</label>
                               <input
                                 type="text"
-                                value={award.desc_en}
+                                value={t.event_en}
                                 onChange={(e) => {
-                                                                  const updatedAwards = [...(profile.awards || [])];
-                                                                  updatedAwards[idx] = { ...award, desc_en: e.target.value };
-                                                                  setProfile({ ...profile, awards: updatedAwards });
-                                                                }}
-                                className="w-full bg-stone-950 border border-stone-800 text-xs text-white p-2 rounded outline-none"
+                                  const updatedTimeline = [...(profile.timeline || [])];
+                                  updatedTimeline[idx] = { ...t, event_en: e.target.value };
+                                  setProfile({ ...profile, timeline: updatedTimeline });
+                                }}
+                                className="w-full bg-stone-955 border border-stone-800 text-xs text-white p-2 rounded outline-none"
                               />
                             </div>
-                            <div className="md:col-span-6 space-y-1">
-                              <label className="text-[9px] uppercase font-bold text-stone-400">விருது விளக்கம் (TA)</label>
+                            <div className="md:col-span-4 space-y-1">
+                              <label className="text-[9px] uppercase font-bold text-stone-400">நிகழ்வு (TA)</label>
                               <input
                                 type="text"
-                                value={award.desc_ta}
+                                value={t.event_ta}
                                 onChange={(e) => {
-                                                                  const updatedAwards = [...(profile.awards || [])];
-                                                                  updatedAwards[idx] = { ...award, desc_ta: e.target.value };
-                                                                  setProfile({ ...profile, awards: updatedAwards });
-                                                                }}
-                                className="w-full bg-stone-950 border border-stone-800 text-xs text-white p-2 rounded outline-none"
+                                  const updatedTimeline = [...(profile.timeline || [])];
+                                  updatedTimeline[idx] = { ...t, event_ta: e.target.value };
+                                  setProfile({ ...profile, timeline: updatedTimeline });
+                                }}
+                                className="w-full bg-stone-955 border border-stone-800 text-xs text-white p-2 rounded outline-none"
                               />
                             </div>
-                            <div className="md:col-span-1 text-center mt-4 md:mt-0">
+                            <div className="md:col-span-1 text-center">
                               <button
                                 type="button"
                                 onClick={() => {
-                                                                  const updatedAwards = (profile.awards || []).filter((_, i) => i !== idx);
-                                                                  setProfile({ ...profile, awards: updatedAwards });
-                                                                }}
+                                  const updatedTimeline = (profile.timeline || []).filter((_, i) => i !== idx);
+                                  setProfile({ ...profile, timeline: updatedTimeline });
+                                }}
                                 className="p-2 bg-stone-950 hover:bg-rose-950 hover:text-rose-400 text-stone-400 rounded transition border border-stone-800"
                               >
                                 <Trash className="w-3.5 h-3.5" />
                               </button>
                             </div>
                           </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Initiatives Editor */}
-                  <div className="border-t border-stone-850 pt-6 space-y-4">
-                    <div className="flex justify-between items-center">
-                      <h4 className="text-xs uppercase tracking-widest font-black text-brand-gold">Major Initiatives</h4>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const updatedInitiatives = [...(profile.initiatives || []), { title_en: "", title_ta: "", desc_en: "", desc_ta: "", category: "" }];
-                          setProfile({ ...profile, initiatives: updatedInitiatives });
-                        }}
-                        className="px-3 py-1 bg-stone-950 hover:bg-stone-850 text-white rounded border border-stone-800 text-[10px] uppercase font-bold flex items-center gap-1 transition"
-                      >
-                        <Plus className="w-3.5 h-3.5 text-brand-gold" /> Add Initiative
-                      </button>
-                    </div>
-                    <div className="space-y-4">
-                      {(profile.initiatives || []).map((init, idx) => (
-                        <div key={idx} className="p-4 bg-stone-955 rounded-xl border border-stone-850 space-y-3">
-                          <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
-                            <div className="md:col-span-5 space-y-1">
-                              <label className="text-[9px] uppercase font-bold text-stone-400">Initiative Title (EN)</label>
-                              <input
-                                type="text"
-                                value={init.title_en}
-                                onChange={(e) => {
-                                                                  const updatedInitiatives = [...(profile.initiatives || [])];
-                                                                  updatedInitiatives[idx] = { ...init, title_en: e.target.value };
-                                                                  setProfile({ ...profile, initiatives: updatedInitiatives });
-                                                                }}
-                                className="w-full bg-stone-955 border border-stone-800 text-xs text-white p-2 rounded outline-none"
-                              />
+                    {/* Awards & Honors Editor */}
+                    <div className="border-t border-stone-850 pt-6 space-y-4">
+                      <div className="flex justify-between items-center">
+                        <h4 className="text-xs uppercase tracking-widest font-black text-brand-gold">Awards & Honors</h4>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updatedAwards = [...(profile.awards || []), { title_en: "", title_ta: "", desc_en: "", desc_ta: "", year: "" }];
+                            setProfile({ ...profile, awards: updatedAwards });
+                          }}
+                          className="px-3 py-1 bg-stone-950 hover:bg-stone-850 text-white rounded border border-stone-800 text-[10px] uppercase font-bold flex items-center gap-1 transition"
+                        >
+                          <Plus className="w-3.5 h-3.5 text-brand-gold" /> Add Award
+                        </button>
+                      </div>
+                      <div className="space-y-4">
+                        {(profile.awards || []).map((award, idx) => (
+                          <div key={idx} className="p-4 bg-stone-955 rounded-xl border border-stone-850 space-y-3">
+                            <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
+                              <div className="md:col-span-5 space-y-1">
+                                <label className="text-[9px] uppercase font-bold text-stone-400">Award Title (EN)</label>
+                                <input
+                                  type="text"
+                                  value={award.title_en}
+                                  onChange={(e) => {
+                                    const updatedAwards = [...(profile.awards || [])];
+                                    updatedAwards[idx] = { ...award, title_en: e.target.value };
+                                    setProfile({ ...profile, awards: updatedAwards });
+                                  }}
+                                  className="w-full bg-stone-950 border border-stone-800 text-xs text-white p-2 rounded outline-none"
+                                />
+                              </div>
+                              <div className="md:col-span-5 space-y-1">
+                                <label className="text-[9px] uppercase font-bold text-stone-400">விருது பெயர் (TA)</label>
+                                <input
+                                  type="text"
+                                  value={award.title_ta}
+                                  onChange={(e) => {
+                                    const updatedAwards = [...(profile.awards || [])];
+                                    updatedAwards[idx] = { ...award, title_ta: e.target.value };
+                                    setProfile({ ...profile, awards: updatedAwards });
+                                  }}
+                                  className="w-full bg-stone-950 border border-stone-800 text-xs text-white p-2 rounded outline-none"
+                                />
+                              </div>
+                              <div className="md:col-span-2 space-y-1">
+                                <label className="text-[9px] uppercase font-bold text-stone-400">Year (Optional)</label>
+                                <input
+                                  type="text"
+                                  value={award.year ?? ""}
+                                  onChange={(e) => {
+                                    const updatedAwards = [...(profile.awards || [])];
+                                    updatedAwards[idx] = { ...award, year: e.target.value };
+                                    setProfile({ ...profile, awards: updatedAwards });
+                                  }}
+                                  className="w-full bg-stone-950 border border-stone-800 text-xs text-white p-2 rounded outline-none"
+                                />
+                              </div>
                             </div>
-                            <div className="md:col-span-5 space-y-1">
-                              <label className="text-[9px] uppercase font-bold text-stone-400">திட்டம் பெயர் (TA)</label>
-                              <input
-                                type="text"
-                                value={init.title_ta}
-                                onChange={(e) => {
-                                                                  const updatedInitiatives = [...(profile.initiatives || [])];
-                                                                  updatedInitiatives[idx] = { ...init, title_ta: e.target.value };
-                                                                  setProfile({ ...profile, initiatives: updatedInitiatives });
-                                                                }}
-                                className="w-full bg-stone-955 border border-stone-800 text-xs text-white p-2 rounded outline-none"
-                              />
-                            </div>
-                            <div className="md:col-span-2 space-y-1">
-                              <label className="text-[9px] uppercase font-bold text-stone-400">Category (EN)</label>
-                              <input
-                                type="text"
-                                value={init.category ?? ""}
-                                placeholder="e.g. Women Safety"
-                                onChange={(e) => {
-                                                                  const updatedInitiatives = [...(profile.initiatives || [])];
-                                                                  updatedInitiatives[idx] = { ...init, category: e.target.value };
-                                                                  setProfile({ ...profile, initiatives: updatedInitiatives });
-                                                                }}
-                                className="w-full bg-stone-955 border border-stone-800 text-xs text-white p-2 rounded outline-none"
-                              />
+
+                            <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+                              <div className="md:col-span-5 space-y-1">
+                                <label className="text-[9px] uppercase font-bold text-stone-400">Award Description (EN)</label>
+                                <input
+                                  type="text"
+                                  value={award.desc_en}
+                                  onChange={(e) => {
+                                    const updatedAwards = [...(profile.awards || [])];
+                                    updatedAwards[idx] = { ...award, desc_en: e.target.value };
+                                    setProfile({ ...profile, awards: updatedAwards });
+                                  }}
+                                  className="w-full bg-stone-950 border border-stone-800 text-xs text-white p-2 rounded outline-none"
+                                />
+                              </div>
+                              <div className="md:col-span-6 space-y-1">
+                                <label className="text-[9px] uppercase font-bold text-stone-400">விருது விளக்கம் (TA)</label>
+                                <input
+                                  type="text"
+                                  value={award.desc_ta}
+                                  onChange={(e) => {
+                                    const updatedAwards = [...(profile.awards || [])];
+                                    updatedAwards[idx] = { ...award, desc_ta: e.target.value };
+                                    setProfile({ ...profile, awards: updatedAwards });
+                                  }}
+                                  className="w-full bg-stone-950 border border-stone-800 text-xs text-white p-2 rounded outline-none"
+                                />
+                              </div>
+                              <div className="md:col-span-1 text-center mt-4 md:mt-0">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const updatedAwards = (profile.awards || []).filter((_, i) => i !== idx);
+                                    setProfile({ ...profile, awards: updatedAwards });
+                                  }}
+                                  className="p-2 bg-stone-950 hover:bg-rose-950 hover:text-rose-400 text-stone-400 rounded transition border border-stone-800"
+                                >
+                                  <Trash className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
                             </div>
                           </div>
+                        ))}
+                      </div>
+                    </div>
 
-                          <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
-                            <div className="md:col-span-5 space-y-1">
-                              <label className="text-[9px] uppercase font-bold text-stone-400">Initiative Description (EN)</label>
-                              <input
-                                type="text"
-                                value={init.desc_en}
-                                onChange={(e) => {
-                                                                  const updatedInitiatives = [...(profile.initiatives || [])];
-                                                                  updatedInitiatives[idx] = { ...init, desc_en: e.target.value };
-                                                                  setProfile({ ...profile, initiatives: updatedInitiatives });
-                                                                }}
-                                className="w-full bg-stone-955 border border-stone-800 text-xs text-white p-2 rounded outline-none"
-                              />
+                    {/* Initiatives Editor */}
+                    <div className="border-t border-stone-850 pt-6 space-y-4">
+                      <div className="flex justify-between items-center">
+                        <h4 className="text-xs uppercase tracking-widest font-black text-brand-gold">Major Initiatives</h4>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updatedInitiatives = [...(profile.initiatives || []), { title_en: "", title_ta: "", desc_en: "", desc_ta: "", category: "" }];
+                            setProfile({ ...profile, initiatives: updatedInitiatives });
+                          }}
+                          className="px-3 py-1 bg-stone-950 hover:bg-stone-850 text-white rounded border border-stone-800 text-[10px] uppercase font-bold flex items-center gap-1 transition"
+                        >
+                          <Plus className="w-3.5 h-3.5 text-brand-gold" /> Add Initiative
+                        </button>
+                      </div>
+                      <div className="space-y-4">
+                        {(profile.initiatives || []).map((init, idx) => (
+                          <div key={idx} className="p-4 bg-stone-955 rounded-xl border border-stone-850 space-y-3">
+                            <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
+                              <div className="md:col-span-5 space-y-1">
+                                <label className="text-[9px] uppercase font-bold text-stone-400">Initiative Title (EN)</label>
+                                <input
+                                  type="text"
+                                  value={init.title_en}
+                                  onChange={(e) => {
+                                    const updatedInitiatives = [...(profile.initiatives || [])];
+                                    updatedInitiatives[idx] = { ...init, title_en: e.target.value };
+                                    setProfile({ ...profile, initiatives: updatedInitiatives });
+                                  }}
+                                  className="w-full bg-stone-955 border border-stone-800 text-xs text-white p-2 rounded outline-none"
+                                />
+                              </div>
+                              <div className="md:col-span-5 space-y-1">
+                                <label className="text-[9px] uppercase font-bold text-stone-400">திட்டம் பெயர் (TA)</label>
+                                <input
+                                  type="text"
+                                  value={init.title_ta}
+                                  onChange={(e) => {
+                                    const updatedInitiatives = [...(profile.initiatives || [])];
+                                    updatedInitiatives[idx] = { ...init, title_ta: e.target.value };
+                                    setProfile({ ...profile, initiatives: updatedInitiatives });
+                                  }}
+                                  className="w-full bg-stone-955 border border-stone-800 text-xs text-white p-2 rounded outline-none"
+                                />
+                              </div>
+                              <div className="md:col-span-2 space-y-1">
+                                <label className="text-[9px] uppercase font-bold text-stone-400">Category (EN)</label>
+                                <input
+                                  type="text"
+                                  value={init.category ?? ""}
+                                  placeholder="e.g. Women Safety"
+                                  onChange={(e) => {
+                                    const updatedInitiatives = [...(profile.initiatives || [])];
+                                    updatedInitiatives[idx] = { ...init, category: e.target.value };
+                                    setProfile({ ...profile, initiatives: updatedInitiatives });
+                                  }}
+                                  className="w-full bg-stone-955 border border-stone-800 text-xs text-white p-2 rounded outline-none"
+                                />
+                              </div>
                             </div>
-                            <div className="md:col-span-6 space-y-1">
-                              <label className="text-[9px] uppercase font-bold text-stone-400">திட்ட விளக்கம் (TA)</label>
-                              <input
-                                type="text"
-                                value={init.desc_ta}
-                                onChange={(e) => {
-                                                                  const updatedInitiatives = [...(profile.initiatives || [])];
-                                                                  updatedInitiatives[idx] = { ...init, desc_ta: e.target.value };
-                                                                  setProfile({ ...profile, initiatives: updatedInitiatives });
-                                                                }}
-                                className="w-full bg-stone-955 border border-stone-800 text-xs text-white p-2 rounded outline-none"
-                              />
-                            </div>
-                            <div className="md:col-span-1 text-center mt-4 md:mt-0">
-                              <button
-                                type="button"
-                                onClick={() => {
-                                                                  const updatedInitiatives = (profile.initiatives || []).filter((_, i) => i !== idx);
-                                                                  setProfile({ ...profile, initiatives: updatedInitiatives });
-                                                                }}
-                                className="p-2 bg-stone-950 hover:bg-rose-955 hover:text-rose-400 text-stone-400 rounded transition border border-stone-800"
-                              >
-                                <Trash className="w-3.5 h-3.5" />
-                              </button>
+
+                            <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+                              <div className="md:col-span-5 space-y-1">
+                                <label className="text-[9px] uppercase font-bold text-stone-400">Initiative Description (EN)</label>
+                                <input
+                                  type="text"
+                                  value={init.desc_en}
+                                  onChange={(e) => {
+                                    const updatedInitiatives = [...(profile.initiatives || [])];
+                                    updatedInitiatives[idx] = { ...init, desc_en: e.target.value };
+                                    setProfile({ ...profile, initiatives: updatedInitiatives });
+                                  }}
+                                  className="w-full bg-stone-955 border border-stone-800 text-xs text-white p-2 rounded outline-none"
+                                />
+                              </div>
+                              <div className="md:col-span-6 space-y-1">
+                                <label className="text-[9px] uppercase font-bold text-stone-400">திட்ட விளக்கம் (TA)</label>
+                                <input
+                                  type="text"
+                                  value={init.desc_ta}
+                                  onChange={(e) => {
+                                    const updatedInitiatives = [...(profile.initiatives || [])];
+                                    updatedInitiatives[idx] = { ...init, desc_ta: e.target.value };
+                                    setProfile({ ...profile, initiatives: updatedInitiatives });
+                                  }}
+                                  className="w-full bg-stone-955 border border-stone-800 text-xs text-white p-2 rounded outline-none"
+                                />
+                              </div>
+                              <div className="md:col-span-1 text-center mt-4 md:mt-0">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const updatedInitiatives = (profile.initiatives || []).filter((_, i) => i !== idx);
+                                    setProfile({ ...profile, initiatives: updatedInitiatives });
+                                  }}
+                                  className="p-2 bg-stone-950 hover:bg-rose-955 hover:text-rose-400 text-stone-400 rounded transition border border-stone-800"
+                                >
+                                  <Trash className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Gallery Images List Editor */}
-                  <div className="border-t border-stone-850 pt-6 space-y-4">
-                    <div className="flex justify-between items-center">
-                      <h4 className="text-xs uppercase tracking-widest font-black text-brand-gold">Leadership Gallery Photos</h4>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const updatedGallery = [...(profile.gallery || []), ""];
-                          setProfile({ ...profile, gallery: updatedGallery });
-                        }}
-                        className="px-3 py-1 bg-stone-955 hover:bg-stone-850 text-white rounded border border-stone-800 text-[10px] uppercase font-bold flex items-center gap-1 transition"
-                      >
-                        <Plus className="w-3.5 h-3.5 text-brand-gold" /> Add Photo Path
-                      </button>
+                    {/* Gallery Images List Editor */}
+                    <div className="border-t border-stone-850 pt-6 space-y-4">
+                      <div className="flex justify-between items-center">
+                        <h4 className="text-xs uppercase tracking-widest font-black text-brand-gold">Leadership Gallery Photos</h4>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updatedGallery = [...(profile.gallery || []), ""];
+                            setProfile({ ...profile, gallery: updatedGallery });
+                          }}
+                          className="px-3 py-1 bg-stone-955 hover:bg-stone-850 text-white rounded border border-stone-800 text-[10px] uppercase font-bold flex items-center gap-1 transition"
+                        >
+                          <Plus className="w-3.5 h-3.5 text-brand-gold" /> Add Photo Path
+                        </button>
+                      </div>
+                      <div className="space-y-3">
+                        {(profile.gallery || []).map((imgUrl, idx) => (
+                          <div key={idx} className="flex gap-3 items-center bg-stone-955 rounded-xl border border-stone-850 p-3">
+                            {imgUrl && imgUrl.startsWith("/") && (
+                              <div className="relative w-12 h-8 rounded bg-stone-950 border border-stone-800 overflow-hidden shrink-0">
+                                <Image src={imgUrl} alt="" fill className="object-cover" sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
+                              </div>
+                            )}
+                            <input
+                              type="text"
+                              value={imgUrl}
+                              placeholder="e.g. /images/amalraj_portrait.png"
+                              onChange={(e) => {
+                                const updatedGallery = [...(profile.gallery || [])];
+                                updatedGallery[idx] = e.target.value;
+                                setProfile({ ...profile, gallery: updatedGallery });
+                              }}
+                              className="flex-grow bg-stone-950 border border-stone-800 text-xs text-white p-2 rounded outline-none"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const updatedGallery = (profile.gallery || []).filter((_, i) => i !== idx);
+                                setProfile({ ...profile, gallery: updatedGallery });
+                              }}
+                              className="p-2 bg-stone-950 hover:bg-rose-955 hover:text-rose-400 text-stone-400 rounded transition border border-stone-800 shrink-0"
+                            >
+                              <Trash className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                    <div className="space-y-3">
-                      {(profile.gallery || []).map((imgUrl, idx) => (
-                        <div key={idx} className="flex gap-3 items-center bg-stone-955 rounded-xl border border-stone-850 p-3">
-                          {imgUrl && imgUrl.startsWith("/") && (
-                            <div className="relative w-12 h-8 rounded bg-stone-950 border border-stone-800 overflow-hidden shrink-0">
-                              <Image src={imgUrl} alt="" fill className="object-cover"  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
-                            </div>
-                          )}
-                          <input
-                            type="text"
-                            value={imgUrl}
-                            placeholder="e.g. /images/amalraj_portrait.png"
-                            onChange={(e) => {
-                              const updatedGallery = [...(profile.gallery || [])];
-                              updatedGallery[idx] = e.target.value;
-                              setProfile({ ...profile, gallery: updatedGallery });
-                            }}
-                            className="flex-grow bg-stone-950 border border-stone-800 text-xs text-white p-2 rounded outline-none"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const updatedGallery = (profile.gallery || []).filter((_, i) => i !== idx);
-                              setProfile({ ...profile, gallery: updatedGallery });
-                            }}
-                            className="p-2 bg-stone-950 hover:bg-rose-955 hover:text-rose-400 text-stone-400 rounded transition border border-stone-800 shrink-0"
-                          >
-                            <Trash className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
+
                   </div>
 
                 </div>
 
-              </div>
+                {/* Save button centered at the bottom of Profile Settings */}
+                <div className="flex justify-center pt-6 border-t border-stone-850">
+                  <button
+                    onClick={saveProfile}
+                    className="px-5 py-2.5 bg-brand-gold hover:bg-brand-gold-dark text-stone-950 rounded-xl text-xs font-black uppercase tracking-wider transition border border-brand-gold-dark shadow-md"
+                  >
+                    Save Changes
+                  </button>
+                </div>
 
-              {/* Save button centered at the bottom of Profile Settings */}
-              <div className="flex justify-center pt-6 border-t border-stone-850">
-                <button
-                  onClick={saveProfile}
-                  className="px-5 py-2.5 bg-brand-gold hover:bg-brand-gold-dark text-stone-950 rounded-xl text-xs font-black uppercase tracking-wider transition border border-brand-gold-dark shadow-md"
-                >
-                  Save Changes
-                </button>
               </div>
-
+              {renderSeoCard()}
             </div>
-            {renderSeoCard()}
-          </div>
-        )}
+          )}
 
           {/* ==================== TAB: ALERTS ==================== */}
           {activeTab === "alerts" && (
             <div className="space-y-6 w-full text-slate-800 dark:text-stone-100">
-              
+
               {/* Settings and Sync Banner */}
               {alertSettings && (
                 <div className="bg-stone-900 border border-stone-850 p-6 rounded-2xl space-y-6 shadow-sm animate-fade-in">
@@ -5457,7 +5469,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                     if (filter === "approved") return a.approved === 1 && a.removed === 0;
                     return a.removed === 1;
                   }).length;
-                  
+
                   return (
                     <button
                       key={filter}
@@ -5469,11 +5481,10 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                       }}
                     >
                       <span className="capitalize">{filter === "removed" ? "History" : filter}</span>
-                      <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-black ${
-                        alertsFilter === filter 
-                          ? "bg-brand-gold/20 text-brand-gold border border-brand-gold/30" 
+                      <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-black ${alertsFilter === filter
+                          ? "bg-brand-gold/20 text-brand-gold border border-brand-gold/30"
                           : "bg-stone-800 text-stone-500"
-                      }`}>
+                        }`}>
                         {count}
                       </span>
                     </button>
@@ -5497,11 +5508,10 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                     .map((item) => (
                       <div
                         key={item.id}
-                        className={`p-4 rounded-xl border bg-stone-900 flex flex-col md:flex-row md:items-center justify-between gap-4 transition text-left ${
-                          item.pinned 
-                            ? "border-brand-gold bg-brand-gold/5" 
+                        className={`p-4 rounded-xl border bg-stone-900 flex flex-col md:flex-row md:items-center justify-between gap-4 transition text-left ${item.pinned
+                            ? "border-brand-gold bg-brand-gold/5"
                             : "border-stone-850 hover:bg-stone-850/40"
-                        }`}
+                          }`}
                       >
                         <div className="space-y-1.5 flex-grow min-w-0">
                           <div className="flex flex-wrap items-center gap-2">
@@ -5515,11 +5525,11 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                               {new Date(item.published_at).toLocaleString("en-IN")}
                             </span>
                           </div>
-                          
+
                           <h4 className="font-bold text-sm text-white leading-snug">
                             {item.title}
                           </h4>
-                          
+
                           <a
                             href={item.url}
                             target="_blank"
@@ -5536,11 +5546,10 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                           {item.removed === 0 && (
                             <button
                               onClick={() => updateAlert(item, { approved: item.approved ? 0 : 1 })}
-                              className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition cursor-pointer border ${
-                                item.approved 
-                                  ? "bg-stone-950 border-stone-800 text-stone-400 hover:text-white" 
+                              className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition cursor-pointer border ${item.approved
+                                  ? "bg-stone-950 border-stone-800 text-stone-400 hover:text-white"
                                   : "bg-emerald-500/10 border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20"
-                              }`}
+                                }`}
                             >
                               {item.approved ? "Revoke Approval" : "Approve & Publish"}
                             </button>
@@ -5550,11 +5559,10 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                           {item.approved === 1 && item.removed === 0 && (
                             <button
                               onClick={() => updateAlert(item, { pinned: item.pinned ? 0 : 1 })}
-                              className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition cursor-pointer border ${
-                                item.pinned 
-                                  ? "bg-brand-gold text-stone-955 border-brand-gold-dark hover:bg-brand-gold-dark" 
+                              className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition cursor-pointer border ${item.pinned
+                                  ? "bg-brand-gold text-stone-955 border-brand-gold-dark hover:bg-brand-gold-dark"
                                   : "bg-stone-950 border-stone-800 text-stone-400 hover:text-white"
-                              }`}
+                                }`}
                             >
                               {item.pinned ? "Pinned ★" : "Pin Alert"}
                             </button>
@@ -5563,11 +5571,10 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                           {/* Remove/Restore */}
                           <button
                             onClick={() => updateAlert(item, { removed: item.removed ? 0 : 1 })}
-                            className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition cursor-pointer border ${
-                              item.removed 
-                                ? "bg-stone-950 border-stone-800 text-stone-400 hover:text-white" 
+                            className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition cursor-pointer border ${item.removed
+                                ? "bg-stone-950 border-stone-800 text-stone-400 hover:text-white"
                                 : "bg-stone-950 border-stone-800 text-stone-400 hover:text-rose-400"
-                            }`}
+                              }`}
                           >
                             {item.removed ? "Restore to Inbox" : "Remove Alert"}
                           </button>
@@ -5586,10 +5593,10 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                 ) : (
                   <div className="py-16 text-center border border-dashed border-stone-800 rounded-2xl">
                     <p className="text-stone-500 text-xs font-bold">
-                      {alertsFilter === "pending" 
-                        ? "No pending alerts needing moderation." 
-                        : alertsFilter === "approved" 
-                          ? "No active approved alerts published to the portal." 
+                      {alertsFilter === "pending"
+                        ? "No pending alerts needing moderation."
+                        : alertsFilter === "approved"
+                          ? "No active approved alerts published to the portal."
                           : "History log is empty."}
                     </p>
                   </div>
@@ -5615,7 +5622,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  
+
                   {/* Primary Color Card */}
                   <div className="bg-stone-955 p-4 rounded-xl border border-stone-850 space-y-3">
                     <span className="text-[10px] uppercase font-black tracking-wider text-stone-400 block">Primary (Maroon/Red)</span>
@@ -5720,7 +5727,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                   </button>
                 </div>
               </div>
-              
+
               {/* Separate SEO card */}
               {renderSeoCard()}
             </div>
@@ -5729,7 +5736,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
           {/* ==================== TAB: SETTINGS ==================== */}
           {activeTab === "settings" && (
             <div className="space-y-8 w-full">
-              
+
               {/* TTS block */}
               {tts && (
                 <div className="bg-stone-900 border border-stone-850 rounded-2xl p-6 space-y-4">
@@ -5743,7 +5750,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-                    
+
                     {/* TTS Enabled State */}
                     <div className="space-y-1.5">
                       <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">TTS Engine State</label>
@@ -5783,7 +5790,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                         className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
                       />
                     </div>
-                    
+
                     {/* English voice model */}
                     <div className="space-y-1.5">
                       <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">English Voice (Neural Models)</label>
@@ -5906,329 +5913,8 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
 
           {/* ==================== TAB: POLICE STATIONS ==================== */}
           {activeTab === "police-stations" && (
-            <div className="space-y-6">
-              {!editingItem && (
-                <>
-                  {/* Stations Status Panel */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                    <div className="bg-stone-900 border border-stone-850 p-4 rounded-xl flex flex-col items-start shadow-sm">
-                      <span className="text-[10px] uppercase font-black tracking-wider text-brand-gold">Total Stations</span>
-                      <span className="text-2xl font-black text-white mt-1">{policeStations.length}</span>
-                    </div>
-                    <div className="bg-stone-900 border border-stone-850 p-4 rounded-xl flex flex-col items-start shadow-sm">
-                      <span className="text-[10px] uppercase font-black tracking-wider text-brand-blue-light">Law & Order</span>
-                      <span className="text-2xl font-black text-white mt-1">
-                        {policeStations.filter(s => s.type === "Law & Order").length}
-                      </span>
-                    </div>
-                    <div className="bg-stone-900 border border-stone-850 p-4 rounded-xl flex flex-col items-start shadow-sm">
-                      <span className="text-[10px] uppercase font-black tracking-wider text-[#d4af37]">Traffic Control</span>
-                      <span className="text-2xl font-black text-white mt-1">
-                        {policeStations.filter(s => s.type === "Traffic").length}
-                      </span>
-                    </div>
-                    <div className="bg-stone-900 border border-stone-850 p-4 rounded-xl flex flex-col items-start shadow-sm">
-                      <span className="text-[10px] uppercase font-black tracking-wider text-pink-500">AWPS</span>
-                      <span className="text-2xl font-black text-white mt-1">
-                        {policeStations.filter(s => s.type === "AWPS").length}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-between items-center bg-stone-900 p-4 rounded-xl border border-stone-850">
-                    <span className="text-xs text-stone-400 font-bold uppercase tracking-wider">Police Stations Directory Registry</span>
-                    <button
-                      onClick={() => {
-                        setIsAdding(true);
-                        setEditingItem({
-                          name_en: "",
-                          name_ta: "",
-                          address_en: "",
-                          address_ta: "",
-                          phone: "",
-                          email: "",
-                          incharge_en: "",
-                          incharge_ta: "",
-                          designation_en: "Inspector of Police (L&O)",
-                          designation_ta: "காவல் ஆய்வாளர் (சட்டம் & ஒழுங்கு)",
-                          hours_en: "24 Hours / 7 Days",
-                          hours_ta: "24 மணிநேரம் / 7 நாட்கள்",
-                          lat: 13.0879,
-                          lng: 80.2592,
-                          zone_en: "North Zone",
-                          zone_ta: "வடக்கு மண்டலம்",
-                          division_en: "",
-                          division_ta: "",
-                          type: "Law & Order"
-                        });
-                      }}
-                      className="flex items-center gap-1.5 px-4 py-2 bg-brand-maroon hover:bg-brand-maroon-dark text-white rounded-lg text-xs font-black uppercase tracking-widest transition cursor-pointer border border-brand-maroon-dark"
-                    >
-                      <Plus className="w-4 h-4" /> Add Station
-                    </button>
-                  </div>
-                </>
-              )}
-
-              {/* Edit/Add Form */}
-              {editingItem && (
-                <div className="bg-stone-900 border border-stone-850 rounded-2xl p-6 space-y-4 w-full text-left">
-                  <h3 className="font-display font-black text-sm uppercase tracking-widest text-brand-gold border-b border-stone-850 pb-2">
-                    {isAdding ? "Add Police Station Profile" : "Edit Police Station Profile"}
-                  </h3>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Station Name English */}
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Station Name (English)</label>
-                      <input
-                        type="text"
-                        value={editingItem.name_en}
-                        onChange={(e) => setEditingItem({ ...editingItem, name_en: e.target.value })}
-                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
-                      />
-                    </div>
-                    {/* Station Name Tamil */}
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">காவல் நிலையம் பெயர் (தமிழ்)</label>
-                      <input
-                        type="text"
-                        value={editingItem.name_ta}
-                        onChange={(e) => setEditingItem({ ...editingItem, name_ta: e.target.value })}
-                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
-                      />
-                    </div>
-
-                    {/* Address English */}
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Complete Address (English)</label>
-                      <textarea
-                        value={editingItem.address_en}
-                        onChange={(e) => setEditingItem({ ...editingItem, address_en: e.target.value })}
-                        rows={2}
-                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
-                      />
-                    </div>
-                    {/* Address Tamil */}
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">காவல் நிலைய முகவரி (தமிழ்)</label>
-                      <textarea
-                        value={editingItem.address_ta}
-                        onChange={(e) => setEditingItem({ ...editingItem, address_ta: e.target.value })}
-                        rows={2}
-                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
-                      />
-                    </div>
-
-                    {/* Phone */}
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Contact Phone Number</label>
-                      <input
-                        type="text"
-                        value={editingItem.phone}
-                        onChange={(e) => setEditingItem({ ...editingItem, phone: e.target.value })}
-                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
-                      />
-                    </div>
-                    {/* Email */}
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Official Email Address</label>
-                      <input
-                        type="text"
-                        value={editingItem.email ?? ""}
-                        onChange={(e) => setEditingItem({ ...editingItem, email: e.target.value })}
-                        placeholder="e.g. ps@gcp.tn.gov.in"
-                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
-                      />
-                    </div>
-
-                    {/* Officer In-Charge English */}
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Inspector In-Charge Name (English)</label>
-                      <input
-                        type="text"
-                        value={editingItem.incharge_en ?? ""}
-                        onChange={(e) => setEditingItem({ ...editingItem, incharge_en: e.target.value })}
-                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
-                      />
-                    </div>
-                    {/* Officer In-Charge Tamil */}
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">பொறுப்பு அதிகாரி பெயர் (தமிழ்)</label>
-                      <input
-                        type="text"
-                        value={editingItem.incharge_ta ?? ""}
-                        onChange={(e) => setEditingItem({ ...editingItem, incharge_ta: e.target.value })}
-                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
-                      />
-                    </div>
-
-                    {/* Designation English */}
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Officer Designation (English)</label>
-                      <input
-                        type="text"
-                        value={editingItem.designation_en ?? ""}
-                        onChange={(e) => setEditingItem({ ...editingItem, designation_en: e.target.value })}
-                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
-                      />
-                    </div>
-                    {/* Designation Tamil */}
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">அதிகாரி பதவி விளக்கம் (தமிழ்)</label>
-                      <input
-                        type="text"
-                        value={editingItem.designation_ta ?? ""}
-                        onChange={(e) => setEditingItem({ ...editingItem, designation_ta: e.target.value })}
-                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
-                      />
-                    </div>
-
-                    {/* Zone English */}
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Area Zone (English)</label>
-                      <input
-                        type="text"
-                        value={editingItem.zone_en}
-                        onChange={(e) => setEditingItem({ ...editingItem, zone_en: e.target.value })}
-                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
-                      />
-                    </div>
-                    {/* Zone Tamil */}
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">காவல் மண்டலம் (தமிழ்)</label>
-                      <input
-                        type="text"
-                        value={editingItem.zone_ta}
-                        onChange={(e) => setEditingItem({ ...editingItem, zone_ta: e.target.value })}
-                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
-                      />
-                    </div>
-
-                    {/* Division English */}
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Division Name (English)</label>
-                      <input
-                        type="text"
-                        value={editingItem.division_en}
-                        onChange={(e) => setEditingItem({ ...editingItem, division_en: e.target.value })}
-                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
-                      />
-                    </div>
-                    {/* Division Tamil */}
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">காவல் கோட்டம் (தமிழ்)</label>
-                      <input
-                        type="text"
-                        value={editingItem.division_ta}
-                        onChange={(e) => setEditingItem({ ...editingItem, division_ta: e.target.value })}
-                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
-                      />
-                    </div>
-
-                    {/* Type Dropdown */}
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Station Category Type</label>
-                      <select
-                        value={editingItem.type}
-                        onChange={(e) => setEditingItem({ ...editingItem, type: e.target.value })}
-                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl cursor-pointer"
-                      >
-                        <option value="Law & Order">Law & Order</option>
-                        <option value="Traffic">Traffic</option>
-                        <option value="AWPS">AWPS (All Women Police Station)</option>
-                      </select>
-                    </div>
-
-                    {/* Hours English */}
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Operational Hours (English)</label>
-                      <input
-                        type="text"
-                        value={editingItem.hours_en ?? ""}
-                        onChange={(e) => setEditingItem({ ...editingItem, hours_en: e.target.value })}
-                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
-                      />
-                    </div>
-                    {/* Hours Tamil */}
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">செயல்பாட்டு நேரம் (தமிழ்)</label>
-                      <input
-                        type="text"
-                        value={editingItem.hours_ta ?? ""}
-                        onChange={(e) => setEditingItem({ ...editingItem, hours_ta: e.target.value })}
-                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
-                      />
-                    </div>
-
-                    {/* Coordinates */}
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Latitude Coordinate</label>
-                      <input
-                        type="number"
-                        step="0.0001"
-                        value={editingItem.lat ?? ""}
-                        onChange={(e) => setEditingItem({ ...editingItem, lat: parseFloat(e.target.value) })}
-                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Longitude Coordinate</label>
-                      <input
-                        type="number"
-                        step="0.0001"
-                        value={editingItem.lng ?? ""}
-                        onChange={(e) => setEditingItem({ ...editingItem, lng: parseFloat(e.target.value) })}
-                        className="w-full bg-stone-955 border border-stone-850 outline-none text-xs text-white p-3 rounded-xl"
-                      />
-                    </div>
-
-                  </div>
-
-                  <div className="flex gap-3 justify-end pt-4 border-t border-stone-855">
-                    <button onClick={() => { setEditingItem(null); setIsAdding(false); }} className="px-4 py-2 bg-stone-950 hover:bg-stone-850 border border-stone-800 rounded-lg text-xs font-black uppercase tracking-wider transition">
-                      Cancel
-                    </button>
-                    <button onClick={() => handleSave("police-stations")} className="px-4 py-2 bg-brand-gold hover:bg-brand-gold-dark text-stone-950 rounded-lg text-xs font-black uppercase tracking-wider transition border border-brand-gold-dark">
-                      Save Station
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Station registry list */}
-              {!editingItem && (
-                <div className="bg-stone-900 border border-stone-850 rounded-2xl overflow-hidden text-left">
-                  <div className="divide-y divide-stone-850">
-                    {policeStations.map((item) => (
-                      <div key={item.id} className="p-4 flex justify-between items-center hover:bg-stone-955/20 transition">
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-[9px] font-black text-brand-gold uppercase tracking-wider border border-brand-gold/30 px-1.5 py-0.5 rounded bg-brand-gold/10 whitespace-nowrap inline-block">
-                              {item.type}
-                            </span>
-                            <span className="text-[9px] font-bold text-stone-500">
-                              {item.zone_en} - {item.division_en}
-                            </span>
-                          </div>
-                          <h4 className="font-bold text-xs text-white mt-1.5">{item.name_en}</h4>
-                          <p className="text-[10px] text-stone-400">{item.name_ta}</p>
-                          <p className="text-[10px] text-stone-500 mt-1">Incharge: {item.incharge_en} | Phone: {item.phone}</p>
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                          <button onClick={() => { setEditingItem(item); setIsAdding(false); }} className="p-2 text-stone-400 hover:text-brand-gold hover:bg-stone-855 rounded-lg transition cursor-pointer">
-                            <Edit className="w-4 h-4" />
-                          </button>
-                          <button onClick={() => handleDelete("police-stations", item.id)} className="p-2 text-stone-500 hover:text-rose-400 hover:bg-stone-855 rounded-lg transition cursor-pointer">
-                            <Trash className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+            <div className="space-y-6 w-full">
+              <PoliceStationsManagement user={user} onTabChange={(t: string) => setActiveTab(t as TabType)} />
               {renderSeoCard()}
             </div>
           )}
@@ -6518,485 +6204,497 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
 
         </div>
 
-          {/* Live Preview Modal */}
-          {previewItem && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
-              <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
-                {/* Modal Header */}
-                <div className="flex items-center justify-between p-4 border-b border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-955">
-                  <div className="flex items-center gap-2">
-                    <Eye className="w-5 h-5 text-brand-maroon dark:text-brand-gold" />
-                    <h3 className="font-display font-black text-sm uppercase tracking-wider text-slate-808 dark:text-white">
-                      Article Frontend Preview
-                    </h3>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    {/* Language Selector in Preview */}
-                    <div className="flex bg-stone-200 dark:bg-stone-800 p-0.5 rounded-lg text-xs font-bold">
-                      <button
-                        onClick={() => setPreviewLang("en")}
-                        className={`px-2.5 py-1 rounded-md transition ${previewLang === "en" ? "bg-white dark:bg-stone-750 text-slate-900 dark:text-white shadow" : "text-stone-500 hover:text-stone-800"}`}
-                      >
-                        English
-                      </button>
-                      <button
-                        onClick={() => setPreviewLang("ta")}
-                        className={`px-2.5 py-1 rounded-md transition ${previewLang === "ta" ? "bg-white dark:bg-stone-750 text-slate-900 dark:text-white shadow" : "text-stone-500 hover:text-stone-800"}`}
-                      >
-                        தமிழ்
-                      </button>
-                    </div>
-                    <button
-                      onClick={() => setPreviewItem(null)}
-                      className="p-1 rounded-lg hover:bg-stone-200 dark:hover:bg-stone-800 text-stone-500 dark:text-stone-400 transition cursor-pointer"
-                    >
-                      <X className="w-5 h-5" />
-                    </button>
-                  </div>
-                </div>
-                {/* Modal Body */}
-                <div className="p-6 overflow-y-auto space-y-6 flex-grow bg-white dark:bg-stone-900">
-                  {/* Badge & Title */}
-                  <div className="space-y-2">
-                    <span className="inline-flex px-2.5 py-0.5 rounded-md text-[10px] uppercase font-black tracking-widest bg-brand-maroon/10 text-brand-maroon border border-brand-maroon/15 dark:bg-brand-gold/10 dark:text-brand-gold dark:border-brand-gold/20">
-                      {previewLang === "ta" ? (previewItem.category_ta || previewItem.category_en) : previewItem.category_en}
-                    </span>
-                    <h2 className="font-display font-black text-xl sm:text-2xl text-slate-900 dark:text-white leading-snug">
-                      {previewLang === "ta" ? (previewItem.title_ta || previewItem.title_en) : previewItem.title_en}
-                    </h2>
-                    <div className="flex items-center gap-1.5 text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase">
-                      <Calendar className="w-3.5 h-3.5" />
-                      Published - {previewItem.date} | By: {previewLang === "ta" ? (previewItem.author_ta || previewItem.author_en) : previewItem.author_en}
-                    </div>
-                  </div>
-
-                  {/* Image */}
-                  {previewItem.image && (
-                    <div className="relative w-full h-64 sm:h-80 rounded-xl overflow-hidden bg-slate-955/20 border border-stone-205 dark:border-stone-800 flex justify-center items-center">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={previewItem.image}
-                        alt=""
-                        className="max-w-full max-h-full object-contain rounded-xl"
-                      />
-                    </div>
-                  )}
-
-                  {/* Summary Block */}
-                  <div className="p-4 bg-stone-50 dark:bg-stone-950 border-l-4 border-brand-maroon dark:border-brand-gold rounded-r-xl">
-                    <p className="text-xs sm:text-sm text-slate-700 dark:text-stone-300 font-medium leading-relaxed italic">
-                      {previewLang === "ta" ? (previewItem.summary_ta || previewItem.summary_en) : previewItem.summary_en}
-                    </p>
-                  </div>
-
-                  {/* Paragraph Content */}
-                  <div className="text-xs sm:text-sm text-slate-700 dark:text-stone-350 font-normal leading-relaxed space-y-4">
-                    {((previewLang === "ta" ? previewItem.content_ta : previewItem.content_en) || []).map((paragraph, index) => (
-                      <p key={index}>{paragraph}</p>
-                    ))}
-                  </div>
-
-                  {/* Citation / Source */}
-                  {(previewItem.sourceName || previewItem.sourceUrl) && (
-                    <div className="pt-4 border-t border-stone-200 dark:border-stone-805 flex items-center justify-between text-xs text-slate-500 dark:text-stone-400">
-                      <div>
-                        Source: <span className="font-bold text-slate-705 dark:text-stone-300">{previewItem.sourceName || "Official Press Release"}</span>
-                      </div>
-                      {previewItem.sourceUrl && (
-                        <a
-                          href={previewItem.sourceUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 font-bold text-brand-maroon dark:text-brand-gold hover:underline"
-                        >
-                          View Source Document <ExternalLink className="w-3 h-3" />
-                        </a>
-                      )}
-                    </div>
-                  )}
-                </div>
-                {/* Footer */}
-                <div className="p-4 bg-stone-50 dark:bg-stone-950 border-t border-stone-200 dark:border-stone-800 flex justify-end">
-                  <button
-                    onClick={() => setPreviewItem(null)}
-                    className="px-5 py-2 bg-stone-200 hover:bg-stone-300 dark:bg-stone-800 dark:hover:bg-stone-750 text-slate-808 dark:text-white text-xs font-bold rounded-lg transition cursor-pointer"
-                  >
-                    Close Preview
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Custom Delete Confirmation Modal */}
-          {deleteConfirm && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
-              <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl w-full max-w-md overflow-hidden flex flex-col shadow-2xl p-6 space-y-4">
-                <div className="flex items-center gap-3 text-rose-500 text-left">
-                  <AlertTriangle className="w-8 h-8 shrink-0 text-rose-600 animate-pulse" />
-                  <h3 className="font-display font-black text-sm uppercase tracking-wider text-slate-800 dark:text-white">
-                    {deleteConfirm.title}
+        {/* Live Preview Modal */}
+        {previewItem && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+            <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
+              {/* Modal Header */}
+              <div className="flex items-center justify-between p-4 border-b border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-955">
+                <div className="flex items-center gap-2">
+                  <Eye className="w-5 h-5 text-brand-maroon dark:text-brand-gold" />
+                  <h3 className="font-display font-black text-sm uppercase tracking-wider text-slate-808 dark:text-white">
+                    Article Frontend Preview
                   </h3>
                 </div>
-                <p className="text-xs text-stone-500 dark:text-stone-400 text-left leading-relaxed">
-                  {deleteConfirm.message}
-                </p>
-                <div className="flex gap-3 justify-end pt-2">
-                  <button
-                    type="button"
-                    onClick={() => setDeleteConfirm(null)}
-                    className="px-4 py-2 bg-stone-200 hover:bg-stone-300 dark:bg-stone-800 dark:hover:bg-stone-750 text-slate-800 dark:text-white text-xs font-bold rounded-lg transition cursor-pointer"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      const { mod, id } = deleteConfirm;
-                      setDeleteConfirm(null);
-                      try {
-                        const res = await fetch(`/api/admin/crud/${mod}?id=${id}`, {
-                          method: "DELETE"
-                        });
-                        if (res.ok) {
-                          triggerAlert("success", `${mod.charAt(0).toUpperCase() + mod.slice(1)} record deleted from the database.`);
-                          fetchData();
-                        } else {
-                          const data = await res.json();
-                          triggerAlert("error", data.error || "Failed to delete.");
-                        }
-                      } catch {
-                        triggerAlert("error", "Connection error deleting record.");
-                      }
-                    }}
-                    className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-lg transition cursor-pointer"
-                  >
-                    Delete Permanently
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Media picker Image Selection Modal */}
-          {isMediaPickerOpen && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
-              <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl w-full max-w-4xl max-h-[85vh] overflow-hidden flex flex-col shadow-2xl">
-                <div className="flex items-center justify-between p-4 border-b border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-950">
-                  <div className="flex items-center gap-2">
-                    <ImageIcon className="w-5 h-5 text-brand-gold" />
-                    <h3 className="font-display font-black text-sm uppercase tracking-wider text-slate-805 dark:text-white">
-                      Select Image from Media Library
-                    </h3>
+                <div className="flex items-center gap-4">
+                  {/* Language Selector in Preview */}
+                  <div className="flex bg-stone-200 dark:bg-stone-800 p-0.5 rounded-lg text-xs font-bold">
+                    <button
+                      onClick={() => setPreviewLang("en")}
+                      className={`px-2.5 py-1 rounded-md transition ${previewLang === "en" ? "bg-white dark:bg-stone-750 text-slate-900 dark:text-white shadow" : "text-stone-500 hover:text-stone-800"}`}
+                    >
+                      English
+                    </button>
+                    <button
+                      onClick={() => setPreviewLang("ta")}
+                      className={`px-2.5 py-1 rounded-md transition ${previewLang === "ta" ? "bg-white dark:bg-stone-750 text-slate-900 dark:text-white shadow" : "text-stone-500 hover:text-stone-800"}`}
+                    >
+                      தமிழ்
+                    </button>
                   </div>
                   <button
-                    onClick={() => setIsMediaPickerOpen(false)}
+                    onClick={() => setPreviewItem(null)}
                     className="p-1 rounded-lg hover:bg-stone-200 dark:hover:bg-stone-800 text-stone-500 dark:text-stone-400 transition cursor-pointer"
                   >
                     <X className="w-5 h-5" />
                   </button>
                 </div>
-                
-                <div className="p-4 bg-stone-50 dark:bg-stone-950 border-b border-stone-200 dark:border-stone-800 flex justify-between items-center">
-                  <span className="text-xs text-stone-500 font-bold uppercase text-left">
-                    Double click an image to select it instantly.
-                  </span>
-                  <button
-                    onClick={async () => {
-                      await fetchMedia();
-                      triggerAlert("success", "Media assets refreshed.");
-                    }}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-750 text-slate-800 dark:text-white text-xs font-bold rounded-lg transition cursor-pointer border border-stone-150 dark:border-stone-700"
-                  >
-                    <RefreshCw className={`w-3.5 h-3.5 ${mediaLoading ? "animate-spin" : ""}`} /> Refresh
-                  </button>
-                </div>
-
-                <div className="p-6 overflow-y-auto flex-grow bg-white dark:bg-stone-900">
-                  {mediaLoading ? (
-                    <div className="flex flex-col items-center justify-center py-20 gap-3">
-                      <div className="w-8 h-8 rounded-full border-2 border-brand-gold border-t-transparent animate-spin" />
-                      <span className="text-xs text-stone-505 font-bold">Scanning media assets...</span>
-                    </div>
-                  ) : mediaFiles.length > 0 ? (
-                    <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-4">
-                      {mediaFiles.map((file) => (
-                        <div
-                          key={file.name}
-                          onClick={() => {
-                            if (editingItem) {
-                              setEditingItem((prev: any) => ({ ...prev, image: file.url }));
-                            }
-                          }}
-                          onDoubleClick={() => {
-                            if (editingItem) {
-                              setEditingItem((prev: any) => ({ ...prev, image: file.url }));
-                              setIsMediaPickerOpen(false);
-                            }
-                          }}
-                          className={`group relative rounded-xl border overflow-hidden cursor-pointer transition-all duration-200 p-1 ${
-                            editingItem?.image === file.url
-                              ? "border-brand-gold bg-brand-gold/5 shadow"
-                              : "border-stone-200 dark:border-stone-805 hover:border-brand-gold/50"
-                          }`}
-                        >
-                          <div className="relative aspect-video w-full rounded-lg overflow-hidden bg-stone-100 dark:bg-stone-955 border border-stone-100 dark:border-stone-900">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                              src={file.url}
-                              alt=""
-                              className="w-full h-full object-cover"
-                            />
-                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
-                              <span className="text-[10px] text-white font-bold bg-black/60 px-2 py-1 rounded">Select</span>
-                            </div>
-                          </div>
-                          <div className="mt-2 text-left">
-                            <p className="text-[10px] font-bold text-slate-808 dark:text-stone-205 truncate" title={file.name}>
-                              {file.name}
-                            </p>
-                            <p className="text-[9px] text-stone-500">
-                              {(file.size / 1024).toFixed(1)} KB
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="py-20 text-center text-stone-500 text-xs border border-dashed border-stone-200 dark:border-stone-800 rounded-2xl">
-                      No uploaded images found. Upload files in the Media Library tab first.
-                    </div>
-                  )}
-                </div>
-
-                <div className="p-4 bg-stone-50 dark:bg-stone-955 border-t border-stone-200 dark:border-stone-800 flex justify-between items-center">
-                  <div className="text-xs text-slate-705 dark:text-stone-300 truncate max-w-md text-left">
-                    Selected: <span className="font-mono font-bold text-brand-gold">{editingItem?.image || "None"}</span>
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setIsMediaPickerOpen(false)}
-                      className="px-4 py-2 bg-stone-200 hover:bg-stone-300 dark:bg-stone-800 dark:hover:bg-stone-750 text-slate-805 dark:text-white text-xs font-bold rounded-lg transition cursor-pointer"
-                    >
-                      Close
-                    </button>
-                    <button
-                      onClick={() => setIsMediaPickerOpen(false)}
-                      disabled={!editingItem?.image}
-                      className="px-4 py-2 bg-brand-gold hover:bg-brand-gold-dark disabled:opacity-50 text-stone-955 text-xs font-bold rounded-lg transition cursor-pointer"
-                    >
-                      Confirm Selection
-                    </button>
-                  </div>
-                </div>
               </div>
-            </div>
-          )}
+              {/* Modal Body */}
+              <div className="p-6 overflow-y-auto space-y-6 flex-grow bg-white dark:bg-stone-900">
+                {/* Badge & Title */}
+                <div className="space-y-2">
+                  <span className="inline-flex px-2.5 py-0.5 rounded-md text-[10px] uppercase font-black tracking-widest bg-brand-maroon/10 text-brand-maroon border border-brand-maroon/15 dark:bg-brand-gold/10 dark:text-brand-gold dark:border-brand-gold/20">
+                    {previewLang === "ta" ? (previewItem.category_ta || previewItem.category_en) : previewItem.category_en}
+                  </span>
+                  <h2 className="font-display font-black text-xl sm:text-2xl text-slate-900 dark:text-white leading-snug">
+                    {previewLang === "ta" ? (previewItem.title_ta || previewItem.title_en) : previewItem.title_en}
+                  </h2>
+                  <div className="flex items-center gap-1.5 text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase">
+                    <Calendar className="w-3.5 h-3.5" />
+                    Published - {previewItem.date} | By: {previewLang === "ta" ? (previewItem.author_ta || previewItem.author_en) : previewItem.author_en}
+                  </div>
+                </div>
 
-          {/* Media Large Lightbox Modal */}
-          {mediaViewUrl && (
-            <div
-              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm cursor-zoom-out animate-fadeIn"
-              onClick={() => setMediaViewUrl(null)}
-            >
-              <div className="relative max-w-5xl max-h-[90vh]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={mediaViewUrl}
-                  alt="Lightbox view"
-                  className="max-w-full max-h-[85vh] object-contain rounded-xl shadow-2xl border border-white/10"
-                />
+                {/* Image */}
+                {previewItem.image && (
+                  <div className="relative w-full h-64 sm:h-80 rounded-xl overflow-hidden bg-slate-955/20 border border-stone-205 dark:border-stone-800 flex justify-center items-center">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={previewItem.image}
+                      alt=""
+                      className="max-w-full max-h-full object-contain rounded-xl"
+                    />
+                  </div>
+                )}
+
+                {/* Summary Block */}
+                <div className="p-4 bg-stone-50 dark:bg-stone-950 border-l-4 border-brand-maroon dark:border-brand-gold rounded-r-xl">
+                  <p className="text-xs sm:text-sm text-slate-700 dark:text-stone-300 font-medium leading-relaxed italic">
+                    {previewLang === "ta" ? (previewItem.summary_ta || previewItem.summary_en) : previewItem.summary_en}
+                  </p>
+                </div>
+
+                {/* Paragraph Content */}
+                <div className="text-xs sm:text-sm text-slate-700 dark:text-stone-350 font-normal leading-relaxed space-y-4">
+                  {((previewLang === "ta" ? previewItem.content_ta : previewItem.content_en) || []).map((paragraph, index) => (
+                    <p key={index}>{paragraph}</p>
+                  ))}
+                </div>
+
+                {/* Citation / Source */}
+                {(previewItem.sourceName || previewItem.sourceUrl) && (
+                  <div className="pt-4 border-t border-stone-200 dark:border-stone-805 flex items-center justify-between text-xs text-slate-500 dark:text-stone-400">
+                    <div>
+                      Source: <span className="font-bold text-slate-705 dark:text-stone-300">{previewItem.sourceName || "Official Press Release"}</span>
+                    </div>
+                    {previewItem.sourceUrl && (
+                      <a
+                        href={previewItem.sourceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 font-bold text-brand-maroon dark:text-brand-gold hover:underline"
+                      >
+                        View Source Document <ExternalLink className="w-3 h-3" />
+                      </a>
+                    )}
+                  </div>
+                )}
+              </div>
+              {/* Footer */}
+              <div className="p-4 bg-stone-50 dark:bg-stone-950 border-t border-stone-200 dark:border-stone-800 flex justify-end">
                 <button
-                  onClick={() => setMediaViewUrl(null)}
-                  className="absolute -top-10 right-0 text-white hover:text-brand-gold text-sm font-bold flex items-center gap-1 cursor-pointer bg-black/40 px-3 py-1 rounded-full border border-white/10"
+                  onClick={() => setPreviewItem(null)}
+                  className="px-5 py-2 bg-stone-200 hover:bg-stone-300 dark:bg-stone-800 dark:hover:bg-stone-750 text-slate-808 dark:text-white text-xs font-bold rounded-lg transition cursor-pointer"
                 >
-                  <X className="w-4 h-4" /> Close
+                  Close Preview
                 </button>
               </div>
             </div>
-          )}
+          </div>
+        )}
 
-          {/* System User Creation & Editing Modal */}
-          {showUserModal && (() => {
-            const rbac = (() => {
-              switch (userFormRole) {
-                case "superadmin":
-                  return {
-                    title: "Super Administrator",
-                    desc: "Full administrative access. Can configure system settings, voice engines, themes, and manage other console user accounts.",
-                    badge: "Full Access",
-                    color: "text-emerald-600 bg-emerald-500/10 border-emerald-500/20"
-                  };
-                case "admin":
-                  return {
-                    title: "Portal Administrator",
-                    desc: "Can manage all database content including news articles, banners, tickers, videos, emergency helplines, and SEO settings. Cannot view configuration settings or user accounts.",
-                    badge: "Content Manager",
-                    color: "text-brand-blue bg-brand-blue/10 border-brand-blue/20"
-                  };
-                case "contentadmin":
-                  return {
-                    title: "Content Administrator",
-                    desc: "Dedicated to the press desk. Can view, create, edit, publish, and delete news articles and media files. Cannot access system settings.",
-                    badge: "News Manager",
-                    color: "text-brand-maroon bg-brand-maroon/10 border-brand-maroon/20"
-                  };
-                case "editor":
-                  return {
-                    title: "Content Editor",
-                    desc: "Can draft news articles and upload media. Cannot publish to the live site or delete content.",
-                    badge: "Drafts Only",
-                    color: "text-amber-600 bg-amber-500/10 border-amber-500/20"
-                  };
-                case "reporter":
-                  return {
-                    title: "Reporter / Contributor",
-                    desc: "Can write news drafts, upload media, and manage draft items in the video gallery. Cannot publish or delete items.",
-                    badge: "Contributor",
-                    color: "text-purple-600 bg-purple-500/10 border-purple-500/20"
-                  };
-                case "mediamanager":
-                  return {
-                    title: "Media Manager",
-                    desc: "Dedicated access to manage video galleries and upload media files. Cannot view or edit news articles.",
-                    badge: "Media Only",
-                    color: "text-blue-600 bg-blue-500/10 border-blue-500/20"
-                  };
-                case "seomanager":
-                  return {
-                    title: "SEO Specialist",
-                    desc: "Can view and configure search engine optimization metadata, tags, sitemaps, and indexing preferences. Cannot modify main content.",
-                    badge: "SEO Only",
-                    color: "text-cyan-600 bg-cyan-500/10 border-cyan-500/20"
-                  };
-                case "viewer":
-                default:
-                  return {
-                    title: "Read-only Viewer",
-                    desc: "Read-only dashboard access. Can audit contents, logs, and sitemaps. Cannot make any changes or create records.",
-                    badge: "Read Only",
-                    color: "text-stone-600 bg-stone-500/10 border-stone-500/20"
-                  };
-              }
-            })();
-
-            return (
-              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
-                <form
-                  onSubmit={handleSaveUser}
-                  className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl w-full max-w-lg overflow-hidden flex flex-col shadow-2xl p-6 space-y-4 text-slate-800 dark:text-stone-200"
-                >
-                  {/* Modal Header */}
-                  <div className="flex items-center justify-between border-b border-stone-200 dark:border-stone-850 pb-3">
-                    <div className="flex items-center gap-2">
-                      <Users className="w-5 h-5 text-brand-gold" />
-                      <h3 className="font-display font-black text-sm uppercase tracking-wider text-slate-800 dark:text-white">
-                        {editingUser ? `Edit System User: ${editingUser.username}` : "Create System User"}
-                      </h3>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setShowUserModal(false)}
-                      className="p-1 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-500 dark:text-stone-400 transition cursor-pointer"
-                    >
-                      <X className="w-5 h-5" />
-                    </button>
-                  </div>
-
-                  {/* Form Body */}
-                  <div className="space-y-4 py-2 overflow-y-auto max-h-[60vh]">
-                    {/* Username Field */}
-                    <div className="space-y-1">
-                      <label className="block text-[10px] font-black uppercase text-stone-400 tracking-wider">Username</label>
-                      <input
-                        type="text"
-                        required
-                        disabled={!!editingUser}
-                        placeholder="Enter user log in name"
-                        value={userFormUsername}
-                        onChange={(e) => setUserFormUsername(e.target.value)}
-                        className="w-full bg-stone-50 dark:bg-stone-955 border border-stone-200 dark:border-stone-850 p-2.5 rounded-lg text-xs outline-none focus:border-brand-gold/50 disabled:opacity-50 font-bold"
-                      />
-                    </div>
-
-                    {/* Email Field */}
-                    <div className="space-y-1">
-                      <label className="block text-[10px] font-black uppercase text-stone-400 tracking-wider">Email Address</label>
-                      <input
-                        type="email"
-                        placeholder="e.g. user@chennaiguardian.in"
-                        value={userFormEmail}
-                        onChange={(e) => setUserFormEmail(e.target.value)}
-                        className="w-full bg-stone-50 dark:bg-stone-955 border border-stone-200 dark:border-stone-850 p-2.5 rounded-lg text-xs outline-none focus:border-brand-gold/50 font-bold"
-                      />
-                    </div>
-
-                    {/* Password Field */}
-                    <div className="space-y-1">
-                      <label className="block text-[10px] font-black uppercase text-stone-400 tracking-wider">
-                        {editingUser ? "Reset Password (Optional)" : "Security Password"}
-                      </label>
-                      <input
-                        type="password"
-                        required={!editingUser}
-                        placeholder={editingUser ? "Leave blank to keep existing password" : "Enter security password"}
-                        value={userFormPassword}
-                        onChange={(e) => setUserFormPassword(e.target.value)}
-                        className="w-full bg-stone-50 dark:bg-stone-955 border border-stone-200 dark:border-stone-850 p-2.5 rounded-lg text-xs outline-none focus:border-brand-gold/50 font-bold font-mono"
-                      />
-                    </div>
-
-                    {/* Role Selection Field */}
-                    <div className="space-y-1">
-                      <label className="block text-[10px] font-black uppercase text-stone-400 tracking-wider">Access Control Role</label>
-                      <select
-                        value={userFormRole}
-                        onChange={(e) => setUserFormRole(e.target.value)}
-                        className="w-full bg-stone-50 dark:bg-stone-955 border border-stone-200 dark:border-stone-850 p-2.5 rounded-lg text-xs outline-none focus:border-brand-gold/50 cursor-pointer font-bold text-slate-800 dark:text-stone-300"
-                      >
-                        <option value="superadmin">Superadmin (All Permissions)</option>
-                        <option value="admin">Admin (Content Manager)</option>
-                        <option value="contentadmin">Content Admin (News Manager)</option>
-                        <option value="editor">Editor (Drafts Only)</option>
-                        <option value="reporter">Reporter (Contributor)</option>
-                        <option value="mediamanager">Media Manager (Videos & Files)</option>
-                        <option value="seomanager">SEO Manager (Metadata Specialist)</option>
-                        <option value="viewer">Viewer (Read-only)</option>
-                      </select>
-                    </div>
-
-                    {/* Dynamic Permissions Summary card */}
-                    <div className="border border-stone-150 dark:border-stone-850 rounded-xl p-3 bg-stone-50 dark:bg-stone-955 space-y-1">
-                      <div className="flex justify-between items-center">
-                        <span className="text-[10px] font-black uppercase text-stone-450 dark:text-stone-550 tracking-wider">Role Permissions Details</span>
-                        <span className={`text-[8px] font-black px-1.5 py-0.5 rounded-full border ${rbac.color}`}>{rbac.badge}</span>
-                      </div>
-                      <h4 className="text-xs font-bold text-slate-800 dark:text-white mt-1">{rbac.title}</h4>
-                      <p className="text-[10px] text-stone-500 dark:text-stone-400 leading-relaxed font-medium">{rbac.desc}</p>
-                    </div>
-                  </div>
-
-                  {/* Form Actions Footer */}
-                  <div className="flex gap-3 justify-end pt-3 border-t border-stone-200 dark:border-stone-850">
-                    <button
-                      type="button"
-                      onClick={() => setShowUserModal(false)}
-                      className="px-4 py-2.5 bg-stone-200 hover:bg-stone-300 dark:bg-stone-800 dark:hover:bg-stone-750 text-slate-800 dark:text-white text-xs font-bold rounded-lg transition cursor-pointer"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      className="px-4 py-2.5 bg-brand-maroon hover:bg-brand-maroon-dark text-white text-xs font-black uppercase tracking-wider rounded-lg transition cursor-pointer"
-                    >
-                      {editingUser ? "Save Changes" : "Create Account"}
-                    </button>
-                  </div>
-                </form>
+        {/* Custom Delete Confirmation Modal */}
+        {deleteConfirm && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+            <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl w-full max-w-md overflow-hidden flex flex-col shadow-2xl p-6 space-y-4">
+              <div className="flex items-center gap-3 text-rose-500 text-left">
+                <AlertTriangle className="w-8 h-8 shrink-0 text-rose-600 animate-pulse" />
+                <h3 className="font-display font-black text-sm uppercase tracking-wider text-slate-800 dark:text-white">
+                  {deleteConfirm.title}
+                </h3>
               </div>
-            );
-          })()}
+              <p className="text-xs text-stone-500 dark:text-stone-400 text-left leading-relaxed">
+                {deleteConfirm.message}
+              </p>
+              <div className="flex gap-3 justify-end pt-2">
+                <button
+                  type="button"
+                  onClick={() => setDeleteConfirm(null)}
+                  className="px-4 py-2 bg-stone-200 hover:bg-stone-300 dark:bg-stone-800 dark:hover:bg-stone-750 text-slate-800 dark:text-white text-xs font-bold rounded-lg transition cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const { mod, id } = deleteConfirm;
+                    setDeleteConfirm(null);
+                    try {
+                      const res = await fetch(`/api/admin/crud/${mod}?id=${id}`, {
+                        method: "DELETE"
+                      });
+                      if (res.ok) {
+                        triggerAlert("success", `${mod.charAt(0).toUpperCase() + mod.slice(1)} record deleted from the database.`);
+                        fetchData();
+                      } else {
+                        const data = await res.json();
+                        triggerAlert("error", data.error || "Failed to delete.");
+                      }
+                    } catch {
+                      triggerAlert("error", "Connection error deleting record.");
+                    }
+                  }}
+                  className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-lg transition cursor-pointer"
+                >
+                  Delete Permanently
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Media picker Image Selection Modal */}
+        {isMediaPickerOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+            <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl w-full max-w-4xl max-h-[85vh] overflow-hidden flex flex-col shadow-2xl">
+              <div className="flex items-center justify-between p-4 border-b border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-950">
+                <div className="flex items-center gap-2">
+                  <ImageIcon className="w-5 h-5 text-brand-gold" />
+                  <h3 className="font-display font-black text-sm uppercase tracking-wider text-slate-805 dark:text-white">
+                    Select Image from Media Library
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setIsMediaPickerOpen(false)}
+                  className="p-1 rounded-lg hover:bg-stone-200 dark:hover:bg-stone-800 text-stone-500 dark:text-stone-400 transition cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="p-4 bg-stone-50 dark:bg-stone-950 border-b border-stone-200 dark:border-stone-800 flex justify-between items-center">
+                <span className="text-xs text-stone-500 font-bold uppercase text-left">
+                  Double click an image to select it instantly.
+                </span>
+                <button
+                  onClick={async () => {
+                    await fetchMedia();
+                    triggerAlert("success", "Media assets refreshed.");
+                  }}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-750 text-slate-800 dark:text-white text-xs font-bold rounded-lg transition cursor-pointer border border-stone-150 dark:border-stone-700"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${mediaLoading ? "animate-spin" : ""}`} /> Refresh
+                </button>
+              </div>
+
+              <div className="p-6 overflow-y-auto flex-grow bg-white dark:bg-stone-900">
+                {mediaLoading ? (
+                  <div className="flex flex-col items-center justify-center py-20 gap-3">
+                    <div className="w-8 h-8 rounded-full border-2 border-brand-gold border-t-transparent animate-spin" />
+                    <span className="text-xs text-stone-505 font-bold">Scanning media assets...</span>
+                  </div>
+                ) : mediaFiles.length > 0 ? (
+                  <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-4">
+                    {mediaFiles.map((file) => (
+                      <div
+                        key={file.name}
+                        onClick={() => {
+                          if (editingItem) {
+                            setEditingItem((prev: any) => ({ ...prev, image: file.url }));
+                          }
+                        }}
+                        onDoubleClick={() => {
+                          if (editingItem) {
+                            setEditingItem((prev: any) => ({ ...prev, image: file.url }));
+                            setIsMediaPickerOpen(false);
+                          }
+                        }}
+                        className={`group relative rounded-xl border overflow-hidden cursor-pointer transition-all duration-200 p-1 ${editingItem?.image === file.url
+                            ? "border-brand-gold bg-brand-gold/5 shadow"
+                            : "border-stone-200 dark:border-stone-805 hover:border-brand-gold/50"
+                          }`}
+                      >
+                        <div className="relative aspect-video w-full rounded-lg overflow-hidden bg-stone-100 dark:bg-stone-955 border border-stone-100 dark:border-stone-900">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={file.url}
+                            alt=""
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
+                            <span className="text-[10px] text-white font-bold bg-black/60 px-2 py-1 rounded">Select</span>
+                          </div>
+                        </div>
+                        <div className="mt-2 text-left">
+                          <p className="text-[10px] font-bold text-slate-808 dark:text-stone-205 truncate" title={file.name}>
+                            {file.name}
+                          </p>
+                          <p className="text-[9px] text-stone-500">
+                            {(file.size / 1024).toFixed(1)} KB
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="py-20 text-center text-stone-500 text-xs border border-dashed border-stone-200 dark:border-stone-800 rounded-2xl">
+                    No uploaded images found. Upload files in the Media Library tab first.
+                  </div>
+                )}
+              </div>
+
+              <div className="p-4 bg-stone-50 dark:bg-stone-955 border-t border-stone-200 dark:border-stone-800 flex justify-between items-center">
+                <div className="text-xs text-slate-705 dark:text-stone-300 truncate max-w-md text-left">
+                  Selected: <span className="font-mono font-bold text-brand-gold">{editingItem?.image || "None"}</span>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setIsMediaPickerOpen(false)}
+                    className="px-4 py-2 bg-stone-200 hover:bg-stone-300 dark:bg-stone-800 dark:hover:bg-stone-750 text-slate-805 dark:text-white text-xs font-bold rounded-lg transition cursor-pointer"
+                  >
+                    Close
+                  </button>
+                  <button
+                    onClick={() => setIsMediaPickerOpen(false)}
+                    disabled={!editingItem?.image}
+                    className="px-4 py-2 bg-brand-gold hover:bg-brand-gold-dark disabled:opacity-50 text-stone-955 text-xs font-bold rounded-lg transition cursor-pointer"
+                  >
+                    Confirm Selection
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Media Large Lightbox Modal */}
+        {mediaViewUrl && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm cursor-zoom-out animate-fadeIn"
+            onClick={() => setMediaViewUrl(null)}
+          >
+            <div className="relative max-w-5xl max-h-[90vh]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={mediaViewUrl}
+                alt="Lightbox view"
+                className="max-w-full max-h-[85vh] object-contain rounded-xl shadow-2xl border border-white/10"
+              />
+              <button
+                onClick={() => setMediaViewUrl(null)}
+                className="absolute -top-10 right-0 text-white hover:text-brand-gold text-sm font-bold flex items-center gap-1 cursor-pointer bg-black/40 px-3 py-1 rounded-full border border-white/10"
+              >
+                <X className="w-4 h-4" /> Close
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* System User Creation & Editing Modal */}
+        {showUserModal && (() => {
+          const rbac = (() => {
+            switch (userFormRole) {
+              case "superadmin":
+                return {
+                  title: "Super Administrator",
+                  desc: "Full administrative access. Can configure system settings, voice engines, themes, and manage other console user accounts.",
+                  badge: "Full Access",
+                  color: "text-emerald-600 bg-emerald-500/10 border-emerald-500/20"
+                };
+              case "admin":
+                return {
+                  title: "Portal Administrator",
+                  desc: "Can manage all database content including news articles, banners, tickers, videos, emergency helplines, and SEO settings. Cannot view configuration settings or user accounts.",
+                  badge: "Content Manager",
+                  color: "text-brand-blue bg-brand-blue/10 border-brand-blue/20"
+                };
+              case "contentadmin":
+                return {
+                  title: "Content Administrator",
+                  desc: "Dedicated to the press desk. Can view, create, edit, publish, and delete news articles and media files. Cannot access system settings.",
+                  badge: "News Manager",
+                  color: "text-brand-maroon bg-brand-maroon/10 border-brand-maroon/20"
+                };
+              case "editor":
+                return {
+                  title: "Content Editor",
+                  desc: "Can draft news articles and upload media. Cannot publish to the live site or delete content.",
+                  badge: "Drafts Only",
+                  color: "text-amber-600 bg-amber-500/10 border-amber-500/20"
+                };
+              case "reporter":
+                return {
+                  title: "Reporter / Contributor",
+                  desc: "Can write news drafts, upload media, and manage draft items in the video gallery. Cannot publish or delete items.",
+                  badge: "Contributor",
+                  color: "text-purple-600 bg-purple-500/10 border-purple-500/20"
+                };
+              case "mediamanager":
+                return {
+                  title: "Media Manager",
+                  desc: "Dedicated access to manage video galleries and upload media files. Cannot view or edit news articles.",
+                  badge: "Media Only",
+                  color: "text-blue-600 bg-blue-500/10 border-blue-500/20"
+                };
+              case "seomanager":
+                return {
+                  title: "SEO Specialist",
+                  desc: "Can view and configure search engine optimization metadata, tags, sitemaps, and indexing preferences. Cannot modify main content.",
+                  badge: "SEO Only",
+                  color: "text-cyan-600 bg-cyan-500/10 border-cyan-500/20"
+                };
+              case "viewer":
+              default:
+                return {
+                  title: "Read-only Viewer",
+                  desc: "Read-only dashboard access. Can audit contents, logs, and sitemaps. Cannot make any changes or create records.",
+                  badge: "Read Only",
+                  color: "text-stone-600 bg-stone-500/10 border-stone-500/20"
+                };
+            }
+          })();
+
+          return (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+              <form
+                onSubmit={handleSaveUser}
+                className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl w-full max-w-lg overflow-hidden flex flex-col shadow-2xl p-6 space-y-4 text-slate-800 dark:text-stone-200"
+              >
+                {/* Modal Header */}
+                <div className="flex items-center justify-between border-b border-stone-200 dark:border-stone-850 pb-3">
+                  <div className="flex items-center gap-2">
+                    <Users className="w-5 h-5 text-brand-gold" />
+                    <h3 className="font-display font-black text-sm uppercase tracking-wider text-slate-800 dark:text-white">
+                      {editingUser ? `Edit System User: ${editingUser.username}` : "Create System User"}
+                    </h3>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowUserModal(false)}
+                    className="p-1 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-500 dark:text-stone-400 transition cursor-pointer"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                {/* Form Body */}
+                <div className="space-y-4 py-2 overflow-y-auto max-h-[60vh]">
+                  {/* Username Field */}
+                  <div className="space-y-1">
+                    <label className="block text-[10px] font-black uppercase text-stone-400 tracking-wider">Username</label>
+                    <input
+                      type="text"
+                      required
+                      disabled={!!editingUser}
+                      placeholder="Enter user log in name"
+                      value={userFormUsername}
+                      onChange={(e) => setUserFormUsername(e.target.value)}
+                      className="w-full bg-stone-50 dark:bg-stone-955 border border-stone-200 dark:border-stone-850 p-2.5 rounded-lg text-xs outline-none focus:border-brand-gold/50 disabled:opacity-50 font-bold"
+                    />
+                  </div>
+
+                  {/* Email Field */}
+                  <div className="space-y-1">
+                    <label className="block text-[10px] font-black uppercase text-stone-400 tracking-wider">Email Address</label>
+                    <input
+                      type="email"
+                      placeholder="e.g. user@chennaiguardian.in"
+                      value={userFormEmail}
+                      onChange={(e) => setUserFormEmail(e.target.value)}
+                      className="w-full bg-stone-50 dark:bg-stone-955 border border-stone-200 dark:border-stone-850 p-2.5 rounded-lg text-xs outline-none focus:border-brand-gold/50 font-bold"
+                    />
+                  </div>
+
+                  {/* Password Field */}
+                  <div className="space-y-1">
+                    <label className="block text-[10px] font-black uppercase text-stone-400 tracking-wider">
+                      {editingUser ? "Reset Password (Optional)" : "Security Password"}
+                    </label>
+                    <input
+                      type="password"
+                      required={!editingUser}
+                      placeholder={editingUser ? "Leave blank to keep existing password" : "Enter security password"}
+                      value={userFormPassword}
+                      onChange={(e) => setUserFormPassword(e.target.value)}
+                      className="w-full bg-stone-50 dark:bg-stone-955 border border-stone-200 dark:border-stone-850 p-2.5 rounded-lg text-xs outline-none focus:border-brand-gold/50 font-bold font-mono"
+                    />
+                  </div>
+
+                  {/* Role Selection Field */}
+                  <div className="space-y-1">
+                    <label className="block text-[10px] font-black uppercase text-stone-400 tracking-wider">Access Control Role</label>
+                    <select
+                      value={userFormRole}
+                      onChange={(e) => setUserFormRole(e.target.value)}
+                      className="w-full bg-stone-50 dark:bg-stone-955 border border-stone-200 dark:border-stone-850 p-2.5 rounded-lg text-xs outline-none focus:border-brand-gold/50 cursor-pointer font-bold text-slate-800 dark:text-stone-300"
+                    >
+                      <option value="superadmin">Superadmin (All Permissions)</option>
+                      <option value="admin">Admin (Content Manager)</option>
+                      <option value="contentadmin">Content Admin (News Manager)</option>
+                      <option value="editor">Editor (Drafts Only)</option>
+                      <option value="reporter">Reporter (Contributor)</option>
+                      <option value="mediamanager">Media Manager (Videos & Files)</option>
+                      <option value="seomanager">SEO Manager (Metadata Specialist)</option>
+                      <option value="viewer">Viewer (Read-only)</option>
+                    </select>
+                  </div>
+
+                  {/* Dynamic Permissions Summary card */}
+                  <div className="border border-stone-150 dark:border-stone-850 rounded-xl p-3 bg-stone-50 dark:bg-stone-955 space-y-1">
+                    <div className="flex justify-between items-center">
+                      <span className="text-[10px] font-black uppercase text-stone-450 dark:text-stone-550 tracking-wider">Role Permissions Details</span>
+                      <span className={`text-[8px] font-black px-1.5 py-0.5 rounded-full border ${rbac.color}`}>{rbac.badge}</span>
+                    </div>
+                    <h4 className="text-xs font-bold text-slate-800 dark:text-white mt-1">{rbac.title}</h4>
+                    <p className="text-[10px] text-stone-500 dark:text-stone-400 leading-relaxed font-medium">{rbac.desc}</p>
+                  </div>
+                </div>
+
+                {/* Form Actions Footer */}
+                <div className="flex gap-3 justify-end pt-3 border-t border-stone-200 dark:border-stone-850">
+                  <button
+                    type="button"
+                    onClick={() => setShowUserModal(false)}
+                    className="px-4 py-2.5 bg-stone-200 hover:bg-stone-300 dark:bg-stone-800 dark:hover:bg-stone-750 text-slate-800 dark:text-white text-xs font-bold rounded-lg transition cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2.5 bg-brand-maroon hover:bg-brand-maroon-dark text-white text-xs font-black uppercase tracking-wider rounded-lg transition cursor-pointer"
+                  >
+                    {editingUser ? "Save Changes" : "Create Account"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          );
+        })()}
       </main>
+
+      {/* Custom Confirmation Modal */}
+      {confirmModal && (
+        <ConfirmModal
+          isOpen={confirmModal.isOpen}
+          title={confirmModal.title}
+          message={confirmModal.message}
+          confirmText={confirmModal.confirmText}
+          danger={confirmModal.danger}
+          onConfirm={confirmModal.onConfirm}
+          onClose={() => setConfirmModal(null)}
+        />
+      )}
 
     </div>
   );

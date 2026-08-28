@@ -152,8 +152,9 @@ export async function POST(req: Request, { params }: { params: Promise<{ module:
       }
       case "news": {
         const items = await db.getNews();
-        const id = items.length > 0 ? Math.max(...items.map((i) => i.id)) + 1 : 1;
-        const slug = data.slug || data.title_en.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/-+$/g, "");
+        const id = items.length > 0 ? Math.max(...items.map((i) => i.id || 0)) + 1 : 1;
+        const rawTitle = (data.title_en || data.title_ta || "news-article-" + id).toString();
+        const slug = data.slug || rawTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || ("article-" + id);
         
         let publishedVal = data.published ?? 1;
         if (auth.role === "reporter" || auth.role === "editor") {
@@ -167,13 +168,29 @@ export async function POST(req: Request, { params }: { params: Promise<{ module:
           ? data.content_ta.map((p: string) => sanitizeHtml(p))
           : [];
 
+        const nowIso = new Date().toISOString();
+        const dateStr = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+
         const newItem = { 
           id, 
           slug, 
+          category_en: data.category_en || data.category || "General",
+          category_ta: data.category_ta || "பொது",
+          title_en: data.title_en || data.title_ta || "New Article",
+          title_ta: data.title_ta || data.title_en || "புதிய செய்தி",
+          summary_en: data.summary_en || "",
+          summary_ta: data.summary_ta || "",
+          image: data.image || "/images/police_medal.jpg",
+          section: data.section || "latest",
+          views_count: data.views_count || 0,
           ...data, 
           content_en: sanitizedContentEn,
           content_ta: sanitizedContentTa,
           published: publishedVal,
+          created_at: nowIso,
+          published_at: nowIso,
+          updated_at: nowIso,
+          date: dateStr,
           author_en: data.author_en || (auth.role === "reporter" || auth.role === "editor" ? auth.username : "Greater Chennai Police Media Desk")
         };
         items.unshift(newItem); // Add to top
@@ -183,15 +200,15 @@ export async function POST(req: Request, { params }: { params: Promise<{ module:
       }
       case "ticker": {
         const items = await db.getTicker();
-        const id = items.length > 0 ? Math.max(...items.map((i) => i.id)) + 1 : 1;
-        const newItem = { id, ...data };
+        const id = items.length > 0 ? Math.max(...items.map((i) => i.id || 0)) + 1 : 1;
+        const newItem = { id, text_en: data.text_en || "", text_ta: data.text_ta || "", active: data.active ?? 1, order_num: data.order_num || 1, ...data };
         items.push(newItem);
         await db.saveTicker(items);
         return NextResponse.json({ success: true, item: newItem });
       }
       case "slider": {
         const items = await db.getSlider();
-        const id = items.length > 0 ? Math.max(...items.map((i) => i.id)) + 1 : 1;
+        const id = items.length > 0 ? Math.max(...items.map((i) => i.id || 0)) + 1 : 1;
         const newItem = { id, ...data };
         items.push(newItem);
         await db.saveSlider(items);
@@ -199,7 +216,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ module:
       }
       case "menu": {
         const items = await db.getMenuItems();
-        const id = items.length > 0 ? Math.max(...items.map((i) => i.id)) + 1 : 1;
+        const id = items.length > 0 ? Math.max(...items.map((i) => i.id || 0)) + 1 : 1;
         const newItem = { id, ...data };
         items.push(newItem);
         await db.saveMenuItems(items);
@@ -207,7 +224,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ module:
       }
       case "contact": {
         const items = await db.getContacts();
-        const id = items.length > 0 ? Math.max(...items.map((i) => i.id)) + 1 : 1;
+        const id = items.length > 0 ? Math.max(...items.map((i) => i.id || 0)) + 1 : 1;
         const newItem = { id, ...data };
         items.push(newItem);
         await db.saveContacts(items);
@@ -215,7 +232,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ module:
       }
       case "videos": {
         const items = await db.getVideos();
-        const id = items.length > 0 ? Math.max(...items.map((i) => i.id)) + 1 : 1;
+        const id = items.length > 0 ? Math.max(...items.map((i) => i.id || 0)) + 1 : 1;
         const newItem = { id, ...data };
         items.push(newItem);
         await db.saveVideos(items);
@@ -227,7 +244,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ module:
           return NextResponse.json(syncRes);
         }
         const items = await db.getAlerts();
-        const id = items.length > 0 ? Math.max(...items.map((i) => i.id)) + 1 : 1;
+        const id = items.length > 0 ? Math.max(...items.map((i) => i.id || 0)) + 1 : 1;
         const newItem = { 
           id, 
           approved: data.approved ?? 1, 
@@ -243,8 +260,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ module:
       }
       case "users": {
         const items = await db.getUsers();
-        const id = items.length > 0 ? Math.max(...items.map((i) => i.id)) + 1 : 1;
-        const passwordHash = hashPassword(data.password);
+        const id = items.length > 0 ? Math.max(...items.map((i) => i.id || 0)) + 1 : 1;
+        const passwordHash = hashPassword(data.password || "default123");
         const newItem = {
           id,
           username: data.username,
@@ -262,7 +279,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ module:
       }
       case "article_seo": {
         const items = await db.getArticleSeo();
-        const id = items.length > 0 ? Math.max(...items.map((i) => i.id)) + 1 : 1;
+        const id = items.length > 0 ? Math.max(...items.map((i) => i.id || 0)) + 1 : 1;
         const newItem: DBArticleSeo = { id, ...data, updated_at: new Date().toISOString() };
         items.push(newItem);
         await db.saveArticleSeo(items);
@@ -270,8 +287,28 @@ export async function POST(req: Request, { params }: { params: Promise<{ module:
       }
       case "police-stations": {
         const items = await db.getPoliceStations();
-        const id = items.length > 0 ? Math.max(...items.map((i) => i.id)) + 1 : 1;
-        const newItem = { id, ...data };
+        const id = items.length > 0 ? Math.max(...items.map((i) => i.id || 0)) + 1 : 1;
+        const nameEn = data.name_en || data.station_name || "New Police Station";
+        const latNum = Number(data.lat ?? data.latitude ?? 13.0827);
+        const lonNum = Number(data.lon ?? data.longitude ?? data.lng ?? 80.2707);
+
+        const newItem = { 
+          id, 
+          name_en: nameEn,
+          station_name: nameEn,
+          district: data.district || "Chennai District",
+          phone_no: data.phone_no || data.phone || "044-23452300",
+          lat: isNaN(latNum) ? 13.0827 : latNum,
+          lon: isNaN(lonNum) ? 80.2707 : lonNum,
+          latitude: isNaN(latNum) ? 13.0827 : latNum,
+          longitude: isNaN(lonNum) ? 80.2707 : lonNum,
+          sdo: data.sdo || "Sub-Divisional Officer",
+          range: data.range || data.zone_en || "Metropolitan Range",
+          ps_address: data.ps_address || data.address || "Chennai, Tamil Nadu",
+          pincode: data.pincode || "600001",
+          status: data.status || "ACTIVE",
+          ...data 
+        };
         items.push(newItem);
         await db.savePoliceStations(items);
         await db.addActivityLog(auth.username, `Created police station: ${newItem.name_en}`);
@@ -526,10 +563,12 @@ export async function PUT(req: Request, { params }: { params: Promise<{ module: 
         return NextResponse.json({ success: true });
       }
       case "police-stations": {
+        const id = data.id || data.data?.id;
+        const stationObj = data.data || data;
         let items = await db.getPoliceStations();
-        items = items.map((i) => (i.id === data.id ? { ...i, ...data } : i));
+        items = items.map((i) => (i.id === id ? { ...i, ...stationObj, id } : i));
         await db.savePoliceStations(items);
-        await db.addActivityLog(auth.username, `Updated police station: ${data.name_en}`);
+        await db.addActivityLog(auth.username, `Updated police station: ${stationObj.station_name || stationObj.name_en || id}`);
         return NextResponse.json({ success: true });
       }
       case "emergency-contacts": {
@@ -573,8 +612,11 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ modul
 
   try {
     const { searchParams } = new URL(req.url);
-    const id = parseInt(searchParams.get("id") || "");
-    if (isNaN(id)) {
+    const action = searchParams.get("action");
+    const rawId = searchParams.get("id");
+    const id = rawId ? parseInt(rawId) : NaN;
+
+    if (action !== "clear_all" && isNaN(id)) {
       return NextResponse.json({ error: "ID required" }, { status: 400 });
     }
 
@@ -658,13 +700,24 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ modul
         return NextResponse.json({ success: true });
       }
       case "police-stations": {
+        const actionParam = req.nextUrl.searchParams.get("action");
+        if (actionParam === "clear_all" || id === -1) {
+          const uRole = (auth.role || "").toLowerCase().replace(/[_\s]+/g, "");
+          if (uRole !== "superadmin") {
+            return NextResponse.json({ error: "Forbidden: Only Super Admin can clear all police stations" }, { status: 403 });
+          }
+          await db.savePoliceStations([]);
+          await db.addActivityLog(auth.username, "Cleared all police stations from database");
+          return NextResponse.json({ success: true, message: "All police station records deleted." });
+        }
         let items = await db.getPoliceStations();
         const target = items.find((i) => i.id === id);
+        if (!target) {
+          return NextResponse.json({ error: "Police station record not found" }, { status: 404 });
+        }
         items = items.filter((i) => i.id !== id);
         await db.savePoliceStations(items);
-        if (target) {
-          await db.addActivityLog(auth.username, `Deleted police station: ${target.name_en}`);
-        }
+        await db.addActivityLog(auth.username, `Deleted police station: ${target.name_en || target.station_name}`);
         return NextResponse.json({ success: true });
       }
       case "emergency-contacts": {

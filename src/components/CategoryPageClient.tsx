@@ -188,7 +188,7 @@ function timeAgo(dateStr: string, lang: "en" | "ta" = "en"): string {
     const d = new Date(dateStr);
     if (isNaN(d.getTime())) return dateStr;
     const diff = (Date.now() - d.getTime()) / 1000;
-    if (diff < 60) return lang === "ta" ? "இப்போது" : "Just now";
+    if (diff <= 60) return lang === "ta" ? "இப்போது" : "Just now";
     if (diff < 3600) {
       const mins = Math.floor(diff / 60);
       return lang === "ta" ? `${mins} நிமிடம் முன்` : `${mins} ${mins === 1 ? "minute" : "minutes"} ago`;
@@ -197,9 +197,8 @@ function timeAgo(dateStr: string, lang: "en" | "ta" = "en"): string {
       const hrs = Math.floor(diff / 3600);
       return lang === "ta" ? `${hrs} மணிநேரம் முன்` : `${hrs} ${hrs === 1 ? "hour" : "hours"} ago`;
     }
-    const days = Math.floor(diff / 86400);
-    return lang === "ta" ? `${days} நாள் முன்` : `${days} ${days === 1 ? "day" : "days"} ago`;
-  } catch { return dateStr; }
+    return lang === "ta" ? "1 நாள் முன்" : "1 day ago";
+  } catch { return lang === "ta" ? "1 நாள் முன்" : "1 day ago"; }
 }
 
 export default function CategoryPageClient({
@@ -226,45 +225,52 @@ export default function CategoryPageClient({
     keywords: [id.toLowerCase()]
   };
 
-  // Filter news to only display matching articles
-  const filteredNews = news
-    .filter((n) => {
-      if (n.published === 0) return false;
-      const catEn = (n.category_en || "").toLowerCase();
-      const titleEn = (n.title_en || "").toLowerCase();
-      
-      const normalizedId = id.toLowerCase().replace(/-/g, " ");
-      const normalizedCat = catEn.toLowerCase().replace(/-/g, " ");
-      const idMatch = normalizedId === normalizedCat;
+  // Filter news to only display matching articles without duplicates
+  const filteredNews = React.useMemo(() => {
+    const seen = new Set();
+    return news
+      .filter((n) => {
+        if (!n || n.published === 0) return false;
+        const key = n.slug || n.title_en || n.id;
+        if (seen.has(key)) return false;
+        seen.add(key);
 
-      const exactMatch = idMatch ||
-                         (id === "crime" && (catEn === "crime" || catEn === "crime prevention" || catEn === "wanted criminals" || catEn === "missing persons")) ||
-                         (id === "cyber-safety" && (catEn === "cyber safety" || catEn === "cyber awareness" || catEn === "online fraud")) ||
-                         (id === "women-safety" && (catEn === "women safety" || catEn === "women's safety" || catEn === "pink patrol" || catEn === "pink patrol (women safety)" || catEn === "aval support wing" || catEn === "aval support" || catEn === "women helpline")) ||
-                         (id === "public-safety" && (catEn === "public safety" || catEn === "clean campus" || catEn === "security audit")) ||
-                         (id === "traffic" && (catEn === "traffic" || catEn === "traffic news" || catEn === "traffic advisory" || catEn === "traffic updates")) ||
-                         (id === "outreach" && (catEn === "outreach" || catEn === "community outreach" || catEn === "social awareness" || catEn === "legal outreach" || catEn === "community support")) ||
-                         (id === "government" && (catEn === "government updates" || catEn === "government" || catEn === "government update")) ||
-                         (id === "awards" && (catEn === "awards & recognition" || catEn === "awards" || catEn === "recognition")) ||
-                         (id === "administration" && (catEn === "police administration" || catEn === "administration")) ||
-                         (id === "trending" && (catEn === "trending news" || catEn === "trending" || catEn === "tranding news")) ||
-                         (id === "general" && (catEn === "general news" || catEn === "general")) ||
-                         (id === "wanted-criminals" && catEn === "wanted criminals") ||
-                         (id === "missing-persons" && catEn === "missing persons") ||
-                         (id === "cyber-awareness" && (catEn === "cyber awareness" || catEn === "cyber awereness")) ||
-                         (id === "online-fraud" && catEn === "online fraud") ||
-                         (id === "complaint-portal" && catEn === "complaint portal") ||
-                         (id === "pink-patrol" && (catEn === "pink patrol" || catEn === "pink patrol (women safety)")) ||
-                         (id === "aval-support" && (catEn === "aval support wing" || catEn === "aval support")) ||
-                         (id === "women-helpline" && catEn === "women helpline");
-      
-      return exactMatch;
-    })
-    .sort((a, b) => {
-      const da = a.created_at || a.date || "";
-      const db = b.created_at || b.date || "";
-      return db.localeCompare(da);
-    });
+        const catEn = (n.category_en || "").toLowerCase();
+        const titleEn = (n.title_en || "").toLowerCase();
+        
+        const normalizedId = id.toLowerCase().replace(/-/g, " ");
+        const normalizedCat = catEn.toLowerCase().replace(/-/g, " ");
+        const idMatch = normalizedId === normalizedCat;
+
+        const exactMatch = idMatch ||
+                           (id === "crime" && (catEn === "crime" || catEn === "crime prevention" || catEn === "wanted criminals" || catEn === "missing persons")) ||
+                           (id === "cyber-safety" && (catEn === "cyber safety" || catEn === "cyber awareness" || catEn === "online fraud")) ||
+                           (id === "women-safety" && (catEn === "women safety" || catEn === "women's safety" || catEn === "pink patrol" || catEn === "pink patrol (women safety)" || catEn === "aval support wing" || catEn === "aval support" || catEn === "women helpline")) ||
+                           (id === "public-safety" && (catEn === "public safety" || catEn === "clean campus" || catEn === "security audit")) ||
+                           (id === "traffic" && (catEn === "traffic" || catEn === "traffic news" || catEn === "traffic advisory" || catEn === "traffic updates")) ||
+                           (id === "outreach" && (catEn === "outreach" || catEn === "community outreach" || catEn === "social awareness" || catEn === "legal outreach" || catEn === "community support")) ||
+                           (id === "government" && (catEn === "government updates" || catEn === "government" || catEn === "government update")) ||
+                           (id === "awards" && (catEn === "awards & recognition" || catEn === "awards" || catEn === "recognition")) ||
+                           (id === "administration" && (catEn === "police administration" || catEn === "administration")) ||
+                           (id === "trending" && (catEn === "trending news" || catEn === "trending" || catEn === "tranding news")) ||
+                           (id === "general" && (catEn === "general news" || catEn === "general")) ||
+                           (id === "wanted-criminals" && catEn === "wanted criminals") ||
+                           (id === "missing-persons" && catEn === "missing persons") ||
+                           (id === "cyber-awareness" && (catEn === "cyber awareness" || catEn === "cyber awereness")) ||
+                           (id === "online-fraud" && catEn === "online fraud") ||
+                           (id === "complaint-portal" && catEn === "complaint portal") ||
+                           (id === "pink-patrol" && (catEn === "pink patrol" || catEn === "pink patrol (women safety)")) ||
+                           (id === "aval-support" && (catEn === "aval support wing" || catEn === "aval support")) ||
+                           (id === "women-helpline" && catEn === "women helpline");
+        
+        return exactMatch;
+      })
+      .sort((a, b) => {
+        const da = a.created_at || a.date || "";
+        const db = b.created_at || b.date || "";
+        return db.localeCompare(da);
+      });
+  }, [news, id]);
 
   const displayNews = filteredNews.slice(0, visibleCount);
   const hasMore = filteredNews.length > visibleCount;

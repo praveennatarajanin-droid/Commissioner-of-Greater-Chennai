@@ -35,18 +35,17 @@ interface SuperAdminConsoleProps {
 }
 
 const MODULES = [
-  { id: "dashboard", label: "Overview" },
-  { id: "superadmin", label: "Access Management" },
-  { id: "menu-management", label: "Menu Management" },
-  { id: "news", label: "News Articles" },
-  { id: "media", label: "Media Library" },
+  { id: "news", label: "News & Media" },
+  { id: "police-stations", label: "Police Stations" },
+  { id: "emergency-contacts", label: "Helplines & Emergency" },
+  { id: "department-links", label: "Official Department Links" },
   { id: "ticker", label: "News Ticker" },
   { id: "slider", label: "Hero Slider" },
-  { id: "videos", label: "Video & Media" },
-  { id: "alerts", label: "Official Alerts" },
-  { id: "police-stations", label: "Police Stations" },
-  { id: "emergency-contacts", label: "Helplines Registry" },
-  { id: "department-links", label: "Portal Links" },
+  { id: "videos", label: "Video Gallery" },
+  { id: "web-stories", label: "Web Stories" },
+  { id: "alerts", label: "Safety Alerts" },
+  { id: "menu", label: "Navigation Menus" },
+  { id: "contact", label: "Citizen Service Desk" },
   { id: "profile", label: "Profile" },
   { id: "theme", label: "Branding Theme" },
   { id: "settings", label: "Console Config" }
@@ -69,6 +68,15 @@ export default function SuperAdminConsole({ user, onTabChange }: SuperAdminConso
   const [config, setConfig] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState<{ text: string; type: "success" | "error" } | null>(null);
+
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    confirmText?: string;
+    danger?: boolean;
+    onConfirm: () => void;
+  } | null>(null);
 
   // User form modals
   const [showUserModal, setShowUserModal] = useState(false);
@@ -193,26 +201,33 @@ export default function SuperAdminConsole({ user, onTabChange }: SuperAdminConso
     }
   };
 
-  const handleDeleteUser = async (userId: number, uName: string) => {
+  const handleDeleteUser = (userId: number, uName: string) => {
     if (uName === user.username) return showToast("You cannot delete yourself", "error");
-    if (!window.confirm(`Are you sure you want to permanently delete user account "${uName}"?`)) return;
-
-    setLoading(true);
-    try {
-      const res = await fetch(`/api/admin/superadmin?action=users&id=${userId}`, { method: "DELETE" });
-      if (res.ok) {
-        showToast("User deleted successfully");
-        loadUsers();
-        loadLogs();
-      } else {
-        const err = await res.json();
-        showToast(err.error || "Failed to delete user", "error");
+    setConfirmModal({
+      isOpen: true,
+      title: "Delete User Account",
+      message: `Are you sure you want to permanently delete user account "${uName}"? This action cannot be undone.`,
+      confirmText: "Delete User",
+      danger: true,
+      onConfirm: async () => {
+        setLoading(true);
+        try {
+          const res = await fetch(`/api/admin/superadmin?action=users&id=${userId}`, { method: "DELETE" });
+          if (res.ok) {
+            showToast("User deleted successfully");
+            loadUsers();
+            loadLogs();
+          } else {
+            const err = await res.json();
+            showToast(err.error || "Failed to delete user", "error");
+          }
+        } catch {
+          showToast("Network error deleting user", "error");
+        } finally {
+          setLoading(false);
+        }
       }
-    } catch {
-      showToast("Network error deleting user", "error");
-    } finally {
-      setLoading(false);
-    }
+    });
   };
 
   // ── Custom Roles handlers ──
@@ -251,25 +266,32 @@ export default function SuperAdminConsole({ user, onTabChange }: SuperAdminConso
     }
   };
 
-  const handleDeleteRole = async (roleId: number, rName: string) => {
-    if (!window.confirm(`Are you sure you want to delete custom role "${rName}"?`)) return;
-
-    setLoading(true);
-    try {
-      const res = await fetch(`/api/admin/superadmin?action=roles&id=${roleId}`, { method: "DELETE" });
-      if (res.ok) {
-        showToast("Role deleted successfully");
-        loadRoles();
-        loadLogs();
-      } else {
-        const err = await res.json();
-        showToast(err.error || "Failed to delete role", "error");
+  const handleDeleteRole = (roleId: number, rName: string) => {
+    setConfirmModal({
+      isOpen: true,
+      title: "Delete Custom Role",
+      message: `Are you sure you want to delete custom role "${rName}"? Users with this role may lose access permissions.`,
+      confirmText: "Delete Role",
+      danger: true,
+      onConfirm: async () => {
+        setLoading(true);
+        try {
+          const res = await fetch(`/api/admin/superadmin?action=roles&id=${roleId}`, { method: "DELETE" });
+          if (res.ok) {
+            showToast("Role deleted successfully");
+            loadRoles();
+            loadLogs();
+          } else {
+            const err = await res.json();
+            showToast(err.error || "Failed to delete role", "error");
+          }
+        } catch {
+          showToast("Network error deleting role", "error");
+        } finally {
+          setLoading(false);
+        }
       }
-    } catch {
-      showToast("Network error deleting role", "error");
-    } finally {
-      setLoading(false);
-    }
+    });
   };
 
   // ── Config Management handlers ──
@@ -308,24 +330,37 @@ export default function SuperAdminConsole({ user, onTabChange }: SuperAdminConso
         const backupJson = event.target?.result as string;
         JSON.parse(backupJson);
         
-        if (!window.confirm("WARNING: Restoring will overwrite all existing database tables with the backup data. Proceed?")) return;
+        setConfirmModal({
+          isOpen: true,
+          title: "Restore System Database Backup",
+          message: "WARNING: Restoring will overwrite all existing database tables with the uploaded backup data. Do you want to proceed?",
+          confirmText: "Restore Database",
+          danger: true,
+          onConfirm: async () => {
+            setLoading(true);
+            try {
+              const res = await fetch("/api/admin/superadmin?action=restore", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ backupJson })
+              });
 
-        setLoading(true);
-        const res = await fetch("/api/admin/superadmin?action=restore", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ backupJson })
+              if (res.ok) {
+                showToast("Database restored successfully!");
+                loadUsers();
+                loadRoles();
+                loadLogs();
+                loadConfig();
+              } else {
+                showToast("Failed to restore backup", "error");
+              }
+            } catch {
+              showToast("Network error restoring backup", "error");
+            } finally {
+              setLoading(false);
+            }
+          }
         });
-
-        if (res.ok) {
-          showToast("Database restored successfully!");
-          loadUsers();
-          loadRoles();
-          loadLogs();
-          loadConfig();
-        } else {
-          showToast("Failed to restore backup", "error");
-        }
       } catch {
         showToast("Invalid JSON file uploaded", "error");
       } finally {
@@ -1002,7 +1037,7 @@ export default function SuperAdminConsole({ user, onTabChange }: SuperAdminConso
                 </div>
                 <div className="border border-slate-200 dark:border-stone-850 p-5 rounded-2xl bg-white dark:bg-stone-950 font-mono text-[10px] text-slate-600 dark:text-stone-400 space-y-2 max-h-96 overflow-y-auto">
                   <p><b>NODE_ENV:</b> {process.env.NODE_ENV}</p>
-                  <p><b>NEXT_PUBLIC_APP_URL:</b> {process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3001"}</p>
+                  <p><b>NEXT_PUBLIC_APP_URL:</b> {process.env.NEXT_PUBLIC_APP_URL || (typeof window !== "undefined" ? window.location.origin : "/")}</p>
                   <p><b>DB_HOST:</b> 127.0.0.1</p>
                   <p><b>DB_NAME:</b> chennai_guardian</p>
                   <p><b>PORT:</b> 3306</p>
@@ -1361,6 +1396,19 @@ export default function SuperAdminConsole({ user, onTabChange }: SuperAdminConso
             </form>
           </div>
         </div>
+      )}
+
+      {/* Custom Confirmation Modal */}
+      {confirmModal && (
+        <ConfirmModal
+          isOpen={confirmModal.isOpen}
+          title={confirmModal.title}
+          message={confirmModal.message}
+          confirmText={confirmModal.confirmText}
+          danger={confirmModal.danger}
+          onConfirm={confirmModal.onConfirm}
+          onClose={() => setConfirmModal(null)}
+        />
       )}
 
     </div>

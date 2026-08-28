@@ -32,56 +32,80 @@ interface StationsPageClientProps {
 }
 
 const StationCard = React.memo(({ station, language }: { station: DBPoliceStation; language: "en" | "ta" }) => {
+  const sName = station.station_name || station.name_en || "Police Station";
+  const latVal = station.latitude ?? station.lat ?? 13.0827;
+  const lonVal = station.longitude ?? station.lng ?? station.lon ?? 80.2707;
+  const phoneVal = station.phone_no || station.phone || "044-23452300";
+  const psAddress = station.ps_address || station.address || station.address_en || "Chennai, Tamil Nadu";
+  const isTambaram = sName.includes("Tambaram") || sName.includes("Selaiyur");
+  const districtVal = station.district || (isTambaram ? "Tambaram District" : "Chennai District");
+  const sdoVal = station.sdo || "Sub-Divisional Officer";
+  const rangeVal = station.range || station.zone_en || station.zone || "Metropolitan Range";
+  const pincodeVal = station.pincode || (psAddress.match(/\b6\d{5}\b/)?.[0] ?? "600001");
+
   return (
     <div 
       className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-850 p-5 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between hover:-translate-y-1 text-left animate-fadeIn"
     >
       <div className="space-y-4">
-        <div className="flex items-center justify-between gap-2">
-          <span className="text-[9px] font-black uppercase tracking-wider bg-brand-blue/10 dark:bg-brand-blue/20 text-brand-blue dark:text-brand-gold px-2 py-0.5 rounded-full border border-brand-blue/20">
-            {station.type}
+        {/* Badges */}
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          <span className="text-[9px] font-black uppercase tracking-wider bg-brand-blue/10 dark:bg-brand-blue/20 text-brand-blue dark:text-brand-gold px-2.5 py-0.5 rounded-full border border-brand-blue/20">
+            {rangeVal}
           </span>
           {(station as any).distance !== undefined && (
-            <span className="text-[10px] font-black text-brand-maroon dark:text-brand-gold bg-brand-maroon/10 dark:bg-brand-gold/10 px-2 py-0.5 rounded-full border border-brand-maroon/20">
+            <span className="text-[10px] font-black text-brand-maroon dark:text-brand-gold bg-brand-maroon/10 dark:bg-brand-gold/10 px-2.5 py-0.5 rounded-full border border-brand-maroon/20">
               📍 {(station as any).distance} KM
             </span>
           )}
-          <span className="text-[9px] font-bold text-stone-500 uppercase tracking-widest">
-            {language === "ta" ? station.zone_ta : station.zone_en}
-          </span>
         </div>
 
+        {/* 1. Police Station Name */}
         <div className="space-y-1">
-          <h3 className="font-display font-black text-sm uppercase text-stone-900 dark:text-white">
-            {language === "ta" ? station.name_ta : station.name_en}
+          <h3 className="font-display font-black text-sm uppercase text-stone-900 dark:text-white flex items-center gap-1">
+            🚔 {sName}
           </h3>
-          <div className="flex items-start gap-1.5 text-xs text-stone-500 dark:text-stone-400">
+          {/* 8. PS Address */}
+          <div className="flex items-start gap-1.5 text-xs text-stone-600 dark:text-stone-300 pt-1">
             <MapPin className="w-4 h-4 text-brand-maroon shrink-0 mt-0.5" />
             <p className="line-clamp-2 leading-relaxed">
-              {language === "ta" ? station.address_ta : station.address_en}
+              {psAddress}
             </p>
           </div>
         </div>
 
-        <div className="space-y-1.5 pt-3 border-t border-stone-100 dark:border-stone-800 text-xs">
-          <div className="flex items-center gap-2 text-stone-600 dark:text-stone-405">
-            <Phone className="w-3.5 h-3.5 text-stone-400" />
-            <span>{station.phone}</span>
+        {/* 9 Detail Grid: District, Phone No, Lat/Lon, SDO, Pincode */}
+        <div className="grid grid-cols-2 gap-2 text-[11px] pt-3 border-t border-stone-100 dark:border-stone-800 text-stone-600 dark:text-stone-400">
+          <div>
+            <span className="text-[9px] uppercase font-bold text-stone-400 block">district</span>
+            <span className="font-bold text-brand-blue dark:text-brand-gold truncate block">{districtVal}</span>
           </div>
-          {station.email && (
-            <div className="flex items-center gap-2 text-stone-600 dark:text-stone-405 truncate">
-              <Mail className="w-3.5 h-3.5 text-stone-405" />
-              <span className="truncate">{station.email}</span>
-            </div>
-          )}
+          <div>
+            <span className="text-[9px] uppercase font-bold text-stone-400 block">phone_no</span>
+            <a href={`tel:${phoneVal}`} className="font-mono font-bold text-stone-800 dark:text-stone-200 hover:text-brand-blue truncate block">
+              {phoneVal}
+            </a>
+          </div>
+          <div>
+            <span className="text-[9px] uppercase font-bold text-stone-400 block">SDO</span>
+            <span className="font-bold text-emerald-600 truncate block">{sdoVal}</span>
+          </div>
+          <div>
+            <span className="text-[9px] uppercase font-bold text-stone-400 block">Lat / Lon</span>
+            <span className="font-mono font-bold text-amber-600 truncate block">{typeof latVal === "number" ? latVal.toFixed(4) : latVal}, {typeof lonVal === "number" ? lonVal.toFixed(4) : lonVal}</span>
+          </div>
+          <div className="col-span-2">
+            <span className="text-[9px] uppercase font-bold text-stone-400 block">Pincode</span>
+            <span className="font-mono font-bold text-purple-600">{pincodeVal}</span>
+          </div>
         </div>
       </div>
 
       <Link 
-        href={`/stations/${(station.station_name || station.name_en || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")}`}
-        className="mt-6 w-full block text-center py-2.5 bg-stone-50 hover:bg-brand-gold hover:text-stone-955 dark:bg-stone-950 dark:hover:bg-brand-gold text-xs font-black uppercase tracking-wider text-stone-800 dark:text-white rounded-xl border border-stone-200 dark:border-stone-800 transition shadow-sm cursor-pointer"
+        href={`/stations/${sName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")}`}
+        className="mt-5 w-full block text-center py-2.5 bg-stone-50 hover:bg-brand-gold hover:text-stone-955 dark:bg-stone-950 dark:hover:bg-brand-gold text-xs font-black uppercase tracking-wider text-stone-800 dark:text-white rounded-xl border border-stone-200 dark:border-stone-800 transition shadow-sm cursor-pointer"
       >
-        {language === "ta" ? "நிலையம் பார்வையிட" : "View Station"}
+        {language === "ta" ? "நிலையம் பார்வையிட" : "View Full Details"}
       </Link>
     </div>
   );
@@ -102,7 +126,7 @@ export default function StationsPageClient({
   // Search & Filter States
   const [searchInput, setSearchInput] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedZone, setSelectedZone] = useState("All");
+  const [selectedSdo, setSelectedSdo] = useState("All");
   const [selectedDivision, setSelectedDivision] = useState("All");
   const [selectedType, setSelectedType] = useState("All");
 
@@ -114,7 +138,7 @@ export default function StationsPageClient({
   }, [searchInput]);
 
   // Extracted Filter Options
-  const [zones, setZones] = useState<string[]>([]);
+  const [sdos, setSdos] = useState<string[]>([]);
   const [divisions, setDivisions] = useState<string[]>([]);
   const [types, setTypes] = useState<string[]>([]);
 
@@ -127,24 +151,23 @@ export default function StationsPageClient({
   const [userCoords, setUserCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [showNearbyModal, setShowNearbyModal] = useState(false);
 
-  // Load filter options dynamically from backend
+  // Load filter options dynamically from backend (with fallback to initialStations)
   useEffect(() => {
-    if (zonesCache) {
-      setZones(zonesCache);
-    } else {
-      fetch("/api/police-stations/zones")
-        .then((res) => {
-          if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-          return res.json();
-        })
-        .then((data) => {
-          if (data.success && data.zones) {
-            zonesCache = data.zones;
-            setZones(data.zones);
-          }
-        })
-        .catch((err) => console.error("Error loading zones:", err));
-    }
+    fetch("/api/police-stations/zones")
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        return res.json();
+      })
+      .then((data) => {
+        const list = data.sdos || data.zones;
+        if (data.success && list) {
+          zonesCache = list;
+          setSdos(list);
+        }
+      })
+      .catch((err) => {
+        console.error("Error loading SDOs:", err);
+      });
 
     if (divisionsCache) {
       setDivisions(divisionsCache);
@@ -158,9 +181,15 @@ export default function StationsPageClient({
           if (data.success && data.divisions) {
             divisionsCache = data.divisions;
             setDivisions(data.divisions);
+          } else {
+            throw new Error("Invalid response format");
           }
         })
-        .catch((err) => console.error("Error loading divisions:", err));
+        .catch((err) => {
+          console.error("Error loading divisions:", err);
+          const fallback = Array.from(new Set((initialStations || []).map(s => s.division || s.division_en).filter(Boolean)));
+          if (fallback.length > 0) setDivisions(fallback);
+        });
     }
 
     if (typesCache) {
@@ -175,20 +204,59 @@ export default function StationsPageClient({
           if (data.success && data.categories) {
             typesCache = data.categories;
             setTypes(data.categories);
+          } else {
+            throw new Error("Invalid response format");
           }
         })
-        .catch((err) => console.error("Error loading categories:", err));
+        .catch((err) => {
+          console.error("Error loading categories:", err);
+          const fallback = Array.from(new Set((initialStations || []).map(s => s.station_type || s.category || s.type).filter(Boolean)));
+          if (fallback.length > 0) setTypes(fallback);
+        });
     }
   }, [initialStations]);
+
+  // Derived dynamic SDO options list from all active stations + API + explicit required SDOs
+  const sdosList = useMemo(() => {
+    const sdoSet = new Set<string>([
+      "Indigo-1 Traffic investigation wing",
+      "west-1-anna nagar traffic",
+      "west-2-Kolathur traffic",
+      "west-3-Koyambedu traffic",
+      "Indigo-4 Traffic investigation wing",
+      "T .Nagar",
+      "Triplicane",
+      "East TIW",
+      "North-1- Flower Bazaar Traffic Sub Division Office",
+      "North 2- Washermenpet Traffic Sub Division Office",
+      "North -3 PULIANTHOPE Traffic Sub Division Office"
+    ]);
+    
+    (initialStations || []).forEach(s => {
+      const val = s.sdo || s.incharge_en;
+      if (val && val.trim()) sdoSet.add(val.trim());
+    });
+
+    (stations || []).forEach(s => {
+      const val = s.sdo || s.incharge_en;
+      if (val && val.trim()) sdoSet.add(val.trim());
+    });
+
+    (sdos || []).forEach(val => {
+      if (val && val.trim()) sdoSet.add(val.trim());
+    });
+
+    return Array.from(sdoSet).sort((a, b) => a.localeCompare(b));
+  }, [initialStations, stations, sdos]);
 
   // Client-side instant filtering and priority-based sorting
   const filteredStations = useMemo(() => {
     let list = userCoords ? stations : initialStations;
 
-    // Filter by Zone
-    if (selectedZone !== "All") {
+    // Filter by SDO (Sub-Divisional Officer)
+    if (selectedSdo !== "All") {
       list = list.filter(
-        (s) => s.zone === selectedZone || s.zone_en === selectedZone || s.zone_ta === selectedZone
+        (s) => s.sdo === selectedSdo || s.incharge_en === selectedSdo
       );
     }
 
@@ -295,7 +363,7 @@ export default function StationsPageClient({
     }
 
     return list;
-  }, [initialStations, stations, searchQuery, selectedZone, selectedDivision, selectedType, userCoords]);
+  }, [initialStations, stations, searchQuery, selectedSdo, selectedDivision, selectedType, userCoords]);
 
   // Synchronize pagination states with the computed filtered list length
   useEffect(() => {
@@ -317,7 +385,7 @@ export default function StationsPageClient({
   // Reset userCoords when filters or search query change
   useEffect(() => {
     setUserCoords(null);
-  }, [searchQuery, selectedZone, selectedDivision, selectedType]);
+  }, [searchQuery, selectedSdo, selectedDivision, selectedType]);
 
   // Locate Nearby Stations using Geolocation Browser API and modal popup
   const handleNearbySearch = () => {
@@ -383,7 +451,7 @@ export default function StationsPageClient({
         </div>
 
         {/* Search & Filters */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 bg-stone-50 dark:bg-stone-900 p-5 rounded-2xl border border-stone-200 dark:border-stone-850">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-stone-50 dark:bg-stone-900 p-5 rounded-2xl border border-stone-200 dark:border-stone-850">
           
           {/* Search Input */}
           <div className="relative">
@@ -397,41 +465,20 @@ export default function StationsPageClient({
             />
           </div>
 
-          {/* Zone Filter */}
+          {/* SDO Filter */}
           <div className="relative">
             <select
-              value={selectedZone}
+              value={selectedSdo}
               onChange={(e) => {
-                setSelectedZone(e.target.value);
+                setSelectedSdo(e.target.value);
                 setSelectedDivision("All"); // Reset sub-filters to prevent empty intersections
               }}
               className="w-full px-4 py-2.5 bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 text-xs text-stone-800 dark:text-white rounded-xl focus:border-brand-gold focus:outline-none transition-colors appearance-none cursor-pointer font-bold"
             >
-              <option value="All">{language === "ta" ? "அனைத்து மண்டலங்கள்" : "All Zones"}</option>
-              {zones.map((zone) => (
-                <option key={zone} value={zone}>{zone}</option>
+              <option className="bg-white dark:bg-stone-950 text-stone-900 dark:text-white" value="All">{language === "ta" ? "அனைத்து SDO அதிகாரிகள்" : "All SDOs"}</option>
+              {sdosList.map((sdo, idx) => (
+                <option className="bg-white dark:bg-stone-950 text-stone-900 dark:text-white" key={`sdo-opt-${sdo}-${idx}`} value={sdo}>{sdo}</option>
               ))}
-            </select>
-            <Filter className="absolute right-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-stone-400 pointer-events-none" />
-          </div>
-
-          {/* Division Filter */}
-          <div className="relative">
-            <select
-              value={selectedDivision}
-              onChange={(e) => setSelectedDivision(e.target.value)}
-              className="w-full px-4 py-2.5 bg-white dark:bg-stone-955 border border-stone-200 dark:border-stone-800 text-xs text-stone-800 dark:text-white rounded-xl focus:border-brand-gold focus:outline-none transition-colors appearance-none cursor-pointer font-bold"
-            >
-              <option value="All">{language === "ta" ? "அனைத்து கோட்டங்கள்" : "All Divisions"}</option>
-              {divisions
-                .filter((div) => {
-                  if (selectedZone === "All") return true;
-                  const associatedStations = initialStations.filter(s => (s.zone || s.zone_en) === selectedZone);
-                  return associatedStations.some(s => (s.division || s.division_en) === div);
-                })
-                .map((division) => (
-                  <option key={division} value={division}>{division}</option>
-                ))}
             </select>
             <Filter className="absolute right-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-stone-400 pointer-events-none" />
           </div>
@@ -443,9 +490,9 @@ export default function StationsPageClient({
               onChange={(e) => setSelectedType(e.target.value)}
               className="w-full px-4 py-2.5 bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 text-xs text-stone-800 dark:text-white rounded-xl focus:border-brand-gold focus:outline-none transition-colors appearance-none cursor-pointer font-bold"
             >
-              <option value="All">{language === "ta" ? "அனைத்து பிரிவுகள்" : "All Categories"}</option>
+              <option className="bg-white dark:bg-stone-950 text-stone-900 dark:text-white" value="All">{language === "ta" ? "அனைத்து பிரிவுகள்" : "All Categories"}</option>
               {types.map((type) => (
-                <option key={type} value={type}>{type}</option>
+                <option className="bg-white dark:bg-stone-950 text-stone-900 dark:text-white" key={type} value={type}>{type}</option>
               ))}
             </select>
             <Filter className="absolute right-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-stone-400 pointer-events-none" />
@@ -465,9 +512,9 @@ export default function StationsPageClient({
         {/* Stations Card Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {paginatedStations.length > 0 ? (
-            paginatedStations.map((station: DBPoliceStation) => (
+            paginatedStations.map((station: DBPoliceStation, idx: number) => (
               <StationCard 
-                key={station.id}
+                key={`st-${station.id || "0"}-${idx}`}
                 station={station}
                 language={language}
               />
@@ -485,7 +532,7 @@ export default function StationsPageClient({
             <button
               disabled={currentPage === 1 || isLoading}
               onClick={() => setCurrentPage(currentPage - 1)}
-              className="px-4 py-2 bg-white dark:bg-stone-955 border border-stone-200 dark:border-stone-800 text-xs font-bold text-stone-800 dark:text-white rounded-xl hover:bg-brand-gold hover:text-stone-955 disabled:opacity-50 transition cursor-pointer"
+              className="px-4 py-2 bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 text-xs font-bold text-stone-800 dark:text-white rounded-xl hover:bg-brand-gold hover:text-stone-955 disabled:opacity-50 transition cursor-pointer"
             >
               {language === "ta" ? "முந்தைய" : "Previous"}
             </button>
@@ -497,7 +544,7 @@ export default function StationsPageClient({
             <button
               disabled={currentPage === totalPages || isLoading}
               onClick={() => setCurrentPage(currentPage + 1)}
-              className="px-4 py-2 bg-white dark:bg-stone-955 border border-stone-200 dark:border-stone-800 text-xs font-bold text-stone-800 dark:text-white rounded-xl hover:bg-brand-gold hover:text-stone-955 disabled:opacity-50 transition cursor-pointer"
+              className="px-4 py-2 bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 text-xs font-bold text-stone-800 dark:text-white rounded-xl hover:bg-brand-gold hover:text-stone-955 disabled:opacity-50 transition cursor-pointer"
             >
               {language === "ta" ? "அடுத்தது" : "Next"}
             </button>

@@ -238,6 +238,7 @@ export interface DBPoliceStation {
   address_en?: string;
   address_ta?: string;
   phone?: string;
+  phone_no?: string;
   email?: string;
   incharge_en?: string;
   incharge_ta?: string;
@@ -247,6 +248,7 @@ export interface DBPoliceStation {
   hours_ta?: string;
   lat?: number;
   lng?: number;
+  lon?: number;
   latitude?: number;
   longitude?: number;
   zone_en?: string;
@@ -255,8 +257,14 @@ export interface DBPoliceStation {
   division_ta?: string;
   type?: string;
   station_name?: string;
+  station_name_ta?: string;
   station_code?: string;
   address?: string;
+  ps_address?: string;
+  district?: string;
+  sdo?: string;
+  range?: string;
+  range_name?: string;
   pincode?: string;
   inspector_name?: string;
   inspector_mobile?: string;
@@ -269,7 +277,11 @@ export interface DBPoliceStation {
   division?: string;
   category?: string;
   station_type?: string;
+  status?: string;
   is_active?: number;
+  deleted_at?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
   locality?: string;
   area_name?: string;
 }
@@ -978,6 +990,13 @@ class ChennaiGuardianDatabase {
 
   // News
   public async getNews(): Promise<DBNewsItem[]> {
+    const raw = jsonDb.getTable("news") as DBNewsItem[];
+    if (!raw || raw.length === 0) {
+      return newsData.map((item) => ({ ...item, published: 1 }));
+    }
+    return raw;
+  }
+  public async getAllRawNews(): Promise<DBNewsItem[]> {
     return jsonDb.getTable("news") as DBNewsItem[];
   }
   public async saveNews(news: DBNewsItem[]) {
@@ -1327,7 +1346,81 @@ class ChennaiGuardianDatabase {
 
   // Police Stations
   public async getPoliceStations(): Promise<DBPoliceStation[]> {
-    return jsonDb.getTable("police_stations") as DBPoliceStation[];
+    let stations = jsonDb.getTable("police_stations") as DBPoliceStation[];
+    if (stations === undefined || stations === null) {
+      try {
+        const defaultDataset = require("../data/chennaiPoliceStations");
+        stations = defaultDataset.map((s: any, index: number) => ({
+          id: index + 1,
+          station_name: s.stationName || s.station_name,
+          name_en: s.stationName || s.station_name,
+          name_ta: s.name_ta || `காவல் நிலையம் - ${(s.stationName || s.station_name || "").replace(" Police Station", "")}`,
+          district: s.district || (s.area === "Tambaram" || s.area === "Selaiyur" ? "Tambaram District" : "Chennai District"),
+          phone: s.phone || s.phone_no || "044-23452300",
+          phone_no: s.phone_no || s.phone || "044-23452300",
+          lat: s.lat || s.latitude || 13.0827,
+          lng: s.lng || s.longitude || 80.2707,
+          lon: s.lon || s.lng || s.longitude || 80.2707,
+          latitude: s.latitude || s.lat || 13.0827,
+          longitude: s.longitude || s.lng || 80.2707,
+          sdo: s.sdo || s.incharge_en || "ACP Sub-Divisional Officer",
+          range: s.range || s.zone || "Metropolitan Range",
+          address: s.address || s.ps_address || s.address_en,
+          ps_address: s.ps_address || s.address || s.address_en,
+          address_en: s.address_en || s.address,
+          address_ta: s.address_ta || s.address,
+          pincode: s.pincode || (s.address?.match(/\b6\d{5}\b/)?.[0] ?? "600001"),
+          zone: s.zone || "South Chennai",
+          zone_en: s.zone || "South Chennai",
+          area_name: s.area || s.area_name,
+          locality: s.area || s.locality,
+          station_type: s.type || s.category || "Law & Order",
+          category: s.category || "Law & Order",
+          type: s.type || s.category || "Law & Order",
+          is_active: 1
+        }));
+        jsonDb.setTable("police_stations", stations);
+      } catch (err) {
+        console.error("Failed to fallback load chennaiPoliceStations:", err);
+      }
+    } else {
+      stations = stations.map((s, index) => {
+        const sName = s.station_name || s.name_en || `Police Station ${index + 1}`;
+        const isTambaramArea = sName.toLowerCase().includes("tambaram") || sName.toLowerCase().includes("selaiyur") || s.locality?.toLowerCase().includes("tambaram") || s.locality?.toLowerCase().includes("selaiyur");
+        return {
+          ...s,
+          station_name: sName,
+          name_en: s.name_en || sName,
+          district: s.district || (isTambaramArea ? "Tambaram District" : "Chennai District"),
+          phone_no: s.phone_no || s.phone || "044-23452300",
+          phone: s.phone || s.phone_no || "044-23452300",
+          lat: s.lat ?? s.latitude ?? 13.0827,
+          lon: s.lon ?? s.lng ?? s.longitude ?? 80.2707,
+          latitude: s.latitude ?? s.lat ?? 13.0827,
+          longitude: s.longitude ?? s.lng ?? s.lon ?? 80.2707,
+          sdo: s.sdo || (isTambaramArea ? "ACP Tambaram Division" : "Sub-Divisional Officer"),
+          range: s.range || (isTambaramArea ? "Tambaram Range" : (s.zone || "Metropolitan Range")),
+          ps_address: s.ps_address || s.address || s.address_en || "Chennai, Tamil Nadu",
+          address: s.address || s.ps_address || s.address_en || "Chennai, Tamil Nadu",
+          pincode: s.pincode || (s.address?.match(/\b6\d{5}\b/)?.[0] ?? "600001")
+        };
+      });
+    }
+
+    // Deduplicate by normalized station name so no duplicate record is ever served
+    const seenNames = new Set<string>();
+    const uniqueStations: DBPoliceStation[] = [];
+    for (const s of stations) {
+      const nameKey = (s.station_name || s.name_en || "").toLowerCase().trim();
+      if (nameKey && !seenNames.has(nameKey)) {
+        seenNames.add(nameKey);
+        uniqueStations.push(s);
+      } else if (!nameKey) {
+        uniqueStations.push(s);
+      }
+    }
+
+    return uniqueStations;
   }
   public async savePoliceStations(stations: DBPoliceStation[]) {
     jsonDb.setTable("police_stations", stations);

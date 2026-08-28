@@ -41,6 +41,7 @@ import {
 } from "lucide-react";
 import RichTextEditor from "./RichTextEditor";
 import DynamicPageRenderer from "../sections/DynamicPageRenderer";
+import ConfirmModal from "./ConfirmModal";
 
 const paragraphsToHtml = (paragraphs: string[] | undefined): string => {
   if (!paragraphs) return "";
@@ -1176,6 +1177,15 @@ export default function MenuManagement({
   const [showTrashPanel, setShowTrashPanel] = useState(false);
 
   // Modals / forms state
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    confirmText?: string;
+    danger?: boolean;
+    onConfirm: () => void;
+  } | null>(null);
+
   const [showMenuModal, setShowMenuModal] = useState(false);
   const [editingMenu, setEditingMenu] = useState<Partial<MenuItem> | null>(null);
   const [showSubmenuModal, setShowSubmenuModal] = useState(false);
@@ -1468,33 +1478,39 @@ export default function MenuManagement({
   };
 
   // Direct Tree Node Action: Delete Section Block
-  const handleDirectDeleteBlock = async (pageName: string, sections: PageSection[], blockIndex: number) => {
+  const handleDirectDeleteBlock = (pageName: string, sections: PageSection[], blockIndex: number) => {
     if (!canWrite()) return showToast("Permission Denied", "error");
-    if (!confirm("Are you sure you want to delete this section block?")) return;
-
-    const filtered = sections.filter((_, idx) => idx !== blockIndex).map((s, idx) => ({ ...s, display_order: idx + 1 }));
-    try {
-      const res = await fetch("/api/admin/page-contents", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          page_name: pageName,
-          seo: expandedPageData?.seo || {},
-          sections: filtered
-        })
-      });
-      const data = await res.json();
-      if (data.success) {
-        showToast("Section block deleted successfully");
-        // Reload expanded state
-        const refreshedRes = await fetch(`/api/admin/page-contents?page_name=${pageName}&mode=draft`);
-        const refreshedData = await refreshedRes.json();
-        setExpandedPageData(refreshedData);
+    setConfirmModal({
+      isOpen: true,
+      title: "Delete Section Block",
+      message: "Are you sure you want to delete this section block?",
+      confirmText: "Delete Block",
+      danger: true,
+      onConfirm: async () => {
+        const filtered = sections.filter((_, idx) => idx !== blockIndex).map((s, idx) => ({ ...s, display_order: idx + 1 }));
+        try {
+          const res = await fetch("/api/admin/page-contents", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              page_name: pageName,
+              seo: expandedPageData?.seo || {},
+              sections: filtered
+            })
+          });
+          const data = await res.json();
+          if (data.success) {
+            showToast("Section block deleted successfully");
+            fetchExpandedPageContent(pageName);
+          } else {
+            showToast(data.error || "Failed to delete section block", "error");
+          }
+        } catch (err) {
+          console.error(err);
+          showToast("Network error", "error");
+        }
       }
-    } catch (e) {
-      console.error(e);
-      showToast("Delete failed", "error");
-    }
+    });
   };
 
   // Direct Tree Node Action: Add Section Block
@@ -1566,25 +1582,32 @@ export default function MenuManagement({
     }
   };
 
-  const handleMenuDelete = async (id: number) => {
+  const handleMenuDelete = (id: number) => {
     if (!canDelete()) return showToast("Permission Denied", "error");
-    if (!confirm("Are you sure you want to delete this menu? This will also delete all its submenus.")) return;
-
-    try {
-      const res = await fetch(`/api/admin/menus?id=${id}`, {
-        method: "DELETE"
-      });
-      const data = await res.json();
-      if (data.success) {
-        showToast("Main menu deleted successfully");
-        fetchData();
-      } else {
-        showToast(data.error || "Delete failed", "error");
+    setConfirmModal({
+      isOpen: true,
+      title: "Delete Main Menu",
+      message: "Are you sure you want to delete this menu? This will also delete all its submenus.",
+      confirmText: "Delete Menu",
+      danger: true,
+      onConfirm: async () => {
+        try {
+          const res = await fetch(`/api/admin/menus?id=${id}`, {
+            method: "DELETE"
+          });
+          const data = await res.json();
+          if (data.success) {
+            showToast("Main menu deleted successfully");
+            fetchData();
+          } else {
+            showToast(data.error || "Delete failed", "error");
+          }
+        } catch (err) {
+          console.error(err);
+          showToast("Network error", "error");
+        }
       }
-    } catch (err) {
-      console.error(err);
-      showToast("Network error", "error");
-    }
+    });
   };
 
   // Submenu CRUD submissions
@@ -1620,25 +1643,32 @@ export default function MenuManagement({
     }
   };
 
-  const handleSubmenuDelete = async (id: number) => {
+  const handleSubmenuDelete = (id: number) => {
     if (!canDelete()) return showToast("Permission Denied", "error");
-    if (!confirm("Are you sure you want to delete this submenu?")) return;
-
-    try {
-      const res = await fetch(`/api/admin/submenus?id=${id}`, {
-        method: "DELETE"
-      });
-      const data = await res.json();
-      if (data.success) {
-        showToast("Submenu deleted successfully");
-        fetchData();
-      } else {
-        showToast(data.error || "Delete failed", "error");
+    setConfirmModal({
+      isOpen: true,
+      title: "Delete Submenu",
+      message: "Are you sure you want to delete this submenu?",
+      confirmText: "Delete Submenu",
+      danger: true,
+      onConfirm: async () => {
+        try {
+          const res = await fetch(`/api/admin/submenus?id=${id}`, {
+            method: "DELETE"
+          });
+          const data = await res.json();
+          if (data.success) {
+            showToast("Submenu deleted successfully");
+            fetchData();
+          } else {
+            showToast(data.error || "Delete failed", "error");
+          }
+        } catch (err) {
+          console.error(err);
+          showToast("Network error", "error");
+        }
       }
-    } catch (err) {
-      console.error(err);
-      showToast("Network error", "error");
-    }
+    });
   };
 
   // Quick Toggles for Status Visibility
@@ -1778,10 +1808,18 @@ export default function MenuManagement({
 
   const removeBlock = (index: number) => {
     if (!canWrite()) return showToast("Permission Denied", "error");
-    if (!confirm("Are you sure you want to remove this block?")) return;
-    const newSections = pageContent.sections.filter((_, idx) => idx !== index).map((s, idx) => ({ ...s, display_order: idx + 1 }));
-    setPageContent({ ...pageContent, sections: newSections });
-    setEditingBlockIndex(null);
+    setConfirmModal({
+      isOpen: true,
+      title: "Remove Content Block",
+      message: "Are you sure you want to remove this block?",
+      confirmText: "Remove Block",
+      danger: true,
+      onConfirm: () => {
+        const newSections = pageContent.sections.filter((_, idx) => idx !== index).map((s, idx) => ({ ...s, display_order: idx + 1 }));
+        setPageContent({ ...pageContent, sections: newSections });
+        setEditingBlockIndex(null);
+      }
+    });
   };
 
   const moveBlock = (index: number, direction: "up" | "down") => {
@@ -3875,6 +3913,20 @@ export default function MenuManagement({
           </div>
         </div>
       )}
+
+      {/* Custom Confirmation Modal */}
+      {confirmModal && (
+        <ConfirmModal
+          isOpen={confirmModal.isOpen}
+          title={confirmModal.title}
+          message={confirmModal.message}
+          confirmText={confirmModal.confirmText}
+          danger={confirmModal.danger}
+          onConfirm={confirmModal.onConfirm}
+          onClose={() => setConfirmModal(null)}
+        />
+      )}
+
     </div>
   );
 }
