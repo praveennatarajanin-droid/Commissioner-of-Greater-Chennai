@@ -3787,7 +3787,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                           </select>
                         </div>
                         <div className="flex items-center px-4 py-3 bg-stone-955 border border-stone-850 rounded-xl">
-                          <p className="text-[10px] text-slate-900 leading-normal font-bold">
+                          <p className="text-[11px] !text-white leading-relaxed font-bold">
                             Adjusts the scrolling speed of the Breaking News bar on the frontend. A slower speed is highly recommended for readability of long announcements.
                           </p>
                         </div>
