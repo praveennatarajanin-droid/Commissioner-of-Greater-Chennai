@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import {
   Users,
   Shield,
+  ShieldCheck,
   Sliders,
   Lock,
   ScrollText,
@@ -28,6 +29,17 @@ import {
   Phone,
   Image as ImageIcon
 } from "lucide-react";
+import ConfirmModal from "./ConfirmModal";
+import MfaEnrollmentModal from "./MfaEnrollmentModal";
+import StepUpModal from "../security/StepUpModal";
+import ApiSecurityDashboard from "./ApiSecurityDashboard";
+import FileUploadSecurityConsole from "./FileUploadSecurityConsole";
+import CsrfSecurityConsole from "./CsrfSecurityConsole";
+import XssSecurityConsole from "./XssSecurityConsole";
+import RateLimitSecurityConsole from "./RateLimitSecurityConsole";
+import BackupRecoveryConsole from "./BackupRecoveryConsole";
+import SecurityAssessmentConsole from "./SecurityAssessmentConsole";
+import SystemSecurityCenterConsole from "./SystemSecurityCenterConsole";
 
 interface SuperAdminConsoleProps {
   user: { username: string; role: string };
@@ -107,6 +119,20 @@ export default function SuperAdminConsole({ user, onTabChange }: SuperAdminConso
   const [logModuleFilter, setLogModuleFilter] = useState("all");
   const [userSearch, setUserSearch] = useState("");
 
+  // Security Hardening & Session States
+  const [activeSessions, setActiveSessions] = useState<any[]>([]);
+  const [secEvents, setSecEvents] = useState<any[]>([]);
+  const [secPolicyConfig, setSecPolicyConfig] = useState<any>({
+    admin_console_path: "/control-center",
+    session_timeout_minutes: 30,
+    login_rate_limit: 5,
+    max_failed_logins: 5,
+    lockout_duration_minutes: 30,
+    captcha_enabled: true,
+    mfa_policy: "optional",
+    maintenance_mode: false
+  });
+
   const showToast = (text: string, type: "success" | "error" = "success") => {
     setToast({ text, type });
     setTimeout(() => setToast(null), 4000);
@@ -149,9 +175,117 @@ export default function SuperAdminConsole({ user, onTabChange }: SuperAdminConso
     }
   };
 
+  const loadSessions = async () => {
+    try {
+      const res = await fetch("/api/admin/sessions");
+      if (res.ok) setActiveSessions(await res.json());
+    } catch {
+      showToast("Failed to load active sessions", "error");
+    }
+  };
+
+  const loadSecEvents = async () => {
+    try {
+      const res = await fetch("/api/admin/security-events");
+      if (res.ok) setSecEvents(await res.json());
+    } catch {
+      showToast("Failed to load security audit events", "error");
+    }
+  };
+
+  const [mfaStatus, setMfaStatus] = useState<any>({ mfa_enabled: false, mandatory: false, trusted_devices_count: 0 });
+  const [trustedDevices, setTrustedDevices] = useState<any[]>([]);
+  const [showMfaEnrollModal, setShowMfaEnrollModal] = useState(false);
+  const [showStepUpModal, setShowStepUpModal] = useState(false);
+  const [pendingStepUpCallback, setPendingStepUpCallback] = useState<((token: string) => void) | null>(null);
+
+  const loadMfaStatus = async () => {
+    try {
+      const res = await fetch("/api/admin/mfa/status");
+      if (res.ok) setMfaStatus(await res.json());
+    } catch {}
+  };
+
+  const loadTrustedDevices = async () => {
+    try {
+      const res = await fetch("/api/admin/mfa/trusted-devices");
+      if (res.ok) {
+        const data = await res.json();
+        setTrustedDevices(data.devices || []);
+      }
+    } catch {}
+  };
+
+  const loadSecPolicyConfig = async () => {
+    try {
+      const res = await fetch("/api/admin/security-config");
+      if (res.ok) setSecPolicyConfig(await res.json());
+    } catch {
+      showToast("Failed to load security config", "error");
+    }
+  };
+
+  const handleRevokeSession = async (sessionId: string) => {
+    try {
+      const res = await fetch("/api/admin/sessions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "revoke", sessionId })
+      });
+      if (res.ok) {
+        showToast("Session revoked successfully");
+        loadSessions();
+        loadSecEvents();
+      } else {
+        showToast("Failed to revoke session", "error");
+      }
+    } catch {
+      showToast("Network error revoking session", "error");
+    }
+  };
+
+  const handleForceLogoutAll = async (username: string) => {
+    try {
+      const res = await fetch("/api/admin/sessions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "revoke_all_user", username })
+      });
+      if (res.ok) {
+        showToast(`Revoked all sessions for user ${username}`);
+        loadSessions();
+        loadSecEvents();
+      } else {
+        showToast("Failed to force logout user", "error");
+      }
+    } catch {
+      showToast("Network error executing force logout", "error");
+    }
+  };
+
+  const handleSaveSecPolicyConfig = async (updatedConfig: any) => {
+    try {
+      const res = await fetch("/api/admin/security-config", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedConfig)
+      });
+      if (res.ok) {
+        showToast("Security configuration updated successfully");
+        loadSecPolicyConfig();
+        loadSecEvents();
+      } else {
+        const err = await res.json();
+        showToast(err.error || "Failed to update security configuration", "error");
+      }
+    } catch {
+      showToast("Network error saving security policy", "error");
+    }
+  };
+
   useEffect(() => {
     setLoading(true);
-    Promise.all([loadUsers(), loadRoles(), loadLogs(), loadConfig()]).finally(() => setLoading(false));
+    Promise.all([loadUsers(), loadRoles(), loadLogs(), loadConfig(), loadSessions(), loadSecEvents(), loadSecPolicyConfig(), loadMfaStatus(), loadTrustedDevices()]).finally(() => setLoading(false));
   }, []);
 
   // ── User Management handlers ──
@@ -373,8 +507,16 @@ export default function SuperAdminConsole({ user, onTabChange }: SuperAdminConso
   const sections = [
     { id: "users", label: "User Management", icon: <Users className="w-4 h-4" /> },
     { id: "roles", label: "Role Builder", icon: <Shield className="w-4 h-4" /> },
+    { id: "apisec", label: "API Security Overview", icon: <ShieldCheck className="w-4 h-4 text-emerald-400" /> },
+    { id: "pentest", label: "Penetration Testing Audit", icon: <ShieldCheck className="w-4 h-4 text-emerald-400" /> },
+    { id: "csrfsec", label: "CSRF Protection Console", icon: <Lock className="w-4 h-4 text-emerald-400" /> },
+    { id: "xsssec", label: "XSS Protection Console", icon: <Shield className="w-4 h-4 text-teal-400" /> },
+    { id: "ratelimit", label: "Rate Limit Console", icon: <RefreshCw className="w-4 h-4 text-purple-400" /> },
+    { id: "uploadsec", label: "File Upload Security", icon: <UploadIcon className="w-4 h-4 text-purple-400" /> },
+    { id: "sessions", label: "Active Sessions", icon: <Server className="w-4 h-4 text-emerald-500" /> },
+    { id: "sec_events", label: "Security Events", icon: <AlertTriangle className="w-4 h-4 text-amber-500" /> },
+    { id: "security", label: "Security Policy", icon: <Lock className="w-4 h-4 text-brand-gold" /> },
     { id: "sysconfig", label: "System Configuration", icon: <Sliders className="w-4 h-4" /> },
-    { id: "security", label: "Security Settings", icon: <Lock className="w-4 h-4" /> },
     { id: "logs", label: "Audit Logs", icon: <ScrollText className="w-4 h-4" /> },
     { id: "backup", label: "Backup & Restore", icon: <Database className="w-4 h-4" /> },
     { id: "smtp", label: "SMTP Configuration", icon: <Mail className="w-4 h-4" /> },
@@ -431,7 +573,15 @@ export default function SuperAdminConsole({ user, onTabChange }: SuperAdminConso
 
         {!loading && (
           <div className="space-y-6">
-            
+            {activeSection === "apisec" && <ApiSecurityDashboard />}
+            {activeSection === "pentest" && <SecurityAssessmentConsole />}
+            {activeSection === "security" && <SystemSecurityCenterConsole />}
+            {activeSection === "csrfsec" && <CsrfSecurityConsole />}
+            {activeSection === "xsssec" && <XssSecurityConsole />}
+            {activeSection === "ratelimit" && <RateLimitSecurityConsole />}
+            {activeSection === "uploadsec" && <FileUploadSecurityConsole />}
+            {activeSection === "backup" && <BackupRecoveryConsole />}
+
             {/* 1. USER MANAGEMENT SECTION */}
             {activeSection === "users" && (
               <div className="space-y-4">
@@ -742,54 +892,287 @@ export default function SuperAdminConsole({ user, onTabChange }: SuperAdminConso
               </div>
             )}
 
-            {/* 4. SECURITY SETTINGS */}
+            {/* ACTIVE SESSIONS TAB */}
+            {activeSection === "sessions" && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between border-b pb-3 border-slate-100 dark:border-stone-800">
+                  <div>
+                    <h3 className="text-sm font-black uppercase tracking-wider text-slate-800 dark:text-white flex items-center gap-2">
+                      <Server className="w-4 h-4 text-emerald-500" />
+                      <span>Active Session Registry</span>
+                    </h3>
+                    <p className="text-[10px] text-slate-400 mt-0.5">Real-time monitoring of all authenticated administrator sessions with instant revocation controls.</p>
+                  </div>
+                  <button
+                    onClick={loadSessions}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 dark:bg-stone-800 hover:bg-slate-200 text-slate-700 dark:text-stone-300 rounded-xl text-xs font-bold transition cursor-pointer"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5" /> Refresh Sessions
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                  <div className="bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-xl">
+                    <p className="text-[10px] font-black uppercase text-emerald-600 dark:text-emerald-400">Total Active Sessions</p>
+                    <p className="text-2xl font-extrabold text-emerald-700 dark:text-emerald-300">{activeSessions.length}</p>
+                  </div>
+                  <div className="bg-amber-500/10 border border-amber-500/20 p-4 rounded-xl">
+                    <p className="text-[10px] font-black uppercase text-amber-600 dark:text-amber-400">Session Timeout Window</p>
+                    <p className="text-2xl font-extrabold text-amber-700 dark:text-amber-300">{secPolicyConfig.session_timeout_minutes || 30} mins</p>
+                  </div>
+                  <div className="bg-blue-500/10 border border-blue-500/20 p-4 rounded-xl">
+                    <p className="text-[10px] font-black uppercase text-blue-600 dark:text-blue-400">Active Unique Users</p>
+                    <p className="text-2xl font-extrabold text-blue-700 dark:text-blue-300">{new Set(activeSessions.map((s) => s.username)).size}</p>
+                  </div>
+                </div>
+
+                <div className="border border-slate-200 dark:border-stone-800 rounded-xl overflow-hidden shadow-sm bg-white dark:bg-stone-950">
+                  <table className="w-full border-collapse text-left text-xs">
+                    <thead>
+                      <tr className="bg-slate-50 dark:bg-stone-900 border-b border-slate-200 dark:border-stone-800 text-[10px] font-black uppercase text-slate-500 dark:text-stone-400 tracking-wider">
+                        <th className="p-3">User & IP Address</th>
+                        <th className="p-3">Client Agent</th>
+                        <th className="p-3">Login Time</th>
+                        <th className="p-3">Last Active</th>
+                        <th className="p-3 text-right">Session Control</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-stone-800 font-bold text-slate-700 dark:text-stone-300">
+                      {activeSessions.length === 0 ? (
+                        <tr>
+                          <td colSpan={5} className="p-6 text-center text-slate-400 font-normal">No active sessions registered.</td>
+                        </tr>
+                      ) : (
+                        activeSessions.map((s) => (
+                          <tr key={s.id || s.session_id} className="hover:bg-slate-50/50 dark:hover:bg-stone-900/50">
+                            <td className="p-3">
+                              <p className="text-slate-800 dark:text-white font-black flex items-center gap-1.5">
+                                <UserCheck className="w-3.5 h-3.5 text-emerald-500" />
+                                {s.username}
+                              </p>
+                              <span className="text-[9px] font-mono text-slate-400">{s.ip_address}</span>
+                            </td>
+                            <td className="p-3 text-[10px] font-normal text-slate-500 dark:text-stone-400 max-w-[150px] truncate" title={s.user_agent}>
+                              {s.user_agent || "Unknown Browser"}
+                            </td>
+                            <td className="p-3 text-[10px] font-normal text-slate-500">{new Date(s.created_at).toLocaleString()}</td>
+                            <td className="p-3 text-[10px] font-normal text-emerald-600 dark:text-emerald-400 font-mono">{new Date(s.last_activity).toLocaleTimeString()}</td>
+                            <td className="p-3 text-right">
+                              <div className="flex items-center justify-end gap-2">
+                                <button
+                                  onClick={() => handleRevokeSession(s.session_id)}
+                                  className="px-2.5 py-1 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 text-rose-600 dark:text-rose-400 hover:bg-rose-100 rounded-lg text-[10px] font-black uppercase cursor-pointer"
+                                >
+                                  Revoke
+                                </button>
+                                <button
+                                  onClick={() => handleForceLogoutAll(s.username)}
+                                  className="px-2.5 py-1 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50 text-amber-600 dark:text-amber-400 hover:bg-amber-100 rounded-lg text-[10px] font-black uppercase cursor-pointer"
+                                >
+                                  Logout All
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* SECURITY EVENTS TAB */}
+            {activeSection === "sec_events" && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between border-b pb-3 border-slate-100 dark:border-stone-800">
+                  <div>
+                    <h3 className="text-sm font-black uppercase tracking-wider text-slate-800 dark:text-white flex items-center gap-2">
+                      <AlertTriangle className="w-4 h-4 text-amber-500" />
+                      <span>Security Events Log</span>
+                    </h3>
+                    <p className="text-[10px] text-slate-400 mt-0.5">Real-time security telemetry recording failed logins, lockouts, rate limit violations, and policy changes.</p>
+                  </div>
+                  <button
+                    onClick={loadSecEvents}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 dark:bg-stone-800 hover:bg-slate-200 text-slate-700 dark:text-stone-300 rounded-xl text-xs font-bold transition cursor-pointer"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5" /> Refresh Telemetry
+                  </button>
+                </div>
+
+                <div className="border border-slate-200 dark:border-stone-800 rounded-xl overflow-hidden shadow-sm bg-white dark:bg-stone-950">
+                  <table className="w-full border-collapse text-left text-xs">
+                    <thead>
+                      <tr className="bg-slate-50 dark:bg-stone-900 border-b border-slate-200 dark:border-stone-800 text-[10px] font-black uppercase text-slate-500 dark:text-stone-400 tracking-wider">
+                        <th className="p-3">Severity & Event Type</th>
+                        <th className="p-3">User & IP</th>
+                        <th className="p-3">Details</th>
+                        <th className="p-3">Timestamp</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-stone-800 font-bold text-slate-700 dark:text-stone-300">
+                      {secEvents.length === 0 ? (
+                        <tr>
+                          <td colSpan={4} className="p-6 text-center text-slate-400 font-normal">No security events logged yet.</td>
+                        </tr>
+                      ) : (
+                        secEvents.map((ev) => {
+                          const severityColor =
+                            ev.severity === "critical" || ev.severity === "high"
+                              ? "bg-rose-500/10 text-rose-600 border-rose-500/20"
+                              : ev.severity === "warning"
+                              ? "bg-amber-500/10 text-amber-600 border-amber-500/20"
+                              : "bg-blue-500/10 text-blue-600 border-blue-500/20";
+
+                          return (
+                            <tr key={ev.id} className="hover:bg-slate-50/50 dark:hover:bg-stone-900/50">
+                              <td className="p-3">
+                                <span className={`inline-block px-2 py-0.5 border rounded text-[9px] font-black uppercase ${severityColor}`}>
+                                  {ev.severity} • {ev.event_type}
+                                </span>
+                              </td>
+                              <td className="p-3">
+                                <p className="text-slate-800 dark:text-white font-black">{ev.username}</p>
+                                <span className="text-[9px] font-mono text-slate-400">{ev.ip_address}</span>
+                              </td>
+                              <td className="p-3 text-[11px] font-normal text-slate-600 dark:text-stone-300 max-w-md">{ev.details}</td>
+                              <td className="p-3 text-[10px] font-normal text-slate-400 whitespace-nowrap">{new Date(ev.created_at).toLocaleString()}</td>
+                            </tr>
+                          );
+                        })
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* SECURITY POLICY SETTINGS TAB */}
             {activeSection === "security" && (
               <div className="space-y-4">
                 <div className="border-b pb-3 border-slate-100 dark:border-stone-800">
-                  <h3 className="text-sm font-black uppercase tracking-wider text-slate-800 dark:text-white">Security Settings</h3>
-                  <p className="text-[10px] text-slate-400 mt-0.5">Manage session timeout, password decay limits, and failed login parameters.</p>
+                  <h3 className="text-sm font-black uppercase tracking-wider text-slate-800 dark:text-white flex items-center gap-2">
+                    <Lock className="w-4 h-4 text-brand-gold" />
+                    <span>Enterprise Security Policy Configuration</span>
+                  </h3>
+                  <p className="text-[10px] text-slate-400 mt-0.5">Configure URL stealth protection paths, session timeouts, rate limit caps, account lockout triggers, and CAPTCHA policies.</p>
                 </div>
-                <div className="border border-slate-200 dark:border-stone-850 p-5 rounded-2xl bg-white dark:bg-stone-950 space-y-4">
-                  <h4 className="text-xs font-black uppercase text-slate-850 dark:text-white">Enterprise Security Policy</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 font-bold text-xs">
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-black uppercase text-slate-400">Failed Logins Limit</label>
-                      <select
-                        value={config.failedLoginLimit || "5"}
-                        onChange={(e) => saveConfigKey("failedLoginLimit", e.target.value)}
-                        className="w-full border border-slate-200 dark:border-stone-800 rounded-xl p-2 outline-none bg-white dark:bg-stone-900 dark:text-white"
-                      >
-                        <option value="3">3 Attempts</option>
-                        <option value="5">5 Attempts (Recommended)</option>
-                        <option value="10">10 Attempts</option>
-                      </select>
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-black uppercase text-slate-400">Password Lifetime</label>
-                      <select
-                        value={config.passwordExpiryDays || "90"}
-                        onChange={(e) => saveConfigKey("passwordExpiryDays", e.target.value)}
-                        className="w-full border border-slate-200 dark:border-stone-800 rounded-xl p-2 outline-none bg-white dark:bg-stone-900 dark:text-white"
-                      >
-                        <option value="30">30 Days</option>
-                        <option value="90">90 Days (Standard)</option>
-                        <option value="180">180 Days</option>
-                      </select>
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-black uppercase text-slate-400">Inactivity Timeout</label>
-                      <select
-                        value={config.sessionTimeoutMinutes || "30"}
-                        onChange={(e) => saveConfigKey("sessionTimeoutMinutes", e.target.value)}
-                        className="w-full border border-slate-200 dark:border-stone-800 rounded-xl p-2 outline-none bg-white dark:bg-stone-900 dark:text-white"
-                      >
-                        <option value="15">15 Minutes</option>
-                        <option value="30">30 Minutes</option>
-                        <option value="60">60 Minutes</option>
-                      </select>
+
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    handleSaveSecPolicyConfig(secPolicyConfig);
+                  }}
+                  className="space-y-6"
+                >
+                  <div className="border border-slate-200 dark:border-stone-850 p-5 rounded-2xl bg-white dark:bg-stone-950 space-y-4 shadow-sm">
+                    <h4 className="text-xs font-black uppercase text-slate-850 dark:text-white border-b pb-2 flex items-center gap-2">
+                      <Shield className="w-4 h-4 text-brand-blue" />
+                      <span>1. Obfuscated Console Entry Path</span>
+                    </h4>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase text-slate-500 dark:text-stone-400">Admin Console Secret Route Path</label>
+                      <input
+                        type="text"
+                        value={secPolicyConfig.admin_console_path || "/control-center"}
+                        onChange={(e) => setSecPolicyConfig({ ...secPolicyConfig, admin_console_path: e.target.value })}
+                        placeholder="/control-center"
+                        className="w-full border border-slate-200 dark:border-stone-800 rounded-xl p-2.5 text-xs outline-none bg-slate-50 dark:bg-stone-900 text-stone-900 dark:text-white font-mono"
+                      />
+                      <p className="text-[10px] text-slate-400">
+                        Default: <code className="font-mono text-brand-blue font-bold">/control-center</code>. Standard paths like <code className="font-mono text-rose-500 font-bold">/admin</code>, <code className="font-mono text-rose-500 font-bold">/dashboard</code>, and <code className="font-mono text-rose-500 font-bold">/backend</code> are automatically honey-potted to 404 Not Found.
+                      </p>
                     </div>
                   </div>
-                </div>
+
+                  <div className="border border-slate-200 dark:border-stone-850 p-5 rounded-2xl bg-white dark:bg-stone-950 space-y-4 shadow-sm">
+                    <h4 className="text-xs font-black uppercase text-slate-850 dark:text-white border-b pb-2 flex items-center gap-2">
+                      <Lock className="w-4 h-4 text-emerald-500" />
+                      <span>2. Session & Authentication Controls</span>
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 font-bold text-xs">
+                      <div className="space-y-1">
+                        <label className="text-[9px] font-black uppercase text-slate-400">Max Failed Login Attempts</label>
+                        <select
+                          value={secPolicyConfig.max_failed_logins || 5}
+                          onChange={(e) => setSecPolicyConfig({ ...secPolicyConfig, max_failed_logins: Number(e.target.value) })}
+                          className="w-full border border-slate-200 dark:border-stone-800 rounded-xl p-2 outline-none bg-white dark:bg-stone-900 dark:text-white"
+                        >
+                          <option value="3">3 Failed Attempts</option>
+                          <option value="5">5 Failed Attempts (Standard)</option>
+                          <option value="10">10 Failed Attempts</option>
+                        </select>
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[9px] font-black uppercase text-slate-400">Inactivity Session Timeout</label>
+                        <select
+                          value={secPolicyConfig.session_timeout_minutes || 30}
+                          onChange={(e) => setSecPolicyConfig({ ...secPolicyConfig, session_timeout_minutes: Number(e.target.value) })}
+                          className="w-full border border-slate-200 dark:border-stone-800 rounded-xl p-2 outline-none bg-white dark:bg-stone-900 dark:text-white"
+                        >
+                          <option value="15">15 Minutes</option>
+                          <option value="30">30 Minutes (Recommended)</option>
+                          <option value="60">60 Minutes</option>
+                          <option value="120">120 Minutes</option>
+                        </select>
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[9px] font-black uppercase text-slate-400">Account Lockout Duration</label>
+                        <select
+                          value={secPolicyConfig.lockout_duration_minutes || 30}
+                          onChange={(e) => setSecPolicyConfig({ ...secPolicyConfig, lockout_duration_minutes: Number(e.target.value) })}
+                          className="w-full border border-slate-200 dark:border-stone-800 rounded-xl p-2 outline-none bg-white dark:bg-stone-900 dark:text-white"
+                        >
+                          <option value="15">15 Minutes</option>
+                          <option value="30">30 Minutes</option>
+                          <option value="60">60 Minutes</option>
+                          <option value="1440">24 Hours</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="border border-slate-200 dark:border-stone-850 p-5 rounded-2xl bg-white dark:bg-stone-950 space-y-4 shadow-sm">
+                    <h4 className="text-xs font-black uppercase text-slate-850 dark:text-white border-b pb-2 flex items-center gap-2">
+                      <Sliders className="w-4 h-4 text-amber-500" />
+                      <span>3. CAPTCHA & Security Policies</span>
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="flex items-center justify-between p-3 border border-slate-100 dark:border-stone-800 rounded-xl">
+                        <div>
+                          <p className="text-xs font-black text-slate-800 dark:text-white">Server-Verified HMAC CAPTCHA</p>
+                          <span className="text-[9px] text-slate-400 font-normal">Require SVG HMAC CAPTCHA on all admin login attempts.</span>
+                        </div>
+                        <input
+                          type="checkbox"
+                          checked={secPolicyConfig.captcha_enabled ?? true}
+                          onChange={(e) => setSecPolicyConfig({ ...secPolicyConfig, captcha_enabled: e.target.checked })}
+                          className="w-4 h-4 cursor-pointer"
+                        />
+                      </div>
+                      <div className="flex items-center justify-between p-3 border border-slate-100 dark:border-stone-800 rounded-xl">
+                        <div>
+                          <p className="text-xs font-black text-slate-800 dark:text-white">Maintenance Mode</p>
+                          <span className="text-[9px] text-slate-400 font-normal">Restrict administrative portal access to Super Admins only.</span>
+                        </div>
+                        <input
+                          type="checkbox"
+                          checked={secPolicyConfig.maintenance_mode ?? false}
+                          onChange={(e) => setSecPolicyConfig({ ...secPolicyConfig, maintenance_mode: e.target.checked })}
+                          className="w-4 h-4 cursor-pointer"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-[#1e40af] hover:bg-[#1b3899] text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-lg transition cursor-pointer"
+                  >
+                    <CheckCircle className="w-4 h-4" /> Save Security Policy Configuration
+                  </button>
+                </form>
               </div>
             )}
 
@@ -1410,6 +1793,30 @@ export default function SuperAdminConsole({ user, onTabChange }: SuperAdminConso
           onClose={() => setConfirmModal(null)}
         />
       )}
+
+      {/* ── MFA ENROLLMENT WIZARD MODAL ── */}
+      <MfaEnrollmentModal
+        isOpen={showMfaEnrollModal}
+        onClose={() => setShowMfaEnrollModal(false)}
+        onSuccess={() => {
+          showToast("Multi-Factor Authentication enabled!");
+          loadMfaStatus();
+        }}
+      />
+
+      {/* ── STEP-UP IDENTITY VERIFICATION MODAL ── */}
+      <StepUpModal
+        isOpen={showStepUpModal}
+        onClose={() => {
+          setShowStepUpModal(false);
+          setPendingStepUpCallback(null);
+        }}
+        onVerified={(token) => {
+          if (pendingStepUpCallback) {
+            pendingStepUpCallback(token);
+          }
+        }}
+      />
 
     </div>
   );

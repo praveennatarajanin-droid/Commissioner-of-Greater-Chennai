@@ -81,11 +81,107 @@ async function runMigration() {
       emergency_contacts: 'emergency_contacts',
       department_links: 'department_links',
       service_requests: 'service_requests',
-      contact_messages: 'contact_messages'
+      contact_messages: 'contact_messages',
+      sessions: 'sessions',
+      security_events: 'security_events',
+      security_config: 'security_config',
+      user_mfa: 'user_mfa',
+      mfa_challenges: 'mfa_challenges',
+      mfa_recovery_codes: 'mfa_recovery_codes',
+      trusted_devices: 'trusted_devices',
+      media_files: 'media_files'
     };
 
     // Pre-defined fallback fields for tables that are empty in JSON
     const fallbackFields = {
+      user_mfa: {
+        id: 1,
+        user_id: 1,
+        username: '',
+        secret_encrypted: '',
+        method: 'TOTP',
+        enabled: 1,
+        verified_at: '',
+        created_at: ''
+      },
+      mfa_challenges: {
+        id: 1,
+        challenge_id: '',
+        username: '',
+        expires_at: '',
+        attempt_count: 0,
+        verified: 0,
+        created_at: ''
+      },
+      mfa_recovery_codes: {
+        id: 1,
+        username: '',
+        code_hash: '',
+        used_at: '',
+        created_at: ''
+      },
+      trusted_devices: {
+        id: 1,
+        username: '',
+        token_hash: '',
+        device_name: '',
+        user_agent_summary: '',
+        created_at: '',
+        last_used_at: '',
+        expires_at: '',
+        revoked_at: ''
+      },
+      media_files: {
+        id: 1,
+        uuid: '',
+        original_name: '',
+        stored_name: '',
+        mime_type: '',
+        detected_mime: '',
+        extension: '',
+        file_size: 0,
+        sha256_hash: '',
+        storage_path: '',
+        status: 'APPROVED',
+        scan_status: 'CLEAN',
+        uploaded_by: '',
+        created_at: ''
+      },
+      sessions: {
+        id: 1,
+        user_id: 1,
+        username: '',
+        session_id: '',
+        created_at: '',
+        last_activity: '',
+        expires_at: '',
+        ip_address: '',
+        user_agent: '',
+        revoked_at: '',
+        status: 'active'
+      },
+      security_events: {
+        id: 1,
+        user_id: 1,
+        username: '',
+        event_type: '',
+        severity: 'info',
+        ip_address: '',
+        user_agent: '',
+        details: '',
+        created_at: ''
+      },
+      security_config: {
+        id: 1,
+        admin_console_path: '/control-center',
+        session_timeout_minutes: 30,
+        login_rate_limit: 5,
+        max_failed_logins: 5,
+        lockout_duration_minutes: 30,
+        captcha_enabled: 1,
+        mfa_policy: 'optional',
+        maintenance_mode: 0
+      },
       service_requests: {
         id: 1,
         applicantName: '',

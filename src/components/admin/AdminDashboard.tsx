@@ -54,6 +54,7 @@ import PageEditor from "./PageEditor";
 import WebStoriesManagement from "./WebStoriesManagement";
 import SeoManager from "./SeoManager";
 import PoliceStationsManagement from "./PoliceStationsManagement";
+import SecurityStatusIndicator from "./SecurityStatusIndicator";
 
 const RichTextEditor = dynamic(() => import("./RichTextEditor"), {
   loading: () => <div className="h-64 bg-stone-50 dark:bg-stone-900 animate-pulse rounded-2xl w-full" />,
@@ -2064,6 +2065,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                         </p>
                       </div>
                       <div className="hidden md:flex items-center gap-4 shrink-0">
+                        <SecurityStatusIndicator />
                         <div className="text-right">
                           <p className="text-[9px] text-blue-300 uppercase font-black tracking-widest">Portal Status</p>
                           <div className="flex items-center gap-1.5 mt-1">

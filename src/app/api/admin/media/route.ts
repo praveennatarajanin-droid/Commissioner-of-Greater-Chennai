@@ -127,9 +127,12 @@ export async function GET(req: Request) {
       await db.saveAssetMetadata(dbMetadata);
     }
 
+    // Merge registered media_files DB records
+    const registeredMedia = await db.getMediaFiles();
+
     mediaList.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
 
-    return NextResponse.json({ success: true, files: mediaList });
+    return NextResponse.json({ success: true, files: mediaList, registered: registeredMedia });
   } catch (e) {
     console.error("Media list error", e);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
@@ -178,8 +181,18 @@ export async function DELETE(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const filename = searchParams.get("file");
+    const rawId = searchParams.get("id");
+
+    if (rawId) {
+      const id = parseInt(rawId, 10);
+      if (!isNaN(id)) {
+        await db.deleteMediaFile(id);
+        return NextResponse.json({ success: true });
+      }
+    }
+
     if (!filename) {
-      return NextResponse.json({ error: "File name required" }, { status: 400 });
+      return NextResponse.json({ error: "File name or ID required" }, { status: 400 });
     }
 
     const safeFilename = path.basename(filename);

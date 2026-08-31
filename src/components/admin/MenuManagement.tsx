@@ -1501,7 +1501,7 @@ export default function MenuManagement({
           const data = await res.json();
           if (data.success) {
             showToast("Section block deleted successfully");
-            fetchExpandedPageContent(pageName);
+            fetchPageContent(pageName);
           } else {
             showToast(data.error || "Failed to delete section block", "error");
           }

@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
-import os from "os";
 import { cookies } from "next/headers";
+import { db } from "@/lib/db";
+import { inspectFileBuffer, stageAndApproveFile } from "@/lib/uploadSecurity";
+import crypto from "crypto";
 
 // Shared memory cache declaration for serverless runtimes
 declare global {
@@ -12,21 +12,6 @@ declare global {
 if (!globalThis.__UPLOAD_CACHE__) {
   globalThis.__UPLOAD_CACHE__ = new Map();
 }
-
-// Allowed file extensions (whitelist)
-const ALLOWED_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".gif", ".webp", ".pdf", ".svg", ".mp4", ".webm"]);
-
-const MIME_TYPES: Record<string, string> = {
-  ".jpg": "image/jpeg",
-  ".jpeg": "image/jpeg",
-  ".png": "image/png",
-  ".gif": "image/gif",
-  ".webp": "image/webp",
-  ".svg": "image/svg+xml",
-  ".pdf": "application/pdf",
-  ".mp4": "video/mp4",
-  ".webm": "video/webm"
-};
 
 async function checkAuth() {
   try {
@@ -42,7 +27,7 @@ async function checkAuth() {
 export async function POST(req: Request) {
   const auth = await checkAuth();
   if (!auth) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized: Authentication required." }, { status: 401 });
   }
 
   try {
@@ -50,55 +35,69 @@ export async function POST(req: Request) {
     const file = formData.get("file") as File;
 
     if (!file) {
-      return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
+      return NextResponse.json({ error: "No file provided in form data." }, { status: 400 });
     }
 
-    const rawExt = path.extname(file.name).toLowerCase() || ".jpg";
-    if (!ALLOWED_EXTENSIONS.has(rawExt)) {
-      return NextResponse.json(
-        { error: `File type not allowed. Allowed types: ${[...ALLOWED_EXTENSIONS].join(", ")}` },
-        { status: 400 }
-      );
+    const fileBuffer = Buffer.from(await file.arrayBuffer());
+
+    // 1. Binary Magic Byte & Security Inspection
+    const inspection = inspectFileBuffer(fileBuffer, file.name, file.type);
+    if (!inspection.valid || !inspection.sanitizedFilename) {
+      // Log security event for rejected upload attempt
+      await db.addSecurityEvent({
+        event_type: "FILE_UPLOAD_REJECTED",
+        severity: "warning",
+        username: auth.username || "unknown",
+        details: `Rejected upload of "${file.name}": ${inspection.error}`
+      });
+
+      return NextResponse.json({ error: inspection.error || "File security validation failed." }, { status: 400 });
     }
 
-    const buffer = Buffer.from(await file.arrayBuffer());
-    const filename = `upload_${Date.now()}_${Math.random().toString(36).substring(2, 8)}${rawExt}`;
-    const mime = MIME_TYPES[rawExt] || "application/octet-stream";
+    // 2. Stage to Quarantine and Approve
+    const { publicUrl, approvedPath } = stageAndApproveFile(fileBuffer, inspection.sanitizedFilename);
 
-    // Store in global RAM cache for fast serverless fallback
-    globalThis.__UPLOAD_CACHE__.set(filename, { buffer, mime });
+    // 3. Cache in RAM for fast serverless serving
+    globalThis.__UPLOAD_CACHE__.set(inspection.sanitizedFilename, {
+      buffer: fileBuffer,
+      mime: inspection.detectedMime || "application/octet-stream"
+    });
 
-    // Attempt to write to public/uploads
-    let written = false;
-    try {
-      const publicUploadDir = path.join(process.cwd(), "public/uploads");
-      if (!fs.existsSync(publicUploadDir)) {
-        fs.mkdirSync(publicUploadDir, { recursive: true });
-      }
-      fs.writeFileSync(path.join(publicUploadDir, filename), buffer);
-      written = true;
-    } catch (e) {
-      console.warn("Could not write to public/uploads (read-only filesystem?), attempting tmp directory:", e);
-    }
+    // 4. Save Record in MySQL / JSON Registry
+    const uuid = crypto.randomUUID ? crypto.randomUUID() : crypto.randomBytes(16).toString("hex");
+    const mediaRecord = await db.saveMediaFileRecord({
+      uuid,
+      original_name: file.name,
+      stored_name: inspection.sanitizedFilename,
+      mime_type: file.type || inspection.detectedMime || "application/octet-stream",
+      detected_mime: inspection.detectedMime || "application/octet-stream",
+      extension: inspection.extension || ".jpg",
+      file_size: fileBuffer.length,
+      sha256_hash: inspection.sha256Hash || "",
+      storage_path: approvedPath,
+      status: "APPROVED",
+      scan_status: "CLEAN",
+      uploaded_by: auth.username || "admin",
+      created_at: new Date().toISOString()
+    });
 
-    // Fallback write to os.tmpdir()/uploads if public is read-only
-    if (!written) {
-      try {
-        const tmpUploadDir = path.join(os.tmpdir(), "uploads");
-        if (!fs.existsSync(tmpUploadDir)) {
-          fs.mkdirSync(tmpUploadDir, { recursive: true });
-        }
-        fs.writeFileSync(path.join(tmpUploadDir, filename), buffer);
-      } catch (err) {
-        console.warn("Could not write to tmp directory:", err);
-      }
-    }
+    // 5. Log Success Audit
+    await db.addActivityLog(
+      auth.username || "admin",
+      `Uploaded & approved file: ${file.name} (SHA-256: ${inspection.sha256Hash?.substring(0, 12)}...)`
+    );
 
-    const publicUrl = `/uploads/${filename}`;
-    return NextResponse.json({ success: true, url: publicUrl, filename });
-  } catch (e) {
-    console.error("File upload error", e);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({
+      success: true,
+      url: publicUrl,
+      filename: inspection.sanitizedFilename,
+      media_id: mediaRecord.id,
+      sha256: inspection.sha256Hash,
+      category: inspection.category
+    });
+  } catch (e: any) {
+    console.error("File upload security pipeline error:", e);
+    return NextResponse.json({ error: "Unable to process upload. Please try again later." }, { status: 500 });
   }
 }
 

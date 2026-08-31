@@ -197,7 +197,7 @@ export default function StationsPageClient({
         })
         .catch((err) => {
           console.error("Error loading divisions:", err);
-          const fallback = Array.from(new Set((initialStations || []).map(s => s.division || s.division_en).filter(Boolean)));
+          const fallback = Array.from(new Set((initialStations || []).map(s => s.division || s.division_en).filter(Boolean))) as string[];
           if (fallback.length > 0) setDivisions(fallback);
         });
     }
@@ -220,7 +220,7 @@ export default function StationsPageClient({
         })
         .catch((err) => {
           console.error("Error loading categories:", err);
-          const fallback = Array.from(new Set((initialStations || []).map(s => s.station_type || s.category || s.type).filter(Boolean)));
+          const fallback = Array.from(new Set((initialStations || []).map(s => s.station_type || s.category || s.type).filter(Boolean))) as string[];
           if (fallback.length > 0) setTypes(fallback);
         });
     }

@@ -16,6 +16,13 @@ export default function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // MFA States
+  const [isMfaStep, setIsMfaStep] = useState(false);
+  const [challengeId, setChallengeId] = useState("");
+  const [mfaCode, setMfaCode] = useState("");
+  const [useRecoveryCode, setUseRecoveryCode] = useState(false);
+  const [trustDevice, setTrustDevice] = useState(true);
+
   // CAPTCHA States
   const [captchaInput, setCaptchaInput] = useState("");
   const [captchaToken, setCaptchaToken] = useState("");
@@ -61,15 +68,60 @@ export default function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
       });
       const data = await res.json();
       if (res.ok) {
-        onLoginSuccess(data.user);
+        if (data.mfa_required) {
+          setIsMfaStep(true);
+          setChallengeId(data.challenge_id || "");
+          setMfaCode("");
+          setError(null);
+        } else {
+          onLoginSuccess(data.user);
+        }
       } else {
-        setError(data.error || "Invalid security verification code. Please try again.");
+        setError(data.error || "INVALID USERNAME OR PASSWORD");
         refreshCaptcha();
       }
     } catch (err) {
       console.error(err);
       setError("Server connection failure. Please try again.");
       refreshCaptcha();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleMfaSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    try {
+      const payload: any = {
+        challenge_id: challengeId,
+        username,
+        trust_device: trustDevice,
+      };
+
+      if (useRecoveryCode) {
+        payload.recovery_code = mfaCode;
+      } else {
+        payload.code = mfaCode;
+      }
+
+      const res = await fetch("/api/admin/mfa/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        onLoginSuccess(data.user);
+      } else {
+        setError(data.error || "Verification code is invalid or expired.");
+      }
+    } catch {
+      setError("Unable to verify your code. Please check your connection.");
     } finally {
       setLoading(false);
     }
@@ -710,7 +762,7 @@ export default function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
           
           {/* Section label */}
           <p className="text-center text-xs font-bold uppercase tracking-widest" style={{ color: "#64748b" }}>
-            Secure Sign In
+            {isMfaStep ? "Multi-Factor Authentication" : "Secure Sign In"}
           </p>
 
           {/* Error Alert */}
@@ -728,263 +780,275 @@ export default function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-
-            {/* Username */}
-            <div className="space-y-1.5">
-              <label
-                className="block text-[11px] font-black uppercase tracking-wider"
-                style={{ color: "#374151" }}
-              >
-                Username
-              </label>
-              <div className="relative flex items-center">
-                <User
-                  className="absolute left-3.5 w-4 h-4 pointer-events-none"
-                  style={{ color: "#94a3b8" }}
-                />
-                <input
-                  type="text"
-                  required
-                  autoComplete="username"
-                  placeholder="Enter your username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  className="w-full text-sm py-3.5 pl-10 pr-4 rounded-xl outline-none transition-all duration-200"
-                  style={{
-                    background: "#f8fafc",
-                    border: "1.5px solid #e2e8f0",
-                    color: "#1e293b",
-                  }}
-                  onFocus={(e) => {
-                    e.currentTarget.style.border = "1.5px solid #1e40af";
-                    e.currentTarget.style.background = "#fff";
-                    e.currentTarget.style.boxShadow = "0 0 0 3px rgba(30,64,175,0.08)";
-                  }}
-                  onBlur={(e) => {
-                    e.currentTarget.style.border = "1.5px solid #e2e8f0";
-                    e.currentTarget.style.background = "#f8fafc";
-                    e.currentTarget.style.boxShadow = "none";
-                  }}
-                />
+          {isMfaStep ? (
+            /* ── DEDICATED MFA VERIFICATION FORM ── */
+            <form onSubmit={handleMfaSubmit} className="space-y-4">
+              <div className="text-center space-y-1">
+                <div className="w-12 h-12 bg-[#1e40af]/10 border border-[#1e40af]/30 rounded-2xl flex items-center justify-center mx-auto mb-2">
+                  <Lock className="w-6 h-6 text-[#1e40af]" />
+                </div>
+                <h3 className="text-sm font-black uppercase tracking-wider text-slate-800">
+                  {useRecoveryCode ? "Emergency Recovery Code" : "Authenticator Code Required"}
+                </h3>
+                <p className="text-xs text-slate-500 font-medium leading-relaxed">
+                  {useRecoveryCode
+                    ? "Enter one of your 10-character single-use emergency recovery codes."
+                    : "Enter the 6-digit verification code from your authenticator app."}
+                </p>
               </div>
-            </div>
 
-            {/* Password */}
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
+              {/* MFA Code Input */}
+              <div className="space-y-1.5 pt-2">
+                <label className="block text-[10px] font-black uppercase tracking-wider text-slate-500 text-center">
+                  {useRecoveryCode ? "10-Character Recovery Code" : "6-Digit Authenticator Code"}
+                </label>
+                {useRecoveryCode ? (
+                  <input
+                    type="text"
+                    required
+                    value={mfaCode}
+                    onChange={(e) => setMfaCode(e.target.value.toUpperCase())}
+                    placeholder="XXXX-XXXX"
+                    className="w-full text-center text-lg font-mono font-black tracking-widest px-4 py-3 bg-slate-50 border-2 border-[#1e40af] rounded-xl focus:outline-none uppercase text-slate-900"
+                  />
+                ) : (
+                  <input
+                    type="text"
+                    maxLength={6}
+                    required
+                    autoFocus
+                    value={mfaCode}
+                    onChange={(e) => setMfaCode(e.target.value.replace(/[^0-9]/g, ""))}
+                    placeholder="000000"
+                    className="w-full text-center text-2xl font-mono font-black tracking-[0.5em] px-4 py-3 bg-slate-50 border-2 border-[#1e40af] rounded-xl focus:outline-none text-slate-900"
+                  />
+                )}
+              </div>
+
+              {/* Trust Device Checkbox */}
+              <div className="flex items-center gap-2 pt-1">
+                <input
+                  type="checkbox"
+                  id="trust_device"
+                  checked={trustDevice}
+                  onChange={(e) => setTrustDevice(e.target.checked)}
+                  className="w-4 h-4 rounded text-[#1e40af] focus:ring-[#1e40af] cursor-pointer"
+                />
+                <label htmlFor="trust_device" className="text-xs text-slate-600 font-bold cursor-pointer select-none">
+                  Trust this device for 30 days
+                </label>
+              </div>
+
+              {/* Verify Button */}
+              <button
+                type="submit"
+                disabled={loading || !mfaCode}
+                className="w-full py-3.5 rounded-xl font-black tracking-widest text-xs uppercase transition-all duration-300 cursor-pointer flex items-center justify-center gap-2 bg-[#1e40af] hover:bg-[#1e3a8a] text-white shadow-lg disabled:opacity-50"
+              >
+                {loading ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    <span>Verifying Code...</span>
+                  </>
+                ) : (
+                  <>
+                    <ShieldCheck className="w-4 h-4" />
+                    <span>Verify & Continue</span>
+                  </>
+                )}
+              </button>
+
+              {/* Toggle Recovery Code / Back */}
+              <div className="flex flex-col gap-2 pt-2 text-center">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setUseRecoveryCode(!useRecoveryCode);
+                    setMfaCode("");
+                    setError(null);
+                  }}
+                  className="text-xs font-bold text-[#1e40af] hover:underline cursor-pointer"
+                >
+                  {useRecoveryCode ? "Use Authenticator App Code" : "Use Recovery Code"}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsMfaStep(false);
+                    setError(null);
+                  }}
+                  className="text-xs font-bold text-slate-500 hover:text-slate-700 cursor-pointer"
+                >
+                  &larr; Back to Sign In
+                </button>
+              </div>
+            </form>
+          ) : (
+            /* ── STANDARD PASSWORD + CAPTCHA LOGIN FORM ── */
+            <form onSubmit={handleSubmit} className="space-y-4">
+
+              {/* Username */}
+              <div className="space-y-1.5">
                 <label
                   className="block text-[11px] font-black uppercase tracking-wider"
                   style={{ color: "#374151" }}
                 >
-                  Password
+                  Username
                 </label>
-                <a
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    alert("Contact your system Super Administrator to reset access credentials.");
-                  }}
-                  className="text-[11px] font-bold transition-colors duration-200"
-                  style={{ color: "#1e40af" }}
-                  onMouseEnter={(e) => (e.currentTarget.style.color = "#ed1b24")}
-                  onMouseLeave={(e) => (e.currentTarget.style.color = "#1e40af")}
-                >
-                  Forgot Password?
-                </a>
-              </div>
-              <div className="relative flex items-center">
-                <Lock
-                  className="absolute left-3.5 w-4 h-4 pointer-events-none"
-                  style={{ color: "#94a3b8" }}
-                />
-                <input
-                  type={showPassword ? "text" : "password"}
-                  required
-                  autoComplete="current-password"
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full text-sm py-3.5 pl-10 pr-11 rounded-xl outline-none transition-all duration-200"
-                  style={{
-                    background: "#f8fafc",
-                    border: "1.5px solid #e2e8f0",
-                    color: "#1e293b",
-                  }}
-                  onFocus={(e) => {
-                    e.currentTarget.style.border = "1.5px solid #1e40af";
-                    e.currentTarget.style.background = "#fff";
-                    e.currentTarget.style.boxShadow = "0 0 0 3px rgba(30,64,175,0.08)";
-                  }}
-                  onBlur={(e) => {
-                    e.currentTarget.style.border = "1.5px solid #e2e8f0";
-                    e.currentTarget.style.background = "#f8fafc";
-                    e.currentTarget.style.boxShadow = "none";
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 cursor-pointer transition-colors duration-200"
-                  style={{ color: "#94a3b8" }}
-                  onMouseEnter={(e) => (e.currentTarget.style.color = "#1e40af")}
-                  onMouseLeave={(e) => (e.currentTarget.style.color = "#94a3b8")}
-                  tabIndex={-1}
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
-            </div>
-
-            {/* Remember Me */}
-            <div className="flex items-center gap-2.5">
-              <input
-                id="remember-me"
-                type="checkbox"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-                className="rounded cursor-pointer"
-                style={{ accentColor: "#1e40af", width: "15px", height: "15px" }}
-              />
-              <label
-                htmlFor="remember-me"
-                className="text-xs cursor-pointer select-none font-medium"
-                style={{ color: "#64748b" }}
-              >
-                Keep me signed in on this device
-              </label>
-            </div>
-
-            {/* CAPTCHA Security Verification */}
-            <div className="space-y-2 pt-1">
-              <label
-                className="block text-[11px] font-black uppercase tracking-wider"
-                style={{ color: "#374151" }}
-              >
-                Security Verification
-              </label>
-              
-              {/* CAPTCHA Challenge Image & Refresh Button */}
-              <div className="flex items-center gap-2">
-                <div
-                  className="flex-1 h-[46px] rounded-xl overflow-hidden flex items-center justify-center relative select-none border"
-                  style={{
-                    background: "#0f172a",
-                    borderColor: "#cbd5e1"
-                  }}
-                >
-                  {captchaSvg ? (
-                    <img
-                      src={captchaSvg}
-                      alt="Security Verification Code"
-                      className="w-full h-full object-contain pointer-events-none select-none"
-                    />
-                  ) : (
-                    <div className="text-xs text-slate-400 font-medium animate-pulse">
-                      Loading CAPTCHA...
-                    </div>
-                  )}
+                <div className="relative flex items-center">
+                  <User
+                    className="absolute left-3.5 w-4 h-4 pointer-events-none"
+                    style={{ color: "#94a3b8" }}
+                  />
+                  <input
+                    type="text"
+                    required
+                    autoComplete="username"
+                    placeholder="Enter your username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="w-full text-sm py-3.5 pl-10 pr-4 rounded-xl outline-none transition-all duration-200"
+                    style={{
+                      background: "#f8fafc",
+                      border: "1.5px solid #e2e8f0",
+                      color: "#1e293b",
+                    }}
+                    onFocus={(e) => {
+                      e.currentTarget.style.border = "1.5px solid #1e40af";
+                      e.currentTarget.style.background = "#fff";
+                      e.currentTarget.style.boxShadow = "0 0 0 3px rgba(30,64,175,0.08)";
+                    }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.border = "1.5px solid #e2e8f0";
+                      e.currentTarget.style.background = "#f8fafc";
+                      e.currentTarget.style.boxShadow = "none";
+                    }}
+                  />
                 </div>
-
-                <button
-                  type="button"
-                  onClick={refreshCaptcha}
-                  disabled={captchaLoading}
-                  title="Refresh CAPTCHA"
-                  aria-label="Refresh CAPTCHA"
-                  className="p-3 rounded-xl transition-all duration-200 cursor-pointer shrink-0 border flex items-center justify-center"
-                  style={{
-                    background: "#f8fafc",
-                    borderColor: "#e2e8f0",
-                    color: "#1e40af"
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = "#eff6ff";
-                    e.currentTarget.style.borderColor = "#1e40af";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = "#f8fafc";
-                    e.currentTarget.style.borderColor = "#e2e8f0";
-                  }}
-                >
-                  <RefreshCw className={`w-4 h-4 ${captchaLoading ? "animate-spin" : ""}`} />
-                </button>
               </div>
 
-              {/* CAPTCHA Input Field */}
-              <div className="relative flex items-center">
-                <ShieldCheck
-                  className="absolute left-3.5 w-4 h-4 pointer-events-none"
-                  style={{ color: "#94a3b8" }}
-                />
+              {/* Password */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label
+                    className="block text-[11px] font-black uppercase tracking-wider"
+                    style={{ color: "#374151" }}
+                  >
+                    Password
+                  </label>
+                  <a
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      alert("Contact your system Super Administrator to reset access credentials.");
+                    }}
+                    className="text-[11px] font-bold transition-colors duration-200"
+                    style={{ color: "#1e40af" }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = "#ed1b24")}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = "#1e40af")}
+                  >
+                    Forgot Password?
+                  </a>
+                </div>
+                <div className="relative flex items-center">
+                  <Lock
+                    className="absolute left-3.5 w-4 h-4 pointer-events-none"
+                    style={{ color: "#94a3b8" }}
+                  />
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    required
+                    autoComplete="current-password"
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full text-sm py-3.5 pl-10 pr-11 rounded-xl outline-none transition-all duration-200"
+                    style={{
+                      background: "#f8fafc",
+                      border: "1.5px solid #e2e8f0",
+                      color: "#1e293b",
+                    }}
+                    onFocus={(e) => {
+                      e.currentTarget.style.border = "1.5px solid #1e40af";
+                      e.currentTarget.style.background = "#fff";
+                      e.currentTarget.style.boxShadow = "0 0 0 3px rgba(30,64,175,0.08)";
+                    }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.border = "1.5px solid #e2e8f0";
+                      e.currentTarget.style.background = "#f8fafc";
+                      e.currentTarget.style.boxShadow = "none";
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3.5 text-slate-400 hover:text-slate-600 transition"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              {/* CAPTCHA Section */}
+              <div className="space-y-2 pt-1">
+                <label className="block text-[11px] font-black uppercase tracking-wider text-slate-700">
+                  Security CAPTCHA Verification
+                </label>
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 h-[46px] rounded-xl overflow-hidden flex items-center justify-center relative select-none border bg-slate-900 border-slate-300">
+                    {captchaSvg ? (
+                      <img
+                        src={captchaSvg}
+                        alt="Security Verification Code"
+                        className="w-full h-full object-contain pointer-events-none select-none"
+                      />
+                    ) : (
+                      <div className="text-xs text-slate-400 font-medium animate-pulse">
+                        Loading CAPTCHA...
+                      </div>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={refreshCaptcha}
+                    disabled={captchaLoading}
+                    title="Refresh CAPTCHA"
+                    className="p-3 bg-slate-50 border border-slate-200 text-[#1e40af] rounded-xl hover:bg-blue-50 cursor-pointer"
+                  >
+                    <RefreshCw className={`w-4 h-4 ${captchaLoading ? "animate-spin" : ""}`} />
+                  </button>
+                </div>
                 <input
                   type="text"
                   required
-                  autoComplete="off"
                   placeholder="Enter CAPTCHA"
                   value={captchaInput}
                   onChange={(e) => setCaptchaInput(e.target.value)}
-                  className="w-full text-sm py-3.5 pl-10 pr-4 rounded-xl outline-none transition-all duration-200 font-mono tracking-wider uppercase"
-                  style={{
-                    background: "#f8fafc",
-                    border: "1.5px solid #e2e8f0",
-                    color: "#1e293b",
-                  }}
-                  onFocus={(e) => {
-                    e.currentTarget.style.border = "1.5px solid #1e40af";
-                    e.currentTarget.style.background = "#fff";
-                    e.currentTarget.style.boxShadow = "0 0 0 3px rgba(30,64,175,0.08)";
-                  }}
-                  onBlur={(e) => {
-                    e.currentTarget.style.border = "1.5px solid #e2e8f0";
-                    e.currentTarget.style.background = "#f8fafc";
-                    e.currentTarget.style.boxShadow = "none";
-                  }}
+                  className="w-full text-sm py-3.5 pl-4 pr-4 rounded-xl outline-none border border-slate-200 bg-slate-50 font-mono tracking-wider uppercase"
                 />
               </div>
-            </div>
 
-            {/* Login Button */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3.5 rounded-xl font-black tracking-widest text-xs uppercase transition-all duration-300 cursor-pointer flex items-center justify-center gap-2 mt-2"
-              style={{
-                background: loading ? "#9ca3af" : "#1E40AF",
-                color: "#ffffff",
-                border: "none",
-                boxShadow: loading ? "none" : "0 4px 15px rgba(30,64,175,0.25)",
-              }}
-              onMouseEnter={(e) => {
-                if (!loading) {
-                  e.currentTarget.style.background = "#1e3a8a";
-                  e.currentTarget.style.boxShadow = "0 6px 20px rgba(30,64,175,0.35)";
-                  e.currentTarget.style.transform = "translateY(-1px)";
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!loading) {
-                  e.currentTarget.style.background = "#1E40AF";
-                  e.currentTarget.style.boxShadow = "0 4px 15px rgba(30,64,175,0.25)";
-                  e.currentTarget.style.transform = "translateY(0)";
-                }
-              }}
-            >
-              {loading ? (
-                <>
-                  <div
-                    className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin"
-                  />
-                  <span>Authorizing...</span>
-                </>
-              ) : (
-                <>
-                  <ShieldCheck className="w-4 h-4" />
-                  <span>Authorize Access</span>
-                </>
-              )}
-            </button>
-          </form>
+              {/* Login Button */}
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-3.5 rounded-xl font-black tracking-widest text-xs uppercase transition-all duration-300 cursor-pointer flex items-center justify-center gap-2 bg-[#1e40af] hover:bg-[#1e3a8a] text-white shadow-lg disabled:opacity-50"
+              >
+                {loading ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    <span>Authorizing...</span>
+                  </>
+                ) : (
+                  <>
+                    <ShieldCheck className="w-4 h-4" />
+                    <span>Authorize Access</span>
+                  </>
+                )}
+              </button>
+            </form>
+          )}
         </div>
 
         {/* Footer */}

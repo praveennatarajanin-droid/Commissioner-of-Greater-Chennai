@@ -27,6 +27,105 @@ export interface DBUser {
   force_password_change?: number | null;
 }
 
+export interface DBSession {
+  id: number;
+  user_id?: number;
+  username: string;
+  session_id: string;
+  created_at: string;
+  last_activity: string;
+  expires_at: string;
+  ip_address?: string;
+  user_agent?: string;
+  revoked_at?: string | null;
+  status: "active" | "expired" | "revoked";
+}
+
+export interface DBSecurityEvent {
+  id: number;
+  user_id?: number;
+  username: string;
+  event_type: string;
+  severity: "info" | "warning" | "high" | "critical";
+  ip_address?: string;
+  user_agent?: string;
+  details?: string;
+  created_at: string;
+}
+
+export interface DBSecurityConfig {
+  admin_console_path: string;
+  session_timeout_minutes: number;
+  login_rate_limit: number;
+  max_failed_logins: number;
+  lockout_duration_minutes: number;
+  captcha_enabled: boolean;
+  mfa_policy: string;
+  maintenance_mode: boolean;
+}
+
+export interface DBMediaFileRecord {
+  id: number;
+  uuid: string;
+  original_name: string;
+  stored_name: string;
+  mime_type: string;
+  detected_mime: string;
+  extension: string;
+  file_size: number;
+  sha256_hash: string;
+  storage_path: string;
+  status: "QUARANTINED" | "APPROVED" | "REJECTED" | "DELETED";
+  scan_status: "CLEAN" | "UNSCANNED" | "THREAT_DETECTED";
+  uploaded_by: string;
+  created_at: string;
+}
+
+export interface DBBackupRecord {
+  id: string;
+  backup_name: string;
+  backup_type: "full" | "database" | "media" | "config";
+  file_path: string;
+  file_size: number;
+  db_size: number;
+  media_size: number;
+  file_count: number;
+  sha256_checksum: string;
+  created_by: string;
+  status: "CREATING" | "COMPLETED" | "VERIFIED" | "FAILED" | "CORRUPTED" | "RESTORING" | "RESTORED" | "DELETED";
+  verification_status: "VERIFIED" | "UNVERIFIED" | "FAILED_VERIFICATION" | "CORRUPTED";
+  created_at: string;
+}
+
+export interface DBSecurityFinding {
+  id: string;
+  category: string;
+  severity: "CRITICAL" | "HIGH" | "MEDIUM" | "LOW" | "INFO";
+  title: string;
+  endpoint: string;
+  description: string;
+  risk: string;
+  remediation: string;
+  status: "OPEN" | "IN_REVIEW" | "FIXED" | "ACCEPTED_RISK" | "FALSE_POSITIVE";
+  detected_at: string;
+}
+
+export interface DBSecurityAssessmentRecord {
+  id: string;
+  assessment_date: string;
+  created_by: string;
+  score: number;
+  status: "COMPLETED" | "RUNNING" | "FAILED";
+  total_checks: number;
+  passed_checks: number;
+  findings_critical: number;
+  findings_high: number;
+  findings_medium: number;
+  findings_low: number;
+  findings_info: number;
+  findings: DBSecurityFinding[];
+}
+
 export interface DBActivityLog {
   id: number;
   username: string;
@@ -430,10 +529,49 @@ export interface DBArticleSeo {
   seo_score: number;
   updated_at: string;
   include_in_sitemap?: boolean;
-  sitemap_priority?: number;
-  sitemap_changefreq?: string;
   robots_indexing?: string;
   robots_following?: string;
+}
+
+export interface DBUserMfa {
+  id: number;
+  user_id?: number;
+  username: string;
+  secret_encrypted: string;
+  method: "TOTP";
+  enabled: number; // 0 or 1
+  verified_at?: string | null;
+  created_at: string;
+}
+
+export interface DBMfaChallenge {
+  id: number;
+  challenge_id: string;
+  username: string;
+  expires_at: string;
+  attempt_count: number;
+  verified: number; // 0 or 1
+  created_at: string;
+}
+
+export interface DBMfaRecoveryCode {
+  id: number;
+  username: string;
+  code_hash: string;
+  used_at?: string | null;
+  created_at: string;
+}
+
+export interface DBTrustedDevice {
+  id: number;
+  username: string;
+  token_hash: string;
+  device_name: string;
+  user_agent_summary: string;
+  created_at: string;
+  last_used_at: string;
+  expires_at: string;
+  revoked_at?: string | null;
 }
 
 export interface DBServiceRequest {
@@ -1581,6 +1719,435 @@ class ChennaiGuardianDatabase {
       console.error("Failed to restore DB:", e);
       return false;
     }
+  }
+
+  // ── SESSIONS MANAGEMENT ──
+  public async getSessions(): Promise<DBSession[]> {
+    const raw = jsonDb.getTable("sessions") || [];
+    return raw;
+  }
+
+  public async saveSessions(sessions: DBSession[]): Promise<void> {
+    jsonDb.setTable("sessions", sessions);
+  }
+
+  public async createSession(username: string, role: string, ip?: string, userAgent?: string, durationMinutes: number = 30): Promise<{ session_id: string; expires_at: string }> {
+    const sessions = await this.getSessions();
+    const sessionId = crypto.randomBytes(24).toString("hex");
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + durationMinutes * 60 * 1000).toISOString();
+
+    const newSession: DBSession = {
+      id: sessions.length > 0 ? Math.max(...sessions.map((s) => s.id)) + 1 : 1,
+      username,
+      session_id: sessionId,
+      created_at: now.toISOString(),
+      last_activity: now.toISOString(),
+      expires_at: expiresAt,
+      ip_address: ip || "127.0.0.1",
+      user_agent: userAgent || "Unknown",
+      revoked_at: null,
+      status: "active",
+    };
+
+    sessions.push(newSession);
+    await this.saveSessions(sessions);
+    return { session_id: sessionId, expires_at: expiresAt };
+  }
+
+  public async validateSession(sessionId: string): Promise<DBSession | null> {
+    const sessions = await this.getSessions();
+    const session = sessions.find((s) => s.session_id === sessionId && s.status === "active");
+
+    if (!session) return null;
+
+    const now = new Date();
+    const expiresAt = new Date(session.expires_at);
+
+    if (now > expiresAt) {
+      session.status = "expired";
+      await this.saveSessions(sessions);
+      return null;
+    }
+
+    return session;
+  }
+
+  public async touchSession(sessionId: string, durationMinutes: number = 30): Promise<void> {
+    const sessions = await this.getSessions();
+    const session = sessions.find((s) => s.session_id === sessionId && s.status === "active");
+
+    if (session) {
+      const now = new Date();
+      session.last_activity = now.toISOString();
+      session.expires_at = new Date(now.getTime() + durationMinutes * 60 * 1000).toISOString();
+      await this.saveSessions(sessions);
+    }
+  }
+
+  public async revokeSession(sessionId: string): Promise<boolean> {
+    const sessions = await this.getSessions();
+    const session = sessions.find((s) => s.session_id === sessionId);
+
+    if (session) {
+      session.status = "revoked";
+      session.revoked_at = new Date().toISOString();
+      await this.saveSessions(sessions);
+      return true;
+    }
+    return false;
+  }
+
+  public async revokeAllUserSessions(username: string): Promise<boolean> {
+    const sessions = await this.getSessions();
+    let count = 0;
+    const now = new Date().toISOString();
+
+    for (const session of sessions) {
+      if (session.username.toLowerCase() === username.toLowerCase() && session.status === "active") {
+        session.status = "revoked";
+        session.revoked_at = now;
+        count++;
+      }
+    }
+
+    if (count > 0) {
+      await this.saveSessions(sessions);
+    }
+    return count > 0;
+  }
+
+  public async getActiveSessions(): Promise<DBSession[]> {
+    const sessions = await this.getSessions();
+    const now = new Date();
+    return sessions.filter((s) => s.status === "active" && new Date(s.expires_at) > now);
+  }
+
+  // ── SECURITY EVENTS ──
+  public async getSecurityEvents(): Promise<DBSecurityEvent[]> {
+    const raw = jsonDb.getTable("security_events") || [];
+    return raw.sort((a: DBSecurityEvent, b: DBSecurityEvent) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  }
+
+  public async logSecurityEvent(
+    username: string,
+    eventType: string,
+    severity: "info" | "warning" | "high" | "critical" = "info",
+    ip?: string,
+    userAgent?: string,
+    details?: string
+  ): Promise<void> {
+    const events = jsonDb.getTable("security_events") || [];
+    const newEvent: DBSecurityEvent = {
+      id: events.length > 0 ? Math.max(...events.map((e: any) => e.id)) + 1 : 1,
+      username,
+      event_type: eventType,
+      severity,
+      ip_address: ip || "127.0.0.1",
+      user_agent: userAgent || "Unknown",
+      details: details || "",
+      created_at: new Date().toISOString(),
+    };
+    events.push(newEvent);
+    jsonDb.setTable("security_events", events);
+  }
+
+  // ── SECURITY CONFIGURATION ──
+  public async getSecurityPolicyConfig(): Promise<DBSecurityConfig> {
+    const raw = jsonDb.getTable("security_config");
+    if (!raw || typeof raw !== "object") {
+      const defaultConfig: DBSecurityConfig = {
+        admin_console_path: process.env.ADMIN_CONSOLE_PATH || "/control-center",
+        session_timeout_minutes: 30,
+        login_rate_limit: 5,
+        max_failed_logins: 5,
+        lockout_duration_minutes: 30,
+        captcha_enabled: true,
+        mfa_policy: "optional",
+        maintenance_mode: false,
+      };
+      jsonDb.setTable("security_config", defaultConfig);
+      return defaultConfig;
+    }
+    return raw;
+  }
+
+  public async saveSecurityPolicyConfig(newConfig: Partial<DBSecurityConfig>): Promise<DBSecurityConfig> {
+    const current = await this.getSecurityPolicyConfig();
+    const updated = { ...current, ...newConfig };
+    jsonDb.setTable("security_config", updated);
+    return updated;
+  }
+
+  // ── MFA & TRUSTED DEVICES SYSTEM ──
+  public async getUserMfa(username: string): Promise<DBUserMfa | null> {
+    const list: DBUserMfa[] = jsonDb.getTable("user_mfa") || [];
+    return list.find((m) => m.username.toLowerCase() === username.toLowerCase() && m.enabled === 1) || null;
+  }
+
+  public async saveUserMfa(username: string, secretEncrypted: string, enabled = 1): Promise<DBUserMfa> {
+    const list: DBUserMfa[] = jsonDb.getTable("user_mfa") || [];
+    const idx = list.findIndex((m) => m.username.toLowerCase() === username.toLowerCase());
+    const now = new Date().toISOString();
+
+    const record: DBUserMfa = {
+      id: idx >= 0 ? list[idx].id : (list.length > 0 ? Math.max(...list.map((m) => m.id)) + 1 : 1),
+      username,
+      secret_encrypted: secretEncrypted,
+      method: "TOTP",
+      enabled,
+      verified_at: enabled ? now : null,
+      created_at: idx >= 0 ? list[idx].created_at : now,
+    };
+
+    if (idx >= 0) {
+      list[idx] = record;
+    } else {
+      list.push(record);
+    }
+    jsonDb.setTable("user_mfa", list);
+    return record;
+  }
+
+  public async disableUserMfa(username: string): Promise<void> {
+    const list: DBUserMfa[] = jsonDb.getTable("user_mfa") || [];
+    const updated = list.map((m) => (m.username.toLowerCase() === username.toLowerCase() ? { ...m, enabled: 0 } : m));
+    jsonDb.setTable("user_mfa", updated);
+  }
+
+  public async createMfaChallenge(username: string): Promise<DBMfaChallenge> {
+    const challenges: DBMfaChallenge[] = jsonDb.getTable("mfa_challenges") || [];
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + 5 * 60 * 1000).toISOString(); // 5 min expiry
+    const challengeId = `mfa_ch_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+
+    const newChallenge: DBMfaChallenge = {
+      id: challenges.length > 0 ? Math.max(...challenges.map((c) => c.id)) + 1 : 1,
+      challenge_id: challengeId,
+      username,
+      expires_at: expiresAt,
+      attempt_count: 0,
+      verified: 0,
+      created_at: now.toISOString(),
+    };
+
+    challenges.push(newChallenge);
+    jsonDb.setTable("mfa_challenges", challenges);
+    return newChallenge;
+  }
+
+  public async validateMfaChallenge(challengeId: string, username: string): Promise<DBMfaChallenge | null> {
+    const challenges: DBMfaChallenge[] = jsonDb.getTable("mfa_challenges") || [];
+    const ch = challenges.find((c) => c.challenge_id === challengeId && c.username.toLowerCase() === username.toLowerCase() && c.verified === 0);
+    if (!ch) return null;
+
+    if (new Date(ch.expires_at).getTime() < Date.now()) {
+      return null;
+    }
+    return ch;
+  }
+
+  public async incrementMfaChallengeAttempt(challengeId: string): Promise<number> {
+    const challenges: DBMfaChallenge[] = jsonDb.getTable("mfa_challenges") || [];
+    const idx = challenges.findIndex((c) => c.challenge_id === challengeId);
+    if (idx >= 0) {
+      challenges[idx].attempt_count += 1;
+      jsonDb.setTable("mfa_challenges", challenges);
+      return challenges[idx].attempt_count;
+    }
+    return 0;
+  }
+
+  public async markMfaChallengeVerified(challengeId: string): Promise<void> {
+    const challenges: DBMfaChallenge[] = jsonDb.getTable("mfa_challenges") || [];
+    const idx = challenges.findIndex((c) => c.challenge_id === challengeId);
+    if (idx >= 0) {
+      challenges[idx].verified = 1;
+      jsonDb.setTable("mfa_challenges", challenges);
+    }
+  }
+
+  public async saveRecoveryCodes(username: string, hashedCodes: string[]): Promise<void> {
+    const list: DBMfaRecoveryCode[] = jsonDb.getTable("mfa_recovery_codes") || [];
+    const filtered = list.filter((r) => r.username.toLowerCase() !== username.toLowerCase());
+    const now = new Date().toISOString();
+
+    hashedCodes.forEach((hash, idx) => {
+      filtered.push({
+        id: filtered.length > 0 ? Math.max(...filtered.map((r) => r.id)) + 1 : idx + 1,
+        username,
+        code_hash: hash,
+        used_at: null,
+        created_at: now,
+      });
+    });
+
+    jsonDb.setTable("mfa_recovery_codes", filtered);
+  }
+
+  public async verifyAndConsumeRecoveryCode(username: string, plainCode: string): Promise<boolean> {
+    const crypto = await import("crypto");
+    const cleanCode = plainCode.replace(/[^A-Z0-9]/gi, "").toUpperCase();
+    const hash = crypto.createHash("sha256").update(cleanCode).digest("hex");
+
+    const list: DBMfaRecoveryCode[] = jsonDb.getTable("mfa_recovery_codes") || [];
+    const idx = list.findIndex((r) => r.username.toLowerCase() === username.toLowerCase() && r.code_hash === hash && !r.used_at);
+
+    if (idx >= 0) {
+      list[idx].used_at = new Date().toISOString();
+      jsonDb.setTable("mfa_recovery_codes", list);
+      return true;
+    }
+    return false;
+  }
+
+  public async createTrustedDevice(username: string, tokenHash: string, deviceName: string, userAgentSummary: string): Promise<DBTrustedDevice> {
+    const devices: DBTrustedDevice[] = jsonDb.getTable("trusted_devices") || [];
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString(); // 30 days
+
+    const record: DBTrustedDevice = {
+      id: devices.length > 0 ? Math.max(...devices.map((d) => d.id)) + 1 : 1,
+      username,
+      token_hash: tokenHash,
+      device_name: deviceName,
+      user_agent_summary: userAgentSummary,
+      created_at: now.toISOString(),
+      last_used_at: now.toISOString(),
+      expires_at: expiresAt,
+      revoked_at: null,
+    };
+
+    devices.push(record);
+    jsonDb.setTable("trusted_devices", devices);
+    return record;
+  }
+
+  public async validateTrustedDevice(username: string, tokenHash: string): Promise<boolean> {
+    const devices: DBTrustedDevice[] = jsonDb.getTable("trusted_devices") || [];
+    const dev = devices.find((d) => d.username.toLowerCase() === username.toLowerCase() && d.token_hash === tokenHash && !d.revoked_at);
+    if (!dev) return false;
+
+    if (new Date(dev.expires_at).getTime() < Date.now()) return false;
+    dev.last_used_at = new Date().toISOString();
+    jsonDb.setTable("trusted_devices", devices);
+    return true;
+  }
+
+  public async getUserTrustedDevices(username: string): Promise<DBTrustedDevice[]> {
+    const devices: DBTrustedDevice[] = jsonDb.getTable("trusted_devices") || [];
+    return devices.filter((d) => d.username.toLowerCase() === username.toLowerCase() && !d.revoked_at);
+  }
+
+  public async revokeTrustedDevice(id: number, username: string): Promise<void> {
+    const devices: DBTrustedDevice[] = jsonDb.getTable("trusted_devices") || [];
+    const updated = devices.map((d) => (d.id === id && d.username.toLowerCase() === username.toLowerCase() ? { ...d, revoked_at: new Date().toISOString() } : d));
+    jsonDb.setTable("trusted_devices", updated);
+  }
+
+  public async revokeAllTrustedDevices(username: string): Promise<void> {
+    const devices: DBTrustedDevice[] = jsonDb.getTable("trusted_devices") || [];
+    const updated = devices.map((d) => (d.username.toLowerCase() === username.toLowerCase() ? { ...d, revoked_at: new Date().toISOString() } : d));
+    jsonDb.setTable("trusted_devices", updated);
+  }
+
+  // ── Media Files Security Registry ──
+  public async getMediaFiles(): Promise<DBMediaFileRecord[]> {
+    const files: DBMediaFileRecord[] = jsonDb.getTable("media_files") || [];
+    return files.filter((f) => f.status !== "DELETED");
+  }
+
+  public async saveMediaFileRecord(recordData: Omit<DBMediaFileRecord, "id">): Promise<DBMediaFileRecord> {
+    const files: DBMediaFileRecord[] = jsonDb.getTable("media_files") || [];
+    const id = files.length > 0 ? Math.max(...files.map((f) => f.id || 0)) + 1 : 1;
+    const newRecord: DBMediaFileRecord = { id, ...recordData };
+    files.unshift(newRecord);
+    jsonDb.setTable("media_files", files);
+    return newRecord;
+  }
+
+  public async updateMediaFileStatus(id: number, status: "QUARANTINED" | "APPROVED" | "REJECTED" | "DELETED"): Promise<void> {
+    const files: DBMediaFileRecord[] = jsonDb.getTable("media_files") || [];
+    const updated = files.map((f) => (f.id === id ? { ...f, status } : f));
+    jsonDb.setTable("media_files", updated);
+  }
+
+  public async deleteMediaFile(id: number): Promise<void> {
+    await this.updateMediaFileStatus(id, "DELETED");
+  }
+
+  // ── Disaster Recovery & Backup Registry ──
+  public async getBackups(): Promise<DBBackupRecord[]> {
+    const backups: DBBackupRecord[] = jsonDb.getTable("backups") || [];
+    return backups.filter((b) => b.status !== "DELETED");
+  }
+
+  public async getBackupById(id: string): Promise<DBBackupRecord | null> {
+    const backups: DBBackupRecord[] = jsonDb.getTable("backups") || [];
+    return backups.find((b) => b.id === id) || null;
+  }
+
+  public async saveBackupRecord(record: DBBackupRecord): Promise<DBBackupRecord> {
+    const backups: DBBackupRecord[] = jsonDb.getTable("backups") || [];
+    const existingIndex = backups.findIndex((b) => b.id === record.id);
+    if (existingIndex >= 0) {
+      backups[existingIndex] = record;
+    } else {
+      backups.unshift(record);
+    }
+    jsonDb.setTable("backups", backups);
+    return record;
+  }
+
+  public async updateBackupStatus(
+    id: string,
+    status: DBBackupRecord["status"],
+    verification_status?: DBBackupRecord["verification_status"]
+  ): Promise<void> {
+    const backups: DBBackupRecord[] = jsonDb.getTable("backups") || [];
+    const updated = backups.map((b) => {
+      if (b.id === id) {
+        return {
+          ...b,
+          status,
+          verification_status: verification_status || b.verification_status
+        };
+      }
+      return b;
+    });
+    jsonDb.setTable("backups", updated);
+  }
+
+  public async deleteBackupRecord(id: string): Promise<void> {
+    await this.updateBackupStatus(id, "DELETED");
+  }
+
+  // ── Security Assessment & Audit Registry ──
+  public async getSecurityAssessments(): Promise<DBSecurityAssessmentRecord[]> {
+    const assessments: DBSecurityAssessmentRecord[] = jsonDb.getTable("security_assessments") || [];
+    return assessments;
+  }
+
+  public async saveSecurityAssessment(record: DBSecurityAssessmentRecord): Promise<DBSecurityAssessmentRecord> {
+    const assessments: DBSecurityAssessmentRecord[] = jsonDb.getTable("security_assessments") || [];
+    assessments.unshift(record);
+    jsonDb.setTable("security_assessments", assessments);
+    return record;
+  }
+
+  public async updateFindingStatus(findingId: string, status: DBSecurityFinding["status"]): Promise<void> {
+    const assessments: DBSecurityAssessmentRecord[] = jsonDb.getTable("security_assessments") || [];
+    const updated = assessments.map((a) => {
+      const findingExists = a.findings.some((f) => f.id === findingId);
+      if (findingExists) {
+        return {
+          ...a,
+          findings: a.findings.map((f) => (f.id === findingId ? { ...f, status } : f))
+        };
+      }
+      return a;
+    });
+    jsonDb.setTable("security_assessments", updated);
   }
 }
 

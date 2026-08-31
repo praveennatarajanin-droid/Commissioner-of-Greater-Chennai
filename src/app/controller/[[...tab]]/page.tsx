@@ -4,6 +4,9 @@ import React, { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import AdminLogin from "@/components/admin/AdminLogin";
 import AdminDashboard from "@/components/admin/AdminDashboard";
+import { AuthProvider, useAuth } from "@/context/AuthContext";
+import { AdminErrorBoundary } from "@/components/security/AdminErrorBoundary";
+import ProtectedRoute from "@/components/security/ProtectedRoute";
 
 interface PageProps {
   params: Promise<{ tab?: string[] }>;
@@ -18,111 +21,79 @@ function getAllowedTabs(role: string): string[] {
   ];
 }
 
-export default function ControllerPage({ params }: PageProps) {
+function ControllerContent({ params }: PageProps) {
   const { tab } = use(params);
   const router = useRouter();
-  const [session, setSession] = useState<{ username: string; role: string } | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { authenticated, user, loading, logout, refreshSession } = useAuth();
+
+  // Dynamic stealth base path detection (e.g., /control-center or /controller)
+  const [basePath, setBasePath] = useState("/control-center");
 
   const activeTabName = tab && tab.length > 0 ? tab[0] : undefined;
 
-  const checkSession = async () => {
-    try {
-      const hasAuthFlag = typeof window !== "undefined" && window.sessionStorage.getItem("admin_authenticated") === "true";
-      if (!hasAuthFlag) {
-        await fetch("/api/admin/auth", { method: "DELETE" });
-        setSession(null);
-        setLoading(false);
-        return;
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const currentPath = window.location.pathname;
+      const firstSegment = "/" + currentPath.split("/").filter(Boolean)[0];
+      if (firstSegment && firstSegment !== "/") {
+        setBasePath(firstSegment);
       }
-
-      const res = await fetch("/api/admin/auth");
-      const data = await res.json();
-      if (data.authenticated) {
-        setSession(data.user);
-      } else {
-        setSession(null);
-      }
-    } catch (e) {
-      console.error(e);
-      setSession(null);
-    } finally {
-      setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     document.title = "GCP Admin Control Panel";
-    checkSession();
   }, []);
 
   // Handle redirects based on authentication state
   useEffect(() => {
     if (loading) return;
 
-    if (!session) {
-      // If not authenticated and not at /controller, redirect to /controller
+    if (!authenticated || !user) {
       if (activeTabName !== undefined) {
-        router.replace("/controller");
+        router.replace(basePath);
       }
     } else {
-      // If authenticated and at /controller, redirect to /controller/dashboard
       if (activeTabName === undefined) {
-        router.replace("/controller/dashboard");
+        router.replace(`${basePath}/dashboard`);
       }
     }
-  }, [session, loading, activeTabName, router]);
+  }, [authenticated, user, loading, activeTabName, router, basePath]);
 
   // Redirect to first allowed tab if user attempts manual URL bypass
   useEffect(() => {
-    if (loading || !session) return;
-    const allowed = getAllowedTabs(session.role);
+    if (loading || !authenticated || !user) return;
+    const allowed = getAllowedTabs(user.role);
     if (activeTabName && !allowed.includes(activeTabName)) {
-      router.replace("/controller/" + allowed[0]);
+      router.replace(`${basePath}/${allowed[0]}`);
     }
-  }, [activeTabName, session, loading, router]);
+  }, [activeTabName, authenticated, user, loading, router, basePath]);
 
   if (loading) {
     return (
-      <div className="flex min-h-screen bg-stone-950 flex-col items-center justify-center p-6 text-center">
-        {/* Loading Spinner */}
+      <div className="flex min-h-screen bg-stone-950 flex-col items-center justify-center p-6 text-center font-sans">
         <div className="w-12 h-12 rounded-full border-4 border-brand-gold border-t-transparent animate-spin mb-4" />
         <p className="text-stone-400 font-bold uppercase tracking-wider text-xs">
-          Loading Security Console...
+          Verifying Secure Session...
         </p>
       </div>
     );
   }
 
-  // If not authenticated and we are on /controller, show AdminLogin page
-  if (!session) {
-    if (activeTabName !== undefined) {
-      // Return a blank loading screen while redirecting
-      return (
-        <div className="flex min-h-screen bg-stone-950 flex-col items-center justify-center p-6 text-center">
-          <div className="w-12 h-12 rounded-full border-4 border-brand-gold border-t-transparent animate-spin mb-4" />
-          <p className="text-stone-400 font-bold uppercase tracking-wider text-xs">
-            Redirecting to Secure Console...
-          </p>
-        </div>
-      );
-    }
+  // If not authenticated, render the official Admin Sign In form immediately
+  if (!authenticated || !user) {
     return (
       <AdminLogin
-        onLoginSuccess={(user) => {
-          if (typeof window !== "undefined") {
-            window.sessionStorage.setItem("admin_authenticated", "true");
-          }
-          setSession(user);
+        onLoginSuccess={async () => {
+          await refreshSession();
         }}
       />
     );
   }
 
-  // If authenticated but we are at /controller, return a redirecting page
   if (activeTabName === undefined) {
     return (
-      <div className="flex min-h-screen bg-stone-950 flex-col items-center justify-center p-6 text-center">
+      <div className="flex min-h-screen bg-stone-950 flex-col items-center justify-center p-6 text-center font-sans">
         <div className="w-12 h-12 rounded-full border-4 border-brand-gold border-t-transparent animate-spin mb-4" />
         <p className="text-stone-400 font-bold uppercase tracking-wider text-xs">
           Redirecting to Dashboard...
@@ -131,29 +102,35 @@ export default function ControllerPage({ params }: PageProps) {
     );
   }
 
-
-
-  // Valid tabs list
-  const allowedTabs = getAllowedTabs(session.role);
+  const allowedTabs = getAllowedTabs(user.role);
   const currentTab = allowedTabs.includes(activeTabName || "") ? (activeTabName as any) : allowedTabs[0];
 
   return (
     <AdminDashboard
-      user={session}
-      onLogout={() => {
-        if (typeof window !== "undefined") {
-          window.sessionStorage.removeItem("admin_authenticated");
-        }
-        setSession(null);
-        router.replace("/controller");
+      user={user}
+      onLogout={async () => {
+        await logout();
+        router.replace(basePath);
       }}
       activeTab={currentTab}
       subPage={tab && tab.length > 1 ? tab[1] : undefined}
       onTabChange={(newTab) => {
-        router.push("/controller/" + newTab);
+        router.push(`${basePath}/${newTab}`);
       }}
     />
   );
 }
 
+export default function ControllerPage({ params }: PageProps) {
+  return (
+    <AuthProvider>
+      <AdminErrorBoundary>
+        <ControllerContent params={params} />
+      </AdminErrorBoundary>
+    </AuthProvider>
+  );
+}
+
 export const dynamic = "force-dynamic";
+
+

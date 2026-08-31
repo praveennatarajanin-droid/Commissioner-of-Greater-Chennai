@@ -1,18 +1,36 @@
 import { NextResponse } from "next/server";
-import { generateCaptchaChallenge } from "@/lib/captcha";
+import { generateCaptchaChallenge, verifyCaptchaChallenge } from "@/lib/captcha";
+import { secureApiResponse } from "@/lib/apiSecurity";
 
+/**
+ * GET /api/admin/captcha
+ * Returns a fresh single-use server-side CAPTCHA challenge token & question.
+ */
 export async function GET() {
-  try {
-    const challenge = generateCaptchaChallenge();
-    return NextResponse.json(challenge, {
-      headers: {
-        "Cache-Control": "no-store, max-age=0, must-revalidate",
-      },
-    });
-  } catch (e) {
-    console.error("Failed to generate CAPTCHA challenge:", e);
-    return NextResponse.json({ error: "Failed to generate CAPTCHA challenge" }, { status: 500 });
-  }
+  const challenge = generateCaptchaChallenge();
+  return NextResponse.json({
+    success: true,
+    token: challenge.token,
+    captchaToken: challenge.token,
+    question: challenge.question,
+    captchaQuestion: challenge.question,
+    captchaSvg: challenge.captchaSvg,
+    expires_at: challenge.expiresAt
+  });
 }
 
-export const dynamic = "force-dynamic";
+/**
+ * POST /api/admin/captcha
+ * Validates CAPTCHA answer server-side and invalidates token.
+ */
+export async function POST(req: Request) {
+  const body = await req.json().catch(() => ({}));
+  const { token, answer } = body;
+
+  const valid = verifyCaptchaChallenge(token, answer);
+  if (!valid) {
+    return secureApiResponse({ success: false, error: "INVALID_CAPTCHA: Challenge answer is incorrect or expired." }, 400);
+  }
+
+  return secureApiResponse({ success: true, message: "CAPTCHA challenge verified successfully." });
+}

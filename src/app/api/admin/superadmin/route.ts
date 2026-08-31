@@ -1,13 +1,15 @@
 import { NextResponse } from "next/server";
-import { getSessionUser, isSuperAdmin, getIpAddress } from "@/lib/auth";
+import { getIpAddress } from "@/lib/auth";
 import { db, hashPassword } from "@/lib/db";
+import { authenticateApiRequest, authorizeRole, forbiddenResponse, unauthorizedResponse } from "@/lib/security";
 
 // ── GET HANDLER ──
 export async function GET(req: Request) {
   try {
-    const user = await getSessionUser();
-    if (!user || !isSuperAdmin(user.role)) {
-      return NextResponse.json({ error: "403 - Access Denied" }, { status: 403 });
+    const { user, errorResponse } = await authenticateApiRequest(req);
+    if (errorResponse) return errorResponse;
+    if (!user || !authorizeRole(user, ["SUPER_ADMIN"])) {
+      return forbiddenResponse("Super Admin privilege required.");
     }
 
     const { searchParams } = new URL(req.url);
@@ -59,9 +61,10 @@ export async function GET(req: Request) {
 // ── POST HANDLER ──
 export async function POST(req: Request) {
   try {
-    const user = await getSessionUser();
-    if (!user || !isSuperAdmin(user.role)) {
-      return NextResponse.json({ error: "403 - Access Denied" }, { status: 403 });
+    const { user, errorResponse } = await authenticateApiRequest(req);
+    if (errorResponse) return errorResponse;
+    if (!user || !authorizeRole(user, ["SUPER_ADMIN"])) {
+      return forbiddenResponse("Super Admin privilege required.");
     }
 
     const { searchParams } = new URL(req.url);
@@ -164,9 +167,10 @@ export async function POST(req: Request) {
 // ── PUT HANDLER ──
 export async function PUT(req: Request) {
   try {
-    const user = await getSessionUser();
-    if (!user || !isSuperAdmin(user.role)) {
-      return NextResponse.json({ error: "403 - Access Denied" }, { status: 403 });
+    const { user, errorResponse } = await authenticateApiRequest(req);
+    if (errorResponse) return errorResponse;
+    if (!user || !authorizeRole(user, ["SUPER_ADMIN"])) {
+      return forbiddenResponse("Super Admin privilege required.");
     }
 
     const { searchParams } = new URL(req.url);
@@ -255,9 +259,10 @@ export async function PUT(req: Request) {
 // ── DELETE HANDLER ──
 export async function DELETE(req: Request) {
   try {
-    const user = await getSessionUser();
-    if (!user || !isSuperAdmin(user.role)) {
-      return NextResponse.json({ error: "403 - Access Denied" }, { status: 403 });
+    const { user, errorResponse } = await authenticateApiRequest(req);
+    if (errorResponse) return errorResponse;
+    if (!user || !authorizeRole(user, ["SUPER_ADMIN"])) {
+      return forbiddenResponse("Super Admin privilege required.");
     }
 
     const { searchParams } = new URL(req.url);

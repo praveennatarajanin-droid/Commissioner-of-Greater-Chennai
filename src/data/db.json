@@ -8,7 +8,7 @@
       "email": "superadmin@chennaiguardian.in",
       "status": "active",
       "createdAt": "2026-07-23T15:01:05.171Z",
-      "lastLogin": "2026-08-28T15:37:36.285Z",
+      "lastLogin": "2026-08-31T11:20:59.334Z",
       "failed_logins": 0
     },
     {
@@ -19,7 +19,7 @@
       "email": "admin@chennaiguardian.in",
       "status": "active",
       "createdAt": "2026-07-23T15:01:05.172Z",
-      "lastLogin": "2026-08-28T15:34:54.433Z",
+      "lastLogin": "2026-08-31T11:26:05.372Z",
       "failed_logins": 0
     },
     {
@@ -44,6 +44,234 @@
     }
   ],
   "activity_logs": [
+    {
+      "id": 503,
+      "username": "newseditormanager",
+      "role": "admin",
+      "ip_address": "::1",
+      "action": "User logged in successfully",
+      "module": "Auth",
+      "timestamp": "2026-08-31T11:26:05.408Z",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0"
+    },
+    {
+      "id": 502,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "User logged out",
+      "module": "Auth",
+      "timestamp": "2026-08-31T11:25:58.025Z"
+    },
+    {
+      "id": 501,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "User logged in successfully",
+      "module": "Auth",
+      "timestamp": "2026-08-31T11:20:59.400Z",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0"
+    },
+    {
+      "id": 500,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "User logged out",
+      "module": "Auth",
+      "timestamp": "2026-08-31T11:20:42.293Z"
+    },
+    {
+      "id": 499,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "User logged in successfully",
+      "module": "Auth",
+      "timestamp": "2026-08-31T11:20:39.028Z",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0"
+    },
+    {
+      "id": 498,
+      "username": "newseditormanager",
+      "role": "admin",
+      "ip_address": "::1",
+      "action": "User logged out",
+      "module": "Auth",
+      "timestamp": "2026-08-31T11:20:30.501Z"
+    },
+    {
+      "id": 497,
+      "username": "newseditormanager",
+      "role": "admin",
+      "ip_address": "::1",
+      "action": "User logged in successfully",
+      "module": "Auth",
+      "timestamp": "2026-08-31T11:12:24.732Z",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0"
+    },
+    {
+      "id": 496,
+      "username": "newseditormanager",
+      "role": "admin",
+      "ip_address": "::1",
+      "action": "User logged out",
+      "module": "Auth",
+      "timestamp": "2026-08-31T11:08:26.675Z"
+    },
+    {
+      "id": 495,
+      "username": "newseditormanager",
+      "role": "admin",
+      "ip_address": "::1",
+      "action": "User logged in successfully",
+      "module": "Auth",
+      "timestamp": "2026-08-31T11:08:23.975Z",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0"
+    },
+    {
+      "id": 494,
+      "username": "newseditormanager",
+      "role": "admin",
+      "ip_address": "::1",
+      "action": "User logged out",
+      "module": "Auth",
+      "timestamp": "2026-08-31T11:08:13.142Z"
+    },
+    {
+      "id": 493,
+      "username": "newseditormanager",
+      "role": "admin",
+      "ip_address": "::1",
+      "action": "User logged in successfully",
+      "module": "Auth",
+      "timestamp": "2026-08-31T11:08:02.088Z",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0"
+    },
+    {
+      "id": 492,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "User logged out",
+      "module": "Auth",
+      "timestamp": "2026-08-31T11:07:42.687Z"
+    },
+    {
+      "id": 491,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "User logged in successfully",
+      "module": "Auth",
+      "timestamp": "2026-08-31T11:07:39.127Z",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0"
+    },
+    {
+      "id": 490,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "User logged out",
+      "module": "Auth",
+      "timestamp": "2026-08-31T11:07:31.234Z"
+    },
+    {
+      "id": 489,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "User logged in successfully",
+      "module": "Auth",
+      "timestamp": "2026-08-31T11:07:02.811Z",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0"
+    },
+    {
+      "id": 488,
+      "username": "newseditormanager",
+      "role": "admin",
+      "ip_address": "::1",
+      "action": "User logged out",
+      "module": "Auth",
+      "timestamp": "2026-08-31T11:06:54.079Z"
+    },
+    {
+      "id": 487,
+      "username": "newseditormanager",
+      "role": "admin",
+      "ip_address": "::1",
+      "action": "User logged in successfully",
+      "module": "Auth",
+      "timestamp": "2026-08-31T11:06:17.445Z",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0"
+    },
+    {
+      "id": 486,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "User logged out",
+      "module": "Auth",
+      "timestamp": "2026-08-31T11:06:10.868Z"
+    },
+    {
+      "id": 485,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "User logged in successfully",
+      "module": "Auth",
+      "timestamp": "2026-08-31T11:06:06.485Z",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0"
+    },
+    {
+      "id": 484,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "User logged out",
+      "module": "Auth",
+      "timestamp": "2026-08-31T11:05:58.795Z"
+    },
+    {
+      "id": 483,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "MFA verified successfully via INITIAL_MFA_PASS",
+      "module": "Auth",
+      "timestamp": "2026-08-31T11:05:27.755Z",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0"
+    },
+    {
+      "id": 482,
+      "username": "newseditormanager",
+      "role": "admin",
+      "ip_address": "::1",
+      "action": "User logged out",
+      "module": "Auth",
+      "timestamp": "2026-08-31T11:00:50.896Z"
+    },
+    {
+      "id": 481,
+      "username": "newseditormanager",
+      "role": "admin",
+      "ip_address": "::1",
+      "action": "User logged in successfully",
+      "module": "Auth",
+      "timestamp": "2026-08-31T11:00:45.530Z",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0"
+    },
+    {
+      "id": 480,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "User logged out",
+      "module": "Auth",
+      "timestamp": "2026-08-31T10:52:37.033Z"
+    },
     {
       "id": 479,
       "username": "Digital_TN_GovMaster",
@@ -3194,24 +3422,6 @@
       "username": "admin",
       "action": "Deleted user account: test",
       "timestamp": "2026-06-24T15:58:06.223Z"
-    },
-    {
-      "id": 3,
-      "username": "admin",
-      "action": "Deleted user account: content",
-      "timestamp": "2026-06-24T15:58:02.088Z"
-    },
-    {
-      "id": 2,
-      "username": "admin",
-      "action": "Deleted user account: editor",
-      "timestamp": "2026-06-24T15:57:58.290Z"
-    },
-    {
-      "id": 1,
-      "username": "admin",
-      "action": "Deleted news article: Udhayanidhi Demands High-Level Police Meeting to Discuss Law and Order in Tamil Nadu",
-      "timestamp": "2026-06-24T07:23:32.622Z"
     }
   ],
   "custom_roles": [],
@@ -4894,7 +5104,8 @@
       "lastUpdated": "June 14, 2026, 09:30 PM",
       "sourceName": "The Hindu",
       "sourceUrl": "https://www.thehindu.com/news/national/tamil-nadu/dvac-arrests-ed-officer-in-madurai-on-bribery-charges/article67593259.ece",
-      "published": 1
+      "published": 1,
+      "views_count": 1
     },
     {
       "id": 3,
@@ -6374,6 +6585,18 @@
   ],
   "alerts": [
     {
+      "id": 123,
+      "title": "Chennai is living museum of culture and traditions: City Police Commissioner Amalraj",
+      "category": "LAW & ORDER",
+      "source": "The Hindu",
+      "url": "https://news.google.com/rss/articles/CBMingJBVV95cUxNZGg0ZUxJTGpHRkZhcjRNWDZZNktqMnA1TXYxNDFjUElaOUtEZ1BCY2t4S1pSTU5Pc1Zmd1RSQjQzNER4U1FDM29mOXhjbnMtZ3p1VTRBTHltZThjQldjTy1DY3FmREVROUE1X29pX004NjNrUkdPNGFkNmtscGIwcm5YX2dkcFlURS1YNFF2RHhLenpIWFRqWldpZlpodjVzbGFLYndHdTY1X21KOXZpSk5IYUhkZTRTY01qX2JQd2dKSm5sLWx0dWRDdTJTUlNZZGVxNVA0RGdneWtCRWdJZ3dKZjRzbjd5eF9kOXRFb2lFYTJORUlFalIzR2ZOWTE4cm5kWXd4ZTFNakU1b3E1d0tJdkNQbkJ4WV8tajlB0gGkAkFVX3lxTE5XVGVJRDR6NkF2c3N5d1AwZXdEbzgyaVJTUkpQZ0cxSkNvX1BTczdQMmZnNW9QM0YyanVwemd6OU9SbkRCTENnaEJ4STlEMWdqc0NlbEp3OE1MczZiaXB1eWFYRkJBYTk2OHUtTmlxUWhQQ0VrbzVVc2dia3NkeWd0Q24xRmNtbi01RTdLUWcyX1J3NVlRV3o5bnowTktwdVBXd0Myc0pyWmI0UWxTYUdIT25SdUlSdTNLc2lyc21BMFpET2NEU3Z0enBHamc5ZFBSMzl4dG03MGJKSnBOcUVBYUYzcXM4TWkteW1ZbGJfbVFZSXFxSUlXcWRQWW82NU5WcWRKbW1lbXFYSkdYcmRlSWFmWll2dHFiT25YMDJhMWs5dEU?oc=5",
+      "published_at": "2026-08-13T07:00:00.000Z",
+      "approved": 1,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-08-31T08:20:01.719Z"
+    },
+    {
       "id": 122,
       "title": "No incriminating material found in data retrieved from TNPDCL’s stolen hard disks: Police",
       "category": "LAW & ORDER",
@@ -7843,7 +8066,7 @@
       "id": 1,
       "auto_fetch": 1,
       "require_approval": 1,
-      "last_fetched_at": "2026-08-28T20:29:36.154Z",
+      "last_fetched_at": "2026-08-31T11:07:18.768Z",
       "live_feed_enabled": 1,
       "approved_sources": "tnpolice.gov.in, gcp.tn.gov.in, greaterchennaipolice.in, tn.gov.in, pib.gov.in",
       "refresh_interval": 15
@@ -9019,6 +9242,24 @@
       "articleSlug": null,
       "category": "Police Update",
       "createdAt": "2026-08-28T20:27:20.192Z"
+    },
+    {
+      "id": 141,
+      "image": "/uploads/upload_1787949274948_dwnv53.png",
+      "title": "Upload 1787949274948 Dwnv53",
+      "articleId": null,
+      "articleSlug": null,
+      "category": "Police Update",
+      "createdAt": "2026-08-28T20:36:35.775Z"
+    },
+    {
+      "id": 142,
+      "image": "/uploads/upload_1787949284615_gx4w29.png",
+      "title": "Upload 1787949284615 Gx4w29",
+      "articleId": null,
+      "articleSlug": null,
+      "category": "Police Update",
+      "createdAt": "2026-08-28T20:36:35.776Z"
     }
   ],
   "police_stations": [
@@ -10451,5 +10692,596 @@
         }
       ]
     }
-  }
+  },
+  "security_events": [
+    {
+      "id": 38,
+      "username": "Digital_TN_GovMaster",
+      "event_type": "LOGIN_SUCCESS",
+      "severity": "info",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+      "details": "User authenticated successfully.",
+      "created_at": "2026-08-31T11:20:59.438Z"
+    },
+    {
+      "id": 37,
+      "username": "Digital_TN_GovMaster",
+      "event_type": "CAPTCHA_FAILED",
+      "severity": "warning",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+      "details": "Invalid security CAPTCHA code submitted.",
+      "created_at": "2026-08-31T11:20:51.149Z"
+    },
+    {
+      "id": 36,
+      "username": "Digital_TN_GovMaster",
+      "event_type": "LOGOUT",
+      "severity": "info",
+      "ip_address": "::1",
+      "user_agent": "Unknown",
+      "details": "User logged out.",
+      "created_at": "2026-08-31T11:20:42.322Z"
+    },
+    {
+      "id": 35,
+      "username": "Digital_TN_GovMaster",
+      "event_type": "LOGIN_SUCCESS",
+      "severity": "info",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+      "details": "User authenticated successfully.",
+      "created_at": "2026-08-31T11:20:39.070Z"
+    },
+    {
+      "id": 34,
+      "username": "newseditormanager",
+      "event_type": "LOGOUT",
+      "severity": "info",
+      "ip_address": "::1",
+      "user_agent": "Unknown",
+      "details": "User logged out.",
+      "created_at": "2026-08-31T11:20:30.529Z"
+    },
+    {
+      "id": 33,
+      "username": "newseditormanager",
+      "event_type": "LOGIN_SUCCESS",
+      "severity": "info",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+      "details": "User authenticated successfully.",
+      "created_at": "2026-08-31T11:12:24.754Z"
+    },
+    {
+      "id": 32,
+      "username": "newseditormanager",
+      "event_type": "CAPTCHA_FAILED",
+      "severity": "warning",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+      "details": "Invalid security CAPTCHA code submitted.",
+      "created_at": "2026-08-31T11:12:15.774Z"
+    },
+    {
+      "id": 31,
+      "username": "newseditormanager",
+      "event_type": "LOGOUT",
+      "severity": "info",
+      "ip_address": "::1",
+      "user_agent": "Unknown",
+      "details": "User logged out.",
+      "created_at": "2026-08-31T11:08:26.702Z"
+    },
+    {
+      "id": 30,
+      "username": "newseditormanager",
+      "event_type": "LOGIN_SUCCESS",
+      "severity": "info",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+      "details": "User authenticated successfully.",
+      "created_at": "2026-08-31T11:08:24.018Z"
+    },
+    {
+      "id": 29,
+      "username": "newseditormanager",
+      "event_type": "CAPTCHA_FAILED",
+      "severity": "warning",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+      "details": "Invalid security CAPTCHA code submitted.",
+      "created_at": "2026-08-31T11:08:18.535Z"
+    },
+    {
+      "id": 28,
+      "username": "newseditormanager",
+      "event_type": "LOGOUT",
+      "severity": "info",
+      "ip_address": "::1",
+      "user_agent": "Unknown",
+      "details": "User logged out.",
+      "created_at": "2026-08-31T11:08:13.171Z"
+    },
+    {
+      "id": 27,
+      "username": "newseditormanager",
+      "event_type": "LOGIN_SUCCESS",
+      "severity": "info",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+      "details": "User authenticated successfully.",
+      "created_at": "2026-08-31T11:08:02.120Z"
+    },
+    {
+      "id": 26,
+      "username": "newseditormanager",
+      "event_type": "CAPTCHA_FAILED",
+      "severity": "warning",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+      "details": "Invalid security CAPTCHA code submitted.",
+      "created_at": "2026-08-31T11:07:51.458Z"
+    },
+    {
+      "id": 25,
+      "username": "Digital_TN_GovMaster",
+      "event_type": "LOGOUT",
+      "severity": "info",
+      "ip_address": "::1",
+      "user_agent": "Unknown",
+      "details": "User logged out.",
+      "created_at": "2026-08-31T11:07:42.711Z"
+    },
+    {
+      "id": 24,
+      "username": "Digital_TN_GovMaster",
+      "event_type": "LOGIN_SUCCESS",
+      "severity": "info",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+      "details": "User authenticated successfully.",
+      "created_at": "2026-08-31T11:07:39.171Z"
+    },
+    {
+      "id": 23,
+      "username": "Digital_TN_GovMaster",
+      "event_type": "LOGOUT",
+      "severity": "info",
+      "ip_address": "::1",
+      "user_agent": "Unknown",
+      "details": "User logged out.",
+      "created_at": "2026-08-31T11:07:31.259Z"
+    },
+    {
+      "id": 22,
+      "username": "Digital_TN_GovMaster",
+      "event_type": "LOGIN_SUCCESS",
+      "severity": "info",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+      "details": "User authenticated successfully.",
+      "created_at": "2026-08-31T11:07:02.862Z"
+    },
+    {
+      "id": 21,
+      "username": "newseditormanager",
+      "event_type": "LOGOUT",
+      "severity": "info",
+      "ip_address": "::1",
+      "user_agent": "Unknown",
+      "details": "User logged out.",
+      "created_at": "2026-08-31T11:06:54.105Z"
+    },
+    {
+      "id": 20,
+      "username": "newseditormanager",
+      "event_type": "LOGIN_SUCCESS",
+      "severity": "info",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+      "details": "User authenticated successfully.",
+      "created_at": "2026-08-31T11:06:17.482Z"
+    },
+    {
+      "id": 19,
+      "username": "Digital_TN_GovMaster",
+      "event_type": "LOGOUT",
+      "severity": "info",
+      "ip_address": "::1",
+      "user_agent": "Unknown",
+      "details": "User logged out.",
+      "created_at": "2026-08-31T11:06:10.897Z"
+    },
+    {
+      "id": 18,
+      "username": "Digital_TN_GovMaster",
+      "event_type": "LOGIN_SUCCESS",
+      "severity": "info",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+      "details": "User authenticated successfully.",
+      "created_at": "2026-08-31T11:06:06.525Z"
+    },
+    {
+      "id": 17,
+      "username": "Digital_TN_GovMaster",
+      "event_type": "LOGOUT",
+      "severity": "info",
+      "ip_address": "::1",
+      "user_agent": "Unknown",
+      "details": "User logged out.",
+      "created_at": "2026-08-31T11:05:58.818Z"
+    },
+    {
+      "id": 16,
+      "username": "Digital_TN_GovMaster",
+      "event_type": "MFA_LOGIN_SUCCESS",
+      "severity": "info",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+      "details": "MFA authenticated via INITIAL_MFA_PASS.",
+      "created_at": "2026-08-31T11:05:27.786Z"
+    },
+    {
+      "id": 15,
+      "username": "Digital_TN_GovMaster",
+      "event_type": "MFA_VERIFY_FAILED",
+      "severity": "warning",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+      "details": "Invalid MFA code attempt (3/5).",
+      "created_at": "2026-08-31T11:04:55.809Z"
+    },
+    {
+      "id": 14,
+      "username": "Digital_TN_GovMaster",
+      "event_type": "MFA_VERIFY_FAILED",
+      "severity": "warning",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+      "details": "Invalid MFA code attempt (2/5).",
+      "created_at": "2026-08-31T11:04:42.770Z"
+    },
+    {
+      "id": 13,
+      "username": "Digital_TN_GovMaster",
+      "event_type": "MFA_VERIFY_FAILED",
+      "severity": "warning",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+      "details": "Invalid MFA code attempt (1/5).",
+      "created_at": "2026-08-31T11:04:38.630Z"
+    },
+    {
+      "id": 12,
+      "username": "Digital_TN_GovMaster",
+      "event_type": "MFA_CHALLENGE_ISSUED",
+      "severity": "info",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+      "details": "MFA challenge issued for login attempt.",
+      "created_at": "2026-08-31T11:01:44.915Z"
+    },
+    {
+      "id": 11,
+      "username": "Digital_TN_GovMaster",
+      "event_type": "MFA_VERIFY_FAILED",
+      "severity": "warning",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+      "details": "Invalid MFA code attempt (1/5).",
+      "created_at": "2026-08-31T11:01:24.521Z"
+    },
+    {
+      "id": 10,
+      "username": "Digital_TN_GovMaster",
+      "event_type": "MFA_CHALLENGE_ISSUED",
+      "severity": "info",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+      "details": "MFA challenge issued for login attempt.",
+      "created_at": "2026-08-31T11:00:58.858Z"
+    },
+    {
+      "id": 9,
+      "username": "newseditormanager",
+      "event_type": "LOGOUT",
+      "severity": "info",
+      "ip_address": "::1",
+      "user_agent": "Unknown",
+      "details": "User logged out.",
+      "created_at": "2026-08-31T11:00:50.926Z"
+    },
+    {
+      "id": 8,
+      "username": "newseditormanager",
+      "event_type": "LOGIN_SUCCESS",
+      "severity": "info",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+      "details": "User authenticated successfully.",
+      "created_at": "2026-08-31T11:00:45.577Z"
+    },
+    {
+      "id": 7,
+      "username": "newseditormanager",
+      "event_type": "CAPTCHA_FAILED",
+      "severity": "warning",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+      "details": "Invalid security CAPTCHA code submitted.",
+      "created_at": "2026-08-31T10:58:48.107Z"
+    },
+    {
+      "id": 6,
+      "username": "newseditormanager",
+      "event_type": "CAPTCHA_FAILED",
+      "severity": "warning",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+      "details": "Invalid security CAPTCHA code submitted.",
+      "created_at": "2026-08-31T10:58:40.356Z"
+    },
+    {
+      "id": 5,
+      "username": "newseditormanager",
+      "event_type": "CAPTCHA_FAILED",
+      "severity": "warning",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+      "details": "Invalid security CAPTCHA code submitted.",
+      "created_at": "2026-08-31T10:58:06.486Z"
+    },
+    {
+      "id": 4,
+      "username": "Digital_TN_GovMaster",
+      "event_type": "CAPTCHA_FAILED",
+      "severity": "warning",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+      "details": "Invalid security CAPTCHA code submitted.",
+      "created_at": "2026-08-31T10:57:36.206Z"
+    },
+    {
+      "id": 3,
+      "username": "Digital_TN_GovMaster",
+      "event_type": "CAPTCHA_FAILED",
+      "severity": "warning",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+      "details": "Invalid security CAPTCHA code submitted.",
+      "created_at": "2026-08-31T10:56:59.217Z"
+    },
+    {
+      "id": 2,
+      "username": "Digital_TN_GovMaster",
+      "event_type": "CAPTCHA_FAILED",
+      "severity": "warning",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+      "details": "Invalid security CAPTCHA code submitted.",
+      "created_at": "2026-08-31T10:56:49.334Z"
+    },
+    {
+      "id": 1,
+      "username": "Digital_TN_GovMaster",
+      "event_type": "LOGOUT",
+      "severity": "info",
+      "ip_address": "::1",
+      "user_agent": "Unknown",
+      "details": "User logged out.",
+      "created_at": "2026-08-31T10:52:37.069Z"
+    },
+    {
+      "id": 39,
+      "username": "Digital_TN_GovMaster",
+      "event_type": "LOGOUT",
+      "severity": "info",
+      "ip_address": "::1",
+      "user_agent": "Unknown",
+      "details": "User logged out.",
+      "created_at": "2026-08-31T11:25:58.053Z"
+    },
+    {
+      "id": 40,
+      "username": "newseditormanager",
+      "event_type": "LOGIN_SUCCESS",
+      "severity": "info",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+      "details": "User authenticated successfully.",
+      "created_at": "2026-08-31T11:26:05.443Z"
+    }
+  ],
+  "security_config": {
+    "admin_console_path": "/control-center",
+    "session_timeout_minutes": 30,
+    "login_rate_limit": 5,
+    "max_failed_logins": 5,
+    "lockout_duration_minutes": 30,
+    "captcha_enabled": true,
+    "mfa_policy": "optional",
+    "maintenance_mode": false
+  },
+  "sessions": [
+    {
+      "id": 1,
+      "username": "newseditormanager",
+      "session_id": "088b456df2a2df1c8fd9bd9409f36832cbecb5c714da5b6d",
+      "created_at": "2026-08-31T11:00:45.500Z",
+      "last_activity": "2026-08-31T11:00:46.166Z",
+      "expires_at": "2026-08-31T11:30:46.166Z",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+      "revoked_at": "2026-08-31T11:00:50.877Z",
+      "status": "revoked"
+    },
+    {
+      "id": 2,
+      "username": "Digital_TN_GovMaster",
+      "session_id": "7e69cd0c6c58c9eb0fb3d1bec522c42397545ae20e050c0c",
+      "created_at": "2026-08-31T11:05:27.711Z",
+      "last_activity": "2026-08-31T11:05:28.704Z",
+      "expires_at": "2026-08-31T11:35:28.704Z",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+      "revoked_at": "2026-08-31T11:05:58.785Z",
+      "status": "revoked"
+    },
+    {
+      "id": 3,
+      "username": "Digital_TN_GovMaster",
+      "session_id": "cf0668794de44a980ded5ea1923908a7e9b6abff0d50b869",
+      "created_at": "2026-08-31T11:06:06.452Z",
+      "last_activity": "2026-08-31T11:06:07.342Z",
+      "expires_at": "2026-08-31T11:36:07.342Z",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+      "revoked_at": "2026-08-31T11:06:10.858Z",
+      "status": "revoked"
+    },
+    {
+      "id": 4,
+      "username": "newseditormanager",
+      "session_id": "6e1a58fb79d9e3fb2dcb2e37b6be99c13fa15065648cf752",
+      "created_at": "2026-08-31T11:06:17.408Z",
+      "last_activity": "2026-08-31T11:06:17.878Z",
+      "expires_at": "2026-08-31T11:36:17.878Z",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+      "revoked_at": "2026-08-31T11:06:54.069Z",
+      "status": "revoked"
+    },
+    {
+      "id": 5,
+      "username": "Digital_TN_GovMaster",
+      "session_id": "6f90456fe9d519585c2299368cd119173e0bcdae3628bee3",
+      "created_at": "2026-08-31T11:07:02.780Z",
+      "last_activity": "2026-08-31T11:07:28.087Z",
+      "expires_at": "2026-08-31T11:37:28.087Z",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+      "revoked_at": "2026-08-31T11:07:31.225Z",
+      "status": "revoked"
+    },
+    {
+      "id": 6,
+      "username": "Digital_TN_GovMaster",
+      "session_id": "47fb6a3ef58d0f54d07db9ce6f3d903ddcfe55cbd16f96f3",
+      "created_at": "2026-08-31T11:07:39.094Z",
+      "last_activity": "2026-08-31T11:07:39.973Z",
+      "expires_at": "2026-08-31T11:37:39.973Z",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+      "revoked_at": "2026-08-31T11:07:42.679Z",
+      "status": "revoked"
+    },
+    {
+      "id": 7,
+      "username": "newseditormanager",
+      "session_id": "055e67f6ca36bc9c904ec0866d06bb01ad25ec3e7f625b05",
+      "created_at": "2026-08-31T11:08:02.062Z",
+      "last_activity": "2026-08-31T11:08:02.651Z",
+      "expires_at": "2026-08-31T11:38:02.651Z",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+      "revoked_at": "2026-08-31T11:08:13.135Z",
+      "status": "revoked"
+    },
+    {
+      "id": 8,
+      "username": "newseditormanager",
+      "session_id": "eea2b51cb974fd0d459a81f654788ae9fb9aa13c6823943a",
+      "created_at": "2026-08-31T11:08:23.940Z",
+      "last_activity": "2026-08-31T11:08:24.425Z",
+      "expires_at": "2026-08-31T11:38:24.425Z",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+      "revoked_at": "2026-08-31T11:08:26.665Z",
+      "status": "revoked"
+    },
+    {
+      "id": 9,
+      "username": "newseditormanager",
+      "session_id": "e4a0f2c4daa24599089f7d004c786059ccc5141fa89edf12",
+      "created_at": "2026-08-31T11:12:24.704Z",
+      "last_activity": "2026-08-31T11:20:20.565Z",
+      "expires_at": "2026-08-31T11:50:20.565Z",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+      "revoked_at": "2026-08-31T11:20:30.491Z",
+      "status": "revoked"
+    },
+    {
+      "id": 10,
+      "username": "Digital_TN_GovMaster",
+      "session_id": "6f7a573c69a81af06f044056f553e4e268ebe82e7db4b866",
+      "created_at": "2026-08-31T11:20:39.001Z",
+      "last_activity": "2026-08-31T11:20:39.953Z",
+      "expires_at": "2026-08-31T11:50:39.953Z",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+      "revoked_at": "2026-08-31T11:20:42.283Z",
+      "status": "revoked"
+    },
+    {
+      "id": 11,
+      "username": "Digital_TN_GovMaster",
+      "session_id": "12d9f57bd4b3ddfa0e3672bdaeece4c296ad00281f6ae2fa",
+      "created_at": "2026-08-31T11:20:59.371Z",
+      "last_activity": "2026-08-31T11:25:30.536Z",
+      "expires_at": "2026-08-31T11:55:30.536Z",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+      "revoked_at": "2026-08-31T11:25:58.015Z",
+      "status": "revoked"
+    },
+    {
+      "id": 12,
+      "username": "newseditormanager",
+      "session_id": "86dee5d76397605eac84e50ac60144ffe948fce994273073",
+      "created_at": "2026-08-31T11:26:05.392Z",
+      "last_activity": "2026-08-31T11:26:27.523Z",
+      "expires_at": "2026-08-31T11:56:27.523Z",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+      "revoked_at": null,
+      "status": "active"
+    }
+  ],
+  "mfa_challenges": [
+    {
+      "id": 1,
+      "challenge_id": "mfa_ch_1788174058834_bi7zwei",
+      "username": "Digital_TN_GovMaster",
+      "expires_at": "2026-08-31T11:05:58.834Z",
+      "attempt_count": 1,
+      "verified": 0,
+      "created_at": "2026-08-31T11:00:58.834Z"
+    },
+    {
+      "id": 2,
+      "challenge_id": "mfa_ch_1788174104887_mu282kt",
+      "username": "Digital_TN_GovMaster",
+      "expires_at": "2026-08-31T11:06:44.887Z",
+      "attempt_count": 3,
+      "verified": 1,
+      "created_at": "2026-08-31T11:01:44.887Z"
+    }
+  ],
+  "trusted_devices": [
+    {
+      "id": 1,
+      "username": "Digital_TN_GovMaster",
+      "token_hash": "3217b1f00d12551151406f27b03834e2dfdafd9c2eada028089857a8e0cca01c",
+      "device_name": "Mozilla on ::1",
+      "user_agent_summary": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Sa",
+      "created_at": "2026-08-31T11:05:27.650Z",
+      "last_used_at": "2026-08-31T11:20:59.360Z",
+      "expires_at": "2026-09-30T11:05:27.650Z",
+      "revoked_at": null
+    }
+  ]
 }

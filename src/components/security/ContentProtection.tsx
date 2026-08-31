@@ -8,7 +8,7 @@ export default function ContentProtection() {
 
   useEffect(() => {
     // 🔓 Bypass content protection for Admin Controller pages so admins can edit CMS text normally
-    if (pathname && pathname.startsWith("/controller")) {
+    if (pathname && (pathname.startsWith("/controller") || pathname.startsWith("/control-center"))) {
       return;
     }
 

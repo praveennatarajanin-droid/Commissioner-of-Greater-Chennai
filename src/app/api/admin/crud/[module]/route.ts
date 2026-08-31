@@ -1,13 +1,10 @@
 import { NextResponse } from "next/server";
 import { db, hashPassword, DBArticleSeo } from "@/lib/db";
 import { cookies } from "next/headers";
+import { sanitizeHtmlContent, sanitizePlainText } from "@/lib/sanitizer";
 
 function sanitizeHtml(html: string): string {
-  if (!html) return "";
-  let cleaned = html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "");
-  cleaned = cleaned.replace(/on\w+\s*=\s*["'][^"']*["']/gi, "");
-  cleaned = cleaned.replace(/javascript:/gi, "");
-  return cleaned;
+  return sanitizeHtmlContent(html);
 }
 
 // Authentication Helper
@@ -19,9 +16,24 @@ async function checkAuth(requiredRoles?: string[]) {
       return null;
     }
     const user = JSON.parse(sessionCookie.value);
+
+    // Verify session validity in DB
+    if (user.sessionId) {
+      const dbSession = await db.validateSession(user.sessionId);
+      if (!dbSession) return null;
+      await db.touchSession(user.sessionId);
+    }
+
+    // Verify user account status
+    const users = await db.getUsers();
+    const uRec = users.find((u) => u.username.toLowerCase() === (user.username || "").toLowerCase());
+    if (!uRec || uRec.status === "disabled" || uRec.locked === 1) {
+      return null;
+    }
+
     if (requiredRoles) {
       const userRole = (user.role || "").toUpperCase().replace(/[_\s]+/g, "");
-      const normalizedRequired = requiredRoles.map(r => r.toUpperCase().replace(/[_\s]+/g, ""));
+      const normalizedRequired = requiredRoles.map((r) => r.toUpperCase().replace(/[_\s]+/g, ""));
       if (!normalizedRequired.includes(userRole)) {
         return null;
       }
@@ -718,7 +730,7 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ modul
         return NextResponse.json({ success: true });
       }
       case "police-stations": {
-        const actionParam = req.nextUrl.searchParams.get("action");
+        const actionParam = action;
         if (actionParam === "clear_all" || id === -1) {
           const uRole = (auth.role || "").toLowerCase().replace(/[_\s]+/g, "");
           if (uRole !== "superadmin") {
