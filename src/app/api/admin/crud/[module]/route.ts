@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db, hashPassword, DBArticleSeo } from "@/lib/db";
+import { db, hashPassword, normalizeUsername, DBArticleSeo } from "@/lib/db";
 import { cookies } from "next/headers";
 import { sanitizeHtmlContent, sanitizePlainText } from "@/lib/sanitizer";
 
@@ -272,14 +272,21 @@ export async function POST(req: Request, { params }: { params: Promise<{ module:
       }
       case "users": {
         const items = await db.getUsers();
+        const normUsername = normalizeUsername(data.username);
+        if (!normUsername || !data.password || !data.role) {
+          return NextResponse.json({ error: "Username, password, and role are required." }, { status: 400 });
+        }
+        if (items.some((u) => normalizeUsername(u.username) === normUsername)) {
+          return NextResponse.json({ error: "Username already exists." }, { status: 400 });
+        }
         const id = items.length > 0 ? Math.max(...items.map((i) => i.id || 0)) + 1 : 1;
-        const passwordHash = hashPassword(data.password || "default123");
+        const passwordHash = hashPassword(data.password);
         const newItem = {
           id,
-          username: data.username,
-          email: data.email || `${data.username}@chennaiguardian.in`,
+          username: data.username.trim(),
+          email: (data.email || `${normUsername}@chennaiguardian.in`).trim(),
           passwordHash,
-          role: data.role,
+          role: data.role.trim(),
           status: data.status || "active",
           createdAt: new Date().toISOString(),
           lastLogin: null
@@ -548,14 +555,22 @@ export async function PUT(req: Request, { params }: { params: Promise<{ module: 
           return NextResponse.json({ error: "User not found" }, { status: 404 });
         }
 
+        if (data.username) {
+          const norm = normalizeUsername(data.username);
+          const dup = items.find((u) => u.id !== data.id && normalizeUsername(u.username) === norm);
+          if (dup) {
+            return NextResponse.json({ error: "Username already in use by another account." }, { status: 400 });
+          }
+        }
+
         items = items.map((i) => {
           if (i.id === data.id) {
             const passwordHash = data.password ? hashPassword(data.password) : i.passwordHash;
             return {
               ...i,
-              username: data.username ?? i.username,
-              role: data.role ?? i.role,
-              email: data.email ?? i.email,
+              username: data.username ? data.username.trim() : i.username,
+              role: data.role ? data.role.trim() : i.role,
+              email: data.email ? data.email.trim() : i.email,
               status: data.status ?? i.status,
               passwordHash
             };

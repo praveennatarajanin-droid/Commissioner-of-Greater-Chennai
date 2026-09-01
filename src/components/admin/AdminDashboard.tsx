@@ -43,7 +43,8 @@ import {
   Crown,
   Lock,
   Layout,
-  BookOpen
+  BookOpen,
+  ChevronDown
 } from "lucide-react";
 import { DBUser, DBNewsItem, DBTickerItem, DBSliderItem, DBCommissionerProfile, DBThemeSettings, DBMenuItem, DBContact, DBTtsSettings, DBVideoItem, DBAlertItem, DBAlertSettings } from "@/lib/db";
 import dynamic from "next/dynamic";
@@ -577,6 +578,19 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
   const displayName = user.role === "superadmin" ? "Super Admin" : user.role === "admin" ? "Admin" : user.username;
   const [localActiveTab, setLocalActiveTab] = useState<TabType>("dashboard");
   const activeTab = propActiveTab !== undefined ? propActiveTab : localActiveTab;
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const profileMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
+        setIsProfileMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
     title: string;
@@ -916,6 +930,10 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
     }
   }, [activeTab]);
   const setActiveTab = (tab: TabType) => {
+    if (tab !== "dashboard" && !hasModulePermission(tab, "view")) {
+      triggerAlert("error", `Access Restricted: You do not have permission to access the ${getTabTitle(tab)} module.`);
+      return;
+    }
     if (onTabChange) {
       onTabChange(tab);
     } else {
@@ -1853,38 +1871,40 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
       {/* ==================== MAIN PANEL FRAME ==================== */}
       <main className="flex-grow flex flex-col overflow-hidden bg-[#F8FAFC]">
 
-        {/* Header Ribbon - Compact h-16, Aligned with Sidebar Header */}
+        {/* Header Ribbon - Compact h-16, Fully Responsive */}
         <header
-          className="h-16 flex items-center justify-between px-6 sticky top-0 z-30 shrink-0 bg-white"
+          className="h-16 flex items-center justify-between px-4 sm:px-6 sticky top-0 z-30 shrink-0 bg-white"
           style={{
             borderBottom: "1px solid #E5E7EB",
             boxShadow: "0 4px 6px -1px rgba(0,0,0,0.05)"
           }}
         >
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4 min-w-0">
             {/* Hamburger Menu Toggle Button */}
             <button
               type="button"
               onClick={() => setIsSidebarOpen(true)}
-              className="p-2 -ml-1 text-slate-500 hover:text-slate-800 hover:bg-[#E8F0FE] rounded-lg lg:hidden cursor-pointer flex items-center justify-center transition-colors"
-              title="Toggle Menu"
+              className="p-2 -ml-1 text-slate-500 hover:text-slate-800 hover:bg-[#E8F0FE] rounded-lg lg:hidden cursor-pointer flex items-center justify-center transition-colors shrink-0"
+              title="Toggle Navigation Menu"
+              aria-label="Toggle navigation menu"
             >
-              <Menu className="w-6 h-6" />
+              <Menu className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
-            <h2 className="text-2xl font-bold text-[#1F2937] leading-none tracking-tight">
+            <h2 className="text-base sm:text-xl md:text-2xl font-bold text-[#1F2937] leading-none tracking-tight truncate">
               {getTabTitle(activeTab)}
             </h2>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            {/* Launch Live Portal - Visible on tablet/desktop */}
             <a
               href="/"
               target="_blank"
-              className="text-sm font-semibold text-[#1E40AF] hover:text-[#1E3A8A] border border-[#E5E7EB] hover:border-[#1E40AF]/30 px-4 py-2 rounded-xl transition-all duration-200 flex items-center gap-2 bg-white shadow-sm hover:shadow"
+              className="hidden md:flex text-xs sm:text-sm font-semibold text-[#1E40AF] hover:text-[#1E3A8A] border border-[#E5E7EB] hover:border-[#1E40AF]/30 px-3.5 py-2 rounded-xl transition-all duration-200 items-center gap-2 bg-white shadow-sm hover:shadow"
             >
-              <ExternalLink className="w-4 h-4" /> Launch Live Portal
+              <ExternalLink className="w-3.5 h-3.5" /> Launch Live Portal
             </a>
 
-            {/* Clear Cache Button */}
+            {/* Clear Cache Button - Hidden on small mobile */}
             <button
               onClick={async () => {
                 if (clearingCache) return;
@@ -1908,7 +1928,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
               }}
               disabled={clearingCache}
               title="Clear Next.js page cache — forces all frontend pages to re-fetch fresh data"
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold border transition-all duration-200 shadow-sm cursor-pointer ${cacheCleared
+              className={`hidden sm:flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold border transition-all duration-200 shadow-sm cursor-pointer ${cacheCleared
                   ? "bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100"
                   : clearingCache
                     ? "bg-amber-50 border-amber-200 text-amber-700 cursor-wait"
@@ -1916,58 +1936,148 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                 }`}
             >
               {clearingCache ? (
-                <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                <svg className="animate-spin w-3.5 h-3.5" viewBox="0 0 24 24" fill="none">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                 </svg>
               ) : cacheCleared ? (
-                <Check className="w-4 h-4" />
+                <Check className="w-3.5 h-3.5" />
               ) : (
-                <RefreshCw className="w-4 h-4" />
+                <RefreshCw className="w-3.5 h-3.5" />
               )}
-              <span className="hidden sm:inline">
+              <span className="hidden md:inline">
                 {clearingCache ? "Clearing..." : cacheCleared ? "Cleared!" : "Clear Cache"}
               </span>
             </button>
 
-            {/* Notification Icon */}
+            {/* Notification Alerts Icon */}
             <button
               onClick={() => setActiveTab("alerts")}
               className="p-2 text-[#64748B] hover:text-[#1E40AF] hover:bg-[#E8F0FE] rounded-xl cursor-pointer transition relative animate-fadeIn"
               title="Official Alerts"
+              aria-label="Official Alerts"
             >
               <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white animate-pulse" />
-              <Radio className="w-5 h-5" />
+              <Radio className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
 
-            {/* Settings Icon */}
+            {/* Settings Icon - Visible on tablet/desktop */}
             <button
               onClick={() => setActiveTab("settings")}
-              className="p-2 text-[#64748B] hover:text-[#1E40AF] hover:bg-[#E8F0FE] rounded-xl cursor-pointer transition mr-1"
+              className="hidden sm:flex p-2 text-[#64748B] hover:text-[#1E40AF] hover:bg-[#E8F0FE] rounded-xl cursor-pointer transition"
               title="Console Config"
+              aria-label="Console Config"
             >
-              <Settings className="w-5 h-5" />
+              <Settings className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
 
-            {/* User Profile / Logout Card */}
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-3 p-1.5 pl-2 pr-4 bg-white hover:bg-red-50 hover:border-red-200 border border-[#E5E7EB] rounded-full transition-all duration-200 cursor-pointer text-left shadow-sm group"
-              title="Log Out / Terminate Session"
-            >
-              <div className="w-7 h-7 rounded-full bg-[#1E40AF] text-white flex items-center justify-center font-bold text-xs transition-colors group-hover:bg-red-600 shrink-0 font-sans">
-                {displayName.charAt(0).toUpperCase()}
-              </div>
-              <div className="hidden sm:block">
-                <p className="text-xs font-bold text-[#1F2937] leading-none group-hover:text-red-700 transition-colors">{displayName}</p>
-                <span className="text-[9px] font-bold text-[#64748B] uppercase block mt-0.5">{user.role.toUpperCase()}</span>
-              </div>
-              <div className="pl-1 text-[#94a3b8] group-hover:text-red-600 transition-colors shrink-0">
-                <LogOut className="w-3.5 h-3.5" />
-              </div>
-            </button>
+            {/* Responsive User Profile & Account Menu */}
+            <div className="relative" ref={profileMenuRef}>
+              <button
+                type="button"
+                onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                className="flex items-center gap-2 p-1.5 sm:pl-2 sm:pr-3 bg-white hover:bg-slate-50 border border-[#E5E7EB] hover:border-slate-300 rounded-full transition-all duration-200 cursor-pointer shadow-sm group"
+                title="Account Menu & Sign Out"
+                aria-expanded={isProfileMenuOpen}
+              >
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#1E40AF] text-white flex items-center justify-center font-black text-xs shrink-0 font-sans shadow-sm">
+                  {displayName.charAt(0).toUpperCase()}
+                </div>
+                <div className="hidden sm:block text-left">
+                  <p className="text-xs font-bold text-[#1F2937] leading-none">{displayName}</p>
+                  <span className="text-[9px] font-bold text-[#64748B] uppercase block mt-0.5">{user.role.toUpperCase()}</span>
+                </div>
+                <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${isProfileMenuOpen ? "rotate-180 text-[#1E40AF]" : ""}`} />
+              </button>
+
+              {/* Responsive Dropdown Menu */}
+              {isProfileMenuOpen && (
+                <div className="absolute right-0 top-full mt-2 w-64 bg-white border border-slate-200 rounded-2xl shadow-2xl p-2 z-50 animate-fadeIn text-left">
+                  {/* User Profile Card Header */}
+                  <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 mb-1">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-9 h-9 rounded-full bg-[#1E40AF] text-white flex items-center justify-center font-black text-sm shadow">
+                        {displayName.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs font-black text-slate-900 truncate">{displayName}</p>
+                        <p className="text-[10px] text-slate-500 font-mono truncate">@{user.username}</p>
+                      </div>
+                    </div>
+                    <div className="mt-2 pt-2 border-t border-slate-200/60 flex items-center justify-between">
+                      <span className="text-[9px] font-black uppercase text-slate-400">Access Level</span>
+                      <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full border ${user.role.toUpperCase() === "SUPERADMIN" || user.role.toUpperCase() === "SUPER_ADMIN" ? "bg-amber-50 text-amber-700 border-amber-300" : "bg-blue-50 text-blue-700 border-blue-200"}`}>
+                        {user.role.toUpperCase().replace("_", " ")}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Navigation Links */}
+                  <div className="space-y-0.5 py-1">
+                    <button
+                      onClick={() => {
+                        setActiveTab("dashboard");
+                        setIsProfileMenuOpen(false);
+                      }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-slate-700 hover:text-[#1E40AF] hover:bg-blue-50 rounded-lg transition text-left cursor-pointer"
+                    >
+                      <LayoutDashboard className="w-3.5 h-3.5 text-[#1E40AF]" />
+                      <span>Overview Dashboard</span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setActiveTab("profile");
+                        setIsProfileMenuOpen(false);
+                      }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-slate-700 hover:text-[#1E40AF] hover:bg-blue-50 rounded-lg transition text-left cursor-pointer"
+                    >
+                      <User className="w-3.5 h-3.5 text-[#1E40AF]" />
+                      <span>Profile Settings</span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setActiveTab("settings");
+                        setIsProfileMenuOpen(false);
+                      }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-slate-700 hover:text-[#1E40AF] hover:bg-blue-50 rounded-lg transition text-left cursor-pointer"
+                    >
+                      <Settings className="w-3.5 h-3.5 text-[#1E40AF]" />
+                      <span>Console Config</span>
+                    </button>
+
+                    <a
+                      href="/"
+                      target="_blank"
+                      onClick={() => setIsProfileMenuOpen(false)}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-slate-700 hover:text-[#1E40AF] hover:bg-blue-50 rounded-lg transition text-left cursor-pointer md:hidden"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5 text-[#1E40AF]" />
+                      <span>Launch Live Portal</span>
+                    </a>
+                  </div>
+
+                  {/* Prominent Red Logout Button (Always accessible) */}
+                  <div className="pt-1 mt-1 border-t border-slate-100">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsProfileMenuOpen(false);
+                        handleLogout();
+                      }}
+                      className="w-full flex items-center justify-center gap-2 py-2.5 px-3 bg-red-50 hover:bg-red-600 text-red-700 hover:text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-sm"
+                    >
+                      <LogOut className="w-4 h-4 shrink-0" />
+                      <span>Sign Out / Terminate</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </header>
+
 
         {/* Alert Notifications - Only rendered when there are active messages */}
         {(successMsg || errorMsg) && (
@@ -1996,8 +2106,29 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
         {/* Content Body container */}
         <div className="flex-grow overflow-y-auto p-3 sm:p-4 pt-3 sm:pt-4">
 
+          {/* Access Guard for Restricted Tabs */}
+          {activeTab !== "dashboard" && !hasModulePermission(activeTab, "view") && (
+            <div className="min-h-[400px] flex flex-col items-center justify-center text-center p-8 bg-white border border-slate-200 rounded-2xl shadow-sm my-6">
+              <div className="w-16 h-16 rounded-full bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600 mb-4 shadow-sm">
+                <Lock className="w-8 h-8" />
+              </div>
+              <h3 className="text-xl font-bold text-slate-800">Access Restricted</h3>
+              <p className="text-sm text-slate-500 max-w-md mt-2 leading-relaxed">
+                Your account role (<span className="font-bold text-slate-700 uppercase">{user.role}</span>) is not authorized to access or manage the <span className="font-bold text-slate-700">{getTabTitle(activeTab)}</span> module.
+              </p>
+              <button
+                type="button"
+                onClick={() => setActiveTab("dashboard")}
+                className="mt-6 px-5 py-2.5 bg-[#1E40AF] hover:bg-[#1E3A8A] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition cursor-pointer shadow"
+              >
+                Return to Overview Dashboard
+              </button>
+            </div>
+          )}
+
           {/* ==================== TAB: OVERVIEW - COMMAND CENTER ==================== */}
           {activeTab === "dashboard" && (
+
             <div className="space-y-6">
               {(() => {
                 const publishedNews = news.filter(n => n.published === 1);
@@ -2031,9 +2162,9 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                   { label: "Hero Slider", value: activeSlider.length, sub: `${slider.length} total slides`, icon: <ImageIcon className="w-5 h-5" />, color: "#d4af37", bg: "rgba(212,175,55,0.1)", border: "rgba(212,175,55,0.2)", tab: "slider" as TabType },
                   { label: "Live Ticker", value: activeTicker.length, sub: `${ticker.length} total items`, icon: <Radio className="w-5 h-5" />, color: "#ed1b24", bg: "rgba(237,27,36,0.1)", border: "rgba(237,27,36,0.2)", tab: "ticker" as TabType },
                   { label: "Videos", value: videos.length, sub: `${activeVideosCount} active in gallery`, icon: <Tv className="w-5 h-5" />, color: "#7c3aed", bg: "rgba(124,58,237,0.1)", border: "rgba(124,58,237,0.2)", tab: "videos" as TabType },
-                  { label: "Helplines", value: activeContacts.length, sub: `${contacts.length} total contacts`, icon: <Phone className="w-5 h-5" />, color: "#059669", bg: "rgba(5,150,105,0.1)", border: "rgba(5,150,105,0.2)", tab: "settings" as TabType },
+                  { label: "Helplines", value: activeContacts.length, sub: `${contacts.length} total contacts`, icon: <Phone className="w-5 h-5" />, color: "#059669", bg: "rgba(5,150,105,0.1)", border: "rgba(5,150,105,0.2)", tab: "emergency-contacts" as TabType },
                   { label: "Total Views", value: formatViewsCount(totalViews), sub: `${formatViewsCount(totalNewsViews)} news · ${formatViewsCount(totalVideoViews)} videos`, icon: <Eye className="w-5 h-5" />, color: "#0ea5e9", bg: "rgba(14,165,233,0.1)", border: "rgba(14,165,233,0.2)", tab: "dashboard" as TabType },
-                ];
+                ].filter(k => k.tab === "dashboard" || hasModulePermission(k.tab, "view"));
                 return (
                   <div className="space-y-5">
                     {/* Welcome Banner */}
@@ -2097,29 +2228,90 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                     {/* Row 2: Quick Actions + Commissioner */}
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
                       <div className="lg:col-span-2 bg-stone-900 border border-stone-850 rounded-2xl p-5 space-y-4">
-                        <div className="flex items-center gap-2 border-b border-stone-850 pb-3">
-                          <Plus className="w-4 h-4 text-brand-gold" />
-                          <h4 className="font-display font-black text-xs uppercase tracking-widest text-white">Quick Actions</h4>
+                        <div className="flex items-center justify-between border-b border-stone-850 pb-3">
+                          <div className="flex items-center gap-2">
+                            <Plus className="w-4 h-4 text-brand-gold" />
+                            <h4 className="font-display font-black text-xs uppercase tracking-widest text-white">Quick Actions</h4>
+                          </div>
+                          {(() => {
+                            const rawActions = [
+                              { id: "add-news", label: "Add News", sub: "Create Article", icon: <FileText className="w-5 h-5" />, color: "#1e40af", module: "news", permission: "create", action: () => { setActiveTab("news" as TabType); setIsAdding(true); setEditingItem({ title_en: "", title_ta: "", category_en: "", category_ta: "", summary_en: "", summary_ta: "", content_en: [""], content_ta: [""], image: "", tags_en: [], tags_ta: [], section: "latest", published: 1, date: new Date().toLocaleDateString("en-US", { month: "long", day: "2-digit", year: "numeric" }), author_en: "Greater Chennai Police Media Desk", author_ta: "" }); } },
+                              { id: "add-slider", label: "Add Slider", sub: "Hero Slide", icon: <ImageIcon className="w-5 h-5" />, color: "#d4af37", module: "slider", permission: "create", action: () => { setActiveTab("slider" as TabType); setIsAdding(true); setEditingItem({ src: "", title_en: "", title_ta: "", desc_en: "", desc_ta: "", category_en: "", category_ta: "", order_num: slider.length + 1, active: 1 }); } },
+                              { id: "add-video", label: "Add Video", sub: "Media Clip", icon: <Tv className="w-5 h-5" />, color: "#7c3aed", module: "videos", permission: "create", action: () => { setActiveTab("videos" as TabType); setIsAdding(true); setVideoYoutubeUrl(""); setEditingItem({ youtube_id: "", title: "", category: "", date: new Date().toLocaleDateString("en-US", { month: "long", day: "2-digit", year: "numeric" }), order_num: videos.length + 1, active: 1, section: "main" }); } },
+                              { id: "add-ticker", label: "Add Ticker", sub: "Flash News", icon: <Radio className="w-5 h-5" />, color: "#ed1b24", module: "ticker", permission: "create", action: () => { setActiveTab("ticker" as TabType); setIsAdding(true); setEditingItem({ text_en: "", text_ta: "", active: 1, order_num: ticker.length + 1 }); } },
+                              { id: "add-web-story", label: "Add Story", sub: "Web Story", icon: <BookOpen className="w-5 h-5" />, color: "#ec4899", module: "web-stories", permission: "create", action: () => { setActiveTab("web-stories" as TabType); setIsAdding(true); setEditingItem({ title_en: "", title_ta: "", category_en: "General", category_ta: "பொது", cover_image: "", slides_json: JSON.stringify([{ image: "", caption_en: "", caption_ta: "" }]), active: 1, status: "active" }); } },
+                              { id: "add-alert", label: "Add Alert", sub: "Official Alert", icon: <AlertTriangle className="w-5 h-5" />, color: "#dc2626", module: "alerts", permission: "create", action: () => { setActiveTab("alerts" as TabType); setIsAdding(true); setEditingItem({ title_en: "", title_ta: "", desc_en: "", desc_ta: "", severity: "warning", active: 1, popup_enabled: 0 }); } },
+                              { id: "add-station", label: "Add Station", sub: "Police Station", icon: <MapPin className="w-5 h-5" />, color: "#0ea5e9", module: "police-stations", permission: "create", action: () => { setActiveTab("police-stations" as TabType); setIsAdding(true); setEditingItem({ station_name: "", station_code: "", zone_en: "South Chennai", zone_ta: "தெற்கு சென்னை", phone: "", address_en: "", address_ta: "" }); } },
+                              { id: "add-helpline", label: "Add Helpline", sub: "Helpline No.", icon: <Phone className="w-5 h-5" />, color: "#10b981", module: "emergency-contacts", permission: "create", action: () => { setActiveTab("emergency-contacts" as TabType); setIsAdding(true); setEditingItem({ title_en: "", title_ta: "", number: "", category: "emergency" }); } },
+                              { id: "edit-profile", label: "Edit Profile", sub: "Commissioner", icon: <User className="w-5 h-5" />, color: "#059669", module: "profile", permission: "edit", action: () => setActiveTab("profile" as TabType) },
+                              { id: "branding", label: "Branding", sub: "Themes & Logo", icon: <Palette className="w-5 h-5" />, color: "#d97706", module: "theme", permission: "edit", action: () => setActiveTab("theme" as TabType) },
+                              { id: "config", label: "Config", sub: "Console Config", icon: <Settings className="w-5 h-5" />, color: "#64748b", module: "settings", permission: "edit", action: () => setActiveTab("settings" as TabType) },
+                              { id: "live-portal", label: "Live Portal", sub: "Public Site", icon: <ExternalLink className="w-5 h-5" />, color: "#1e40af", module: "dashboard", permission: "view", action: () => window.open("/", "_blank") },
+                            ];
+                            const allowed = rawActions.filter(a => hasModulePermission(a.module, a.permission));
+                            return (
+                              <span className="text-[9px] font-black text-stone-500 uppercase tracking-wider">
+                                {allowed.length} Action{allowed.length === 1 ? "" : "s"} Available
+                              </span>
+                            );
+                          })()}
                         </div>
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                          {([
-                            { label: "Add News", icon: <FileText className="w-5 h-5" />, color: "#1e40af", action: () => { setActiveTab("news" as TabType); setIsAdding(true); setEditingItem({ title_en: "", title_ta: "", category_en: "", category_ta: "", summary_en: "", summary_ta: "", content_en: [""], content_ta: [""], image: "", tags_en: [], tags_ta: [], section: "latest", published: 1, date: new Date().toLocaleDateString("en-US", { month: "long", day: "2-digit", year: "numeric" }), author_en: "Greater Chennai Police Media Desk", author_ta: "" }); } },
-                            { label: "Add Slider", icon: <ImageIcon className="w-5 h-5" />, color: "#d4af37", action: () => { setActiveTab("slider" as TabType); setIsAdding(true); setEditingItem({ src: "", title_en: "", title_ta: "", desc_en: "", desc_ta: "", category_en: "", category_ta: "", order_num: slider.length + 1, active: 1 }); } },
-                            { label: "Add Video", icon: <Tv className="w-5 h-5" />, color: "#7c3aed", action: () => { setActiveTab("videos" as TabType); setIsAdding(true); setVideoYoutubeUrl(""); setEditingItem({ youtube_id: "", title: "", category: "", date: new Date().toLocaleDateString("en-US", { month: "long", day: "2-digit", year: "numeric" }), order_num: videos.length + 1, active: 1, section: "main" }); } },
-                            { label: "Add Ticker", icon: <Radio className="w-5 h-5" />, color: "#ed1b24", action: () => { setActiveTab("ticker" as TabType); setIsAdding(true); setEditingItem({ text_en: "", text_ta: "", active: 1, order_num: ticker.length + 1 }); } },
-                            { label: "Edit Profile", icon: <User className="w-5 h-5" />, color: "#059669", action: () => setActiveTab("profile" as TabType) },
-                            { label: "Branding", icon: <Palette className="w-5 h-5" />, color: "#d97706", action: () => setActiveTab("theme" as TabType) },
-                            { label: "Config", icon: <Settings className="w-5 h-5" />, color: "#64748b", action: () => setActiveTab("settings" as TabType) },
-                            { label: "Live Portal", icon: <ExternalLink className="w-5 h-5" />, color: "#1e40af", action: () => window.open("/", "_blank") },
-                          ] as { label: string; icon: React.ReactNode; color: string; action: () => void }[]).map((a) => (
-                            <button key={a.label} onClick={a.action}
-                              className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border border-stone-800 hover:border-brand-gold/40 bg-stone-950 hover:bg-stone-850 transition cursor-pointer group text-center">
-                              <div className="p-2.5 rounded-xl group-hover:scale-110 transition-transform" style={{ background: `${a.color}18`, border: `1px solid ${a.color}33`, color: a.color }}>{a.icon}</div>
-                              <span className="text-[10px] font-black uppercase text-stone-300 group-hover:text-white tracking-wider leading-tight">{a.label}</span>
-                            </button>
-                          ))}
-                        </div>
+                        {(() => {
+                          const rawActions = [
+                            { id: "add-news", label: "Add News", sub: "Create Article", icon: <FileText className="w-5 h-5" />, color: "#1e40af", module: "news", permission: "create", action: () => { setActiveTab("news" as TabType); setIsAdding(true); setEditingItem({ title_en: "", title_ta: "", category_en: "", category_ta: "", summary_en: "", summary_ta: "", content_en: [""], content_ta: [""], image: "", tags_en: [], tags_ta: [], section: "latest", published: 1, date: new Date().toLocaleDateString("en-US", { month: "long", day: "2-digit", year: "numeric" }), author_en: "Greater Chennai Police Media Desk", author_ta: "" }); } },
+                            { id: "add-slider", label: "Add Slider", sub: "Hero Slide", icon: <ImageIcon className="w-5 h-5" />, color: "#d4af37", module: "slider", permission: "create", action: () => { setActiveTab("slider" as TabType); setIsAdding(true); setEditingItem({ src: "", title_en: "", title_ta: "", desc_en: "", desc_ta: "", category_en: "", category_ta: "", order_num: slider.length + 1, active: 1 }); } },
+                            { id: "add-video", label: "Add Video", sub: "Media Clip", icon: <Tv className="w-5 h-5" />, color: "#7c3aed", module: "videos", permission: "create", action: () => { setActiveTab("videos" as TabType); setIsAdding(true); setVideoYoutubeUrl(""); setEditingItem({ youtube_id: "", title: "", category: "", date: new Date().toLocaleDateString("en-US", { month: "long", day: "2-digit", year: "numeric" }), order_num: videos.length + 1, active: 1, section: "main" }); } },
+                            { id: "add-ticker", label: "Add Ticker", sub: "Flash News", icon: <Radio className="w-5 h-5" />, color: "#ed1b24", module: "ticker", permission: "create", action: () => { setActiveTab("ticker" as TabType); setIsAdding(true); setEditingItem({ text_en: "", text_ta: "", active: 1, order_num: ticker.length + 1 }); } },
+                            { id: "add-web-story", label: "Add Story", sub: "Web Story", icon: <BookOpen className="w-5 h-5" />, color: "#ec4899", module: "web-stories", permission: "create", action: () => { setActiveTab("web-stories" as TabType); setIsAdding(true); setEditingItem({ title_en: "", title_ta: "", category_en: "General", category_ta: "பொது", cover_image: "", slides_json: JSON.stringify([{ image: "", caption_en: "", caption_ta: "" }]), active: 1, status: "active" }); } },
+                            { id: "add-alert", label: "Add Alert", sub: "Official Alert", icon: <AlertTriangle className="w-5 h-5" />, color: "#dc2626", module: "alerts", permission: "create", action: () => { setActiveTab("alerts" as TabType); setIsAdding(true); setEditingItem({ title_en: "", title_ta: "", desc_en: "", desc_ta: "", severity: "warning", active: 1, popup_enabled: 0 }); } },
+                            { id: "add-station", label: "Add Station", sub: "Police Station", icon: <MapPin className="w-5 h-5" />, color: "#0ea5e9", module: "police-stations", permission: "create", action: () => { setActiveTab("police-stations" as TabType); setIsAdding(true); setEditingItem({ station_name: "", station_code: "", zone_en: "South Chennai", zone_ta: "தெற்கு சென்னை", phone: "", address_en: "", address_ta: "" }); } },
+                            { id: "add-helpline", label: "Add Helpline", sub: "Helpline No.", icon: <Phone className="w-5 h-5" />, color: "#10b981", module: "emergency-contacts", permission: "create", action: () => { setActiveTab("emergency-contacts" as TabType); setIsAdding(true); setEditingItem({ title_en: "", title_ta: "", number: "", category: "emergency" }); } },
+                            { id: "edit-profile", label: "Edit Profile", sub: "Commissioner", icon: <User className="w-5 h-5" />, color: "#059669", module: "profile", permission: "edit", action: () => setActiveTab("profile" as TabType) },
+                            { id: "branding", label: "Branding", sub: "Themes & Logo", icon: <Palette className="w-5 h-5" />, color: "#d97706", module: "theme", permission: "edit", action: () => setActiveTab("theme" as TabType) },
+                            { id: "config", label: "Config", sub: "Console Config", icon: <Settings className="w-5 h-5" />, color: "#64748b", module: "settings", permission: "edit", action: () => setActiveTab("settings" as TabType) },
+                            { id: "live-portal", label: "Live Portal", sub: "Public Site", icon: <ExternalLink className="w-5 h-5" />, color: "#1e40af", module: "dashboard", permission: "view", action: () => window.open("/", "_blank") },
+                          ];
+                          const available = rawActions.filter(a => hasModulePermission(a.module, a.permission));
+
+                          if (available.length === 0) {
+                            return (
+                              <div className="py-8 text-center text-xs text-stone-500 font-medium border border-dashed border-stone-800 rounded-xl">
+                                No creation or editing actions authorized for this account role.
+                              </div>
+                            );
+                          }
+
+                          return (
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                              {available.map((a) => (
+                                <button
+                                  key={a.id}
+                                  onClick={a.action}
+                                  className="flex flex-col items-center justify-center gap-2 p-3.5 rounded-xl border border-stone-800 hover:border-brand-gold/40 bg-stone-950 hover:bg-stone-850 transition-all duration-200 cursor-pointer group text-center shadow-sm"
+                                >
+                                  <div
+                                    className="p-2.5 rounded-xl group-hover:scale-110 transition-transform shadow-sm"
+                                    style={{ background: `${a.color}18`, border: `1px solid ${a.color}33`, color: a.color }}
+                                  >
+                                    {a.icon}
+                                  </div>
+                                  <div>
+                                    <span className="text-[10px] font-black uppercase text-stone-200 group-hover:text-white tracking-wider leading-tight block">
+                                      {a.label}
+                                    </span>
+                                    {a.sub && (
+                                      <span className="text-[8px] text-stone-500 group-hover:text-stone-400 block mt-0.5 font-medium">
+                                        {a.sub}
+                                      </span>
+                                    )}
+                                  </div>
+                                </button>
+                              ))}
+                            </div>
+                          );
+                        })()}
                       </div>
+
 
                       <div className="bg-stone-900 border border-stone-850 rounded-2xl p-5 flex flex-col">
                         <div className="flex items-center gap-2 border-b border-stone-850 pb-3 mb-4">

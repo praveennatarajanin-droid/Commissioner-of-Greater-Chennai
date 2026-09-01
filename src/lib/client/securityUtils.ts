@@ -1,3 +1,4 @@
+import React from "react";
 import { sanitizeHtmlContent, sanitizeUrl } from "@/lib/sanitizer";
 
 /**
@@ -44,12 +45,10 @@ interface SafeHtmlRendererProps {
 export function SafeHtmlRenderer({ content, className = "" }: SafeHtmlRendererProps) {
   const safeContent = sanitizeHtml(content);
 
-  return (
-    <div
-      className={`prose dark:prose-invert max-w-none ${className}`}
-      dangerouslySetInnerHTML={{ __html: safeContent }}
-    />
-  );
+  return React.createElement("div", {
+    className: `prose dark:prose-invert max-w-none ${className}`,
+    dangerouslySetInnerHTML: { __html: safeContent },
+  });
 }
 
 interface SafeLinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
@@ -67,9 +66,15 @@ export function SafeLink({ href, children, target, rel, ...rest }: SafeLinkProps
 
   const safeRel = target === "_blank" ? `noopener noreferrer ${rel || ""}`.trim() : rel;
 
-  return (
-    <a href={safeHref} target={target} rel={safeRel} {...rest}>
-      {children}
-    </a>
+  return React.createElement(
+    "a",
+    {
+      href: safeHref,
+      target,
+      rel: safeRel,
+      ...rest,
+    },
+    children
   );
 }
+

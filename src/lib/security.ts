@@ -99,11 +99,18 @@ export interface AuthenticatedUser {
   permissions?: Record<string, string[]>;
 }
 
+export interface AuthApiResult {
+  user: AuthenticatedUser | null;
+  errorResponse: NextResponse | null;
+  authenticated: boolean;
+  sessionStatus?: string;
+}
+
 /**
  * Authenticates request via HttpOnly cookie or Authorization header.
  * Validates active session state in DB and checks session expiry.
  */
-export async function authenticateApiRequest(req: Request): Promise<{ user: AuthenticatedUser | null; errorResponse: NextResponse | null }> {
+export async function authenticateApiRequest(req: Request): Promise<AuthApiResult> {
   try {
     const cookieStore = await cookies();
     const sessionCookie = cookieStore.get("admin_session");
@@ -133,7 +140,7 @@ export async function authenticateApiRequest(req: Request): Promise<{ user: Auth
     }
 
     if (!sessionData || !sessionData.username) {
-      return { user: null, errorResponse: unauthorizedResponse() };
+      return { user: null, errorResponse: unauthorizedResponse(), authenticated: false, sessionStatus: "NO_SESSION" };
     }
 
     // Check user record in database
@@ -141,18 +148,18 @@ export async function authenticateApiRequest(req: Request): Promise<{ user: Auth
     const userRecord = users.find((u) => u.username.toLowerCase() === sessionData!.username.toLowerCase());
 
     if (!userRecord) {
-      return { user: null, errorResponse: unauthorizedResponse("Account does not exist.") };
+      return { user: null, errorResponse: unauthorizedResponse("Account does not exist."), authenticated: false, sessionStatus: "USER_NOT_FOUND" };
     }
 
     if (userRecord.status === "disabled" || userRecord.locked === 1) {
-      return { user: null, errorResponse: forbiddenResponse("Account is locked or disabled.") };
+      return { user: null, errorResponse: forbiddenResponse("Account is locked or disabled."), authenticated: false, sessionStatus: "LOCKED_OR_DISABLED" };
     }
 
     // Validate active session in DB if session ID present
     if (sessionData.sessionId) {
       const dbSession = await db.validateSession(sessionData.sessionId);
       if (!dbSession) {
-        return { user: null, errorResponse: unauthorizedResponse("SESSION EXPIRED. Please sign in again.") };
+        return { user: null, errorResponse: unauthorizedResponse("SESSION EXPIRED. Please sign in again."), authenticated: false, sessionStatus: "SESSION_EXPIRED" };
       }
       // Touch session activity
       await db.touchSession(sessionData.sessionId);
@@ -161,6 +168,8 @@ export async function authenticateApiRequest(req: Request): Promise<{ user: Auth
     const permissions = await db.getResolvedPermissions(userRecord.username, userRecord.role);
 
     return {
+      authenticated: true,
+      sessionStatus: "ACTIVE",
       user: {
         username: userRecord.username,
         role: userRecord.role,
@@ -172,7 +181,7 @@ export async function authenticateApiRequest(req: Request): Promise<{ user: Auth
     };
   } catch (e) {
     console.error("Auth verification error:", e);
-    return { user: null, errorResponse: unauthorizedResponse("Authentication verification failed.") };
+    return { user: null, errorResponse: unauthorizedResponse("Authentication verification failed."), authenticated: false, sessionStatus: "ERROR" };
   }
 }
 

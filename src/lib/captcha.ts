@@ -57,6 +57,21 @@ export function generateCaptchaChallenge(): CaptchaChallenge {
   };
 }
 
+const usedCaptchaTokens = new Set<string>();
+
+function cleanupUsedTokens(): void {
+  const now = Date.now();
+  for (const token of usedCaptchaTokens) {
+    const parts = token.split("_");
+    if (parts.length >= 3) {
+      const timestamp = parseInt(parts[2], 10);
+      if (isNaN(timestamp) || now - timestamp > 5 * 60 * 1000) {
+        usedCaptchaTokens.delete(token);
+      }
+    }
+  }
+}
+
 /**
  * Validates CAPTCHA answer server-side against cryptographic token signature.
  * Prevents replay attacks and survives dev server restarts/hot-reloads.
@@ -74,6 +89,11 @@ export function verifyCaptchaChallenge(param1: string | null | undefined, param2
   }
 
   if (!token.startsWith("gcp_cap_")) return false;
+
+  // Replay prevention check
+  if (usedCaptchaTokens.has(token)) {
+    return false;
+  }
 
   const parts = token.split("_");
   // Expected parts: ["gcp", "cap", timestamp, num1, num2, sig]
@@ -95,8 +115,24 @@ export function verifyCaptchaChallenge(param1: string | null | undefined, param2
 
   // Verify mathematical answer
   const expectedAnswer = (num1 + num2).toString();
-  return expectedAnswer === answer.trim().toLowerCase();
+  const isValid = expectedAnswer === answer.trim().toLowerCase();
+
+  if (isValid) {
+    usedCaptchaTokens.add(token);
+    cleanupUsedTokens();
+    return true;
+  }
+
+  return false;
+}
+
+// Invalidate token explicitly
+export function invalidateCaptchaToken(token: string): void {
+  if (token && typeof token === "string") {
+    usedCaptchaTokens.add(token);
+  }
 }
 
 // Alias for existing route compatibility
 export const verifyCaptchaToken = verifyCaptchaChallenge;
+

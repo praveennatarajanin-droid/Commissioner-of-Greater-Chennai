@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
-import { db, hashPassword } from "@/lib/db";
+import { db, normalizeUsername, verifyPassword } from "@/lib/db";
 import { cookies } from "next/headers";
 import { getIpAddress } from "@/lib/auth";
 import { verifyCaptchaToken } from "@/lib/captcha";
 import { checkRateLimit, rateLimitResponse } from "@/lib/security";
+import crypto from "crypto";
 
 export async function POST(req: Request) {
+  const requestId = `REQ-${new Date().getFullYear()}-${crypto.randomBytes(4).toString("hex").toUpperCase()}`;
   try {
     const ip = getIpAddress(req);
     const browser = req.headers.get("user-agent") || "Unknown";
@@ -13,62 +15,66 @@ export async function POST(req: Request) {
     // Enforce Rate Limiting (5 attempts per minute per IP)
     const rateCheck = checkRateLimit(`login_${ip}`, 5, 60000);
     if (!rateCheck.allowed) {
-      await db.logSecurityEvent("UNKNOWN", "RATE_LIMIT_EXCEEDED", "warning", ip, browser, "Login rate limit exceeded.");
+      await db.logSecurityEvent("UNKNOWN", "RATE_LIMIT_EXCEEDED", "warning", ip, browser, `[${requestId}] Login rate limit exceeded.`);
       return rateLimitResponse(rateCheck.resetMs);
     }
 
     const { username, password, captchaInput, captchaToken } = await req.json();
     if (!username || !password) {
-      return NextResponse.json({ error: "Username and password are required." }, { status: 400 });
+      return NextResponse.json({ error: "Username and password are required.", requestId }, { status: 400 });
     }
 
-    // Server-side CAPTCHA verification check
+    const normUsername = normalizeUsername(username);
+
+    // Server-side single-use CAPTCHA verification check
     if (!captchaInput || !captchaToken || !verifyCaptchaToken(captchaToken, captchaInput)) {
-      await db.logSecurityEvent(username, "CAPTCHA_FAILED", "warning", ip, browser, "Invalid security CAPTCHA code submitted.");
+      await db.logSecurityEvent(normUsername || "UNKNOWN", "CAPTCHA_FAILED", "warning", ip, browser, `[${requestId}] Invalid security CAPTCHA code submitted.`);
       return NextResponse.json(
-        { error: "Invalid security verification code. Please try again." },
+        { error: "Invalid security verification code. Please try again.", requestId },
         { status: 400 }
       );
     }
 
     const users = await db.getUsers();
-    const user = users.find((u) => u.username.toLowerCase() === username.toLowerCase());
+    const user = users.find((u) => normalizeUsername(u.username) === normUsername);
 
-    // Generic error to prevent account enumeration
+    // Generic safe error message to prevent account enumeration
     if (!user) {
-      await db.logSecurityEvent(username, "LOGIN_FAILED", "warning", ip, browser, "Invalid username attempted.");
-      return NextResponse.json({ error: "INVALID USERNAME OR PASSWORD" }, { status: 401 });
+      await db.logSecurityEvent(normUsername, "LOGIN_FAILED", "warning", ip, browser, `[${requestId}] Invalid username attempted (user not found).`);
+      return NextResponse.json({ error: "Invalid username or password.", requestId }, { status: 401 });
     }
 
     // Lockout protection check
     if (user.locked === 1 || (user.failed_logins && user.failed_logins >= 5)) {
       user.locked = 1;
       await db.saveUsers(users);
-      await db.addRbacAuditLog(user.username, user.role, ip, "Login blocked: Account is locked", "Auth", browser);
-      await db.logSecurityEvent(user.username, "ACCOUNT_LOCKED_ATTEMPT", "high", ip, browser, "Blocked login attempt on locked account.");
-      return NextResponse.json({ error: "Your account has been locked due to too many failed attempts. Contact system administrator." }, { status: 403 });
+      await db.addRbacAuditLog(user.username, user.role, ip, `[${requestId}] Login blocked: Account is locked`, "Auth", browser);
+      await db.logSecurityEvent(user.username, "ACCOUNT_LOCKED_ATTEMPT", "high", ip, browser, `[${requestId}] Blocked login attempt on locked account.`);
+      return NextResponse.json({ error: "Your account has been locked due to too many failed attempts. Contact system administrator.", requestId }, { status: 403 });
     }
 
     if (user.status === "disabled") {
-      await db.logSecurityEvent(user.username, "DISABLED_ACCOUNT_ATTEMPT", "warning", ip, browser, "Attempted login on disabled account.");
-      return NextResponse.json({ error: "Your account has been disabled. Contact system administrator." }, { status: 403 });
+      await db.logSecurityEvent(user.username, "DISABLED_ACCOUNT_ATTEMPT", "warning", ip, browser, `[${requestId}] Attempted login on disabled account.`);
+      return NextResponse.json({ error: "Your account has been disabled. Contact system administrator.", requestId }, { status: 403 });
     }
 
-    const hash = hashPassword(password);
-    if (user.passwordHash !== hash) {
+    // Secure password verification
+    const isPasswordValid = verifyPassword(password, user.passwordHash);
+    if (!isPasswordValid) {
       user.failed_logins = (user.failed_logins || 0) + 1;
       if (user.failed_logins >= 5) {
         user.locked = 1;
       }
       await db.saveUsers(users);
-      await db.addRbacAuditLog(user.username, user.role, ip, `Failed login attempt (${user.failed_logins}/5)`, "Auth", browser);
-      await db.logSecurityEvent(user.username, user.failed_logins >= 5 ? "ACCOUNT_LOCKED" : "LOGIN_FAILED", user.failed_logins >= 5 ? "high" : "warning", ip, browser, `Failed password attempt ${user.failed_logins}/5`);
+      await db.addRbacAuditLog(user.username, user.role, ip, `[${requestId}] Failed login attempt (${user.failed_logins}/5)`, "Auth", browser);
+      await db.logSecurityEvent(user.username, user.failed_logins >= 5 ? "ACCOUNT_LOCKED" : "LOGIN_FAILED", user.failed_logins >= 5 ? "high" : "warning", ip, browser, `[${requestId}] Failed password attempt ${user.failed_logins}/5`);
       
       if (user.failed_logins >= 5) {
-        return NextResponse.json({ error: "Too many failed attempts. Account has been locked for security." }, { status: 401 });
+        return NextResponse.json({ error: "Too many failed attempts. Account has been locked for security.", requestId }, { status: 401 });
       }
-      return NextResponse.json({ error: "INVALID USERNAME OR PASSWORD" }, { status: 401 });
+      return NextResponse.json({ error: "Invalid username or password.", requestId }, { status: 401 });
     }
+
 
     // Password expiry warning/force change logic (90 days)
     if (user.createdAt) {
@@ -206,7 +212,7 @@ export async function GET(req: Request) {
 
     const permissions = await db.getResolvedPermissions(session.username, session.role);
     const usersList = await db.getUsers();
-    const userRecord = usersList.find((u) => u.username.toLowerCase() === session.username.toLowerCase());
+    const userRecord = usersList.find((u) => normalizeUsername(u.username) === normalizeUsername(session.username));
 
     if (!userRecord || userRecord.status === "disabled" || userRecord.locked === 1) {
       cookieStore.delete("admin_session");

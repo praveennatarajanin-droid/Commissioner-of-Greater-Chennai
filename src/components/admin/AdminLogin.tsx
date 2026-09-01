@@ -992,20 +992,28 @@ export default function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
 
               {/* CAPTCHA Section */}
               <div className="space-y-2 pt-1">
-                <label className="block text-[11px] font-black uppercase tracking-wider text-slate-700">
-                  Security CAPTCHA Verification
-                </label>
-                <div className="flex items-center gap-2">
-                  <div className="flex-1 h-[46px] rounded-xl overflow-hidden flex items-center justify-center relative select-none border bg-slate-900 border-slate-300">
+                <div className="flex items-center justify-between">
+                  <label
+                    htmlFor="captchaInput"
+                    className="block text-[11px] font-black uppercase tracking-wider text-slate-700 cursor-pointer"
+                  >
+                    Security Verification Code
+                  </label>
+                  <span className="text-[10px] font-bold text-slate-400">Single-use Challenge</span>
+                </div>
+                
+                {/* CAPTCHA Display + Refresh Button */}
+                <div className="flex items-stretch gap-2.5">
+                  <div className="flex-1 min-h-[46px] rounded-xl overflow-hidden flex items-center justify-center relative select-none border bg-slate-900 border-slate-300 shadow-inner">
                     {captchaSvg ? (
                       <img
                         src={captchaSvg}
-                        alt="Security Verification Code"
-                        className="w-full h-full object-contain pointer-events-none select-none"
+                        alt="Security Verification Challenge"
+                        className="w-full h-full object-contain pointer-events-none select-none max-h-[46px]"
                       />
                     ) : (
                       <div className="text-xs text-slate-400 font-medium animate-pulse">
-                        Loading CAPTCHA...
+                        Generating Challenge...
                       </div>
                     )}
                   </div>
@@ -1013,21 +1021,45 @@ export default function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
                     type="button"
                     onClick={refreshCaptcha}
                     disabled={captchaLoading}
-                    title="Refresh CAPTCHA"
-                    className="p-3 bg-slate-50 border border-slate-200 text-[#1e40af] rounded-xl hover:bg-blue-50 cursor-pointer"
+                    title="Refresh Verification Code"
+                    aria-label="Refresh security verification code"
+                    className="px-3.5 min-h-[46px] bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-blue-300 text-[#1e40af] rounded-xl transition-all duration-200 flex items-center justify-center cursor-pointer shadow-sm disabled:opacity-50"
                   >
-                    <RefreshCw className={`w-4 h-4 ${captchaLoading ? "animate-spin" : ""}`} />
+                    <RefreshCw className={`w-4 h-4 shrink-0 ${captchaLoading ? "animate-spin" : ""}`} />
                   </button>
                 </div>
-                <input
-                  type="text"
-                  required
-                  placeholder="Enter CAPTCHA"
-                  value={captchaInput}
-                  onChange={(e) => setCaptchaInput(e.target.value)}
-                  className="w-full text-sm py-3.5 pl-4 pr-4 rounded-xl outline-none border border-slate-200 bg-slate-50 font-mono tracking-wider uppercase"
-                />
+
+                {/* Accessible Form Control Input */}
+                <div className="relative flex items-center">
+                  <input
+                    id="captchaInput"
+                    name="captchaInput"
+                    type="text"
+                    required
+                    tabIndex={0}
+                    autoComplete="off"
+                    placeholder="Enter the result above (e.g. 12)"
+                    value={captchaInput}
+                    onChange={(e) => setCaptchaInput(e.target.value)}
+                    className="w-full text-sm min-h-[46px] py-3 pl-4 pr-4 rounded-xl outline-none transition-all duration-200 font-mono tracking-wider text-slate-900 placeholder:font-sans placeholder:tracking-normal placeholder:text-slate-400 font-bold"
+                    style={{
+                      background: "#f8fafc",
+                      border: "1.5px solid #e2e8f0",
+                    }}
+                    onFocus={(e) => {
+                      e.currentTarget.style.border = "1.5px solid #1e40af";
+                      e.currentTarget.style.background = "#fff";
+                      e.currentTarget.style.boxShadow = "0 0 0 3px rgba(30,64,175,0.08)";
+                    }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.border = "1.5px solid #e2e8f0";
+                      e.currentTarget.style.background = "#f8fafc";
+                      e.currentTarget.style.boxShadow = "none";
+                    }}
+                  />
+                </div>
               </div>
+
 
               {/* Login Button */}
               <button

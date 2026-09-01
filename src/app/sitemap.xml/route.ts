@@ -41,7 +41,7 @@ export async function GET() {
     if (custom && custom.include_in_sitemap === false) {
       continue;
     }
-    const priority = custom?.sitemap_priority !== undefined ? custom.sitemap_priority.toFixed(1) : page.priority;
+    const priority = custom?.sitemap_priority !== undefined ? Number(custom.sitemap_priority).toFixed(1) : page.priority;
     const changefreq = custom?.sitemap_changefreq || page.changefreq;
     const lastmod = custom?.updated_at || now;
 
@@ -62,7 +62,8 @@ export async function GET() {
     }
     const lastmod = article.updated_at || article.created_at || article.date || now;
     const imageUrl = article.image ? (article.image.startsWith("http") ? article.image : `${baseUrl}${article.image}`) : "";
-    const priority = custom?.sitemap_priority !== undefined ? custom.sitemap_priority.toFixed(1) : "0.8";
+    const priority = custom?.sitemap_priority !== undefined ? Number(custom.sitemap_priority).toFixed(1) : "0.8";
+
     const changefreq = custom?.sitemap_changefreq || "weekly";
     const slug = custom?.seo_slug || article.slug;
 

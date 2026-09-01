@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { db, normalizeUsername } from "@/lib/db";
 import { cookies } from "next/headers";
 import { getIpAddress } from "@/lib/auth";
 import { verifyTotpCode } from "@/lib/totp";
@@ -37,15 +37,17 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Your verification session has expired. Please sign in again." }, { status: 401 });
     }
 
+    const normUsername = normalizeUsername(username);
+
     // Validate Challenge
-    const challenge = await db.validateMfaChallenge(challengeId, username);
+    const challenge = await db.validateMfaChallenge(challengeId, normUsername);
     if (!challenge) {
       return NextResponse.json({ error: "Your verification session has expired. Please sign in again." }, { status: 401 });
     }
 
     // Check challenge attempt limit
     if (challenge.attempt_count >= 5) {
-      await db.logSecurityEvent(username, "MFA_CHALLENGE_BLOCKED", "high", ip, browser, "MFA challenge blocked due to 5 failed attempts.");
+      await db.logSecurityEvent(normUsername, "MFA_CHALLENGE_BLOCKED", "high", ip, browser, "MFA challenge blocked due to 5 failed attempts.");
       return NextResponse.json({ error: "Too many verification attempts. Please wait and try again." }, { status: 429 });
     }
 
@@ -58,7 +60,7 @@ export async function POST(req: Request) {
 
     // 1. Verify via TOTP Code
     if (code) {
-      const userMfa = await db.getUserMfa(username);
+      const userMfa = await db.getUserMfa(normUsername);
       if (userMfa && userMfa.secret_encrypted) {
         isVerified = verifyTotpCode(userMfa.secret_encrypted, code, 1);
         if (isVerified) verificationMethod = "TOTP";
@@ -73,14 +75,14 @@ export async function POST(req: Request) {
 
     // 2. Verify via One-Time Recovery Code if TOTP failed or omitted
     if (!isVerified && recoveryCode) {
-      isVerified = await db.verifyAndConsumeRecoveryCode(username, recoveryCode);
+      isVerified = await db.verifyAndConsumeRecoveryCode(normUsername, recoveryCode);
       if (isVerified) verificationMethod = "RECOVERY_CODE";
     }
 
     // If verification failed
     if (!isVerified) {
       const attempts = await db.incrementMfaChallengeAttempt(challengeId);
-      await db.logSecurityEvent(username, "MFA_VERIFY_FAILED", "warning", ip, browser, `Invalid MFA code attempt (${attempts}/5).`);
+      await db.logSecurityEvent(normUsername, "MFA_VERIFY_FAILED", "warning", ip, browser, `Invalid MFA code attempt (${attempts}/5).`);
       return NextResponse.json({ error: "Verification code is invalid or expired." }, { status: 401 });
     }
 
@@ -89,7 +91,8 @@ export async function POST(req: Request) {
 
     // Fetch User details
     const users = await db.getUsers();
-    const user = users.find((u) => u.username.toLowerCase() === username.toLowerCase());
+    const user = users.find((u) => normalizeUsername(u.username) === normUsername);
+
     if (!user || user.status === "disabled" || user.locked === 1) {
       return NextResponse.json({ error: "Account disabled or locked." }, { status: 403 });
     }

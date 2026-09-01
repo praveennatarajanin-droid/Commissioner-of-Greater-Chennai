@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getIpAddress } from "@/lib/auth";
-import { db, hashPassword } from "@/lib/db";
+import { db, hashPassword, normalizeUsername } from "@/lib/db";
 import { authenticateApiRequest, authorizeRole, forbiddenResponse, unauthorizedResponse } from "@/lib/security";
 
 // ── GET HANDLER ──
@@ -74,21 +74,29 @@ export async function POST(req: Request) {
 
     if (action === "users") {
       const { username, password, role, email, status, mobile, profile_photo, locked, force_password_change, permissions_json } = await req.json();
-      if (!username || !password || !role || !email) {
+      const normUsername = normalizeUsername(username);
+      if (!normUsername || !password || !role || !email) {
         return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
       }
 
+      // Allowed roles check (Requirement 19)
+      const allowedRoles = ["SUPER_ADMIN", "SUPERADMIN", "ADMIN", "ADMINISTRATOR", "CONTENTADMIN", "CONTENT_MANAGER", "EDITOR", "REPORTER", "MEDIAMANAGER", "SEOMANAGER", "VIEWER"];
+      const normRole = role.toUpperCase().trim().replace(" ", "_");
+      if (!allowedRoles.includes(normRole)) {
+        return NextResponse.json({ error: "Invalid role specified." }, { status: 400 });
+      }
+
       const usersList = await db.getUsers();
-      if (usersList.some((u) => u.username.toLowerCase() === username.toLowerCase())) {
+      if (usersList.some((u) => normalizeUsername(u.username) === normUsername)) {
         return NextResponse.json({ error: "Username already exists" }, { status: 400 });
       }
 
       const newUser = {
         id: usersList.length > 0 ? Math.max(...usersList.map((u) => u.id)) + 1 : 1,
-        username,
+        username: username.trim(),
         passwordHash: hashPassword(password),
-        role,
-        email,
+        role: role.trim(),
+        email: email.trim(),
         status: status || "active",
         mobile: mobile || "",
         profile_photo: profile_photo || "",
@@ -102,9 +110,11 @@ export async function POST(req: Request) {
       usersList.push(newUser as any);
       await db.saveUsers(usersList);
 
-      await db.addRbacAuditLog(user.username, user.role, ip, `Created user: ${username} (${role})`, "UserManagement", browser, "", JSON.stringify(newUser));
-      return NextResponse.json({ success: true });
+      const { passwordHash: _, ...safeUser } = newUser;
+      await db.addRbacAuditLog(user.username, user.role, ip, `Created user: ${newUser.username} (${newUser.role})`, "UserManagement", browser, "", JSON.stringify(safeUser));
+      return NextResponse.json({ success: true, user: safeUser });
     }
+
 
     if (action === "roles") {
       const { role_name, permissions_json } = await req.json();
@@ -197,9 +207,23 @@ export async function PUT(req: Request) {
         return NextResponse.json({ error: "You cannot change your own role, lock your account, or disable your own account." }, { status: 400 });
       }
 
-      if (username) targetUser.username = username;
-      if (role) targetUser.role = role;
-      if (email) targetUser.email = email;
+      if (username) {
+        const norm = normalizeUsername(username);
+        const dup = usersList.find((u) => u.id !== id && normalizeUsername(u.username) === norm);
+        if (dup) {
+          return NextResponse.json({ error: "Username already in use by another account." }, { status: 400 });
+        }
+        targetUser.username = username.trim();
+      }
+      if (role) {
+        const allowedRoles = ["SUPER_ADMIN", "SUPERADMIN", "ADMIN", "ADMINISTRATOR", "CONTENTADMIN", "CONTENT_MANAGER", "EDITOR", "REPORTER", "MEDIAMANAGER", "SEOMANAGER", "VIEWER"];
+        const normRole = role.toUpperCase().trim().replace(" ", "_");
+        if (!allowedRoles.includes(normRole)) {
+          return NextResponse.json({ error: "Invalid role specified." }, { status: 400 });
+        }
+        targetUser.role = role.trim();
+      }
+      if (email) targetUser.email = email.trim();
       if (status) targetUser.status = status;
       if (mobile !== undefined) (targetUser as any).mobile = mobile;
       if (profile_photo !== undefined) (targetUser as any).profile_photo = profile_photo;
@@ -219,8 +243,10 @@ export async function PUT(req: Request) {
 
       await db.saveUsers(usersList);
 
-      await db.addRbacAuditLog(user.username, user.role, ip, `Updated user details: ${targetUser.username}`, "UserManagement", browser, beforeState, JSON.stringify(targetUser));
-      return NextResponse.json({ success: true });
+      const { passwordHash: _, ...safeUpdated } = targetUser;
+      await db.addRbacAuditLog(user.username, user.role, ip, `Updated user details: ${targetUser.username}`, "UserManagement", browser, beforeState, JSON.stringify(safeUpdated));
+      return NextResponse.json({ success: true, user: safeUpdated });
+
     }
 
     if (action === "roles") {

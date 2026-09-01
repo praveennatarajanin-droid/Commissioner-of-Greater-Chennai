@@ -46,11 +46,11 @@ export async function createBackupPackage(
   const filePath = path.join(BACKUP_STORAGE_DIR, backupName);
 
   // 1. Export MySQL Database Snapshot
-  const news = await db.getNewsArticles({});
-  const stations = await db.getPoliceStations({});
+  const news = await db.getNews();
+  const stations = await db.getPoliceStations();
   const mediaFiles = await db.getMediaFiles();
   const alerts = await db.getAlerts();
-  const users = await db.getAdminUsers();
+  const users = await db.getUsers();
 
   const dbSnapshot = {
     news,

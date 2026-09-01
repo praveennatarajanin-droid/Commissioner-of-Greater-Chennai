@@ -8,7 +8,7 @@
       "email": "superadmin@chennaiguardian.in",
       "status": "active",
       "createdAt": "2026-07-23T15:01:05.171Z",
-      "lastLogin": "2026-08-31T11:20:59.334Z",
+      "lastLogin": "2026-09-01T06:45:53.326Z",
       "failed_logins": 0
     },
     {
@@ -19,7 +19,7 @@
       "email": "admin@chennaiguardian.in",
       "status": "active",
       "createdAt": "2026-07-23T15:01:05.172Z",
-      "lastLogin": "2026-08-31T11:26:05.372Z",
+      "lastLogin": "2026-09-01T06:45:53.068Z",
       "failed_logins": 0
     },
     {
@@ -41,9 +41,279 @@
       "status": "active",
       "createdAt": "2026-07-23T15:01:05.172Z",
       "lastLogin": null
+    },
+    {
+      "id": 5,
+      "username": "SecOfficer_2042",
+      "passwordHash": "301bb8f3099f14bb0c8ca54d34af384a2544ba4b6731587d4b1586469a3cb13d",
+      "role": "ADMIN",
+      "email": "secofficer_2042@gcp.tn.gov.in",
+      "status": "active",
+      "mobile": "",
+      "profile_photo": "",
+      "locked": 0,
+      "failed_logins": 0,
+      "force_password_change": 0,
+      "permissions_json": "",
+      "createdAt": "2026-09-01T06:34:52.099Z",
+      "lastLogin": "2026-09-01T06:34:52.176Z"
+    },
+    {
+      "id": 6,
+      "username": "SecOfficer_6135",
+      "passwordHash": "301bb8f3099f14bb0c8ca54d34af384a2544ba4b6731587d4b1586469a3cb13d",
+      "role": "ADMIN",
+      "email": "secofficer_6135@gcp.tn.gov.in",
+      "status": "active",
+      "mobile": "",
+      "profile_photo": "",
+      "locked": 0,
+      "failed_logins": 0,
+      "force_password_change": 0,
+      "permissions_json": "",
+      "createdAt": "2026-09-01T06:38:46.208Z",
+      "lastLogin": "2026-09-01T06:38:46.310Z"
     }
   ],
   "activity_logs": [
+    {
+      "id": 528,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "MFA verified successfully via INITIAL_MFA_PASS",
+      "module": "Auth",
+      "timestamp": "2026-09-01T06:45:53.457Z",
+      "browser": "node"
+    },
+    {
+      "id": 527,
+      "username": "newseditormanager",
+      "action": "Created news article: Admin Authorized News Test 1788245153247",
+      "timestamp": "2026-09-01T06:45:53.283Z"
+    },
+    {
+      "id": 526,
+      "username": "newseditormanager",
+      "role": "admin",
+      "ip_address": "::1",
+      "action": "User logged in successfully",
+      "module": "Auth",
+      "timestamp": "2026-09-01T06:45:53.095Z",
+      "browser": "node"
+    },
+    {
+      "id": 525,
+      "username": "newseditormanager",
+      "action": "Deleted emergency contact: 111",
+      "timestamp": "2026-09-01T06:45:46.330Z"
+    },
+    {
+      "id": 524,
+      "username": "newseditormanager",
+      "action": "Created emergency contact: 111",
+      "timestamp": "2026-09-01T06:45:28.239Z"
+    },
+    {
+      "id": 523,
+      "username": "newseditormanager",
+      "role": "admin",
+      "ip_address": "::1",
+      "action": "User logged in successfully",
+      "module": "Auth",
+      "timestamp": "2026-09-01T06:40:04.818Z",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0"
+    },
+    {
+      "id": 522,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "User logged out",
+      "module": "Auth",
+      "timestamp": "2026-09-01T06:39:57.133Z"
+    },
+    {
+      "id": 521,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "User logged in successfully",
+      "module": "Auth",
+      "timestamp": "2026-09-01T06:39:31.749Z",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0"
+    },
+    {
+      "id": 520,
+      "username": "SecOfficer_6135",
+      "role": "ADMIN",
+      "ip_address": "::1",
+      "action": "User logged in successfully",
+      "module": "Auth",
+      "timestamp": "2026-09-01T06:38:46.324Z",
+      "browser": "node"
+    },
+    {
+      "id": 519,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "Created user: SecOfficer_6135 (ADMIN)",
+      "module": "UserManagement",
+      "timestamp": "2026-09-01T06:38:46.225Z",
+      "browser": "node",
+      "before_val": "",
+      "after_val": "{\"id\":6,\"username\":\"SecOfficer_6135\",\"role\":\"ADMIN\",\"email\":\"secofficer_6135@gcp.tn.gov.in\",\"status\":\"active\",\"mobile\":\"\",\"profile_photo\":\"\",\"locked\":0,\"failed_logins\":0,\"force_password_change\":0,\"permissions_json\":\"\",\"createdAt\":\"2026-09-01T06:38:46.208Z\"}"
+    },
+    {
+      "id": 518,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "MFA verified successfully via INITIAL_MFA_PASS",
+      "module": "Auth",
+      "timestamp": "2026-09-01T06:38:46.101Z",
+      "browser": "node"
+    },
+    {
+      "id": 517,
+      "username": "newseditormanager",
+      "role": "admin",
+      "ip_address": "::1",
+      "action": "User logged in successfully",
+      "module": "Auth",
+      "timestamp": "2026-09-01T06:38:45.823Z",
+      "browser": "node"
+    },
+    {
+      "id": 516,
+      "username": "newseditormanager",
+      "role": "admin",
+      "ip_address": "::1",
+      "action": "[REQ-2026-90338955] Failed login attempt (1/5)",
+      "module": "Auth",
+      "timestamp": "2026-09-01T06:38:45.700Z",
+      "browser": "node"
+    },
+    {
+      "id": 515,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "User logged out",
+      "module": "Auth",
+      "timestamp": "2026-09-01T06:36:51.519Z"
+    },
+    {
+      "id": 514,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "User logged in successfully",
+      "module": "Auth",
+      "timestamp": "2026-09-01T06:36:46.193Z",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0"
+    },
+    {
+      "id": 513,
+      "username": "newseditormanager",
+      "role": "admin",
+      "ip_address": "::1",
+      "action": "User logged out",
+      "module": "Auth",
+      "timestamp": "2026-09-01T06:36:39.775Z"
+    },
+    {
+      "id": 512,
+      "username": "newseditormanager",
+      "role": "admin",
+      "ip_address": "::1",
+      "action": "User logged in successfully",
+      "module": "Auth",
+      "timestamp": "2026-09-01T06:36:34.154Z",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0"
+    },
+    {
+      "id": 511,
+      "username": "newseditormanager",
+      "role": "admin",
+      "ip_address": "::1",
+      "action": "User logged out",
+      "module": "Auth",
+      "timestamp": "2026-09-01T06:36:24.516Z"
+    },
+    {
+      "id": 510,
+      "username": "SecOfficer_2042",
+      "role": "ADMIN",
+      "ip_address": "::1",
+      "action": "User logged in successfully",
+      "module": "Auth",
+      "timestamp": "2026-09-01T06:34:52.199Z",
+      "browser": "node"
+    },
+    {
+      "id": 509,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "Created user: SecOfficer_2042 (ADMIN)",
+      "module": "UserManagement",
+      "timestamp": "2026-09-01T06:34:52.114Z",
+      "browser": "node",
+      "before_val": "",
+      "after_val": "{\"id\":5,\"username\":\"SecOfficer_2042\",\"role\":\"ADMIN\",\"email\":\"secofficer_2042@gcp.tn.gov.in\",\"status\":\"active\",\"mobile\":\"\",\"profile_photo\":\"\",\"locked\":0,\"failed_logins\":0,\"force_password_change\":0,\"permissions_json\":\"\",\"createdAt\":\"2026-09-01T06:34:52.099Z\"}"
+    },
+    {
+      "id": 508,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "MFA verified successfully via INITIAL_MFA_PASS",
+      "module": "Auth",
+      "timestamp": "2026-09-01T06:34:52.004Z",
+      "browser": "node"
+    },
+    {
+      "id": 507,
+      "username": "newseditormanager",
+      "role": "admin",
+      "ip_address": "::1",
+      "action": "User logged in successfully",
+      "module": "Auth",
+      "timestamp": "2026-09-01T06:34:51.791Z",
+      "browser": "node"
+    },
+    {
+      "id": 506,
+      "username": "newseditormanager",
+      "role": "admin",
+      "ip_address": "::1",
+      "action": "[REQ-2026-B2B6AA58] Failed login attempt (1/5)",
+      "module": "Auth",
+      "timestamp": "2026-09-01T06:34:51.705Z",
+      "browser": "node"
+    },
+    {
+      "id": 505,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "[REQ-2026-866016BB] Failed login attempt (1/5)",
+      "module": "Auth",
+      "timestamp": "2026-09-01T06:33:53.207Z",
+      "browser": "node"
+    },
+    {
+      "id": 504,
+      "username": "newseditormanager",
+      "role": "admin",
+      "ip_address": "::1",
+      "action": "User logged in successfully",
+      "module": "Auth",
+      "timestamp": "2026-09-01T06:10:22.889Z",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0"
+    },
     {
       "id": 503,
       "username": "newseditormanager",
@@ -3244,188 +3514,31 @@
       "username": "superadmin",
       "action": "Edited news article: Traffic Diversion at Koyambedu Junction for Flyover Maintenance",
       "timestamp": "2026-07-24T04:55:26.569Z"
-    },
-    {
-      "id": 28,
-      "username": "superadmin",
-      "action": "Edited news article: Road Closure on Velachery Main Road for Stormwater Drain Construction",
-      "timestamp": "2026-07-24T04:52:48.825Z"
-    },
-    {
-      "id": 27,
-      "username": "superadmin",
-      "action": "Created news article: If you are a victim of domestic violence, call 181/112...",
-      "timestamp": "2026-07-23T15:19:32.494Z"
-    },
-    {
-      "id": 26,
-      "username": "superadmin",
-      "action": "Edited news article: If you are a victim of domestic violence, call 181/112 Women Helpline for assistance...",
-      "timestamp": "2026-07-23T15:15:44.568Z"
-    },
-    {
-      "id": 25,
-      "username": "superadmin",
-      "action": "Created news article: If you are a victim of domestic violence, call 181/112 Women Helpline for assistance...",
-      "timestamp": "2026-07-23T15:14:21.813Z"
-    },
-    {
-      "id": 24,
-      "username": "superadmin",
-      "action": "Deleted news article: Chennai: To ensure women's safety on behalf of the police, Chief Minister M...",
-      "timestamp": "2026-07-23T15:09:52.135Z"
-    },
-    {
-      "id": 23,
-      "username": "superadmin",
-      "action": "Edited news article: Chennai: To ensure women's safety on behalf of the police, Chief Minister M...",
-      "timestamp": "2026-07-23T15:09:40.764Z"
-    },
-    {
-      "id": 22,
-      "username": "superadmin",
-      "action": "Created news article: Chennai: To ensure women's safety on behalf of the police, Chief Minister M...",
-      "timestamp": "2026-07-23T15:08:45.710Z"
-    },
-    {
-      "id": 21,
-      "username": "superadmin",
-      "action": "Created news article: Chennai: To ensure women's safety on behalf of the police, Chief Minister M...",
-      "timestamp": "2026-07-23T15:04:34.514Z"
-    },
-    {
-      "id": 20,
-      "username": "superadmin",
-      "role": "superadmin",
-      "ip_address": "::1",
-      "action": "User logged in successfully",
-      "module": "Auth",
-      "timestamp": "2026-07-23T15:01:59.116Z",
-      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36 Edg/150.0.0.0"
-    },
-    {
-      "id": 19,
-      "username": "admin",
-      "role": "admin",
-      "ip_address": "::1",
-      "action": "User logged out",
-      "module": "Auth",
-      "timestamp": "2026-07-23T15:01:51.233Z"
-    },
-    {
-      "id": 18,
-      "username": "admin",
-      "role": "admin",
-      "ip_address": "::1",
-      "action": "User logged in successfully",
-      "module": "Auth",
-      "timestamp": "2026-07-23T15:01:48.342Z",
-      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36 Edg/150.0.0.0"
-    },
-    {
-      "id": 17,
-      "username": "admin",
-      "role": "superadmin",
-      "ip_address": "::1",
-      "action": "User logged out",
-      "module": "Auth",
-      "timestamp": "2026-07-23T15:01:45.239Z"
-    },
-    {
-      "id": 16,
-      "username": "admin",
-      "role": "superadmin",
-      "ip_address": "::1",
-      "action": "User logged in successfully",
-      "module": "Auth",
-      "timestamp": "2026-07-23T14:57:45.482Z",
-      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36 Edg/150.0.0.0"
-    },
-    {
-      "id": 15,
-      "username": "admin",
-      "role": "superadmin",
-      "ip_address": "::1",
-      "action": "User logged out",
-      "module": "Auth",
-      "timestamp": "2026-07-23T14:57:27.343Z"
-    },
-    {
-      "id": 14,
-      "username": "admin",
-      "role": "superadmin",
-      "ip_address": "::1",
-      "action": "User logged in successfully",
-      "module": "Auth",
-      "timestamp": "2026-07-23T14:57:20.990Z",
-      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36 Edg/150.0.0.0"
-    },
-    {
-      "id": 13,
-      "username": "webmaster",
-      "role": "ADMIN",
-      "ip_address": "::1",
-      "action": "User logged out",
-      "module": "Auth",
-      "timestamp": "2026-07-23T14:57:10.853Z"
-    },
-    {
-      "id": 12,
-      "username": "webmaster",
-      "action": "Deleted news article: Traffic Diversion at Koyambedu Junction for Flyover Maintenance",
-      "timestamp": "2026-07-23T14:48:27.281Z"
-    },
-    {
-      "id": 11,
-      "username": "webmaster",
-      "action": "Deleted news article: Road Closure on Velachery Main Road for Stormwater Drain Construction",
-      "timestamp": "2026-07-23T14:48:22.247Z"
-    },
-    {
-      "id": 10,
-      "username": "webmaster",
-      "action": "Deleted news article: Chennai Traffic Police Advisory on Drunk Driving Penalties and Speed Limits",
-      "timestamp": "2026-07-23T14:48:17.443Z"
-    },
-    {
-      "id": 9,
-      "username": "admin",
-      "action": "Created news article: Tamil Nadu Chief Minister Vijay has said that the state",
-      "timestamp": "2026-06-30T09:29:29.585Z"
-    },
-    {
-      "id": 8,
-      "username": "admin",
-      "action": "Published news article: Tamil Nadu CM Vijay flags off anti-drug marathon to spread awareness",
-      "timestamp": "2026-06-30T09:27:01.975Z"
-    },
-    {
-      "id": 7,
-      "username": "admin",
-      "action": "Edited news article: Tamil Nadu CM Vijay flags off anti-drug marathon to spread awareness",
-      "timestamp": "2026-06-30T09:26:52.963Z"
-    },
-    {
-      "id": 6,
-      "username": "admin",
-      "action": "Created news article: div id postexcerpt style font family Faustina Georgia serif margin",
-      "timestamp": "2026-06-29T14:29:00.234Z"
-    },
-    {
-      "id": 5,
-      "username": "admin",
-      "action": "User logged in successfully",
-      "timestamp": "2026-06-29T11:26:34.034Z"
-    },
-    {
-      "id": 4,
-      "username": "admin",
-      "action": "Deleted user account: test",
-      "timestamp": "2026-06-24T15:58:06.223Z"
     }
   ],
   "custom_roles": [],
   "news": [
+    {
+      "id": 53,
+      "slug": "admin-authorized-news-test-1788245153247",
+      "category_en": "Crime",
+      "category_ta": "பொது",
+      "title_en": "Admin Authorized News Test 1788245153247",
+      "title_ta": "Admin Authorized News Test 1788245153247",
+      "summary_en": "Testing authorized news creation.",
+      "summary_ta": "",
+      "image": "/images/police_medal.jpg",
+      "section": "latest",
+      "views_count": 0,
+      "content_en": [],
+      "content_ta": [],
+      "published": 1,
+      "created_at": "2026-09-01T06:45:53.266Z",
+      "published_at": "2026-09-01T06:45:53.266Z",
+      "updated_at": "2026-09-01T06:45:53.266Z",
+      "date": "September 1, 2026",
+      "author_en": "Greater Chennai Police Media Desk"
+    },
     {
       "id": 52,
       "slug": "chennai-police-conducted-anti-drug-awareness-programmes-at-62-auto-rickshaw-stands",
@@ -6113,6 +6226,11 @@
       "category_ta": "அங்கீகாரம்",
       "order_num": 7,
       "active": 1
+    },
+    {
+      "id": 14,
+      "title_en": "SuperAdmin Authorized Slide",
+      "src": "/images/slider_6.jpg"
     }
   ],
   "commissioner_profile": [
@@ -6584,6 +6702,30 @@
     }
   ],
   "alerts": [
+    {
+      "id": 124,
+      "title": "Businessman Veeramani, two other abettors arrested under POCSO Act",
+      "category": "LAW & ORDER",
+      "source": "The Hindu",
+      "url": "https://news.google.com/rss/articles/CBMiygFBVV95cUxNeXZteE1PV1lDdmhybFlmZXVNWlRXZjNlcGVleVB6UUZXZFgxaklPMmpaVlpuQVI1LXg0ai1zWVVEeFgtSUFSa05LWkdNSWhGR09qRndOTkUwSkh5dFBfOTJjc205Q0lLMmZfYmRIa2tTUzltSUhtenhDbGY2TnU5eXcwb1ZXbFhoSWwxcWZpRmRkZXUwSEZEOVJ2Z1BpRjZEd19CYmtkTFRVaHZYb0txVVZXQ3J6eHdMMnR6T0xaUmd6akkyTl85TlFR0gHQAUFVX3lxTFB1LXJ6amtLMGJ5aDlkMEE2ajNIWVJfdmlMNWxjQmhRbnFxS0Z5dXRSazRJcHkySkpmcU9xZnpJNUU2YzBmZG5EODlKckpBd0RIeld6Vzk4SUJBbzlVcktnUW56aXZyYk9PWmttbFVEOWFJVjI2QXBDT1ZCbngtT2FldGl4emNYdUM2STkyaE0tYXdydkJDdFZ3cTFvX2ZWVEk4d21PZVpRdjdlZG5QSWl3enhRbjdPa1hjcUx4cHFCaVdoLWNkRWh2V3J2aGNKeEg?oc=5",
+      "published_at": "2026-08-29T19:05:45.000Z",
+      "approved": 1,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-09-01T06:04:26.072Z"
+    },
+    {
+      "id": 125,
+      "title": "The Greater Chennai Police's Central Crime Branch (CCB) has arrested DMK functionary B.T. Arasakumar for allegedly cheating private schools across Tamil Nadu of over ₹100 crore. Police said the 59-year-old ran an unregistered association, collecting mo",
+      "category": "LAW & ORDER",
+      "source": "instagram.com",
+      "url": "https://news.google.com/rss/articles/CBMiUkFVX3lxTFB0c2ZnRzBZeXJXeUQ0bENycXFGeWVsaHZQN1BDRHlhTmZZaVViaVhnMm9lamI4dGpXanVQZTJwUW81WjRMZDZ0cnJhSU1ta1dQMXc?oc=5",
+      "published_at": "2026-06-27T07:00:00.000Z",
+      "approved": 1,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-09-01T06:04:26.072Z"
+    },
     {
       "id": 123,
       "title": "Chennai is living museum of culture and traditions: City Police Commissioner Amalraj",
@@ -8066,7 +8208,7 @@
       "id": 1,
       "auto_fetch": 1,
       "require_approval": 1,
-      "last_fetched_at": "2026-08-31T11:07:18.768Z",
+      "last_fetched_at": "2026-09-01T06:36:03.678Z",
       "live_feed_enabled": 1,
       "approved_sources": "tnpolice.gov.in, gcp.tn.gov.in, greaterchennaipolice.in, tn.gov.in, pib.gov.in",
       "refresh_interval": 15
@@ -10618,6 +10760,9 @@
       "updated_at": "2026-07-31T06:36:14.459Z"
     }
   ],
+  "media_files": [],
+  "backups": [],
+  "security_assessments": [],
   "superadmin_config": {
     "footer_config": {
       "logo": "/images/gcp_logo.png",
@@ -11093,6 +11238,286 @@
       "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
       "details": "User authenticated successfully.",
       "created_at": "2026-08-31T11:26:05.443Z"
+    },
+    {
+      "id": 41,
+      "username": "newseditormanager",
+      "event_type": "LOGIN_SUCCESS",
+      "severity": "info",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+      "details": "User authenticated successfully.",
+      "created_at": "2026-09-01T06:10:22.916Z"
+    },
+    {
+      "id": 42,
+      "username": "Digital_TN_GovMaster",
+      "event_type": "LOGIN_FAILED",
+      "severity": "warning",
+      "ip_address": "::1",
+      "user_agent": "node",
+      "details": "[REQ-2026-866016BB] Failed password attempt 1/5",
+      "created_at": "2026-09-01T06:33:53.220Z"
+    },
+    {
+      "id": 43,
+      "username": "digital_tn_govmaster",
+      "event_type": "CAPTCHA_FAILED",
+      "severity": "warning",
+      "ip_address": "::1",
+      "user_agent": "node",
+      "details": "[REQ-2026-F3F8C1CB] Invalid security CAPTCHA code submitted.",
+      "created_at": "2026-09-01T06:33:53.255Z"
+    },
+    {
+      "id": 44,
+      "username": "Digital_TN_GovMaster",
+      "event_type": "MFA_CHALLENGE_ISSUED",
+      "severity": "info",
+      "ip_address": "::1",
+      "user_agent": "node",
+      "details": "MFA challenge issued for login attempt.",
+      "created_at": "2026-09-01T06:33:53.307Z"
+    },
+    {
+      "id": 45,
+      "username": "secadmin_3780",
+      "event_type": "LOGIN_FAILED",
+      "severity": "warning",
+      "ip_address": "::1",
+      "user_agent": "node",
+      "details": "[REQ-2026-117D9CEE] Invalid username attempted (user not found).",
+      "created_at": "2026-09-01T06:33:53.868Z"
+    },
+    {
+      "id": 46,
+      "username": "newseditormanager",
+      "event_type": "LOGIN_FAILED",
+      "severity": "warning",
+      "ip_address": "::1",
+      "user_agent": "node",
+      "details": "[REQ-2026-B2B6AA58] Failed password attempt 1/5",
+      "created_at": "2026-09-01T06:34:51.716Z"
+    },
+    {
+      "id": 47,
+      "username": "newseditormanager",
+      "event_type": "CAPTCHA_FAILED",
+      "severity": "warning",
+      "ip_address": "::1",
+      "user_agent": "node",
+      "details": "[REQ-2026-750D09FA] Invalid security CAPTCHA code submitted.",
+      "created_at": "2026-09-01T06:34:51.744Z"
+    },
+    {
+      "id": 48,
+      "username": "newseditormanager",
+      "event_type": "LOGIN_SUCCESS",
+      "severity": "info",
+      "ip_address": "::1",
+      "user_agent": "node",
+      "details": "User authenticated successfully.",
+      "created_at": "2026-09-01T06:34:51.802Z"
+    },
+    {
+      "id": 49,
+      "username": "Digital_TN_GovMaster",
+      "event_type": "MFA_CHALLENGE_ISSUED",
+      "severity": "info",
+      "ip_address": "::1",
+      "user_agent": "node",
+      "details": "MFA challenge issued for login attempt.",
+      "created_at": "2026-09-01T06:34:51.893Z"
+    },
+    {
+      "id": 50,
+      "username": "Digital_TN_GovMaster",
+      "event_type": "MFA_LOGIN_SUCCESS",
+      "severity": "info",
+      "ip_address": "::1",
+      "user_agent": "node",
+      "details": "MFA authenticated via INITIAL_MFA_PASS.",
+      "created_at": "2026-09-01T06:34:52.017Z"
+    },
+    {
+      "id": 51,
+      "username": "SecOfficer_2042",
+      "event_type": "LOGIN_SUCCESS",
+      "severity": "info",
+      "ip_address": "::1",
+      "user_agent": "node",
+      "details": "User authenticated successfully.",
+      "created_at": "2026-09-01T06:34:52.218Z"
+    },
+    {
+      "id": 52,
+      "username": "newseditormanager",
+      "event_type": "LOGOUT",
+      "severity": "info",
+      "ip_address": "::1",
+      "user_agent": "Unknown",
+      "details": "User logged out.",
+      "created_at": "2026-09-01T06:36:24.542Z"
+    },
+    {
+      "id": 53,
+      "username": "newseditormanager",
+      "event_type": "LOGIN_SUCCESS",
+      "severity": "info",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+      "details": "User authenticated successfully.",
+      "created_at": "2026-09-01T06:36:34.193Z"
+    },
+    {
+      "id": 54,
+      "username": "newseditormanager",
+      "event_type": "LOGOUT",
+      "severity": "info",
+      "ip_address": "::1",
+      "user_agent": "Unknown",
+      "details": "User logged out.",
+      "created_at": "2026-09-01T06:36:39.806Z"
+    },
+    {
+      "id": 55,
+      "username": "Digital_TN_GovMaster",
+      "event_type": "LOGIN_SUCCESS",
+      "severity": "info",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+      "details": "User authenticated successfully.",
+      "created_at": "2026-09-01T06:36:46.241Z"
+    },
+    {
+      "id": 56,
+      "username": "Digital_TN_GovMaster",
+      "event_type": "LOGOUT",
+      "severity": "info",
+      "ip_address": "::1",
+      "user_agent": "Unknown",
+      "details": "User logged out.",
+      "created_at": "2026-09-01T06:36:51.538Z"
+    },
+    {
+      "id": 57,
+      "username": "newseditormanager",
+      "event_type": "LOGIN_FAILED",
+      "severity": "warning",
+      "ip_address": "::1",
+      "user_agent": "node",
+      "details": "[REQ-2026-90338955] Failed password attempt 1/5",
+      "created_at": "2026-09-01T06:38:45.718Z"
+    },
+    {
+      "id": 58,
+      "username": "newseditormanager",
+      "event_type": "CAPTCHA_FAILED",
+      "severity": "warning",
+      "ip_address": "::1",
+      "user_agent": "node",
+      "details": "[REQ-2026-6A190ECA] Invalid security CAPTCHA code submitted.",
+      "created_at": "2026-09-01T06:38:45.760Z"
+    },
+    {
+      "id": 59,
+      "username": "newseditormanager",
+      "event_type": "LOGIN_SUCCESS",
+      "severity": "info",
+      "ip_address": "::1",
+      "user_agent": "node",
+      "details": "User authenticated successfully.",
+      "created_at": "2026-09-01T06:38:45.832Z"
+    },
+    {
+      "id": 60,
+      "username": "Digital_TN_GovMaster",
+      "event_type": "MFA_CHALLENGE_ISSUED",
+      "severity": "info",
+      "ip_address": "::1",
+      "user_agent": "node",
+      "details": "MFA challenge issued for login attempt.",
+      "created_at": "2026-09-01T06:38:45.974Z"
+    },
+    {
+      "id": 61,
+      "username": "Digital_TN_GovMaster",
+      "event_type": "MFA_LOGIN_SUCCESS",
+      "severity": "info",
+      "ip_address": "::1",
+      "user_agent": "node",
+      "details": "MFA authenticated via INITIAL_MFA_PASS.",
+      "created_at": "2026-09-01T06:38:46.120Z"
+    },
+    {
+      "id": 62,
+      "username": "SecOfficer_6135",
+      "event_type": "LOGIN_SUCCESS",
+      "severity": "info",
+      "ip_address": "::1",
+      "user_agent": "node",
+      "details": "User authenticated successfully.",
+      "created_at": "2026-09-01T06:38:46.335Z"
+    },
+    {
+      "id": 63,
+      "username": "Digital_TN_GovMaster",
+      "event_type": "LOGIN_SUCCESS",
+      "severity": "info",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+      "details": "User authenticated successfully.",
+      "created_at": "2026-09-01T06:39:31.790Z"
+    },
+    {
+      "id": 64,
+      "username": "Digital_TN_GovMaster",
+      "event_type": "LOGOUT",
+      "severity": "info",
+      "ip_address": "::1",
+      "user_agent": "Unknown",
+      "details": "User logged out.",
+      "created_at": "2026-09-01T06:39:57.161Z"
+    },
+    {
+      "id": 65,
+      "username": "newseditormanager",
+      "event_type": "LOGIN_SUCCESS",
+      "severity": "info",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+      "details": "User authenticated successfully.",
+      "created_at": "2026-09-01T06:40:04.847Z"
+    },
+    {
+      "id": 66,
+      "username": "newseditormanager",
+      "event_type": "LOGIN_SUCCESS",
+      "severity": "info",
+      "ip_address": "::1",
+      "user_agent": "node",
+      "details": "User authenticated successfully.",
+      "created_at": "2026-09-01T06:45:53.108Z"
+    },
+    {
+      "id": 67,
+      "username": "Digital_TN_GovMaster",
+      "event_type": "MFA_CHALLENGE_ISSUED",
+      "severity": "info",
+      "ip_address": "::1",
+      "user_agent": "node",
+      "details": "MFA challenge issued for login attempt.",
+      "created_at": "2026-09-01T06:45:53.338Z"
+    },
+    {
+      "id": 68,
+      "username": "Digital_TN_GovMaster",
+      "event_type": "MFA_LOGIN_SUCCESS",
+      "severity": "info",
+      "ip_address": "::1",
+      "user_agent": "node",
+      "details": "MFA authenticated via INITIAL_MFA_PASS.",
+      "created_at": "2026-09-01T06:45:53.476Z"
     }
   ],
   "security_config": {
@@ -11249,6 +11674,162 @@
       "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
       "revoked_at": null,
       "status": "active"
+    },
+    {
+      "id": 13,
+      "username": "newseditormanager",
+      "session_id": "8808c29a392d2615a4e0859cf31715f7d38ff19b75739378",
+      "created_at": "2026-09-01T06:10:22.882Z",
+      "last_activity": "2026-09-01T06:36:18.483Z",
+      "expires_at": "2026-09-01T07:06:18.483Z",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+      "revoked_at": "2026-09-01T06:36:24.511Z",
+      "status": "revoked"
+    },
+    {
+      "id": 14,
+      "username": "newseditormanager",
+      "session_id": "45352a88cd3c4a8b48f4846854cfd321906041414cf7e00c",
+      "created_at": "2026-09-01T06:34:51.787Z",
+      "last_activity": "2026-09-01T06:34:51.850Z",
+      "expires_at": "2026-09-01T07:04:51.850Z",
+      "ip_address": "::1",
+      "user_agent": "node",
+      "revoked_at": null,
+      "status": "active"
+    },
+    {
+      "id": 15,
+      "username": "Digital_TN_GovMaster",
+      "session_id": "d656bfaacd9444623358c11be9c558b145d9926855a60d4b",
+      "created_at": "2026-09-01T06:34:51.985Z",
+      "last_activity": "2026-09-01T06:34:52.094Z",
+      "expires_at": "2026-09-01T07:04:52.094Z",
+      "ip_address": "::1",
+      "user_agent": "node",
+      "revoked_at": null,
+      "status": "active"
+    },
+    {
+      "id": 16,
+      "username": "SecOfficer_2042",
+      "session_id": "6c5976544b53ec6e2282b2cfa75520a4c7f55e7b0c64ab60",
+      "created_at": "2026-09-01T06:34:52.182Z",
+      "last_activity": "2026-09-01T06:34:52.182Z",
+      "expires_at": "2026-09-01T07:04:52.182Z",
+      "ip_address": "::1",
+      "user_agent": "node",
+      "revoked_at": null,
+      "status": "active"
+    },
+    {
+      "id": 17,
+      "username": "newseditormanager",
+      "session_id": "2495fe99b797f0e19fc6e8f9bcfaaa6022bc4bf296148f91",
+      "created_at": "2026-09-01T06:36:34.127Z",
+      "last_activity": "2026-09-01T06:36:34.571Z",
+      "expires_at": "2026-09-01T07:06:34.571Z",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+      "revoked_at": "2026-09-01T06:36:39.767Z",
+      "status": "revoked"
+    },
+    {
+      "id": 18,
+      "username": "Digital_TN_GovMaster",
+      "session_id": "0fe31fe529f68ba39b3aaffa3f35b4080d965e03726ba405",
+      "created_at": "2026-09-01T06:36:46.154Z",
+      "last_activity": "2026-09-01T06:36:46.848Z",
+      "expires_at": "2026-09-01T07:06:46.848Z",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+      "revoked_at": "2026-09-01T06:36:51.507Z",
+      "status": "revoked"
+    },
+    {
+      "id": 19,
+      "username": "newseditormanager",
+      "session_id": "f760267b46be2f1ac83b6460a7315e9f2f63349eaf16b1f4",
+      "created_at": "2026-09-01T06:38:45.820Z",
+      "last_activity": "2026-09-01T06:38:45.919Z",
+      "expires_at": "2026-09-01T07:08:45.919Z",
+      "ip_address": "::1",
+      "user_agent": "node",
+      "revoked_at": null,
+      "status": "active"
+    },
+    {
+      "id": 20,
+      "username": "Digital_TN_GovMaster",
+      "session_id": "613f95fb49cf8782acd4940d1d1aee61b8ab67367764fa4a",
+      "created_at": "2026-09-01T06:38:46.074Z",
+      "last_activity": "2026-09-01T06:38:46.203Z",
+      "expires_at": "2026-09-01T07:08:46.203Z",
+      "ip_address": "::1",
+      "user_agent": "node",
+      "revoked_at": null,
+      "status": "active"
+    },
+    {
+      "id": 21,
+      "username": "SecOfficer_6135",
+      "session_id": "b24b6f61f1ddb02bc4cd2df4e0ad82180e949bc868b2080a",
+      "created_at": "2026-09-01T06:38:46.320Z",
+      "last_activity": "2026-09-01T06:38:46.320Z",
+      "expires_at": "2026-09-01T07:08:46.320Z",
+      "ip_address": "::1",
+      "user_agent": "node",
+      "revoked_at": null,
+      "status": "active"
+    },
+    {
+      "id": 22,
+      "username": "Digital_TN_GovMaster",
+      "session_id": "c0b2299f862498712d507cc12afc32163f6eb181e1ec1502",
+      "created_at": "2026-09-01T06:39:31.712Z",
+      "last_activity": "2026-09-01T06:39:32.748Z",
+      "expires_at": "2026-09-01T07:09:32.748Z",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+      "revoked_at": "2026-09-01T06:39:57.121Z",
+      "status": "revoked"
+    },
+    {
+      "id": 23,
+      "username": "newseditormanager",
+      "session_id": "f6c195ac3f384db831a184c56767f9ba04722f2e9690bee8",
+      "created_at": "2026-09-01T06:40:04.785Z",
+      "last_activity": "2026-09-01T06:45:46.298Z",
+      "expires_at": "2026-09-01T07:15:46.298Z",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0",
+      "revoked_at": null,
+      "status": "active"
+    },
+    {
+      "id": 24,
+      "username": "newseditormanager",
+      "session_id": "7ad7cfcd43875764a717d8fc32cc3737d2c613d30f627639",
+      "created_at": "2026-09-01T06:45:53.083Z",
+      "last_activity": "2026-09-01T06:45:53.260Z",
+      "expires_at": "2026-09-01T07:15:53.260Z",
+      "ip_address": "::1",
+      "user_agent": "node",
+      "revoked_at": null,
+      "status": "active"
+    },
+    {
+      "id": 25,
+      "username": "Digital_TN_GovMaster",
+      "session_id": "ac09bb26eb6d99579601c46afcc9ffbe858afaba999decb9",
+      "created_at": "2026-09-01T06:45:53.440Z",
+      "last_activity": "2026-09-01T06:45:53.526Z",
+      "expires_at": "2026-09-01T07:15:53.526Z",
+      "ip_address": "::1",
+      "user_agent": "node",
+      "revoked_at": null,
+      "status": "active"
     }
   ],
   "mfa_challenges": [
@@ -11269,6 +11850,42 @@
       "attempt_count": 3,
       "verified": 1,
       "created_at": "2026-08-31T11:01:44.887Z"
+    },
+    {
+      "id": 3,
+      "challenge_id": "mfa_ch_1788244433303_yz37vuc",
+      "username": "Digital_TN_GovMaster",
+      "expires_at": "2026-09-01T06:38:53.303Z",
+      "attempt_count": 0,
+      "verified": 0,
+      "created_at": "2026-09-01T06:33:53.303Z"
+    },
+    {
+      "id": 4,
+      "challenge_id": "mfa_ch_1788244491883_odiak33",
+      "username": "Digital_TN_GovMaster",
+      "expires_at": "2026-09-01T06:39:51.883Z",
+      "attempt_count": 0,
+      "verified": 1,
+      "created_at": "2026-09-01T06:34:51.883Z"
+    },
+    {
+      "id": 5,
+      "challenge_id": "mfa_ch_1788244725969_wcjyfdy",
+      "username": "Digital_TN_GovMaster",
+      "expires_at": "2026-09-01T06:43:45.969Z",
+      "attempt_count": 0,
+      "verified": 1,
+      "created_at": "2026-09-01T06:38:45.969Z"
+    },
+    {
+      "id": 6,
+      "challenge_id": "mfa_ch_1788245153330_dsi0t6f",
+      "username": "Digital_TN_GovMaster",
+      "expires_at": "2026-09-01T06:50:53.330Z",
+      "attempt_count": 0,
+      "verified": 1,
+      "created_at": "2026-09-01T06:45:53.330Z"
     }
   ],
   "trusted_devices": [
@@ -11279,7 +11896,7 @@
       "device_name": "Mozilla on ::1",
       "user_agent_summary": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Sa",
       "created_at": "2026-08-31T11:05:27.650Z",
-      "last_used_at": "2026-08-31T11:20:59.360Z",
+      "last_used_at": "2026-09-01T06:39:31.696Z",
       "expires_at": "2026-09-30T11:05:27.650Z",
       "revoked_at": null
     }

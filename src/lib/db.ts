@@ -1,12 +1,39 @@
 import fs from "fs";
 import path from "path";
 import crypto from "crypto";
+import bcrypt from "bcryptjs";
 import { newsData } from "@/data/newsData";
+
+// Username normalization policy
+export function normalizeUsername(username: string | null | undefined): string {
+  if (!username) return "";
+  return username.trim().toLowerCase();
+}
 
 // Cryptographic hashing helper
 export function hashPassword(password: string): string {
   return crypto.createHash("sha256").update(password).digest("hex");
 }
+
+// Password verification helper (supports SHA-256 and bcrypt hashes with constant-time equality check)
+export function verifyPassword(password: string, storedHash: string): boolean {
+  if (!password || !storedHash) return false;
+  if (storedHash.startsWith("$2a$") || storedHash.startsWith("$2b$") || storedHash.startsWith("$2y$")) {
+    try {
+      return bcrypt.compareSync(password, storedHash);
+    } catch {
+      return false;
+    }
+  }
+  const computed = hashPassword(password);
+  if (computed.length !== storedHash.length) return false;
+  try {
+    return crypto.timingSafeEqual(Buffer.from(computed), Buffer.from(storedHash));
+  } catch {
+    return computed === storedHash;
+  }
+}
+
 
 // Database schema structures
 export interface DBUser {
@@ -529,6 +556,8 @@ export interface DBArticleSeo {
   seo_score: number;
   updated_at: string;
   include_in_sitemap?: boolean;
+  sitemap_priority?: string | number;
+  sitemap_changefreq?: string;
   robots_indexing?: string;
   robots_following?: string;
 }
@@ -627,6 +656,9 @@ class JSONDatabaseManager {
     service_requests: DBServiceRequest[];
     page_contents: DBPageContent[];
     content_versions: DBContentVersion[];
+    media_files: DBMediaFileRecord[];
+    backups: DBBackupRecord[];
+    security_assessments: DBSecurityAssessmentRecord[];
     superadmin_config: Record<string, any>;
   } = {
     users: [],
@@ -655,8 +687,12 @@ class JSONDatabaseManager {
     service_requests: [],
     page_contents: [],
     content_versions: [],
+    media_files: [],
+    backups: [],
+    security_assessments: [],
     superadmin_config: {}
   };
+
 
   constructor() {
     this.init();
@@ -1020,12 +1056,12 @@ class JSONDatabaseManager {
     console.log("JSON Database successfully seeded!");
   }
 
-  public getTable(name: keyof typeof this.data) {
+  public getTable<T = any>(name: string): T {
     this.init();
-    return this.data[name];
+    return ((this.data as any)[name] || []) as T;
   }
 
-  public setTable(name: keyof typeof this.data, items: any) {
+  public setTable(name: string, items: any) {
     (this.data as any)[name] = items;
     this.save();
     try {
@@ -1035,6 +1071,7 @@ class JSONDatabaseManager {
       // Ignore when running outside Next server context
     }
   }
+
 }
 
 const jsonDb = new JSONDatabaseManager();
@@ -1054,7 +1091,8 @@ class ChennaiGuardianDatabase {
   }
   public async getUserByUsername(username: string): Promise<DBUser | undefined> {
     const users = await this.getUsers();
-    return users.find((u) => u.username.toLowerCase() === username.toLowerCase());
+    const target = normalizeUsername(username);
+    return users.find((u) => normalizeUsername(u.username) === target);
   }
 
   // Roles & Logs
@@ -1852,6 +1890,27 @@ class ChennaiGuardianDatabase {
     jsonDb.setTable("security_events", events);
   }
 
+  public async addSecurityEvent(event: { username?: string; event_type?: string; severity?: "info" | "warning" | "high" | "critical" | "low" | "medium"; ip_address?: string; browser?: string; details?: string }): Promise<void> {
+    const sevMap: Record<string, "info" | "warning" | "high" | "critical"> = {
+      low: "info",
+      medium: "warning",
+      high: "high",
+      critical: "critical",
+      info: "info",
+      warning: "warning"
+    };
+    const sev = (event.severity && sevMap[event.severity]) || "info";
+    return this.logSecurityEvent(
+      event.username || "SYSTEM",
+      event.event_type || "SECURITY_EVENT",
+      sev,
+      event.ip_address || "127.0.0.1",
+      event.browser,
+      event.details
+    );
+  }
+
+
   // ── SECURITY CONFIGURATION ──
   public async getSecurityPolicyConfig(): Promise<DBSecurityConfig> {
     const raw = jsonDb.getTable("security_config");
@@ -1877,6 +1936,22 @@ class ChennaiGuardianDatabase {
     const updated = { ...current, ...newConfig };
     jsonDb.setTable("security_config", updated);
     return updated;
+  }
+
+  public async getSecurityConfig(): Promise<DBSecurityConfig> {
+    return this.getSecurityPolicyConfig();
+  }
+
+  public async updateSecurityConfig(newConfig: Partial<DBSecurityConfig>): Promise<DBSecurityConfig> {
+    return this.saveSecurityPolicyConfig(newConfig);
+  }
+
+  public async getNewsArticles(): Promise<DBNewsItem[]> {
+    return this.getNews();
+  }
+
+  public async getAdminUsers(): Promise<DBUser[]> {
+    return this.getUsers();
   }
 
   // ── MFA & TRUSTED DEVICES SYSTEM ──
@@ -2161,10 +2236,9 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<string, Record<string, string[]>> 
     "police-stations": ["view", "create", "edit", "delete", "publish"],
     "emergency-contacts": ["view", "create", "edit", "delete", "publish"],
     "department-links": ["view", "create", "edit", "delete", "publish"],
-    "profile": ["view", "edit"],
-    "theme": ["view", "edit"],
-    "settings": ["view", "edit"]
+    "profile": ["view", "edit"]
   },
+
   "ADMINISTRATOR": {
     "dashboard": ["view", "preview"],
     "menu-management": ["view", "edit", "publish"],
