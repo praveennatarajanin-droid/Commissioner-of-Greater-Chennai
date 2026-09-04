@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import { getMetadataForPage, getSchemaJsonForPage } from "@/lib/seoHelper";
 
 export const revalidate = 0; // force dynamic fetching
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata(): Promise<Metadata> {
   return getMetadataForPage(

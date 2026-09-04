@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { AlertTriangle, CheckCircle, RefreshCw, ExternalLink, Clock } from "lucide-react";
+import { AlertTriangle, CheckCircle, RefreshCw, ExternalLink, Clock, Newspaper } from "lucide-react";
 
 interface AlertItem {
   id: number;
@@ -20,28 +20,14 @@ interface OfficialAlertsFeedProps {
   language?: "en" | "ta";
 }
 
-function timeAgo(dateStr: string, lang: "en" | "ta" = "en"): string {
-  try {
-    const d = new Date(dateStr);
-    if (isNaN(d.getTime())) return dateStr;
-    const diff = (Date.now() - d.getTime()) / 1000;
-    if (diff <= 60) return lang === "ta" ? "இப்போது" : "Just now";
-    if (diff < 3600) {
-      const mins = Math.floor(diff / 60);
-      return lang === "ta" ? `${mins} நிமிடம் முன்` : `${mins} ${mins === 1 ? "minute" : "minutes"} ago`;
-    }
-    if (diff < 86400) {
-      const hrs = Math.floor(diff / 3600);
-      return lang === "ta" ? `${hrs} மணிநேரம் முன்` : `${hrs} ${hrs === 1 ? "hour" : "hours"} ago`;
-    }
-    return lang === "ta" ? "1 நாள் முன்" : "1 day ago";
-  } catch { return lang === "ta" ? "1 நாள் முன்" : "1 day ago"; }
-}
+import { formatPublishedTime } from "@/lib/dateUtils";
+import { useLiveNow } from "@/lib/useLiveNow";
 
 export default function OfficialAlertsFeed({ initialAlerts = [], language = "en" }: OfficialAlertsFeedProps) {
   const [alerts, setAlerts] = useState<AlertItem[]>(initialAlerts);
   const [loading, setLoading] = useState(false);
   const [lastUpdated, setLastUpdated] = useState("");
+  const liveNow = useLiveNow(30000);
 
   const sortAlerts = (list: AlertItem[]) => {
     return [...list].sort((a, b) => {
@@ -90,20 +76,20 @@ export default function OfficialAlertsFeed({ initialAlerts = [], language = "en"
   }, []);
 
   return (
-    <section className="w-full py-8 px-4 md:px-6" style={{ background: "#fef2f2", borderBottom: "1px solid rgba(237,27,36,0.12)" }}>
+    <section className="w-full py-8 px-4 md:px-6" style={{ background: "#F7F9FC", borderBottom: "1px solid #D9E2F0" }}>
       <div className="max-w-[1700px] mx-auto space-y-5">
 
         {/* Section Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-1 h-6 rounded-full" style={{ background: "#ed1b24" }} />
-            <AlertTriangle className="w-4 h-4" style={{ color: "#ed1b24" }} />
-            <h2 className="font-display font-black text-base uppercase tracking-widest" style={{ color: "#1c1917" }}>
-              Official Alerts & Warnings
+            <div className="w-1 h-6 rounded-full" style={{ background: "#1E3A8A" }} />
+            <AlertTriangle className="w-4 h-4" style={{ color: "#1E3A8A" }} />
+            <h2 className="font-display font-black text-base uppercase tracking-widest" style={{ color: "#172554" }}>
+              Latest News & Updates
             </h2>
             <span
               className="flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-black text-white uppercase tracking-widest"
-              style={{ background: "#ed1b24" }}
+              style={{ background: "#1E3A8A", border: "1px solid rgba(201, 162, 39, 0.35)" }}
             >
               <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
               AUTO-UPDATING
@@ -113,14 +99,14 @@ export default function OfficialAlertsFeed({ initialAlerts = [], language = "en"
           <div className="flex items-center gap-3">
             {lastUpdated && (
               <span className="flex items-center gap-1.5 text-[10px] font-bold text-stone-500">
-                <Clock className="w-3 h-3" /> Updated {lastUpdated}
+                <Clock className="w-3 h-3" style={{ color: "#1E3A8A" }} /> Updated {lastUpdated}
               </span>
             )}
             <button
               onClick={() => refresh()}
               disabled={loading}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-black text-white transition hover:opacity-90 cursor-pointer"
-              style={{ background: "#ed1b24" }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-black text-white transition hover:opacity-90 cursor-pointer shadow-sm"
+              style={{ background: "#1E3A8A" }}
             >
               <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
               Refresh
@@ -135,21 +121,21 @@ export default function OfficialAlertsFeed({ initialAlerts = [], language = "en"
               <div
                 key={alert.id}
                 className="flex gap-3 p-4 rounded-xl border bg-white hover:shadow-md transition-all"
-                style={{ borderColor: "rgba(237,27,36,0.15)" }}
+                style={{ borderColor: "#D9E2F0", background: "#FFFFFF" }}
               >
                 <div
                   className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
-                  style={{ background: "rgba(237,27,36,0.1)" }}
+                  style={{ background: "rgba(30, 58, 138, 0.08)" }}
                 >
-                  <AlertTriangle className="w-4 h-4" style={{ color: "#ed1b24" }} />
+                  <Newspaper className="w-4 h-4" style={{ color: "#1E3A8A" }} />
                 </div>
                 <div className="flex-grow min-w-0 space-y-1">
                   <p className="text-sm font-bold text-stone-900 leading-snug line-clamp-2">
                     {alert.title}
                   </p>
-                  {alert.summary && (
+                  {alert.summary && !alert.summary.includes("href=") && !alert.summary.includes("&lt;a") && (
                     <p className="text-xs text-stone-500 leading-relaxed line-clamp-2 hidden md:block">
-                      {alert.summary}
+                      {alert.summary.replace(/<[^>]+>/g, "").replace(/&amp;/g, "&").replace(/&quot;/g, '"')}
                     </p>
                   )}
                   <div className="flex items-center gap-3 flex-wrap">
@@ -161,7 +147,7 @@ export default function OfficialAlertsFeed({ initialAlerts = [], language = "en"
                     {alert.published_at && (
                       <span className="flex items-center gap-1 text-[9px] text-stone-400 font-medium">
                         <Clock className="w-2.5 h-2.5" />
-                        {timeAgo(alert.published_at, language)}
+                        {formatPublishedTime(alert.published_at, language, liveNow)}
                       </span>
                     )}
                     {alert.url && (
@@ -169,8 +155,8 @@ export default function OfficialAlertsFeed({ initialAlerts = [], language = "en"
                         href={alert.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-1 text-[9px] font-black uppercase tracking-wider hover:opacity-70 transition ml-auto"
-                        style={{ color: "#ed1b24" }}
+                        className="flex items-center gap-1 text-[9px] font-black uppercase tracking-wider hover:opacity-75 transition ml-auto"
+                        style={{ color: "#1E3A8A" }}
                       >
                         <ExternalLink className="w-2.5 h-2.5" />
                         Source
@@ -184,9 +170,9 @@ export default function OfficialAlertsFeed({ initialAlerts = [], language = "en"
         ) : (
           <div
             className="py-10 rounded-xl border border-dashed text-center flex flex-col items-center gap-3"
-            style={{ borderColor: "rgba(237,27,36,0.2)", background: "rgba(237,27,36,0.02)" }}
+            style={{ borderColor: "#D9E2F0", background: "rgba(30, 58, 138, 0.02)" }}
           >
-            <CheckCircle className="w-8 h-8" style={{ color: "#059669" }} />
+            <CheckCircle className="w-8 h-8" style={{ color: "#1E3A8A" }} />
             <div>
               <p className="text-sm font-bold text-stone-700">
                 {language === "ta" ? "தற்போது அதிகாரப்பூர்வ எச்சரிக்கைகள் இல்லை" : "No active official alerts at this time"}

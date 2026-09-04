@@ -59,13 +59,23 @@ interface HeroProps {
   customNews?: any[];
 }
 
+import { formatPublishedTime, getNewsTimestamp } from "@/lib/dateUtils";
+import { useLiveNow } from "@/lib/useLiveNow";
+
 export default function Hero({ customSlides, customNews }: HeroProps = {}) {
   const { t, language } = useTranslation();
   const [isMounted, setIsMounted] = useState(false);
   const [validSlides, setValidSlides] = useState<SlideItem[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const liveNow = useLiveNow(30000);
 
-  const activeNews = customNews || newsData;
+  const activeNews = [...(customNews || newsData)].sort((a, b) => {
+    const timeA = getNewsTimestamp(a)?.getTime() || 0;
+    const timeB = getNewsTimestamp(b)?.getTime() || 0;
+    if (timeB !== timeA) return timeB - timeA;
+    return (b.id || 0) - (a.id || 0);
+  });
+
   const leftNews = activeNews.filter((item) => item.section === "spotlight");
   const rightNews = activeNews.filter(
     (item) => item.section === "latest" || item.slug === "kaaval-karangal-reunites-senior-woman"
@@ -147,8 +157,8 @@ export default function Hero({ customSlides, customNews }: HeroProps = {}) {
                     </div>
                     <div className="flex items-center justify-between mt-1 text-[9px]">
                       <div className="flex items-center gap-1.5 text-slate-450 dark:text-slate-500 font-bold uppercase">
-                        <Calendar className="w-3 h-3" />
-                        {item.date}
+                        <Clock className="w-3 h-3" />
+                        {formatPublishedTime(item.published_at || item.publishedAt || item.date || item.created_at, language, liveNow)}
                       </div>
                       <Link href={`/news/${item.slug}`} className="font-black uppercase text-brand-maroon dark:text-brand-gold hover:text-brand-maroon-dark dark:hover:text-brand-gold-light tracking-wider flex items-center">
                         {t("article.readMore")}
@@ -292,7 +302,10 @@ export default function Hero({ customSlides, customNews }: HeroProps = {}) {
                       </Link>
                     </div>
                     <div className="flex items-center justify-between mt-1 text-[9px]">
-                      <span className="text-slate-450 dark:text-slate-500 block">{item.date}</span>
+                      <span className="text-slate-450 dark:text-slate-500 block flex items-center gap-1">
+                        <Clock className="w-2.5 h-2.5" />
+                        {formatPublishedTime(item.published_at || item.publishedAt || item.date || item.created_at, language, liveNow)}
+                      </span>
                       <Link href={`/news/${item.slug}`} className="font-black uppercase text-brand-maroon dark:text-brand-gold hover:text-brand-maroon-dark dark:hover:text-brand-gold-light tracking-wider flex items-center">
                         {t("article.readMore")}
                       </Link>

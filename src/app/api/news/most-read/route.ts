@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { isArticlePubliclyVisible, getNewsTimestamp } from "@/lib/dateUtils";
 
 let mostReadCache: any = null;
 let mostReadCacheTime = 0;
@@ -14,7 +15,7 @@ export async function GET() {
 
     const news = await db.getNews();
     const rows = news
-      .filter(item => item.published === 1)
+      .filter(isArticlePubliclyVisible)
       .map(item => ({
         id: item.id,
         slug: item.slug,
@@ -24,15 +25,18 @@ export async function GET() {
         category_ta: item.category_ta,
         image: item.image,
         views_count: item.views_count || 0,
+        published_at: item.published_at || item.created_at || "",
+        publishedAt: item.published_at || item.created_at || "",
         created_at: item.created_at || "",
+        updated_at: item.updated_at || "",
         date: item.date
       }));
 
     const thirtyDaysAgo = now - 30 * 24 * 60 * 60 * 1000;
 
     const filtered = rows.filter((item: any) => {
-      const pubDate = item.created_at ? new Date(item.created_at) : (item.date ? new Date(item.date) : null);
-      if (!pubDate) return true; // Fallback to include if date parsing unavailable
+      const pubDate = getNewsTimestamp(item);
+      if (!pubDate) return true;
       return pubDate.getTime() >= thirtyDaysAgo;
     });
 
@@ -53,3 +57,5 @@ export async function GET() {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
+export const dynamic = "force-dynamic";

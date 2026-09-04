@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { isArticlePubliclyVisible } from "@/lib/dateUtils";
 
 let trendingCache: any = null;
 let trendingCacheTime = 0;
@@ -14,7 +15,7 @@ export async function GET() {
 
     const news = await db.getNews();
     const rows = news
-      .filter(n => n.published === 1)
+      .filter(isArticlePubliclyVisible)
       .sort((a, b) => (b.views_count || 0) - (a.views_count || 0) || b.id - a.id)
       .slice(0, 5)
       .map(n => ({
@@ -26,7 +27,10 @@ export async function GET() {
         category_ta: n.category_ta,
         image: n.image,
         views_count: n.views_count || 0,
+        published_at: n.published_at || n.created_at || "",
+        publishedAt: n.published_at || n.created_at || "",
         created_at: n.created_at || "",
+        updated_at: n.updated_at || "",
         date: n.date
       }));
 
@@ -39,3 +43,5 @@ export async function GET() {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
+export const dynamic = "force-dynamic";

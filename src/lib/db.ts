@@ -198,6 +198,8 @@ export interface DBNewsItem {
   latest?: number; // 0 or 1
   homepage_visible?: number; // 0 or 1
   image_locked?: number; // 0 or 1 (Hero News image lock)
+  published_at?: string;
+  publishedAt?: string;
   updated_at?: string;
   created_at?: string;
   language?: string;
@@ -338,9 +340,18 @@ export interface DBAlertItem {
   id: number;
   title: string;
   category: string;
-  source: string;
+  source: string; // "THE HINDU" | "THE NEW INDIAN EXPRESS"
+  source_name?: string;
+  source_url?: string;
   url: string;
+  article_url?: string;
+  summary?: string;
+  image_url?: string;
   published_at: string; // ISO string
+  fetched_at?: string;
+  external_id?: string;
+  language?: string;
+  status?: string;
   approved: number; // 0 or 1
   pinned: number; // 0 or 1
   removed: number; // 0 or 1
@@ -661,37 +672,37 @@ class JSONDatabaseManager {
     security_assessments: DBSecurityAssessmentRecord[];
     superadmin_config: Record<string, any>;
   } = {
-    users: [],
-    activity_logs: [],
-    custom_roles: [],
-    news: [],
-    ticker: [],
-    slider: [],
-    commissioner_profile: [],
-    theme_settings: [],
-    menu_items: [],
-    menus: [],
-    sub_menus: [],
-    contacts: [],
-    tts_settings: [],
-    videos: [],
-    alerts: [],
-    alert_settings: [],
-    seo_settings: [],
-    article_seo: [],
-    asset_metadata: [],
-    police_stations: [],
-    emergency_contacts: [],
-    department_links: [],
-    web_stories: [],
-    service_requests: [],
-    page_contents: [],
-    content_versions: [],
-    media_files: [],
-    backups: [],
-    security_assessments: [],
-    superadmin_config: {}
-  };
+      users: [],
+      activity_logs: [],
+      custom_roles: [],
+      news: [],
+      ticker: [],
+      slider: [],
+      commissioner_profile: [],
+      theme_settings: [],
+      menu_items: [],
+      menus: [],
+      sub_menus: [],
+      contacts: [],
+      tts_settings: [],
+      videos: [],
+      alerts: [],
+      alert_settings: [],
+      seo_settings: [],
+      article_seo: [],
+      asset_metadata: [],
+      police_stations: [],
+      emergency_contacts: [],
+      department_links: [],
+      web_stories: [],
+      service_requests: [],
+      page_contents: [],
+      content_versions: [],
+      media_files: [],
+      backups: [],
+      security_assessments: [],
+      superadmin_config: {}
+    };
 
 
   constructor() {
@@ -716,7 +727,7 @@ class JSONDatabaseManager {
         this.data = { ...this.data, ...parsed };
         this.lastMtime = stat.mtimeMs;
         this.isLoaded = true;
-        
+
         let modified = false;
 
         if (!this.data.menus || this.data.menus.length === 0) {
@@ -750,7 +761,7 @@ class JSONDatabaseManager {
           modified = true;
         }
 
-        if (!this.data.web_stories || this.data.web_stories.length === 0) {
+        if (!this.data.web_stories) {
           this.data.web_stories = [
             {
               id: 1,
@@ -1152,25 +1163,54 @@ class ChennaiGuardianDatabase {
         if (customObj && Object.keys(customObj).length > 0) {
           return customObj;
         }
-      } catch (e) {}
+      } catch (e) { }
     }
     const roles = await this.getCustomRoles();
     const matchedRole = roles.find((cr) => cr.role_name.toUpperCase().trim().replace(" ", "_") === r);
     if (matchedRole && matchedRole.permissions_json) {
       try {
         return JSON.parse(matchedRole.permissions_json);
-      } catch (e) {}
+      } catch (e) { }
     }
     return DEFAULT_ROLE_PERMISSIONS[r] || DEFAULT_ROLE_PERMISSIONS["CONTENTADMIN"] || {};
   }
 
   // News
   public async getNews(): Promise<DBNewsItem[]> {
-    const raw = jsonDb.getTable("news") as DBNewsItem[];
+    let raw = jsonDb.getTable("news") as DBNewsItem[];
     if (!raw || raw.length === 0) {
-      return newsData.map((item) => ({ ...item, published: 1 }));
+      raw = newsData.map((item) => ({ ...item, published: 1 }));
     }
-    return raw;
+
+    const normalized = raw.map((item) => {
+      let pubAt = item.published_at || item.publishedAt;
+      if (!pubAt) {
+        if (item.date) {
+          const parsed = Date.parse(item.date);
+          if (!isNaN(parsed) && parsed > 0) {
+            pubAt = new Date(parsed).toISOString();
+          }
+        }
+        if (!pubAt && item.created_at) {
+          pubAt = item.created_at;
+        }
+        if (!pubAt && item.updated_at) {
+          pubAt = item.updated_at;
+        }
+      }
+      return {
+        ...item,
+        published_at: pubAt,
+        publishedAt: pubAt,
+      };
+    });
+
+    return normalized.sort((a, b) => {
+      const timeA = a.published_at ? new Date(a.published_at).getTime() : 0;
+      const timeB = b.published_at ? new Date(b.published_at).getTime() : 0;
+      if (timeB !== timeA) return timeB - timeA;
+      return (b.id || 0) - (a.id || 0);
+    });
   }
   public async getAllRawNews(): Promise<DBNewsItem[]> {
     return jsonDb.getTable("news") as DBNewsItem[];
@@ -1343,117 +1383,242 @@ class ChennaiGuardianDatabase {
       }
 
       let addedCount = 0;
-      const existingAlerts = await this.getAlerts();
+      const rawExistingAlerts = await this.getAlerts();
+      const APPROVED_SOURCES = [
+        "THE HINDU",
+        "THE NEW INDIAN EXPRESS",
+        "TAMIL NADU POLICE",
+        "GREATER CHENNAI POLICE",
+        "GOVERNMENT OF TAMIL NADU",
+        "PIB"
+      ];
+      // Keep only approved sources
+      const existingAlerts = rawExistingAlerts.filter(
+        a => APPROVED_SOURCES.includes(a.source)
+      );
+
+      // Helper: Normalize & validate channel name strictly for approved sources
+      const normalizeChannel = (src: string | undefined, defaultSrc: string): { name: string; url: string } | null => {
+        const combined = `${src || ""} ${defaultSrc || ""}`.toUpperCase();
+        
+        // Official Police & Government Sources
+        if (combined.includes("GREATER CHENNAI POLICE") || combined.includes("GCP.TN.GOV") || combined.includes("GREATERCHENNAIPOLICE")) {
+          return { name: "GREATER CHENNAI POLICE", url: "https://gcp.tn.gov.in/" };
+        }
+        if (combined.includes("TAMIL NADU POLICE") || combined.includes("TNPOLICE") || combined.includes("TN POLICE")) {
+          return { name: "TAMIL NADU POLICE", url: "https://tnpolice.gov.in/" };
+        }
+        if (combined.includes("PIB") || combined.includes("PRESS INFORMATION BUREAU")) {
+          return { name: "PIB", url: "https://pib.gov.in/" };
+        }
+        if (combined.includes("TN.GOV.IN") || combined.includes("GOVERNMENT OF TAMIL NADU") || combined.includes("TAMIL NADU GOVERNMENT") || combined.includes("DIPR")) {
+          return { name: "GOVERNMENT OF TAMIL NADU", url: "https://www.tn.gov.in/" };
+        }
+
+        // Approved External Newspapers
+        if (combined.includes("NEW INDIAN EXPRESS") || combined.includes("NEWINDIANEXPRESS")) {
+          return { name: "THE NEW INDIAN EXPRESS", url: "https://www.newindianexpress.com/" };
+        }
+        if (combined.includes("THE HINDU") || combined.includes("THEHINDU")) {
+          return { name: "THE HINDU", url: "https://www.thehindu.com/" };
+        }
+        
+        return null;
+      };
+
+      const normalizeTitleTokens = (t: string) => {
+        return (t || "")
+          .toLowerCase()
+          .replace(/[^a-z0-9\s]/g, "")
+          .split(/\s+/)
+          .filter(w => w.length > 2 && !["the", "and", "for", "with", "from", "after", "was", "were", "been", "has", "have", "police"].includes(w));
+      };
+
+      const areDuplicateStories = (t1: string, t2: string) => {
+        const tok1 = new Set(normalizeTitleTokens(t1));
+        const tok2 = new Set(normalizeTitleTokens(t2));
+        if (tok1.size === 0 || tok2.size === 0) return false;
+        let inter = 0;
+        for (const w of tok1) {
+          if (tok2.has(w)) inter++;
+        }
+        return (2 * inter) / (tok1.size + tok2.size) >= 0.6;
+      };
 
       try {
-        const feedUrl = `https://news.google.com/rss/search?q=Greater+Chennai+Police+OR+Tamil+Nadu+Police&hl=en-IN&gl=IN&ceid=IN:en`;
-        const res = await fetch(feedUrl, {
-          headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" },
-          next: { revalidate: 0 }
-        });
+        const feedEndpoints = [
+          // The Hindu Feeds
+          { url: "https://www.thehindu.com/news/cities/chennai/feeder/default.rss", defaultSource: "THE HINDU" },
+          { url: "https://www.thehindu.com/news/national/tamil-nadu/feeder/default.rss", defaultSource: "THE HINDU" },
+          { url: "https://news.google.com/rss/search?q=site:thehindu.com+(Chennai+OR+%22Greater+Chennai%22+OR+%22Tamil+Nadu%22)+(Police+OR+Crime+OR+Traffic+OR+Safety+OR+Accident+OR+Arrest+OR+Court+OR+Cyber)&hl=en-IN&gl=IN&ceid=IN:en", defaultSource: "THE HINDU" },
+          
+          // The New Indian Express Feeds
+          { url: "https://news.google.com/rss/search?q=site:newindianexpress.com+(Chennai+OR+%22Greater+Chennai%22+OR+%22Tamil+Nadu%22)+(Police+OR+Crime+OR+Traffic+OR+Safety+OR+Accident+OR+Arrest+OR+Court+OR+Cyber)&hl=en-IN&gl=IN&ceid=IN:en", defaultSource: "THE NEW INDIAN EXPRESS" },
+          { url: "https://news.google.com/rss/search?q=site:newindianexpress.com+(Chennai+OR+%22Greater+Chennai%22)+Police&hl=en-IN&gl=IN&ceid=IN:en", defaultSource: "THE NEW INDIAN EXPRESS" },
 
-        if (res.ok) {
-          const xml = await res.text();
-          const itemRegex = /<item>([\s\S]*?)<\/item>/g;
-          const titleRegex = /<title>([\s\S]*?)<\/title>/i;
-          const linkRegex = /<link>([\s\S]*?)<\/link>/i;
-          const pubDateRegex = /<pubDate>([\s\S]*?)<\/pubDate>/i;
-          const sourceRegex = /<source[^>]*>([\s\S]*?)<\/source>/i;
+          // Official Tamil Nadu Police (tnpolice.gov.in)
+          { url: "https://news.google.com/rss/search?q=site:tnpolice.gov.in+OR+(%22Tamil+Nadu+Police%22+press+release)&hl=en-IN&gl=IN&ceid=IN:en", defaultSource: "TAMIL NADU POLICE" },
 
-          const rawItems: any[] = [];
-          let match;
-          while ((match = itemRegex.exec(xml)) !== null) {
-            const itemXml = match[1];
-            const titleMatch = itemXml.match(titleRegex);
-            const linkMatch = itemXml.match(linkRegex);
-            const pubDateMatch = itemXml.match(pubDateRegex);
-            const sourceMatch = itemXml.match(sourceRegex);
+          // Official Greater Chennai Police (gcp.tn.gov.in / greaterchennaipolice.in)
+          { url: "https://news.google.com/rss/search?q=site:gcp.tn.gov.in+OR+site:greaterchennaipolice.in+OR+(%22Greater+Chennai+Police%22+press+release)&hl=en-IN&gl=IN&ceid=IN:en", defaultSource: "GREATER CHENNAI POLICE" },
 
-            if (titleMatch && linkMatch) {
-              const rawTitle = titleMatch[1].trim().replace(/<!\[CDATA\[([\s\S]*?)\]\]>/gi, "$1");
-              const link = linkMatch[1].trim();
-              const pubDate = pubDateMatch ? pubDateMatch[1].trim() : new Date().toUTCString();
-              const source = sourceMatch ? sourceMatch[1].trim().replace(/<!\[CDATA\[([\s\S]*?)\]\]>/gi, "$1") : "Official Source";
+          // Official Government of Tamil Nadu (tn.gov.in)
+          { url: "https://news.google.com/rss/search?q=site:tn.gov.in+(Police+OR+Home+OR+Traffic+OR+Transport+OR+Safety+OR+Chennai)&hl=en-IN&gl=IN&ceid=IN:en", defaultSource: "GOVERNMENT OF TAMIL NADU" },
 
-              let title = rawTitle;
-              const sourceSuffixIndex = title.lastIndexOf(` - ${source}`);
-              if (sourceSuffixIndex !== -1) {
-                title = title.substring(0, sourceSuffixIndex).trim();
+          // Press Information Bureau (pib.gov.in)
+          { url: "https://news.google.com/rss/search?q=site:pib.gov.in+(Chennai+OR+%22Tamil+Nadu%22+OR+Police+OR+Home+Affairs+OR+Security)&hl=en-IN&gl=IN&ceid=IN:en", defaultSource: "PIB" }
+        ];
+
+        const rawItems: { title: string; link: string; pubDate: string; summary?: string; sourceInfo: { name: string; url: string } }[] = [];
+
+        for (const feed of feedEndpoints) {
+          try {
+            const res = await fetch(feed.url, {
+              headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" },
+              next: { revalidate: 0 }
+            });
+
+            if (res.ok) {
+              const xml = await res.text();
+              const itemRegex = /<item>([\s\S]*?)<\/item>/g;
+              const titleRegex = /<title>([\s\S]*?)<\/title>/i;
+              const linkRegex = /<link>([\s\S]*?)<\/link>/i;
+              const pubDateRegex = /<pubDate>([\s\S]*?)<\/pubDate>/i;
+              const sourceRegex = /<source[^>]*>([\s\S]*?)<\/source>/i;
+              const descRegex = /<description>([\s\S]*?)<\/description>/i;
+
+              let match;
+              while ((match = itemRegex.exec(xml)) !== null) {
+                const itemXml = match[1];
+                const titleMatch = itemXml.match(titleRegex);
+                const linkMatch = itemXml.match(linkRegex);
+                const pubDateMatch = itemXml.match(pubDateRegex);
+                const sourceMatch = itemXml.match(sourceRegex);
+                const descMatch = itemXml.match(descRegex);
+
+                if (titleMatch && linkMatch) {
+                  let rawTitle = titleMatch[1].trim()
+                    .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/gi, "$1")
+                    .replace(/&amp;/g, "&")
+                    .replace(/&quot;/g, '"')
+                    .replace(/&#39;/g, "'")
+                    .replace(/&lt;/g, "<")
+                    .replace(/&gt;/g, ">")
+                    .replace(/<[^>]+>/g, "")
+                    .trim();
+                  
+                  const link = linkMatch[1].trim().replace(/<!\[CDATA\[([\s\S]*?)\]\]>/gi, "$1");
+                  const pubDate = pubDateMatch ? pubDateMatch[1].trim().replace(/<!\[CDATA\[([\s\S]*?)\]\]>/gi, "$1") : new Date().toUTCString();
+                  const rawSource = sourceMatch ? sourceMatch[1].trim().replace(/<!\[CDATA\[([\s\S]*?)\]\]>/gi, "$1") : feed.defaultSource;
+
+                  const sourceInfo = normalizeChannel(rawSource, feed.defaultSource);
+                  if (!sourceInfo) continue;
+
+                  let title = rawTitle;
+                  const sourceSuffixIndex = title.lastIndexOf(` - ${rawSource}`);
+                  if (sourceSuffixIndex !== -1) {
+                    title = title.substring(0, sourceSuffixIndex).trim();
+                  }
+                  title = title
+                    .replace(/\s*-\s*The Hindu$/i, "")
+                    .replace(/\s*-\s*The New Indian Express$/i, "")
+                    .replace(/\s*-\s*PIB$/i, "")
+                    .replace(/\s*\|\s*The Hindu$/i, "")
+                    .replace(/\s*\|\s*The New Indian Express$/i, "")
+                    .replace(/\s*\|\s*CMWSSB$/i, "")
+                    .trim();
+
+                  let summary = "";
+                  if (descMatch) {
+                    summary = descMatch[1].trim()
+                      .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/gi, "$1")
+                      .replace(/&amp;/g, "&")
+                      .replace(/&quot;/g, '"')
+                      .replace(/&#39;/g, "'")
+                      .replace(/&lt;/g, "<")
+                      .replace(/&gt;/g, ">")
+                      .replace(/<[^>]+>/g, "")
+                      .trim();
+                    if (summary.includes("<a") || summary.includes("href=") || summary.length < 10) {
+                      summary = "";
+                    }
+                  }
+
+                  if (title.length > 8 && !/^(untitled|home|bc|welcome|r~|·)/i.test(title)) {
+                    rawItems.push({ title, link, pubDate, summary, sourceInfo });
+                  }
+                }
               }
-
-              rawItems.push({ title, link, pubDate, source });
             }
-          }
-
-          let nextId = existingAlerts.length > 0 ? Math.max(...existingAlerts.map(a => a.id)) + 1 : 1;
-          const newAlertItems: DBAlertItem[] = [];
-
-          for (const item of rawItems.slice(0, 15)) {
-            if (!item || !item.title) continue;
-
-            const isDuplicate = existingAlerts.some(
-              a => a.title.toLowerCase().trim() === item.title.toLowerCase().trim()
-            );
-
-            if (!isDuplicate) {
-              let category = "LAW & ORDER";
-              const titleLower = item.title.toLowerCase();
-              if (titleLower.includes("traffic") || titleLower.includes("road") || titleLower.includes("speed") || titleLower.includes("highway") || titleLower.includes("ecr")) {
-                category = "TRAFFIC UPDATE";
-              } else if (titleLower.includes("cyber") || titleLower.includes("online") || titleLower.includes("scam") || titleLower.includes("whatsapp") || titleLower.includes("fraud") || titleLower.includes("1930")) {
-                category = "CYBER CRIME";
-              } else if (titleLower.includes("safety") || titleLower.includes("advisory") || titleLower.includes("beware") || titleLower.includes("guideline") || titleLower.includes("warn") || titleLower.includes("karangal")) {
-                category = "SAFETY ADVISORY";
-              } else if (titleLower.includes("award") || titleLower.includes("medal") || titleLower.includes("commend") || titleLower.includes("felicitat")) {
-                category = "AWARDS & DECORATIONS";
-              } else if (titleLower.includes("women") || titleLower.includes("girl") || titleLower.includes("singappen") || titleLower.includes("child")) {
-                category = "WOMEN & CHILD SAFETY";
-              }
-
-              const publishedDate = new Date(item.pubDate);
-              const publishedISO = isNaN(publishedDate.getTime()) ? new Date().toISOString() : publishedDate.toISOString();
-
-              newAlertItems.push({
-                id: nextId++,
-                title: item.title,
-                category,
-                source: item.source,
-                url: item.link,
-                published_at: publishedISO,
-                approved: 1,
-                pinned: 0,
-                removed: 0,
-                created_at: new Date().toISOString()
-              });
-              addedCount++;
-            }
-          }
-
-          if (newAlertItems.length > 0) {
-            const mergedAlerts = [...newAlertItems, ...existingAlerts];
-            await this.saveAlerts(mergedAlerts);
+          } catch (feedErr) {
+            console.warn(`Feed fetch failed for ${feed.url}:`, feedErr);
           }
         }
+
+        let nextId = existingAlerts.length > 0 ? Math.max(...existingAlerts.map(a => a.id)) + 1 : 1;
+        const newAlertItems: DBAlertItem[] = [];
+
+        for (const item of rawItems) {
+          if (!item || !item.title) continue;
+
+          const isDuplicate = existingAlerts.some(
+            a => areDuplicateStories(a.title, item.title) || (a.url && a.url === item.link) || (a.external_id && a.external_id === item.link)
+          );
+          const isAlreadyQueued = newAlertItems.some(
+            a => areDuplicateStories(a.title, item.title) || (a.url && a.url === item.link) || (a.external_id && a.external_id === item.link)
+          );
+
+          if (!isDuplicate && !isAlreadyQueued) {
+            let category = "LAW & ORDER";
+            const titleLower = item.title.toLowerCase();
+            if (titleLower.includes("traffic") || titleLower.includes("road") || titleLower.includes("speed") || titleLower.includes("highway") || titleLower.includes("ecr")) {
+              category = "TRAFFIC UPDATE";
+            } else if (titleLower.includes("cyber") || titleLower.includes("online") || titleLower.includes("scam") || titleLower.includes("whatsapp") || titleLower.includes("fraud") || titleLower.includes("1930")) {
+              category = "CYBER CRIME";
+            } else if (titleLower.includes("safety") || titleLower.includes("advisory") || titleLower.includes("beware") || titleLower.includes("guideline") || titleLower.includes("warn") || titleLower.includes("karangal")) {
+              category = "SAFETY ADVISORY";
+            } else if (titleLower.includes("award") || titleLower.includes("medal") || titleLower.includes("commend") || titleLower.includes("felicitat")) {
+              category = "AWARDS & DECORATIONS";
+            } else if (titleLower.includes("women") || titleLower.includes("girl") || titleLower.includes("singappen") || titleLower.includes("child") || titleLower.includes("pocso")) {
+              category = "WOMEN & CHILD SAFETY";
+            } else if (titleLower.includes("arrest") || titleLower.includes("police") || titleLower.includes("court") || titleLower.includes("crime")) {
+              category = "POLICE & LAW";
+            }
+
+            const publishedDate = new Date(item.pubDate);
+            const publishedISO = isNaN(publishedDate.getTime()) ? new Date().toISOString() : publishedDate.toISOString();
+
+            newAlertItems.push({
+              id: nextId++,
+              title: item.title,
+              summary: item.summary || "",
+              category,
+              source: item.sourceInfo.name,
+              source_name: item.sourceInfo.name,
+              source_url: item.sourceInfo.url,
+              url: item.link,
+              article_url: item.link,
+              published_at: publishedISO,
+              fetched_at: now.toISOString(),
+              external_id: item.link,
+              language: "en",
+              status: "active",
+              approved: 1,
+              pinned: 0,
+              removed: 0,
+              created_at: new Date().toISOString()
+            });
+            addedCount++;
+          }
+        }
+
+        // Merge existing approved-source alerts and newly fetched alerts
+        const mergedAlerts = [...newAlertItems, ...existingAlerts];
+        // Sort descending by actual published_at date
+        mergedAlerts.sort((a, b) => new Date(b.published_at || 0).getTime() - new Date(a.published_at || 0).getTime());
+        await this.saveAlerts(mergedAlerts);
       } catch (rssErr) {
         console.warn("RSS alert fetch warning:", rssErr);
-      }
-
-      if (force) {
-        const currentAlerts = await this.getAlerts();
-        let modified = false;
-        const nowISO = new Date().toISOString();
-        currentAlerts.forEach((alert) => {
-          if (alert.approved === 1 && !alert.removed) {
-            const alertTime = new Date(alert.published_at).getTime();
-            if (isNaN(alertTime) || (now.getTime() - alertTime) > 30 * 24 * 3600 * 1000) {
-              alert.published_at = nowISO;
-              modified = true;
-            }
-          }
-        });
-        if (modified) {
-          await this.saveAlerts(currentAlerts);
-        }
       }
 
       settings.last_fetched_at = now.toISOString();
@@ -1520,83 +1685,96 @@ class ChennaiGuardianDatabase {
     jsonDb.setTable("service_requests", items);
   }
 
-  // Police Stations
+  // Police Stations (221 Master Stations)
   public async getPoliceStations(): Promise<DBPoliceStation[]> {
     let stations = jsonDb.getTable("police_stations") as DBPoliceStation[];
-    if (stations === undefined || stations === null) {
+    if (!stations || !Array.isArray(stations) || stations.length < 200) {
       try {
-        const defaultDataset = require("../data/chennaiPoliceStations");
-        stations = defaultDataset.map((s: any, index: number) => ({
-          id: index + 1,
-          station_name: s.stationName || s.station_name,
-          name_en: s.stationName || s.station_name,
-          name_ta: s.name_ta || `காவல் நிலையம் - ${(s.stationName || s.station_name || "").replace(" Police Station", "")}`,
-          district: s.district || (s.area === "Tambaram" || s.area === "Selaiyur" ? "Tambaram District" : "Chennai District"),
-          phone: s.phone || s.phone_no || "044-23452300",
-          phone_no: s.phone_no || s.phone || "044-23452300",
-          lat: s.lat || s.latitude || 13.0827,
-          lng: s.lng || s.longitude || 80.2707,
-          lon: s.lon || s.lng || s.longitude || 80.2707,
-          latitude: s.latitude || s.lat || 13.0827,
-          longitude: s.longitude || s.lng || 80.2707,
-          sdo: s.sdo || s.incharge_en || "ACP Sub-Divisional Officer",
-          range: s.range || s.zone || "Metropolitan Range",
-          address: s.address || s.ps_address || s.address_en,
-          ps_address: s.ps_address || s.address || s.address_en,
-          address_en: s.address_en || s.address,
-          address_ta: s.address_ta || s.address,
-          pincode: s.pincode || (s.address?.match(/\b6\d{5}\b/)?.[0] ?? "600001"),
-          zone: s.zone || "South Chennai",
-          zone_en: s.zone || "South Chennai",
-          area_name: s.area || s.area_name,
-          locality: s.area || s.locality,
-          station_type: s.type || s.category || "Law & Order",
-          category: s.category || "Law & Order",
-          type: s.type || s.category || "Law & Order",
-          is_active: 1
-        }));
-        jsonDb.setTable("police_stations", stations);
+        const { CHENNAI_POLICE_STATIONS } = require("../data/chennai-stations-seed");
+        if (Array.isArray(CHENNAI_POLICE_STATIONS) && CHENNAI_POLICE_STATIONS.length > 0) {
+          stations = CHENNAI_POLICE_STATIONS.map((s: any) => {
+            const nameEn = (s.station_name || s.name_en || `Police Station ${s.id}`).replace(/"/g, "").trim();
+            const address = (s.address_en || s.address || s.ps_address || "Chennai, Tamil Nadu").replace(/\\n/g, "").replace(/"/g, "").trim();
+            const lat = typeof s.lat === "number" ? s.lat : parseFloat(s.lat) || 13.0827;
+            const lng = typeof s.lng === "number" ? s.lng : parseFloat(s.lng) || 80.2707;
+            
+            return {
+              id: s.id,
+              station_name: nameEn,
+              name_en: nameEn,
+              station_name_ta: s.station_name_ta || s.name_ta || `காவல் நிலையம் - ${nameEn.replace(" Police Station", "").replace(" TR PS", " போக்குவரத்து").replace(" L&O PS", " சட்டம் ஒழுங்கு")}`,
+              name_ta: s.name_ta || `காவல் நிலையம் - ${nameEn.replace(" Police Station", "").replace(" TR PS", " போக்குவரத்து").replace(" L&O PS", " சட்டம் ஒழுங்கு")}`,
+              station_code: s.station_code || `station-${s.id}`,
+              area_name: s.area_name || s.locality || "Chennai",
+              locality: s.locality || s.area_name || "Chennai",
+              zone: s.zone || "Chennai",
+              zone_en: s.zone || "Chennai",
+              division: s.division || s.locality || "Chennai Division",
+              district: s.district || (s.division ? `${s.division} District` : "Chennai District"),
+              category: s.category || (nameEn.includes("TR") ? "Traffic" : "Law & Order"),
+              type: s.type || (nameEn.includes("TR") ? "Traffic" : "Law & Order"),
+              station_type: s.station_type || s.type || (nameEn.includes("TR") ? "Traffic" : "Law & Order"),
+              address: address,
+              ps_address: address,
+              address_en: address,
+              address_ta: s.address_ta || address,
+              landmark: s.landmark || "",
+              pincode: s.pincode || (address.match(/\b6\d{5}\b/)?.[0] ?? "600001"),
+              phone: s.phone || s.phone_no || "044-23452300",
+              phone_no: s.phone_no || s.phone || "044-23452300",
+              alternate_phone: s.alternate_phone || "",
+              email: s.email || "",
+              lat: lat,
+              lng: lng,
+              lon: lng,
+              latitude: lat,
+              longitude: lng,
+              sdo: s.sdo || (s.division ? `ACP ${s.division} Division` : "ACP Sub-Divisional Officer"),
+              range: s.range || s.zone || "Metropolitan Range",
+              range_name: s.range || s.zone || "Metropolitan Range",
+              jurisdiction_areas: s.jurisdiction_areas || "",
+              working_hours: s.working_hours || "24/7",
+              is_active: s.is_active !== undefined ? s.is_active : 1,
+              status: s.status || (s.is_active === 0 ? "INACTIVE" : "ACTIVE"),
+              station_image: s.station_image || ""
+            };
+          });
+          jsonDb.setTable("police_stations", stations);
+        }
       } catch (err) {
-        console.error("Failed to fallback load chennaiPoliceStations:", err);
-      }
-    } else {
-      stations = stations.map((s, index) => {
-        const sName = s.station_name || s.name_en || `Police Station ${index + 1}`;
-        const isTambaramArea = sName.toLowerCase().includes("tambaram") || sName.toLowerCase().includes("selaiyur") || s.locality?.toLowerCase().includes("tambaram") || s.locality?.toLowerCase().includes("selaiyur");
-        return {
-          ...s,
-          station_name: sName,
-          name_en: s.name_en || sName,
-          district: s.district || (isTambaramArea ? "Tambaram District" : "Chennai District"),
-          phone_no: s.phone_no || s.phone || "044-23452300",
-          phone: s.phone || s.phone_no || "044-23452300",
-          lat: s.lat ?? s.latitude ?? 13.0827,
-          lon: s.lon ?? s.lng ?? s.longitude ?? 80.2707,
-          latitude: s.latitude ?? s.lat ?? 13.0827,
-          longitude: s.longitude ?? s.lng ?? s.lon ?? 80.2707,
-          sdo: s.sdo || (isTambaramArea ? "ACP Tambaram Division" : "Sub-Divisional Officer"),
-          range: s.range || (isTambaramArea ? "Tambaram Range" : (s.zone || "Metropolitan Range")),
-          ps_address: s.ps_address || s.address || s.address_en || "Chennai, Tamil Nadu",
-          address: s.address || s.ps_address || s.address_en || "Chennai, Tamil Nadu",
-          pincode: s.pincode || (s.address?.match(/\b6\d{5}\b/)?.[0] ?? "600001")
-        };
-      });
-    }
-
-    // Deduplicate by normalized station name so no duplicate record is ever served
-    const seenNames = new Set<string>();
-    const uniqueStations: DBPoliceStation[] = [];
-    for (const s of stations) {
-      const nameKey = (s.station_name || s.name_en || "").toLowerCase().trim();
-      if (nameKey && !seenNames.has(nameKey)) {
-        seenNames.add(nameKey);
-        uniqueStations.push(s);
-      } else if (!nameKey) {
-        uniqueStations.push(s);
+        console.error("Failed to load 221 stations from chennai-stations-seed:", err);
       }
     }
 
-    return uniqueStations;
+    // Return all valid stations mapped with consistent fields
+    return (stations || []).map((s, index) => {
+      const nameEn = (s.station_name || s.name_en || `Police Station ${s.id || index + 1}`).replace(/"/g, "").trim();
+      const address = (s.address || s.ps_address || s.address_en || "Chennai, Tamil Nadu").replace(/\\n/g, "").replace(/"/g, "").trim();
+      const lat = typeof s.latitude === "number" ? s.latitude : (typeof s.lat === "number" ? s.lat : (parseFloat(s.latitude || s.lat) || 13.0827));
+      const lng = typeof s.longitude === "number" ? s.longitude : (typeof s.lng === "number" ? s.lng : (typeof s.lon === "number" ? s.lon : (parseFloat(s.longitude || s.lng || s.lon) || 80.2707)));
+
+      return {
+        ...s,
+        id: s.id || index + 1,
+        station_name: nameEn,
+        name_en: s.name_en || nameEn,
+        station_name_ta: s.station_name_ta || s.name_ta || `காவல் நிலையம் - ${nameEn}`,
+        name_ta: s.name_ta || `காவல் நிலையம் - ${nameEn}`,
+        phone: s.phone || s.phone_no || "044-23452300",
+        phone_no: s.phone_no || s.phone || "044-23452300",
+        lat: lat,
+        lng: lng,
+        lon: lng,
+        latitude: lat,
+        longitude: lng,
+        address: address,
+        ps_address: address,
+        address_en: s.address_en || address,
+        pincode: s.pincode || (address.match(/\b6\d{5}\b/)?.[0] ?? "600001"),
+        status: s.status || (s.is_active === 0 ? "INACTIVE" : "ACTIVE"),
+        is_active: s.is_active !== undefined ? s.is_active : 1
+      };
+    });
   }
   public async savePoliceStations(stations: DBPoliceStation[]) {
     jsonDb.setTable("police_stations", stations);

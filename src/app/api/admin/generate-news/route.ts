@@ -186,7 +186,7 @@ async function generateWithGemini(contentEn: string, image: string | null) {
       }
     }
 
-    const prompt = `You are a professional bilingual news editor for the Tamil Nadu Police (Greater Chennai Police) media desk.
+    const prompt = `You are a professional bilingual news editor for the Greater Chennai Police portal.
 Analyze the following article content using Named Entity Recognition (NER), context classification, keyword extraction, and summarization.
 
 Article Content:
@@ -239,7 +239,7 @@ JSON Schema:
     "extracted_from": "Significance indicators in text"
   },
   "author": {
-    "value": "Actual author name if explicitly mentioned in the article, otherwise default to 'Greater Chennai Police Media Desk'",
+    "value": "Actual author name if explicitly mentioned in the article, otherwise default to 'Greater Chennai Police'",
     "confidence": 100,
     "extracted_from": "Author attribution sentence or null"
   },
@@ -345,13 +345,13 @@ export async function POST(req: NextRequest) {
             },
             section: ai.section || { value: "latest", confidence: 90, extracted_from: null },
             author_en: {
-              value: ai.author?.value || "Greater Chennai Police Media Desk",
+              value: ai.author?.value || "Greater Chennai Police",
               confidence: ai.author?.confidence || 100,
               extracted_from: ai.author?.extracted_from || null
             },
             author_ta: {
-              value: ai.author?.value === "Greater Chennai Police Media Desk" || !ai.author?.value
-                ? "சென்னை பெருநகர காவல் ஊடகப் பிரிவு"
+              value: ai.author?.value === "Greater Chennai Police" || ai.author?.value === "Greater Chennai Police Media Desk" || !ai.author?.value
+                ? "சென்னை பெருநகர காவல்"
                 : ai.author.value + " (தமிழ்)",
               confidence: ai.author?.confidence || 100,
               extracted_from: ai.author?.extracted_from || null
@@ -558,12 +558,12 @@ export async function POST(req: NextRequest) {
           extracted_from: "Defaults to latest news section"
         },
         author_en: {
-          value: "Greater Chennai Police Media Desk",
+          value: "Greater Chennai Police",
           confidence: 100,
           extracted_from: "Default attribution"
         },
         author_ta: {
-          value: "சென்னை பெருநகர காவல் ஊடகப் பிரிவு",
+          value: "சென்னை பெருநகர காவல்",
           confidence: 100,
           extracted_from: "Default attribution"
         },

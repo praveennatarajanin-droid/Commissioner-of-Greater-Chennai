@@ -220,7 +220,7 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
             </div>
             <div className="text-left min-w-0">
               <h1 className="font-display font-black text-sm md:text-xl tracking-wider uppercase leading-tight text-white truncate">
-                {language === "ta" ? "சென்னை கார்டியன்" : "CHENNAI GUARDIAN"}
+                {language === "ta" ? "சென்னை பெருநகர காவல்" : "GREATER CHENNAI POLICE"}
               </h1>
               <p className="text-[8px] md:text-[10px] text-brand-blue font-black tracking-wider uppercase mt-0.5 md:mt-1 hidden xs:block">
                 {language === "ta" ? "24/7 தமிழ் செய்தித் தொலைக்காட்சி" : "24/7 TAMIL NEWS CHANNEL"}

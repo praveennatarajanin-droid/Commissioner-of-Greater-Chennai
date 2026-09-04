@@ -4,6 +4,8 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Eye, Clock, ChevronRight, Flame, TrendingUp, Zap, Award } from "lucide-react";
+import { formatPublishedTime, getNewsTimestamp } from "@/lib/dateUtils";
+import { useLiveNow } from "@/lib/useLiveNow";
 
 interface NewsItem {
   id: number;
@@ -20,31 +22,16 @@ interface NewsItem {
   breaking?: number;
   featured?: number;
   views_count?: number;
+  published_at?: string;
+  publishedAt?: string;
   created_at?: string;
+  updated_at?: string;
   published?: number;
 }
 
 interface TopStoriesGridProps {
   news: NewsItem[];
   language?: "en" | "ta";
-}
-
-function timeAgo(dateStr: string, lang: "en" | "ta" = "en"): string {
-  try {
-    const d = new Date(dateStr);
-    if (isNaN(d.getTime())) return dateStr;
-    const diff = (Date.now() - d.getTime()) / 1000;
-    if (diff <= 60) return lang === "ta" ? "இப்போது" : "Just now";
-    if (diff < 3600) {
-      const mins = Math.floor(diff / 60);
-      return lang === "ta" ? `${mins} நிமிடம் முன்` : `${mins} ${mins === 1 ? "minute" : "minutes"} ago`;
-    }
-    if (diff < 86400) {
-      const hrs = Math.floor(diff / 3600);
-      return lang === "ta" ? `${hrs} மணிநேரம் முன்` : `${hrs} ${hrs === 1 ? "hour" : "hours"} ago`;
-    }
-    return lang === "ta" ? "1 நாள் முன்" : "1 day ago";
-  } catch { return lang === "ta" ? "1 நாள் முன்" : "1 day ago"; }
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -74,15 +61,20 @@ function getLabel(item: NewsItem): { text: string; color: string; icon: React.Re
 
 export default function TopStoriesGrid({ news, language = "en" }: TopStoriesGridProps) {
   const [mounted, setMounted] = useState(false);
-  useEffect(() => { setMounted(true); }, []);
+  const liveNow = useLiveNow(30000);
 
-  // Sort: breaking first, then by date
+  useEffect(() => { 
+    setMounted(true); 
+  }, []);
+
+  // Sort: breaking first, then featured, then by newest published_at/date/timestamp
   const sorted = [...news].sort((a, b) => {
     if ((b.breaking || 0) !== (a.breaking || 0)) return (b.breaking || 0) - (a.breaking || 0);
     if ((b.featured || 0) !== (a.featured || 0)) return (b.featured || 0) - (a.featured || 0);
-    const da = a.created_at || a.date || "";
-    const db = b.created_at || b.date || "";
-    return db.localeCompare(da);
+    const dateA = getNewsTimestamp(a)?.getTime() || 0;
+    const dateB = getNewsTimestamp(b)?.getTime() || 0;
+    if (dateB !== dateA) return dateB - dateA;
+    return (b.id || 0) - (a.id || 0);
   }).slice(0, 12);
 
   return (
@@ -118,6 +110,7 @@ export default function TopStoriesGrid({ news, language = "en" }: TopStoriesGrid
               const category = language === "ta" ? (item.category_ta || item.category_en) : item.category_en;
               const color = getCategoryColor(item.category_en);
               const label = getLabel(item);
+              const pubTimeStr = formatPublishedTime(item.published_at || item.publishedAt || item.date || item.created_at, language, mounted ? liveNow : undefined);
 
               return (
                 <Link
@@ -132,36 +125,33 @@ export default function TopStoriesGrid({ news, language = "en" }: TopStoriesGrid
                       alt={title}
                       fill
                       className="object-cover object-center group-hover:scale-[1.04] transition-transform duration-500"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/images/police_medal.jpg"; }}
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" 
+                      onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/images/police_medal.jpg"; }}
                     />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-                    {/* Category badge */}
-                    <div className="absolute top-2 left-2 flex items-center gap-1.5">
+                    {/* Category Tag on Image */}
+                    <div className="absolute top-2 left-2 flex items-center gap-1">
+                      <span
+                        className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded text-white shadow-sm"
+                        style={{ background: color }}
+                      >
+                        {category}
+                      </span>
                       {label && (
                         <span
-                          className="flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-black text-white uppercase tracking-widest shadow"
+                          className="flex items-center gap-0.5 text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded text-white shadow-sm"
                           style={{ background: label.color }}
                         >
-                          {label.icon} {label.text}
+                          {label.icon}
+                          {label.text}
                         </span>
                       )}
                     </div>
-
-                    {/* Overlay on hover */}
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/15 transition-colors duration-300" />
                   </div>
 
                   {/* Content */}
-                  <div className="flex flex-col flex-grow p-4 gap-2">
-                    {/* Category */}
-                    <span
-                      className="text-[9px] font-black uppercase tracking-widest"
-                      style={{ color }}
-                    >
-                      {category}
-                    </span>
-
-                    {/* Title */}
+                  <div className="p-3.5 flex flex-col gap-1.5 flex-grow">
                     <h3 className="font-display font-bold text-sm text-stone-900 dark:text-white leading-snug line-clamp-2 group-hover:text-brand-maroon dark:group-hover:text-brand-gold transition-colors flex-grow">
                       {title}
                     </h3>
@@ -176,19 +166,10 @@ export default function TopStoriesGrid({ news, language = "en" }: TopStoriesGrid
                     {/* Meta row */}
                     <div className="flex items-center justify-between pt-2 border-t border-stone-100 dark:border-stone-800 mt-auto">
                       <div className="flex items-center gap-3">
-                        {mounted && item.created_at && (
-                          <span className="flex items-center gap-1 text-[10px] text-stone-400 font-medium">
-                            <Clock className="w-3 h-3" />
-                            {timeAgo(item.created_at, language)}
-                          </span>
-                        )}
-                        {!mounted && item.date && (
-                          <span className="flex items-center gap-1 text-[10px] text-stone-400 font-medium">
-                            <Clock className="w-3 h-3" />
-                            {item.date}
-                          </span>
-                        )}
-
+                        <span className="flex items-center gap-1 text-[10px] text-stone-400 font-medium">
+                          <Clock className="w-3 h-3" />
+                          {pubTimeStr}
+                        </span>
                       </div>
                       <span
                         className="text-[9px] font-black uppercase tracking-wider group-hover:gap-1.5 transition-all flex items-center gap-1"

@@ -49,13 +49,11 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Invalid longitude value. Must be between -180 and 180." }, { status: 400 });
     }
 
-    // Retrieve active police stations from Database (MySQL / DB Layer) restricted to Chennai & Chengalpattu
+    // Retrieve active police stations from Database (all 221 master stations)
     const allStations = await db.getPoliceStations();
     const activeStations = allStations.filter(s => {
       if (s.is_active === 0 || s.status === "INACTIVE" || s.deleted_at) return false;
-      if (!s.district) return true;
-      const dLower = s.district.toLowerCase();
-      return ALLOWED_DISTRICTS.some(allowed => dLower.includes(allowed));
+      return true;
     });
 
     if (activeStations.length === 0) {

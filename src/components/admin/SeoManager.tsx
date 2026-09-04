@@ -190,7 +190,7 @@ function generateDefaults(contentType: ContentType, itemId: number, state: { new
     image_caption: "Greater Chennai Police Commissionerate Office",
     image_description: "Greater Chennai Police Headquarters",
     news_category: "Public Safety",
-    author_name: "Greater Chennai Police Media Desk",
+    author_name: "Greater Chennai Police",
     schema_json: orgSchema,
     hreflang_en: "",
     hreflang_ta: "",
@@ -252,7 +252,7 @@ function generateDefaults(contentType: ContentType, itemId: number, state: { new
         seo_slug: "/news",
         canonical_url: `${baseUrl}/news`,
         og_title: "News Room - Greater Chennai Police",
-        og_description: "Official media desk announcements.",
+        og_description: "Official announcements and press releases.",
         og_url: `${baseUrl}/news`,
         sitemap_priority: 0.8,
         sitemap_changefreq: "daily"
@@ -618,7 +618,7 @@ export default function SeoManager({ news, videos, alerts, slider, profile, onAl
         "datePublished": new Date().toISOString(),
         "author": {
           "@type": "Person",
-          "name": currentSeo.author_name || "Greater Chennai Police Media Desk"
+          "name": currentSeo.author_name || "Greater Chennai Police"
         }
       }, null, 2);
     } else if (loadedTemplate === "person") {

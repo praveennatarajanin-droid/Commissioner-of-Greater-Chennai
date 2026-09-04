@@ -3,6 +3,12 @@ import type { NextRequest } from "next/server";
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // Bypass API routes and static assets immediately
+  if (pathname.startsWith("/api") || pathname.startsWith("/_next") || pathname.startsWith("/images") || pathname.startsWith("/uploads")) {
+    return NextResponse.next();
+  }
+
   const configuredAdminPath = (process.env.ADMIN_CONSOLE_PATH || "/control-center").toLowerCase();
 
   // Obvious administrative & scanner honeypot paths to block

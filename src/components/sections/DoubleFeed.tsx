@@ -3,9 +3,11 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Calendar, FileText, CalendarDays, ChevronRight } from "lucide-react";
+import { Calendar, FileText, CalendarDays, ChevronRight, Clock } from "lucide-react";
 import { newsData } from "../../data/newsData";
 import { useTranslation } from "@/context/LanguageContext";
+import { formatPublishedTime, formatPublishedDate } from "@/lib/dateUtils";
+import { useLiveNow } from "@/lib/useLiveNow";
 
 interface DoubleFeedProps {
   customNews?: any[];
@@ -13,6 +15,7 @@ interface DoubleFeedProps {
 
 export default function DoubleFeed({ customNews }: DoubleFeedProps = {}) {
   const { t, language } = useTranslation();
+  const liveNow = useLiveNow(30000);
   const activeNews = customNews || newsData;
   const pressReleases = activeNews.filter((item) => item.section === "press");
   const eventLogs = activeNews.filter((item) => item.section === "event");
@@ -51,7 +54,7 @@ export default function DoubleFeed({ customNews }: DoubleFeedProps = {}) {
                 </Link>
                 <div className="flex items-center gap-1.5 text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase pt-1">
                   <Calendar className="w-3.5 h-3.5" />
-                  Updated - {reunionItem?.date} | CHENNAI
+                  {formatPublishedDate(reunionItem?.published_at || reunionItem?.date, language)} | CHENNAI
                 </div>
               </div>
 
@@ -105,8 +108,8 @@ export default function DoubleFeed({ customNews }: DoubleFeedProps = {}) {
                   <div className="space-y-1 flex-grow py-0.5 flex flex-col justify-between">
                     <div>
                       <div className="flex items-center gap-1.5 text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500">
-                        <Calendar className="w-3 h-3" />
-                        {item.date} | {language === "ta" ? item.category_ta : item.category_en}
+                        <Clock className="w-3 h-3" />
+                        {formatPublishedTime(item.published_at || item.publishedAt || item.date || item.created_at, language, liveNow)} | {language === "ta" ? item.category_ta : item.category_en}
                       </div>
                       <span className="font-bold text-xs text-slate-900 dark:text-white hover:text-brand-maroon dark:hover:text-brand-gold transition leading-snug block text-left mt-0.5">
                         {language === "ta" ? item.title_ta : item.title_en}
@@ -149,8 +152,8 @@ export default function DoubleFeed({ customNews }: DoubleFeedProps = {}) {
                   <div className="space-y-1 flex-grow py-0.5 flex flex-col justify-between">
                     <div>
                       <div className="flex items-center gap-1.5 text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500">
-                        <Calendar className="w-3 h-3" />
-                        {item.date} | {language === "ta" ? item.category_ta : item.category_en}
+                        <Clock className="w-3 h-3" />
+                        {formatPublishedTime(item.published_at || item.publishedAt || item.date || item.created_at, language, liveNow)} | {language === "ta" ? item.category_ta : item.category_en}
                       </div>
                       <span className="font-bold text-xs text-slate-900 dark:text-white hover:text-brand-maroon dark:hover:text-brand-gold transition leading-snug block text-left mt-0.5">
                         {language === "ta" ? item.title_ta : item.title_en}

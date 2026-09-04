@@ -3,9 +3,11 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Bookmark, ChevronRight, Share2, Calendar, Pin, RefreshCw } from "lucide-react";
+import { Bookmark, ChevronRight, Share2, Calendar, Pin, RefreshCw, Clock } from "lucide-react";
 import { newsData } from "../../data/newsData";
 import { useTranslation } from "@/context/LanguageContext";
+import { formatPublishedTime, formatPublishedDate } from "@/lib/dateUtils";
+import { useLiveNow } from "@/lib/useLiveNow";
 
 interface MyActivitiesProps {
   customNews?: any[];
@@ -14,6 +16,7 @@ interface MyActivitiesProps {
 
 export default function MyActivities({ customNews, customAlerts }: MyActivitiesProps = {}) {
   const { t, language } = useTranslation();
+  const liveNow = useLiveNow(30000);
   const activeNews = customNews || newsData;
   const activities = activeNews.filter((item) => item.section === "activity");
 
@@ -72,25 +75,7 @@ export default function MyActivities({ customNews, customAlerts }: MyActivitiesP
     return new Date(b.published_at).getTime() - new Date(a.published_at).getTime();
   });
 
-  const formatTimeAgo = (dateStr: string) => {
-    try {
-      const date = new Date(dateStr);
-      const now = new Date();
-      const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-      
-      if (seconds <= 60) return language === "ta" ? "இப்போது" : "Just now";
-      
-      const minutes = Math.floor(seconds / 60);
-      if (minutes < 60) return language === "ta" ? `${minutes} நிமிடங்களுக்கு முன்` : `${minutes} min${minutes > 1 ? "s" : ""} ago`;
-      
-      const hours = Math.floor(minutes / 60);
-      if (hours < 24) return language === "ta" ? `${hours} மணிநேரத்திற்கு முன்` : `${hours} hr${hours > 1 ? "s" : ""} ago`;
-      
-      return language === "ta" ? "1 நாள் முன்" : "1 day ago";
-    } catch {
-      return language === "ta" ? "1 நாள் முன்" : "1 day ago";
-    }
-  };
+
 
   const getAlertHref = (alert: any) => {
     if (!alert.url) return "#";
@@ -180,7 +165,7 @@ export default function MyActivities({ customNews, customAlerts }: MyActivitiesP
                   <div className="flex items-center justify-between text-[10px] text-slate-400 dark:text-slate-500 pt-2 border-t border-stone-50 dark:border-stone-800">
                     <span className="flex items-center gap-1">
                       <Calendar className="w-3.5 h-3.5" />
-                      {item.date}
+                      {formatPublishedDate(item.published_at || item.date, language)}
                     </span>
                     <Share2 
                       className="w-3.5 h-3.5 cursor-pointer hover:text-brand-maroon dark:hover:text-brand-gold" 
@@ -292,7 +277,7 @@ export default function MyActivities({ customNews, customAlerts }: MyActivitiesP
                           {item.category}
                         </span>
                         <div className="flex items-center gap-1 text-[9px] font-semibold text-slate-400 dark:text-stone-500 shrink-0">
-                          <span>{formatTimeAgo(item.published_at)}</span>
+                          <span>{formatPublishedTime(item.published_at, language, liveNow)}</span>
                           {item.pinned === 1 && (
                             <Pin className="w-2.5 h-2.5 text-brand-gold fill-brand-gold ml-1" />
                           )}

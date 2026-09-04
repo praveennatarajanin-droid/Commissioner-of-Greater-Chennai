@@ -34,9 +34,14 @@ export async function generateMetadata({
   const ogImageUrl = ogImage.startsWith("http") ? ogImage : `${baseUrl}${ogImage}`;
   const canonicalUrl = customSeo?.canonical_url || `${baseUrl}/news/${article.slug}`;
   const robots = customSeo?.robots || seoSettings.default_robots || "index, follow";
+  const safeTags = Array.isArray(article.tags_en)
+    ? article.tags_en
+    : typeof article.tags_en === "string"
+      ? (article.tags_en as string).split(",").map((k) => k.trim()).filter(Boolean)
+      : [];
   const keywords = customSeo?.meta_keywords
     ? customSeo.meta_keywords.split(",").map(k => k.trim())
-    : [article.category_en, ...article.tags_en, "Chennai Police", "Dr. A. Amalraj IPS"];
+    : [article.category_en, ...safeTags, "Chennai Police", "Dr. A. Amalraj IPS"].filter(Boolean);
 
   return {
     title: seoTitle,
@@ -59,9 +64,9 @@ export async function generateMetadata({
       images: [{ url: ogImageUrl, width: 1200, height: 630, alt: customSeo?.image_alt || article.title_en }],
       publishedTime: article.created_at || article.date,
       modifiedTime: article.updated_at || article.created_at || article.date,
-      authors: [customSeo?.author_name || article.author_en || "Greater Chennai Police Media Desk"],
+      authors: [customSeo?.author_name || article.author_en || "Greater Chennai Police"],
       section: article.category_en,
-      tags: article.tags_en,
+      tags: safeTags,
     },
     twitter: {
       card: (customSeo?.twitter_card as "summary_large_image" | "summary") || "summary_large_image",
@@ -115,7 +120,7 @@ export default async function Page({
     "dateModified": article.updated_at || article.created_at || article.date,
     "author": {
       "@type": "Person",
-      "name": customSeo?.author_name || article.author_en || "Greater Chennai Police Media Desk"
+      "name": customSeo?.author_name || article.author_en || "Greater Chennai Police"
     },
     "publisher": {
       "@type": "Organization",

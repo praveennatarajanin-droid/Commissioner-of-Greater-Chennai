@@ -544,8 +544,8 @@ function CMSPageEditor({
       section: "latest",
       published: 1,
       date: new Date().toLocaleDateString("en-US", { month: "long", day: "2-digit", year: "numeric" }),
-      author_en: "Greater Chennai Police Media Desk",
-      author_ta: ""
+      author_en: "Greater Chennai Police",
+      author_ta: "சென்னை பெருநகர காவல்"
     });
   };
 

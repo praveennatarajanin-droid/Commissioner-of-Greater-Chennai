@@ -8,6 +8,8 @@ import NewsTicker from "@/components/layout/NewsTicker";
 import Footer from "@/components/layout/Footer";
 import { useTranslation } from "@/context/LanguageContext";
 import { Clock, Eye, ChevronRight, Newspaper, ArrowLeft } from "lucide-react";
+import { formatPublishedTime } from "@/lib/dateUtils";
+import { useLiveNow } from "@/lib/useLiveNow";
 
 interface NewsItem {
   id: number;
@@ -25,6 +27,8 @@ interface NewsItem {
   featured?: number;
   views_count?: number;
   created_at?: string;
+  published_at?: string;
+  publishedAt?: string;
   published?: number;
 }
 
@@ -183,23 +187,7 @@ const CATEGORY_MAP: Record<string, { title_en: string; title_ta: string; color: 
   }
 };
 
-function timeAgo(dateStr: string, lang: "en" | "ta" = "en"): string {
-  try {
-    const d = new Date(dateStr);
-    if (isNaN(d.getTime())) return dateStr;
-    const diff = (Date.now() - d.getTime()) / 1000;
-    if (diff <= 60) return lang === "ta" ? "இப்போது" : "Just now";
-    if (diff < 3600) {
-      const mins = Math.floor(diff / 60);
-      return lang === "ta" ? `${mins} நிமிடம் முன்` : `${mins} ${mins === 1 ? "minute" : "minutes"} ago`;
-    }
-    if (diff < 86400) {
-      const hrs = Math.floor(diff / 3600);
-      return lang === "ta" ? `${hrs} மணிநேரம் முன்` : `${hrs} ${hrs === 1 ? "hour" : "hours"} ago`;
-    }
-    return lang === "ta" ? "1 நாள் முன்" : "1 day ago";
-  } catch { return lang === "ta" ? "1 நாள் முன்" : "1 day ago"; }
-}
+
 
 export default function CategoryPageClient({
   id,
@@ -211,6 +199,7 @@ export default function CategoryPageClient({
   const { language } = useTranslation();
   const [mounted, setMounted] = useState(false);
   const [visibleCount, setVisibleCount] = useState(12);
+  const liveNow = useLiveNow(30000);
 
   useEffect(() => {
     setMounted(true);
@@ -266,9 +255,20 @@ export default function CategoryPageClient({
         return exactMatch;
       })
       .sort((a, b) => {
-        const da = a.created_at || a.date || "";
-        const db = b.created_at || b.date || "";
-        return db.localeCompare(da);
+        const getTs = (item: any) => {
+          if (!item) return 0;
+          for (const dateStr of [item.updated_at, item.created_at, item.date]) {
+            if (dateStr && typeof dateStr === "string" && dateStr.trim()) {
+              const parsed = Date.parse(dateStr.trim());
+              if (!isNaN(parsed) && parsed > 0) return parsed;
+            }
+          }
+          return typeof item.id === "number" ? item.id : 0;
+        };
+        const timeA = getTs(a);
+        const timeB = getTs(b);
+        if (timeB !== timeA) return timeB - timeA;
+        return (b.id || 0) - (a.id || 0);
       });
   }, [news, id]);
 
@@ -366,7 +366,7 @@ export default function CategoryPageClient({
 
                       <div className="flex items-center justify-between pt-3 border-t border-stone-100 dark:border-stone-850 mt-auto text-[9px] text-stone-400 font-bold uppercase tracking-wider">
                         <span className="flex items-center gap-1">
-                          <Clock className="w-3 h-3 text-stone-400" /> {timeAgo(n.created_at || n.date, language)}
+                          <Clock className="w-3 h-3 text-stone-400" /> {formatPublishedTime(n.published_at || (n as any).publishedAt || n.date || n.created_at, language, liveNow)}
                         </span>
 
                         <span className="flex items-center gap-0.5 text-brand-maroon dark:text-brand-gold group-hover:gap-1.5 transition-all text-[8px] font-black tracking-widest uppercase">

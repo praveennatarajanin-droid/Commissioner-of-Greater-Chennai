@@ -154,11 +154,11 @@ export default function PoliceStationsManagement({ user, onTabChange }: PoliceSt
       station_type: editingStation.category || "Law & Order",
       phone_no: editingStation.phone_no,
       phone: editingStation.phone_no,
-      lat: parseFloat(editingStation.lat),
-      latitude: parseFloat(editingStation.lat),
-      lon: parseFloat(editingStation.lon),
-      lng: parseFloat(editingStation.lon),
-      longitude: parseFloat(editingStation.lon),
+      lat: editingStation.lat !== undefined && editingStation.lat !== "" ? (!isNaN(Number(editingStation.lat)) ? Number(editingStation.lat) : editingStation.lat) : 13.0827,
+      latitude: editingStation.lat !== undefined && editingStation.lat !== "" ? (!isNaN(Number(editingStation.lat)) ? Number(editingStation.lat) : editingStation.lat) : 13.0827,
+      lon: editingStation.lon !== undefined && editingStation.lon !== "" ? (!isNaN(Number(editingStation.lon)) ? Number(editingStation.lon) : editingStation.lon) : 80.2707,
+      lng: editingStation.lon !== undefined && editingStation.lon !== "" ? (!isNaN(Number(editingStation.lon)) ? Number(editingStation.lon) : editingStation.lon) : 80.2707,
+      longitude: editingStation.lon !== undefined && editingStation.lon !== "" ? (!isNaN(Number(editingStation.lon)) ? Number(editingStation.lon) : editingStation.lon) : 80.2707,
       sdo: editingStation.sdo,
       zone: selectedZone,
       zone_en: selectedZone,
@@ -577,13 +577,12 @@ export default function PoliceStationsManagement({ user, onTabChange }: PoliceSt
               {/* Phone Number */}
               <div className="space-y-1">
                 <label className="block text-[10px] font-black uppercase text-stone-500 tracking-wider">
-                  Phone Number *
+                  Phone Number
                 </label>
                 <input
                   type="text"
-                  required
-                  placeholder="e.g. 044-22290100"
-                  value={editingStation.phone_no}
+                  placeholder="e.g. 044-22290100 (Optional)"
+                  value={editingStation.phone_no ?? ""}
                   onChange={(e) => setEditingStation({ ...editingStation, phone_no: e.target.value })}
                   className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 p-2.5 rounded-xl text-xs font-mono font-bold text-slate-800 dark:text-white outline-none focus:border-[#2e3192]"
                 />
@@ -595,11 +594,10 @@ export default function PoliceStationsManagement({ user, onTabChange }: PoliceSt
                   Latitude *
                 </label>
                 <input
-                  type="number"
-                  step="any"
+                  type="text"
                   required
-                  placeholder="e.g. 11.4102"
-                  value={editingStation.lat}
+                  placeholder="e.g. 13.0827"
+                  value={editingStation.lat ?? ""}
                   onChange={(e) => setEditingStation({ ...editingStation, lat: e.target.value })}
                   className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 p-2.5 rounded-xl text-xs font-mono font-bold text-slate-800 dark:text-white outline-none focus:border-[#2e3192]"
                 />
@@ -611,11 +609,10 @@ export default function PoliceStationsManagement({ user, onTabChange }: PoliceSt
                   Longitude *
                 </label>
                 <input
-                  type="number"
-                  step="any"
+                  type="text"
                   required
-                  placeholder="e.g. 76.6950"
-                  value={editingStation.lon}
+                  placeholder="e.g. 80.2707"
+                  value={editingStation.lon ?? ""}
                   onChange={(e) => setEditingStation({ ...editingStation, lon: e.target.value })}
                   className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 p-2.5 rounded-xl text-xs font-mono font-bold text-slate-800 dark:text-white outline-none focus:border-[#2e3192]"
                 />

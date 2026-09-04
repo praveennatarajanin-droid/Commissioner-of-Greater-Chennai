@@ -43,27 +43,27 @@ export default function Footer({ customProfile }: FooterProps = {}) {
 
   const websiteName = config
     ? (language === "ta" ? config.website_name_ta : config.website_name_en)
-    : (language === "ta" ? "சென்னை கார்டியன் செய்திகள்" : "CHENNAI GUARDIAN NEWS");
+    : (language === "ta" ? "சென்னை பெருநகர காவல் செய்திகள்" : "GREATER CHENNAI POLICE NEWS");
 
   const description = config
     ? (language === "ta" ? config.description_ta : config.description_en)
     : (language === "ta"
         ? "சென்னையின் முன்னணி சட்டம் ஒழுங்கு, குற்றப் புலனாய்வு மற்றும் மக்கள் விழிப்புணர்வு செய்திகளை உடனுக்குடன் வழங்கும் அதிகாரப்பூர்வ செய்தி ஊடகம்."
-        : "Official news platform of Chennai Guardian News, providing 24/7 updates on public safety, cyber alerts, and community-centered policing initiatives.");
+        : "Official news platform of Greater Chennai Police, providing 24/7 updates on public safety, cyber alerts, and community-centered policing initiatives.");
 
   const googleMapLink = config?.google_map_link || "https://maps.google.com/?q=Greater+Chennai+Police+Commissioner+Office+Vepery";
   
   const copyrightText = config
     ? (language === "ta" ? config.copyright_text_ta : config.copyright_text_en)
-    : (language === "ta" ? "© 2026 Chennai Guardian. All Rights Reserved." : "© 2026 Chennai Guardian. All Rights Reserved.");
+    : (language === "ta" ? "© 2026 Greater Chennai Police. All Rights Reserved." : "© 2026 Greater Chennai Police. All Rights Reserved.");
 
   const developerCredit = config
     ? (language === "ta" ? config.developer_credit_ta : config.developer_credit_en)
     : (language === "ta" ? "சென்னை பெருநகர காவல் ஊடகக் குழுவால் உருவாக்கப்பட்டது" : "Designed & Developed by MCC MRF Innovation Park");
 
-  // Fallback Quick Links
-  const finalQuickLinks = config?.quick_links && config.quick_links.length > 0
-    ? config.quick_links.filter((l: any) => l.active)
+  // Fallback / Config Quick Links
+  const rawQuickLinks = config?.quick_links && config.quick_links.length > 0
+    ? config.quick_links.filter((l: any) => l.active !== false)
     : [
         { id: "ql1", label_en: "Home", label_ta: "முகப்பு", url: "/" },
         { id: "ql2", label_en: "Crime News", label_ta: "குற்றம்", url: "/category/crime" },
@@ -71,8 +71,14 @@ export default function Footer({ customProfile }: FooterProps = {}) {
         { id: "ql4", label_en: "Women Safety", label_ta: "பெண்கள் பாதுகாப்பு", url: "/category/women-safety" },
         { id: "ql5", label_en: "About Us", label_ta: "எங்களைப் பற்றி", url: "/about" },
         { id: "ql6", label_en: "Achievements", label_ta: "சாதனைகள்", url: "/achievements" },
-        { id: "ql7", label_en: "Police Stations", label_ta: "காவல் நிலையங்கள்", url: "/stations" }
+        { id: "ql7", label_en: "Police Stations", label_ta: "காவல் நிலையங்கள்", url: "/stations" },
+        { id: "ql8", label_en: "Contact Us", label_ta: "தொடர்பு கொள்ள", url: "/contact-us" }
       ];
+
+  const hasContactUs = rawQuickLinks.some((l: any) => l.url === "/contact-us" || (l.label_en || "").toLowerCase().includes("contact"));
+  const finalQuickLinks = hasContactUs
+    ? rawQuickLinks
+    : [...rawQuickLinks, { id: "ql-contact-us", label_en: "Contact Us", label_ta: "தொடர்பு கொள்ள", url: "/contact-us" }];
 
   // Fallback Gov Links
   const finalGovLinks = config?.government_links && config.government_links.length > 0

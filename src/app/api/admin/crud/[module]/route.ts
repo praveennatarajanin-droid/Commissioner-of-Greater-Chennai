@@ -181,7 +181,16 @@ export async function POST(req: Request, { params }: { params: Promise<{ module:
           : [];
 
         const nowIso = new Date().toISOString();
-        const dateStr = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+        let pubAt: string | null = null;
+        if (data.published_at) {
+          const parsed = new Date(data.published_at);
+          pubAt = !isNaN(parsed.getTime()) ? parsed.toISOString() : nowIso;
+        } else if (publishedVal === 1) {
+          pubAt = nowIso;
+        }
+
+        const dateObj = pubAt ? new Date(pubAt) : new Date();
+        const dateStr = dateObj.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
 
         const newItem = { 
           id, 
@@ -200,10 +209,11 @@ export async function POST(req: Request, { params }: { params: Promise<{ module:
           content_ta: sanitizedContentTa,
           published: publishedVal,
           created_at: nowIso,
-          published_at: nowIso,
+          published_at: pubAt,
+          publishedAt: pubAt,
           updated_at: nowIso,
           date: dateStr,
-          author_en: data.author_en || (auth.role === "reporter" || auth.role === "editor" ? auth.username : "Greater Chennai Police Media Desk")
+          author_en: data.author_en || (auth.role === "reporter" || auth.role === "editor" ? auth.username : "Greater Chennai Police")
         };
         items.unshift(newItem); // Add to top
         await db.saveNews(items);
@@ -308,19 +318,23 @@ export async function POST(req: Request, { params }: { params: Promise<{ module:
         const items = await db.getPoliceStations();
         const id = items.length > 0 ? Math.max(...items.map((i) => i.id || 0)) + 1 : 1;
         const nameEn = data.name_en || data.station_name || "New Police Station";
-        const latNum = Number(data.lat ?? data.latitude ?? 13.0827);
-        const lonNum = Number(data.lon ?? data.longitude ?? data.lng ?? 80.2707);
+        const rawLat = data.lat ?? data.latitude;
+        const rawLon = data.lon ?? data.longitude ?? data.lng;
+        const latNum = Number(rawLat);
+        const lonNum = Number(rawLon);
+        const finalLat = !isNaN(latNum) && rawLat !== undefined && rawLat !== "" ? latNum : (rawLat ?? 13.0827);
+        const finalLon = !isNaN(lonNum) && rawLon !== undefined && rawLon !== "" ? lonNum : (rawLon ?? 80.2707);
 
         const newItem = { 
           id, 
           name_en: nameEn,
           station_name: nameEn,
           district: data.district || "Chennai District",
-          phone_no: data.phone_no || data.phone || "044-23452300",
-          lat: isNaN(latNum) ? 13.0827 : latNum,
-          lon: isNaN(lonNum) ? 80.2707 : lonNum,
-          latitude: isNaN(latNum) ? 13.0827 : latNum,
-          longitude: isNaN(lonNum) ? 80.2707 : lonNum,
+          phone_no: data.phone_no ?? data.phone ?? "",
+          lat: finalLat,
+          lon: finalLon,
+          latitude: finalLat,
+          longitude: finalLon,
           sdo: data.sdo || "Sub-Divisional Officer",
           range: data.range || data.zone_en || "Metropolitan Range",
           ps_address: data.ps_address || data.address || "Chennai, Tamil Nadu",
@@ -462,7 +476,20 @@ export async function PUT(req: Request, { params }: { params: Promise<{ module: 
           if (sanitizedContentEn !== undefined) updatedPayload.content_en = sanitizedContentEn;
           if (sanitizedContentTa !== undefined) updatedPayload.content_ta = sanitizedContentTa;
 
-          items = items.map((i) => (i.id === data.id ? { ...i, ...updatedPayload, updated_at: new Date().toISOString() } : i));
+          let finalPublishedAt = existing.published_at || existing.created_at;
+          if (data.published_at !== undefined && data.published_at !== null) {
+            finalPublishedAt = data.published_at;
+          } else if (data.published === 1 && existing.published === 0 && !finalPublishedAt) {
+            finalPublishedAt = new Date().toISOString();
+          }
+
+          items = items.map((i) => (i.id === data.id ? { 
+            ...i, 
+            ...updatedPayload, 
+            published_at: finalPublishedAt,
+            publishedAt: finalPublishedAt,
+            updated_at: new Date().toISOString() 
+          } : i));
           await db.saveNews(items);
 
           if (data.published === 1 && existing.published === 0) {

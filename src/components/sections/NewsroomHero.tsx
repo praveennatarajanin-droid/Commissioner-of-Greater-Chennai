@@ -56,46 +56,12 @@ interface NewsroomHeroProps {
   videos?: VideoItem[];
 }
 
-function timeAgo(dateStr: string, lang: "en" | "ta" = "en"): string {
-  try {
-    const d = new Date(dateStr);
-    if (isNaN(d.getTime())) return dateStr;
-    const diff = (Date.now() - d.getTime()) / 1000;
-    if (diff <= 60) return lang === "ta" ? "இப்போது" : "Just now";
-    if (diff < 3600) {
-      const mins = Math.floor(diff / 60);
-      return lang === "ta" ? `${mins} நிமிடம் முன்` : `${mins} ${mins === 1 ? "minute" : "minutes"} ago`;
-    }
-    if (diff < 86400) {
-      const hrs = Math.floor(diff / 3600);
-      return lang === "ta" ? `${hrs} மணிநேரம் முன்` : `${hrs} ${hrs === 1 ? "hour" : "hours"} ago`;
-    }
-    return lang === "ta" ? "1 நாள் முன்" : "1 day ago";
-  } catch { return lang === "ta" ? "1 நாள் முன்" : "1 day ago"; }
-}
-
-function formatDate(dateStr: string, lang: "en" | "ta" = "en"): string {
-  try {
-    const d = new Date(dateStr);
-    if (isNaN(d.getTime())) return dateStr;
-    
-    if (lang === "ta") {
-      const monthsTa = [
-        "ஜனவரி", "பிப்ரவரி", "மார்ச்", "ஏப்ரல்", "மே", "ஜூன்", 
-        "ஜூலை", "ஆகஸ்ட்", "செப்டம்பர்", "அக்டோபர்", "நவம்பர்", "டிசம்பர்"
-      ];
-      return `${monthsTa[d.getMonth()]} ${d.getDate().toString().padStart(2, '0')}, ${d.getFullYear()}`;
-    } else {
-      const monthsEn = [
-        "JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", 
-        "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"
-      ];
-      return `${monthsEn[d.getMonth()]} ${d.getDate().toString().padStart(2, '0')}, ${d.getFullYear()}`;
-    }
-  } catch {
-    return dateStr;
-  }
-}
+import { 
+  formatPublishedTime, 
+  formatPublishedDate, 
+  getNewsTimestamp 
+} from "@/lib/dateUtils";
+import { useLiveNow } from "@/lib/useLiveNow";
 
 const CATEGORY_COLORS: Record<string, string> = {
   "BREAKING": "#ed1b24",
@@ -128,11 +94,18 @@ function formatViews(num?: number, lang: "en" | "ta" = "en"): string {
   return `${num} ${lang === "ta" ? "பார்வைகள்" : "Views"}`;
 }
 
+function parseNewsTimestamp(item?: any | null): number {
+  if (!item) return 0;
+  const ts = getNewsTimestamp(item);
+  return ts ? ts.getTime() : (typeof item.id === "number" ? item.id : 0);
+}
+
 export default function NewsroomHero({ news, slider = [], language = "en", videos = [] }: NewsroomHeroProps) {
   const [activeTab, setActiveTab] = useState<Tab>("trending");
   const [mounted, setMounted] = useState(false);
   const [sliderIndex, setSliderIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
+  const liveNow = useLiveNow(30000);
 
   // Dynamic Views states
   const [dbTrending, setDbTrending] = useState<NewsItem[]>([]);
@@ -151,25 +124,28 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
     fetch("/api/videos/trending").then(res => res.ok ? res.json() : null).then(data => Array.isArray(data) && setDbVideos(data)).catch(() => {});
   }, []);
 
-  // Center Hero story: Featured or breaking first
-  const heroStory = news.find(n => n.breaking === 1) ||
-    news.find(n => n.featured === 1) ||
-    news.find(n => n.section === "spotlight") ||
-    news[0];
+  // Sort all news chronologically (newest published_at/date first)
+  const sortedNews = [...news].sort((a, b) => {
+    const timeA = parseNewsTimestamp(a);
+    const timeB = parseNewsTimestamp(b);
+    if (timeB !== timeA) return timeB - timeA;
+    return (b.id || 0) - (a.id || 0);
+  });
 
-  // Left Column: Latest News headlines (rendered as Spotlight Updates)
-  const latestHeadlines = [...news]
-    .sort((a, b) => {
-      const da = a.created_at || a.date || "";
-      const db = b.created_at || b.date || "";
-      return db.localeCompare(da);
-    })
+  // Center Hero story: Breaking or featured first, or newest
+  const heroStory = sortedNews.find(n => n.breaking === 1) ||
+    sortedNews.find(n => n.featured === 1 && n.section !== "spotlight") ||
+    sortedNews.find(n => n.section === "slider") ||
+    sortedNews[0];
+
+  // Left Column: Spotlight Updates (Strictly newest / most recently updated news from backend)
+  const spotlightUpdates = sortedNews
     .filter(n => n.id !== heroStory?.id)
     .slice(0, 3);
 
   // Slides list setup (reusing backend Hero Slider + news marked as "slider" section)
   const newsSlides = (news || [])
-    .filter(n => n.section === "slider")
+    .filter(n => n.section === "slider" && (n.title_en || n.title_ta))
     .map(n => ({
       id: n.id,
       src: n.image || "/images/police_medal.jpg",
@@ -183,17 +159,29 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
       active: 1
     }));
 
-  const slidesToUse = [...newsSlides, ...(slider || [])].filter(Boolean);
-  if (slidesToUse.length === 0) {
+  const rawSlides = [...newsSlides, ...(slider || [])].filter(s => s && s.active !== 0 && (s.title_en || s.title_ta));
+  
+  // Deduplicate slides by title or image
+  const seenSlideKeys = new Set<string>();
+  const slidesToUse: typeof rawSlides = [];
+  for (const s of rawSlides) {
+    const key = (s.title_en || s.src || "").toLowerCase().trim();
+    if (key && !seenSlideKeys.has(key)) {
+      seenSlideKeys.add(key);
+      slidesToUse.push(s);
+    }
+  }
+
+  if (slidesToUse.length === 0 && heroStory) {
     slidesToUse.push({
-      id: heroStory?.id || 1,
-      src: heroStory?.image || "/images/police_medal.jpg",
-      title_en: heroStory?.title_en || "",
-      title_ta: heroStory?.title_ta || "",
-      desc_en: heroStory?.summary_en || "",
-      desc_ta: heroStory?.summary_ta || "",
-      category_en: heroStory?.category_en || "",
-      category_ta: heroStory?.category_ta || "",
+      id: heroStory.id || 1,
+      src: heroStory.image || "/images/police_medal.jpg",
+      title_en: heroStory.title_en || "",
+      title_ta: heroStory.title_ta || "",
+      desc_en: heroStory.summary_en || "",
+      desc_ta: heroStory.summary_ta || "",
+      category_en: heroStory.category_en || "",
+      category_ta: heroStory.category_ta || "",
       order_num: 1,
       active: 1
     });
@@ -251,19 +239,19 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
   };
 
   // Right Column Tabs (use dynamically fetched lists if available)
-  const trendingNews = dbTrending.length > 0 ? dbTrending : [...news]
+  const trendingNews = dbTrending.length > 0 ? dbTrending : [...sortedNews]
     .sort((a, b) => {
       const aTrend = a.section === "trending" ? 1 : 0;
       const bTrend = b.section === "trending" ? 1 : 0;
       if (aTrend !== bTrend) return bTrend - aTrend;
       return (b.views_count || 0) - (a.views_count || 0);
     })
-    .filter(n => n.id !== heroStory?.id && !latestHeadlines.some(l => l.id === n.id))
+    .filter(n => n.id !== heroStory?.id && !spotlightUpdates.some(l => l.id === n.id))
     .slice(0, 5);
 
-  const mostReadNews = dbMostRead.length > 0 ? dbMostRead : [...news]
-    .filter(n => n.section === "spotlight" || n.featured === 1)
-    .filter(n => n.id !== heroStory?.id && !latestHeadlines.some(l => l.id === n.id))
+  const mostReadNews = dbMostRead.length > 0 ? dbMostRead : [...sortedNews]
+    .sort((a, b) => (b.views_count || 0) - (a.views_count || 0))
+    .filter(n => n.id !== heroStory?.id && !spotlightUpdates.some(l => l.id === n.id))
     .slice(0, 5);
 
   const sidebarVideos = dbVideos.length > 0 ? dbVideos : (videos || [])
@@ -299,9 +287,10 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
                 </h3>
               </div>
               <div className="space-y-3.5">
-                {latestHeadlines.map((item) => {
+                {spotlightUpdates.map((item) => {
                   const title = language === "ta" ? (item.title_ta || item.title_en) : item.title_en;
                   const category = language === "ta" ? (item.category_ta || item.category_en) : item.category_en;
+                  const displayDate = item.updated_at || item.created_at || item.date;
                   
                   return (
                     <Link
@@ -333,8 +322,8 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
                         
                         <div className="flex items-center justify-between text-[8px] font-bold uppercase tracking-wider text-stone-400 mt-1">
                           <span className="flex items-center gap-1">
-                            <Calendar className="w-3 h-3 text-stone-400 shrink-0" />
-                            {mounted ? formatDate(item.created_at || item.date, language) : item.date}
+                            <Clock className="w-3 h-3 text-stone-400 shrink-0" />
+                            {formatPublishedTime(displayDate, language, mounted ? liveNow : undefined)}
                           </span>
                           <span className="flex items-center gap-0.5 text-brand-maroon dark:text-brand-gold font-black uppercase text-[8px] tracking-widest shrink-0">
                             {language === "ta" ? "படிக்க" : "READ MORE"} <span className="text-[9px]">→</span>
@@ -518,7 +507,7 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
                           {title}
                         </h4>
                         <div className="flex items-center gap-2 mt-1 text-[9px] text-stone-400 font-semibold">
-                          <span>{timeAgo(item.created_at || item.date, language)}</span>
+                          <span>{formatPublishedTime(item.published_at || item.publishedAt || item.created_at || item.date, language, mounted ? liveNow : undefined)}</span>
                         </div>
                       </div>
                     </Link>
@@ -556,7 +545,7 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
                           {title}
                         </h4>
                         <div className="flex items-center gap-2 mt-1 text-[9px] text-stone-400 font-semibold">
-                          <span>{timeAgo(item.created_at || item.date, language)}</span>
+                          <span>{formatPublishedTime(item.published_at || item.publishedAt || item.created_at || item.date, language, mounted ? liveNow : undefined)}</span>
                         </div>
                       </div>
                     </Link>

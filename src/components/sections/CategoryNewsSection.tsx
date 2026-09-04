@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronRight, Clock } from "lucide-react";
+import { formatPublishedTime, getNewsTimestamp } from "@/lib/dateUtils";
+import { useLiveNow } from "@/lib/useLiveNow";
 
 interface NewsItem {
   id: number;
@@ -18,7 +20,10 @@ interface NewsItem {
   date: string;
   section: string;
   published?: number;
+  published_at?: string;
+  publishedAt?: string;
   created_at?: string;
+  updated_at?: string;
 }
 
 interface CategoryNewsSectionProps {
@@ -37,14 +42,25 @@ const CATEGORIES = [
 
 export default function CategoryNewsSection({ news, language = "en" }: CategoryNewsSectionProps) {
   const [activeTab, setActiveTab] = useState(CATEGORIES[0].id);
+  const liveNow = useLiveNow(30000);
 
   const activeCat = CATEGORIES.find(c => c.id === activeTab) || CATEGORIES[0];
 
   const filteredNews = news
     .filter(n => activeCat.match.some(m => n.category_en?.toUpperCase() === m.toUpperCase()))
+    .sort((a, b) => {
+      const dateA = getNewsTimestamp(a)?.getTime() || 0;
+      const dateB = getNewsTimestamp(b)?.getTime() || 0;
+      return dateB - dateA;
+    })
     .slice(0, 4);
 
-  const fallbackNews = news.slice(0, 4);
+  const fallbackNews = [...news].sort((a, b) => {
+    const dateA = getNewsTimestamp(a)?.getTime() || 0;
+    const dateB = getNewsTimestamp(b)?.getTime() || 0;
+    return dateB - dateA;
+  }).slice(0, 4);
+
   const displayNews = filteredNews.length > 0 ? filteredNews : fallbackNews;
 
   return (
@@ -89,6 +105,7 @@ export default function CategoryNewsSection({ news, language = "en" }: CategoryN
               const title = language === "ta" ? (item.title_ta || item.title_en) : item.title_en;
               const summary = language === "ta" ? (item.summary_ta || item.summary_en) : item.summary_en;
               const category = language === "ta" ? (item.category_ta || item.category_en) : item.category_en;
+              const pubTimeStr = formatPublishedTime(item.published_at || item.publishedAt || item.date || item.created_at, language, liveNow);
 
               return (
                 <Link
@@ -103,7 +120,8 @@ export default function CategoryNewsSection({ news, language = "en" }: CategoryN
                       alt={title}
                       fill
                       className="object-cover object-center group-hover:scale-[1.04] transition-transform duration-500"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/images/police_medal.jpg"; }}
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" 
+                      onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/images/police_medal.jpg"; }}
                     />
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
 
@@ -128,7 +146,7 @@ export default function CategoryNewsSection({ news, language = "en" }: CategoryN
                     )}
                     <div className="flex items-center justify-between pt-2 border-t border-stone-100 dark:border-stone-800 mt-auto">
                       <span className="flex items-center gap-1 text-[10px] text-stone-400 font-medium">
-                        <Clock className="w-3 h-3" /> {item.date}
+                        <Clock className="w-3 h-3" /> {pubTimeStr}
                       </span>
                       <span
                         className="flex items-center gap-0.5 text-[9px] font-black uppercase tracking-wider"

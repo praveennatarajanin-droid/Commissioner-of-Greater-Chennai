@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { NewsItem } from "@/data/newsData";
 import { useTranslation } from "@/context/LanguageContext";
+import { formatFullDateTime } from "@/lib/dateUtils";
 
 // Custom SVG Icons for Social Share
 const FacebookIcon = () => (
@@ -741,14 +742,22 @@ export default function NewsDetailClient({ article }: { article: NewsItem }) {
 
               {/* Metadata row */}
               <div className="flex flex-wrap items-center gap-y-2 gap-x-6 text-xs text-slate-500 dark:text-stone-400 font-bold border-y border-stone-200/60 dark:border-stone-800/80 py-3.5 text-left">
-                <span className="flex items-center gap-1.5 uppercase tracking-wider text-brand-maroon dark:text-brand-gold">
-                  <User className="w-4 h-4 shrink-0" />
-                  {language === "ta" ? article.author_ta : article.author_en}
+                <span className="flex items-center gap-1.5" title="Published Date & Time (IST)">
+                  <Calendar className="w-4 h-4 shrink-0 text-brand-maroon dark:text-brand-gold" />
+                  <span>
+                    {language === "ta" ? "வெளியிடப்பட்டது: " : "Published: "}
+                    {formatFullDateTime(article.published_at || (article as any).publishedAt || article.date || article.created_at, language)}
+                  </span>
                 </span>
-                <span className="flex items-center gap-1.5">
-                  <Calendar className="w-4 h-4 shrink-0" />
-                  {article.date}
-                </span>
+                {article.updated_at && article.updated_at !== article.created_at && (
+                  <span className="flex items-center gap-1.5 text-stone-400" title="Last Updated Time (IST)">
+                    <Clock className="w-3.5 h-3.5 shrink-0" />
+                    <span>
+                      {language === "ta" ? "புதுப்பிக்கப்பட்டது: " : "Updated: "}
+                      {formatFullDateTime(article.updated_at, language)}
+                    </span>
+                  </span>
+                )}
                 <span className="flex items-center gap-1.5">
                   <Clock className="w-4 h-4 shrink-0" />
                   {readingTime} {t("article.readTime")}
@@ -998,21 +1007,13 @@ export default function NewsDetailClient({ article }: { article: NewsItem }) {
                 <h4 className="font-display font-black text-xs uppercase tracking-widest text-slate-900 dark:text-white pb-2.5 border-b border-stone-200 dark:border-stone-850 text-left">
                   {t("article.sourceInfo")}
                 </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-4 text-xs text-left">
-                  <div className="space-y-1 text-left">
-                    <span className="text-slate-450 dark:text-stone-500 font-bold uppercase tracking-wider text-[9px] block text-left">
-                      {t("article.publishedBy")}
-                    </span>
-                    <p className="text-slate-800 dark:text-stone-200 font-extrabold text-sm text-left">
-                      {language === "ta" ? article.author_ta : article.author_en}
-                    </p>
-                  </div>
+                <div className="grid grid-cols-1 gap-6 mt-4 text-xs text-left">
                   <div className="space-y-1 text-left">
                     <span className="text-slate-450 dark:text-stone-500 font-bold uppercase tracking-wider text-[9px] block text-left">
                       {t("article.referenceSource")}
                     </span>
                     <p className="text-slate-800 dark:text-stone-200 font-extrabold text-sm text-left">
-                      {article.sourceName || (language === "ta" ? "சென்னை பெருநகர காவல் ஊடகப் பிரிவு" : "Greater Chennai Police Media Desk")}
+                      {article.sourceName || (language === "ta" ? "சென்னை பெருநகர காவல்" : "Greater Chennai Police")}
                     </p>
                   </div>
                 </div>
@@ -1456,11 +1457,7 @@ export default function NewsDetailClient({ article }: { article: NewsItem }) {
           <div className="article-meta">
             <div>
               <span className="meta-label">Published</span>
-              <span className="meta-value">{article.date}</span>
-            </div>
-            <div>
-              <span className="meta-label">Author</span>
-              <span className="meta-value">{language === "ta" ? article.author_ta : article.author_en}</span>
+              <span className="meta-value">{formatFullDateTime(article.published_at || (article as any).publishedAt || article.date || article.created_at, language)}</span>
             </div>
             <div>
               <span className="meta-label">Source</span>

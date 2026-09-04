@@ -1092,6 +1092,21 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
       if (dateFilter === "month" && diffDays > 30) return false;
     }
     return true;
+  }).sort((a, b) => {
+    const getTs = (item: any) => {
+      if (!item) return 0;
+      for (const d of [item.updated_at, item.created_at, item.date]) {
+        if (d && typeof d === "string" && d.trim()) {
+          const p = Date.parse(d.trim());
+          if (!isNaN(p) && p > 0) return p;
+        }
+      }
+      return typeof item.id === "number" ? item.id : 0;
+    };
+    const timeA = getTs(a);
+    const timeB = getTs(b);
+    if (timeB !== timeA) return timeB - timeA;
+    return (b.id || 0) - (a.id || 0);
   });
 
   const fetchMedia = async () => {
@@ -1403,7 +1418,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
 
   useEffect(() => {
     fetchData();
-  }, [user]);
+  }, [user, activeTab]);
 
   // Build activity log from real data whenever core data changes
   useEffect(() => {
@@ -2235,7 +2250,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                           </div>
                           {(() => {
                             const rawActions = [
-                              { id: "add-news", label: "Add News", sub: "Create Article", icon: <FileText className="w-5 h-5" />, color: "#1e40af", module: "news", permission: "create", action: () => { setActiveTab("news" as TabType); setIsAdding(true); setEditingItem({ title_en: "", title_ta: "", category_en: "", category_ta: "", summary_en: "", summary_ta: "", content_en: [""], content_ta: [""], image: "", tags_en: [], tags_ta: [], section: "latest", published: 1, date: new Date().toLocaleDateString("en-US", { month: "long", day: "2-digit", year: "numeric" }), author_en: "Greater Chennai Police Media Desk", author_ta: "" }); } },
+                              { id: "add-news", label: "Add News", sub: "Create Article", icon: <FileText className="w-5 h-5" />, color: "#1e40af", module: "news", permission: "create", action: () => { setActiveTab("news" as TabType); setIsAdding(true); setEditingItem({ title_en: "", title_ta: "", category_en: "", category_ta: "", summary_en: "", summary_ta: "", content_en: [""], content_ta: [""], image: "", tags_en: [], tags_ta: [], section: "latest", published: 1, date: new Date().toLocaleDateString("en-US", { month: "long", day: "2-digit", year: "numeric" }), author_en: "Greater Chennai Police", author_ta: "சென்னை பெருநகர காவல்" }); } },
                               { id: "add-slider", label: "Add Slider", sub: "Hero Slide", icon: <ImageIcon className="w-5 h-5" />, color: "#d4af37", module: "slider", permission: "create", action: () => { setActiveTab("slider" as TabType); setIsAdding(true); setEditingItem({ src: "", title_en: "", title_ta: "", desc_en: "", desc_ta: "", category_en: "", category_ta: "", order_num: slider.length + 1, active: 1 }); } },
                               { id: "add-video", label: "Add Video", sub: "Media Clip", icon: <Tv className="w-5 h-5" />, color: "#7c3aed", module: "videos", permission: "create", action: () => { setActiveTab("videos" as TabType); setIsAdding(true); setVideoYoutubeUrl(""); setEditingItem({ youtube_id: "", title: "", category: "", date: new Date().toLocaleDateString("en-US", { month: "long", day: "2-digit", year: "numeric" }), order_num: videos.length + 1, active: 1, section: "main" }); } },
                               { id: "add-ticker", label: "Add Ticker", sub: "Flash News", icon: <Radio className="w-5 h-5" />, color: "#ed1b24", module: "ticker", permission: "create", action: () => { setActiveTab("ticker" as TabType); setIsAdding(true); setEditingItem({ text_en: "", text_ta: "", active: 1, order_num: ticker.length + 1 }); } },
@@ -2258,7 +2273,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                         </div>
                         {(() => {
                           const rawActions = [
-                            { id: "add-news", label: "Add News", sub: "Create Article", icon: <FileText className="w-5 h-5" />, color: "#1e40af", module: "news", permission: "create", action: () => { setActiveTab("news" as TabType); setIsAdding(true); setEditingItem({ title_en: "", title_ta: "", category_en: "", category_ta: "", summary_en: "", summary_ta: "", content_en: [""], content_ta: [""], image: "", tags_en: [], tags_ta: [], section: "latest", published: 1, date: new Date().toLocaleDateString("en-US", { month: "long", day: "2-digit", year: "numeric" }), author_en: "Greater Chennai Police Media Desk", author_ta: "" }); } },
+                            { id: "add-news", label: "Add News", sub: "Create Article", icon: <FileText className="w-5 h-5" />, color: "#1e40af", module: "news", permission: "create", action: () => { setActiveTab("news" as TabType); setIsAdding(true); setEditingItem({ title_en: "", title_ta: "", category_en: "", category_ta: "", summary_en: "", summary_ta: "", content_en: [""], content_ta: [""], image: "", tags_en: [], tags_ta: [], section: "latest", published: 1, date: new Date().toLocaleDateString("en-US", { month: "long", day: "2-digit", year: "numeric" }), author_en: "Greater Chennai Police", author_ta: "சென்னை பெருநகர காவல்" }); } },
                             { id: "add-slider", label: "Add Slider", sub: "Hero Slide", icon: <ImageIcon className="w-5 h-5" />, color: "#d4af37", module: "slider", permission: "create", action: () => { setActiveTab("slider" as TabType); setIsAdding(true); setEditingItem({ src: "", title_en: "", title_ta: "", desc_en: "", desc_ta: "", category_en: "", category_ta: "", order_num: slider.length + 1, active: 1 }); } },
                             { id: "add-video", label: "Add Video", sub: "Media Clip", icon: <Tv className="w-5 h-5" />, color: "#7c3aed", module: "videos", permission: "create", action: () => { setActiveTab("videos" as TabType); setIsAdding(true); setVideoYoutubeUrl(""); setEditingItem({ youtube_id: "", title: "", category: "", date: new Date().toLocaleDateString("en-US", { month: "long", day: "2-digit", year: "numeric" }), order_num: videos.length + 1, active: 1, section: "main" }); } },
                             { id: "add-ticker", label: "Add Ticker", sub: "Flash News", icon: <Radio className="w-5 h-5" />, color: "#ed1b24", module: "ticker", permission: "create", action: () => { setActiveTab("ticker" as TabType); setIsAdding(true); setEditingItem({ text_en: "", text_ta: "", active: 1, order_num: ticker.length + 1 }); } },
@@ -2636,7 +2651,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                           views_count: 0,
                           language: "Both",
                           date: new Date().toLocaleDateString("en-US", { month: "long", day: "2-digit", year: "numeric" }),
-                          author_en: "Greater Chennai Police Media Desk", author_ta: "சென்னை பெருநகர காவல் ஊடகப் பிரிவு"
+                          author_en: "Greater Chennai Police", author_ta: "சென்னை பெருநகர காவல்"
                         });
                       }}
                       className="flex items-center gap-1.5 px-4 py-2 bg-brand-maroon hover:bg-brand-maroon-dark text-white rounded-lg text-xs font-black uppercase tracking-widest transition cursor-pointer border border-brand-maroon-dark"

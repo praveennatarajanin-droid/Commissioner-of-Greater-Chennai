@@ -32,6 +32,8 @@ import { useTranslation } from "@/context/LanguageContext";
 import Image from "next/image";
 import Link from "next/link";
 import { Clock, Eye, ChevronRight, TrendingUp, HelpCircle, Film, Newspaper } from "lucide-react";
+import { formatPublishedTime, getNewsTimestamp } from "@/lib/dateUtils";
+import { useLiveNow } from "@/lib/useLiveNow";
 
 // ─── Interfaces ─────────────────────────────────────────────────────────────
 interface NewsItem {
@@ -105,75 +107,58 @@ interface NewsChannelHomepageProps {
   stories?: any[];
 }
 
-// ─── Time Ago Helper ────────────────────────────────────────────────────────
-function timeAgo(dateStr: string, lang: "en" | "ta" = "en"): string {
-  try {
-    const d = new Date(dateStr);
-    if (isNaN(d.getTime())) return dateStr;
-    const diff = (Date.now() - d.getTime()) / 1000;
-    if (diff <= 60) return lang === "ta" ? "இப்போது" : "Just now";
-    if (diff < 3600) {
-      const mins = Math.floor(diff / 60);
-      return lang === "ta" ? `${mins} நிமிடம் முன்` : `${mins} ${mins === 1 ? "minute" : "minutes"} ago`;
-    }
-    if (diff < 86400) {
-      const hrs = Math.floor(diff / 3600);
-      return lang === "ta" ? `${hrs} மணிநேரம் முன்` : `${hrs} ${hrs === 1 ? "hour" : "hours"} ago`;
-    }
-    return lang === "ta" ? "1 நாள் முன்" : "1 day ago";
-  } catch { return lang === "ta" ? "1 நாள் முன்" : "1 day ago"; }
-}
+
 
 // ─── Category Settings ──────────────────────────────────────────────────────
 const NEWS_CATEGORIES = [
-  { 
-    id: "crime",     
-    title_en: "Crime",         
-    title_ta: "குற்றச் செய்திகள்",     
-    color: "#7c3aed", 
-    keywords: ["crime", "arrest", "painkiller", "dvac", "bribery", "cheat", "theft", "seizure", "corruption", "law and order"] 
+  {
+    id: "crime",
+    title_en: "Crime",
+    title_ta: "குற்றச் செய்திகள்",
+    color: "#7c3aed",
+    keywords: ["crime", "arrest", "painkiller", "dvac", "bribery", "cheat", "theft", "seizure", "corruption", "law and order"]
   },
-  { 
-    id: "cyber",     
-    title_en: "Cyber Safety",   
-    title_ta: "இணைய பாதுகாப்பு", 
-    color: "#0284c7", 
-    keywords: ["cyber", "online", "scam", "phishing", "hacker", "fraud", "password"] 
+  {
+    id: "cyber",
+    title_en: "Cyber Safety",
+    title_ta: "இணைய பாதுகாப்பு",
+    color: "#0284c7",
+    keywords: ["cyber", "online", "scam", "phishing", "hacker", "fraud", "password"]
   },
-  { 
-    id: "women",     
-    title_en: "Women Safety",   
-    title_ta: "பெண்கள் பாதுகாப்பு", 
-    color: "#db2777", 
-    keywords: ["women", "harassment", "singappen", "gender", "ssf", "girls", "harass"] 
+  {
+    id: "women",
+    title_en: "Women Safety",
+    title_ta: "பெண்கள் பாதுகாப்பு",
+    color: "#db2777",
+    keywords: ["women", "harassment", "singappen", "gender", "ssf", "girls", "harass"]
   },
-  { 
-    id: "public",    
-    title_en: "Public Safety",   
-    title_ta: "பொது பாதுகாப்பு",  
-    color: "#475569", 
-    keywords: ["safety", "patrol", "beach", "audit", "cctv", "third eye", "surveillance", "clean campus"] 
+  {
+    id: "public",
+    title_en: "Public Safety",
+    title_ta: "பொது பாதுகாப்பு",
+    color: "#475569",
+    keywords: ["safety", "patrol", "beach", "audit", "cctv", "third eye", "surveillance", "clean campus"]
   },
-  { 
-    id: "outreach",  
-    title_en: "Community Outreach", 
-    title_ta: "சமூக உதவித் திட்டங்கள்", 
-    color: "#059669", 
-    keywords: ["community", "outreach", "karangal", "rescue", "welfare", "pledge", "labour", "students", "legal", "social awareness", "community support"] 
+  {
+    id: "outreach",
+    title_en: "Community Outreach",
+    title_ta: "சமூக உதவித் திட்டங்கள்",
+    color: "#059669",
+    keywords: ["community", "outreach", "karangal", "rescue", "welfare", "pledge", "labour", "students", "legal", "social awareness", "community support"]
   },
-  { 
-    id: "traffic",  
-    title_en: "Traffic Updates", 
-    title_ta: "போக்குவரத்து செய்திகள்", 
-    color: "#2e3192", 
-    keywords: ["traffic", "diversion", "road closure", "signal", "congestion", "transport", "accident alert", "traffic police"] 
+  {
+    id: "traffic",
+    title_en: "Traffic Updates",
+    title_ta: "போக்குவரத்து செய்திகள்",
+    color: "#2e3192",
+    keywords: ["traffic", "diversion", "road closure", "signal", "congestion", "transport", "accident alert", "traffic police"]
   },
-  { 
-    id: "government", 
-    title_en: "Government Updates", 
-    title_ta: "அரசு அறிவிப்புகள்", 
-    color: "#2e3192", 
-    keywords: ["government", "police administration", "appointment", "transfer", "ips", "official", "reshuffle", "chief minister"] 
+  {
+    id: "government",
+    title_en: "Government Updates",
+    title_ta: "அரசு அறிவிப்புகள்",
+    color: "#2e3192",
+    keywords: ["government", "police administration", "appointment", "transfer", "ips", "official", "reshuffle", "chief minister"]
   }
 ];
 
@@ -229,11 +214,10 @@ const NewsBadge = ({ n, idx }: { n: NewsItem; idx: number }) => {
   return null;
 };
 
-// Premium News Card
-const NewsCard = ({ n, lang, idx }: { n: NewsItem; lang: "en" | "ta"; idx: number }) => {
+const NewsCard = ({ n, lang, idx, liveNow }: { n: NewsItem; lang: "en" | "ta"; idx: number; liveNow?: number }) => {
   const title = lang === "ta" ? (n.title_ta || n.title_en) : n.title_en;
   const category = lang === "ta" ? (n.category_ta || n.category_en) : n.category_en;
-  
+
   return (
     <Link
       href={n.slug ? `/news/${n.slug}` : "#"}
@@ -248,13 +232,13 @@ const NewsCard = ({ n, lang, idx }: { n: NewsItem; lang: "en" | "ta"; idx: numbe
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/images/police_medal.jpg"; }}
         />
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
-        
+
         {/* Dynamic Badge Overlays */}
         <div className="absolute top-2 left-2 flex flex-col gap-1 z-10">
           <NewsBadge n={n} idx={idx} />
         </div>
       </div>
-      
+
       <div className="p-3.5 flex flex-col flex-grow gap-2">
         <span className="text-[9px] font-black uppercase tracking-widest text-[#2e3192] dark:text-[#c5a059] block">
           {category}
@@ -262,10 +246,10 @@ const NewsCard = ({ n, lang, idx }: { n: NewsItem; lang: "en" | "ta"; idx: numbe
         <h4 className="font-bold text-xs sm:text-sm text-stone-900 dark:text-white leading-snug line-clamp-2 group-hover:text-[#ed1b24] dark:group-hover:text-brand-gold transition-colors flex-grow">
           {title}
         </h4>
-        
+
         <div className="flex items-center justify-between pt-2 border-t border-stone-100 dark:border-stone-850 mt-auto text-[9px] text-stone-400 font-bold uppercase tracking-wider">
           <span className="flex items-center gap-1">
-            <Clock className="w-3 h-3 text-stone-400" /> {timeAgo(n.created_at || n.date, lang)}
+            <Clock className="w-3 h-3 text-stone-400" /> {formatPublishedTime(n.published_at || (n as any).publishedAt || n.date || n.created_at, lang, liveNow)}
           </span>
           <span className="flex items-center gap-0.5 text-brand-maroon dark:text-brand-gold group-hover:gap-1.5 transition-all text-[8px] font-black tracking-widest uppercase">
             Read <ChevronRight className="w-2.5 h-2.5" />
@@ -289,6 +273,7 @@ export default function NewsChannelHomepage({
   const { language } = useTranslation();
   const [mounted, setMounted] = useState(false);
   const [visibleCount, setVisibleCount] = useState(20);
+  const liveNow = useLiveNow(30000);
   const searchParams = useSearchParams();
   const searchQ = searchParams?.get("search") || "";
 
@@ -306,9 +291,10 @@ export default function NewsChannelHomepage({
       return true;
     });
     return unique.sort((a, b) => {
-      const da = a.created_at || a.date || "";
-      const db = b.created_at || b.date || "";
-      return db.localeCompare(da);
+      const timeA = getNewsTimestamp(a)?.getTime() || 0;
+      const timeB = getNewsTimestamp(b)?.getTime() || 0;
+      if (timeB !== timeA) return timeB - timeA;
+      return (b.id || 0) - (a.id || 0);
     });
   }, [news]);
 
@@ -322,13 +308,13 @@ export default function NewsChannelHomepage({
       const summaryTa = (n.summary_ta || "").toLowerCase();
       const categoryEn = (n.category_en || "").toLowerCase();
       const categoryTa = (n.category_ta || "").toLowerCase();
-      
-      return titleEn.includes(q) || 
-             titleTa.includes(q) || 
-             summaryEn.includes(q) || 
-             summaryTa.includes(q) || 
-             categoryEn.includes(q) || 
-             categoryTa.includes(q);
+
+      return titleEn.includes(q) ||
+        titleTa.includes(q) ||
+        summaryEn.includes(q) ||
+        summaryTa.includes(q) ||
+        categoryEn.includes(q) ||
+        categoryTa.includes(q);
     });
   }, [sortedNews, searchQ]);
 
@@ -337,9 +323,9 @@ export default function NewsChannelHomepage({
     return sortedNews.filter(n => {
       const cat = (n.category_en || "").toLowerCase();
       const title = (n.title_en || "").toLowerCase();
-      
+
       // Determine if this article matches the target category exactly (including its subcategories)
-      const matchesTargetExactly = 
+      const matchesTargetExactly =
         (catId === "crime" && (cat === "crime" || cat === "crime prevention" || cat === "wanted criminals" || cat === "missing persons")) ||
         (catId === "cyber" && (cat === "cyber safety" || cat === "cyber awareness" || cat === "online fraud")) ||
         (catId === "women" && (cat === "women safety" || cat === "women's safety" || cat === "pink patrol" || cat === "pink patrol (women safety)" || cat === "aval support wing" || cat === "aval support" || cat === "women helpline")) ||
@@ -352,7 +338,7 @@ export default function NewsChannelHomepage({
 
       // Check if this article belongs to ANY OTHER main category exactly.
       // If it does, we do NOT want it to leak into this category via keywords.
-      const matchesOtherExactly = 
+      const matchesOtherExactly =
         (catId !== "crime" && (cat === "crime" || cat === "crime prevention" || cat === "wanted criminals" || cat === "missing persons")) ||
         (catId !== "cyber" && (cat === "cyber safety" || cat === "cyber awareness" || cat === "online fraud")) ||
         (catId !== "women" && (cat === "women safety" || cat === "women's safety" || cat === "pink patrol" || cat === "pink patrol (women safety)" || cat === "aval support wing" || cat === "aval support" || cat === "women helpline")) ||
@@ -362,7 +348,7 @@ export default function NewsChannelHomepage({
         (catId !== "government" && (cat === "government updates" || cat === "government" || cat === "government update"));
 
       if (matchesOtherExactly) return false;
-      
+
       return keywords.some(k => cat.includes(k) || title.includes(k));
     });
   };
@@ -388,13 +374,13 @@ export default function NewsChannelHomepage({
 
   // 1. Breaking ticker items
   const breakingList = news.filter((n) => n.breaking === 1);
-  const activeTickerList = breakingList.length > 0 
+  const activeTickerList = breakingList.length > 0
     ? breakingList.map(n => ({ id: n.id, title_en: n.title_en, title_ta: n.title_ta, slug: n.slug }))
     : ticker.map(t => ({ id: t.id, title_en: t.text_en, title_ta: t.text_ta, slug: "" }));
 
   return (
     <div className="min-h-screen bg-stone-50 dark:bg-stone-950 font-sans text-stone-850 dark:text-stone-150 transition-colors">
-      
+
       {/* SECTION 2: Breaking News Ticker */}
       <BreakingNewsBanner breakingNews={activeTickerList} language={language} />
 
@@ -411,8 +397,8 @@ export default function NewsChannelHomepage({
               <div className="flex items-center gap-2">
                 <Newspaper className="w-5 h-5 text-brand-maroon dark:text-brand-gold" />
                 <h2 className="font-display font-black text-sm sm:text-base uppercase tracking-widest text-stone-900 dark:text-white">
-                  {language === "ta" 
-                    ? `"${searchQ}" தேடல் முடிவுகள் (${filteredSearchNews.length})` 
+                  {language === "ta"
+                    ? `"${searchQ}" தேடல் முடிவுகள் (${filteredSearchNews.length})`
                     : `Search Results for "${searchQ}" (${filteredSearchNews.length})`}
                 </h2>
               </div>
@@ -423,11 +409,11 @@ export default function NewsChannelHomepage({
                 {language === "ta" ? "தெளிவுபடுத்துக" : "Clear Search"}
               </Link>
             </div>
-            
+
             {filteredSearchNews.length === 0 ? (
               <p className="text-xs text-stone-550 py-6 text-center font-bold">
-                {language === "ta" 
-                  ? "தேடலுக்குரிய செய்திகள் எதுவும் கிடைக்கவில்லை." 
+                {language === "ta"
+                  ? "தேடலுக்குரிய செய்திகள் எதுவும் கிடைக்கவில்லை."
                   : "No news articles found matching your search query."}
               </p>
             ) : (
@@ -455,15 +441,15 @@ export default function NewsChannelHomepage({
           {NEWS_CATEGORIES.map((cat) => {
             const catNews = getCategoryNews(cat.id, cat.keywords);
             if (catNews.length === 0) return null; // Hide the section if no news available
-            
+
             const displayCards = catNews.slice(0, 4);
             const sectionTitle = language === "ta" ? cat.title_ta : cat.title_en;
-            
+
             // Map category id to route path
-            const routePath = cat.id === "cyber" ? "cyber-safety" : 
-                              cat.id === "women" ? "women-safety" : 
-                              cat.id === "public" ? "public-safety" : 
-                              cat.id;
+            const routePath = cat.id === "cyber" ? "cyber-safety" :
+              cat.id === "women" ? "women-safety" :
+                cat.id === "public" ? "public-safety" :
+                  cat.id;
 
             return (
               <section key={cat.id} className="w-full">
@@ -521,7 +507,7 @@ export default function NewsChannelHomepage({
                       {title}
                     </h4>
                     <div className="flex items-center gap-3 mt-1.5 text-[9px] text-stone-400 font-black uppercase tracking-wider">
-                      <span>{timeAgo(item.created_at || item.date, language)}</span>
+                      <span>{formatPublishedTime(item.published_at || (item as any).publishedAt || item.date || item.created_at, language, liveNow)}</span>
                     </div>
                   </div>
                 </Link>
@@ -541,7 +527,7 @@ export default function NewsChannelHomepage({
               const title = language === "ta" ? (n.title_ta || n.title_en) : n.title_en;
               const summary = language === "ta" ? (n.summary_ta || n.summary_en) : n.summary_en;
               const category = language === "ta" ? (n.category_ta || n.category_en) : n.category_en;
-              
+
               return (
                 <Link
                   key={`big-story-${n.id}`}
@@ -555,7 +541,7 @@ export default function NewsChannelHomepage({
                       alt={title}
                       fill
                       className="object-cover group-hover:scale-105 transition-transform duration-500"
-                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
                   </div>
 
@@ -570,7 +556,7 @@ export default function NewsChannelHomepage({
                       {summary}
                     </p>
                     <div className="flex items-center gap-3 pt-1 text-[9px] text-white/50 font-bold uppercase tracking-wider">
-                      <span>{timeAgo(n.created_at || n.date, language)}</span>
+                      <span>{formatPublishedTime(n.published_at || (n as any).publishedAt || n.date || n.created_at, language, liveNow)}</span>
                     </div>
                   </div>
                 </Link>
@@ -592,11 +578,11 @@ export default function NewsChannelHomepage({
             color="#ed1b24"
             live
           />
-          
+
           {latestGridNews.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {latestGridNews.map((n, idx) => (
-                <NewsCard key={`latest-grid-${n.id}`} n={n} lang={language} idx={idx} />
+                <NewsCard key={`latest-grid-${n.id}`} n={n} lang={language} idx={idx} liveNow={liveNow} />
               ))}
             </div>
           ) : (
