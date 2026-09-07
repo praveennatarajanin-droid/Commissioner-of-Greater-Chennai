@@ -14,6 +14,9 @@ const WebStories = dynamic(() => import("@/components/sections/WebStories"), {
   ssr: false,
   loading: () => <div className="h-48 bg-stone-50 dark:bg-stone-900 animate-pulse w-full rounded-2xl" />
 });
+const CitizenQuickActions = dynamic(() => import("@/components/sections/CitizenQuickActions"), {
+  loading: () => <div className="h-64 bg-stone-50 dark:bg-stone-900 animate-pulse w-full rounded-2xl" />
+});
 const VideoNewsCenter = dynamic(() => import("@/components/sections/VideoNewsCenter"), {
   ssr: false,
   loading: () => <div className="h-96 bg-stone-50 dark:bg-stone-900 animate-pulse w-full rounded-2xl" />
@@ -428,6 +431,9 @@ export default function NewsChannelHomepage({
 
         {/* SECTION 3: TOP NEWS ZONE (3-column layout) */}
         <NewsroomHero news={news} slider={slider} language={language} videos={videos} />
+
+        {/* SECTION 3B: CITIZEN QUICK-ACTION SERVICES */}
+        <CitizenQuickActions language={language} />
 
         {/* SECTION 4: WEB STORIES (Instagram-style scroll) */}
         <WebStories language={language} stories={stories} />

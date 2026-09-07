@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import Link from "next/link";
 import { 
   Search, 
@@ -17,9 +17,13 @@ import {
   HeartPulse, 
   AlertTriangle,
   Building,
+  Building2,
   CheckCircle2,
   Clock,
-  Navigation
+  Navigation,
+  Shield,
+  MapPinned,
+  ArrowRight
 } from "lucide-react";
 import { DBPoliceStation, DBEmergencyContact, DBDepartmentLink } from "@/lib/db";
 import { useTranslation } from "@/context/LanguageContext";
@@ -31,6 +35,17 @@ interface StationsPageClientProps {
   initialLinks: DBDepartmentLink[];
 }
 
+export const normalizeZoneName = (val?: string | null): string => {
+  if (!val) return "";
+  const clean = String(val).trim().toLowerCase();
+  if (clean.includes("north")) return "North Zone";
+  if (clean.includes("south")) return "South Zone";
+  if (clean.includes("east")) return "East Zone";
+  if (clean.includes("west")) return "West Zone";
+  if (clean.includes("central")) return "Central Zone";
+  return String(val).trim();
+};
+
 const StationCard = React.memo(({ station, language }: { station: DBPoliceStation; language: "en" | "ta" }) => {
   const sName = station.station_name || station.name_en || "Police Station";
   const latVal = station.latitude ?? station.lat ?? 13.0827;
@@ -40,81 +55,132 @@ const StationCard = React.memo(({ station, language }: { station: DBPoliceStatio
   const isTambaram = sName.includes("Tambaram") || sName.includes("Selaiyur");
   const districtVal = station.district || (isTambaram ? "Tambaram District" : "Chennai District");
   const sdoVal = station.sdo || "Sub-Divisional Officer";
-  const rawZ = station.zone || station.zone_en || "";
-  const zoneVal = /^(north|south|east|west|central)/i.test(rawZ) ? rawZ : "North Zone";
-  const rangeVal = station.range || station.range_name || "Metropolitan Range";
+  const rawZ = station.zone || station.zone_en || station.range || "";
+  const zoneVal = normalizeZoneName(rawZ) || "North Zone";
+  const rangeVal = station.range || station.range_name || "";
   const pincodeVal = station.pincode || (psAddress.match(/\b6\d{5}\b/)?.[0] ?? "600001");
+  const slug = sName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
   return (
     <div 
-      className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-850 p-5 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between hover:-translate-y-1 text-left animate-fadeIn"
+      className="bg-white dark:bg-stone-900 border border-slate-200/90 dark:border-stone-800 p-5 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between hover:-translate-y-1 text-left animate-fadeIn relative overflow-hidden"
     >
-      <div className="space-y-4">
-        {/* Badges */}
+      <div className="space-y-3.5 flex-grow">
+        {/* TOP HEADER: Zone Badge & Proximity Distance */}
         <div className="flex items-center justify-between gap-2 flex-wrap">
-          <span className="text-[9px] font-black uppercase tracking-wider bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 px-2.5 py-0.5 rounded-full border border-purple-200 dark:border-purple-800">
-            🏛️ {zoneVal}
-          </span>
-          <span className="text-[9px] font-black uppercase tracking-wider bg-brand-blue/10 dark:bg-brand-blue/20 text-brand-blue dark:text-brand-gold px-2.5 py-0.5 rounded-full border border-brand-blue/20">
-            {rangeVal}
+          <span className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider bg-slate-100 dark:bg-stone-800 text-[#032B69] dark:text-brand-gold px-3 py-1 rounded-full border border-slate-200 dark:border-stone-700">
+            <Shield className="w-3.5 h-3.5 text-[#032B69] dark:text-brand-gold shrink-0" />
+            <span>{zoneVal}</span>
           </span>
           {(station as any).distance !== undefined && (
-            <span className="text-[10px] font-black text-brand-maroon dark:text-brand-gold bg-brand-maroon/10 dark:bg-brand-gold/10 px-2.5 py-0.5 rounded-full border border-brand-maroon/20">
-              📍 {(station as any).distance} KM
+            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-rose-700 dark:text-brand-gold bg-rose-50 dark:bg-rose-950/40 px-2.5 py-1 rounded-full border border-rose-200 dark:border-rose-900/40">
+              <MapPin className="w-3 h-3 shrink-0" />
+              <span>{(station as any).distance} KM</span>
             </span>
           )}
         </div>
 
-        {/* 1. Police Station Name */}
-        <div className="space-y-1">
-          <h3 className="font-display font-black text-sm uppercase text-stone-900 dark:text-white flex items-center gap-1">
-            🚔 {sName}
+        {/* POLICE STATION NAME */}
+        <div className="flex items-start gap-2 pt-0.5">
+          <img 
+            src="/uploads/logo for station.png" 
+            alt="Station Logo" 
+            className="w-4 h-4 object-contain shrink-0 mt-0.5" 
+          />
+          <h3 className="font-display font-bold text-sm sm:text-base uppercase tracking-tight text-slate-900 dark:text-white line-clamp-2 leading-snug">
+            {sName}
           </h3>
-          {/* 8. PS Address */}
-          <div className="flex items-start gap-1.5 text-xs text-stone-600 dark:text-stone-300 pt-1">
-            <MapPin className="w-4 h-4 text-brand-maroon shrink-0 mt-0.5" />
-            <p className="line-clamp-2 leading-relaxed">
-              {psAddress}
-            </p>
-          </div>
         </div>
 
-        {/* 9 Detail Grid: District, Phone No, Lat/Lon, SDO, Zone, Pincode */}
-        <div className="grid grid-cols-2 gap-2 text-[11px] pt-3 border-t border-stone-100 dark:border-stone-800 text-stone-600 dark:text-stone-400">
-          <div>
-            <span className="text-[9px] uppercase font-bold text-stone-400 block">district</span>
-            <span className="font-bold text-brand-blue dark:text-brand-gold truncate block">{districtVal}</span>
+        {/* ADDRESS */}
+        <div className="flex items-start gap-2 text-xs text-slate-600 dark:text-stone-300">
+          <MapPin className="w-4 h-4 text-slate-400 dark:text-stone-400 shrink-0 mt-0.5" />
+          <p className="line-clamp-2 leading-relaxed">
+            {psAddress}
+          </p>
+        </div>
+
+        {/* INFORMATION GRID: 2 Columns */}
+        <div className="grid grid-cols-2 gap-x-4 gap-y-3 pt-3 border-t border-slate-100 dark:border-stone-800 text-xs">
+          {/* DISTRICT */}
+          <div className="space-y-0.5">
+            <span className="text-[11px] uppercase font-bold tracking-wider text-slate-400 dark:text-stone-400 block">
+              {language === "ta" ? "மாவட்டம்" : "DISTRICT"}
+            </span>
+            <span className="font-semibold text-slate-800 dark:text-stone-100 truncate block text-xs sm:text-[13px]">
+              {districtVal}
+            </span>
           </div>
-          <div>
-            <span className="text-[9px] uppercase font-bold text-stone-400 block">phone_no</span>
-            <a href={`tel:${phoneVal}`} className="font-mono font-bold text-stone-800 dark:text-stone-200 hover:text-brand-blue truncate block">
+
+          {/* PHONE NO */}
+          <div className="space-y-0.5">
+            <span className="text-[11px] uppercase font-bold tracking-wider text-slate-400 dark:text-stone-400 block">
+              {language === "ta" ? "தொலைபேசி" : "PHONE NO"}
+            </span>
+            <a 
+              href={`tel:${phoneVal}`}
+              className="font-semibold text-slate-800 dark:text-stone-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors truncate block text-xs sm:text-[13px]"
+            >
               {phoneVal}
             </a>
           </div>
-          <div>
-            <span className="text-[9px] uppercase font-bold text-stone-400 block">SDO</span>
-            <span className="font-bold text-emerald-600 truncate block">{sdoVal}</span>
+
+          {/* SDO */}
+          <div className="space-y-0.5">
+            <span className="text-[11px] uppercase font-bold tracking-wider text-slate-400 dark:text-stone-400 block">
+              SDO
+            </span>
+            <span className="font-semibold text-slate-800 dark:text-stone-100 truncate block text-xs sm:text-[13px]">
+              {sdoVal}
+            </span>
           </div>
-          <div>
-            <span className="text-[9px] uppercase font-bold text-stone-400 block">Zone</span>
-            <span className="font-bold text-purple-600 truncate block">{zoneVal}</span>
+
+          {/* RANGE */}
+          <div className="space-y-0.5">
+            <span className="text-[11px] uppercase font-bold tracking-wider text-slate-400 dark:text-stone-400 block">
+              {language === "ta" ? "எல்லை" : "RANGE"}
+            </span>
+            <span className="font-semibold text-slate-800 dark:text-stone-100 truncate block text-xs sm:text-[13px]">
+              {rangeVal && rangeVal !== "null" && rangeVal !== "undefined" ? rangeVal : "—"}
+            </span>
           </div>
-          <div>
-            <span className="text-[9px] uppercase font-bold text-stone-400 block">Lat / Lon</span>
-            <span className="font-mono font-bold text-amber-600 truncate block">{typeof latVal === "number" ? latVal.toFixed(4) : latVal}, {typeof lonVal === "number" ? lonVal.toFixed(4) : lonVal}</span>
+
+          {/* LOCATION (VIEW ON MAP) */}
+          <div className="space-y-0.5">
+            <span className="text-[11px] uppercase font-bold tracking-wider text-slate-400 dark:text-stone-400 block">
+              {language === "ta" ? "இருப்பிடம்" : "LOCATION"}
+            </span>
+            <a
+              href={`https://www.google.com/maps/search/?api=1&query=${latVal},${lonVal}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-semibold text-xs sm:text-[13px] transition-colors hover:underline"
+              title="View on Map"
+            >
+              <MapPinned className="w-3.5 h-3.5 shrink-0" />
+              <span>{language === "ta" ? "வரைபடத்தில் காண்க →" : "View on Map →"}</span>
+            </a>
           </div>
-          <div>
-            <span className="text-[9px] uppercase font-bold text-stone-400 block">Pincode</span>
-            <span className="font-mono font-bold text-stone-700 dark:text-stone-300">{pincodeVal}</span>
+
+          {/* PINCODE */}
+          <div className="space-y-0.5">
+            <span className="text-[11px] uppercase font-bold tracking-wider text-slate-400 dark:text-stone-400 block">
+              {language === "ta" ? "அஞ்சல் குறியீடு" : "PINCODE"}
+            </span>
+            <span className="font-semibold text-slate-800 dark:text-stone-100 truncate block text-xs sm:text-[13px]">
+              {pincodeVal}
+            </span>
           </div>
         </div>
       </div>
 
+      {/* VIEW FULL DETAILS BUTTON */}
       <Link 
-        href={`/stations/${sName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")}`}
-        className="mt-5 w-full block text-center py-2.5 bg-stone-50 hover:bg-brand-gold hover:text-stone-955 dark:bg-stone-950 dark:hover:bg-brand-gold text-xs font-black uppercase tracking-wider text-stone-800 dark:text-white rounded-xl border border-stone-200 dark:border-stone-800 transition shadow-sm cursor-pointer"
+        href={`/stations/${slug}`}
+        className="mt-5 w-full py-2.5 px-4 bg-[#032B69] hover:bg-[#021d47] text-white dark:bg-brand-blue dark:hover:bg-brand-blue-dark text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-200 shadow-sm flex items-center justify-center gap-1.5 cursor-pointer text-center"
       >
-        {language === "ta" ? "நிலையம் பார்வையிட" : "View Full Details"}
+        <span>{language === "ta" ? "நிலையம் பார்வையிட" : "VIEW FULL DETAILS"}</span>
+        <ArrowRight className="w-3.5 h-3.5" />
       </Link>
     </div>
   );
@@ -131,6 +197,7 @@ export default function StationsPageClient({
   initialLinks 
 }: StationsPageClientProps) {
   const { language } = useTranslation();
+  const directoryRef = useRef<HTMLElement>(null);
 
   // Search & Filter States
   const [searchInput, setSearchInput] = useState("");
@@ -226,21 +293,9 @@ export default function StationsPageClient({
     }
   }, [initialStations]);
 
-  // Derived dynamic SDO options list from all active stations + API + explicit required SDOs
+  // Derived dynamic SDO options list purely from actual database stations
   const sdosList = useMemo(() => {
-    const sdoSet = new Set<string>([
-      "Indigo-1 Traffic investigation wing",
-      "west-1-anna nagar traffic",
-      "west-2-Kolathur traffic",
-      "west-3-Koyambedu traffic",
-      "Indigo-4 Traffic investigation wing",
-      "T .Nagar",
-      "Triplicane",
-      "East TIW",
-      "North-1- Flower Bazaar Traffic Sub Division Office",
-      "North 2- Washermenpet Traffic Sub Division Office",
-      "North -3 PULIANTHOPE Traffic Sub Division Office"
-    ]);
+    const sdoSet = new Set<string>();
     
     (initialStations || []).forEach(s => {
       const val = s.sdo || s.incharge_en;
@@ -259,9 +314,9 @@ export default function StationsPageClient({
     return Array.from(sdoSet).sort((a, b) => a.localeCompare(b));
   }, [initialStations, stations, sdos]);
 
-  // Standard Zone options list (North, South, East, West, Central)
+  // Standard Zone options list (North, South, East, West)
   const zonesList = useMemo(() => {
-    return ["North Zone", "South Zone", "East Zone", "West Zone", "Central Zone"];
+    return ["North Zone", "South Zone", "East Zone", "West Zone"];
   }, []);
 
   // Client-side instant filtering and priority-based sorting
@@ -270,16 +325,24 @@ export default function StationsPageClient({
 
     // Filter by SDO (Sub-Divisional Officer)
     if (selectedSdo !== "All") {
-      list = list.filter(
-        (s) => s.sdo === selectedSdo || s.incharge_en === selectedSdo
-      );
+      const targetSdo = selectedSdo.trim().toLowerCase();
+      list = list.filter((s) => {
+        const sdoVal1 = (s.sdo || "").trim().toLowerCase();
+        const sdoVal2 = (s.incharge_en || "").trim().toLowerCase();
+        return sdoVal1 === targetSdo || sdoVal2 === targetSdo;
+      });
     }
 
     // Filter by Zone
     if (selectedZone !== "All") {
-      list = list.filter(
-        (s) => s.zone === selectedZone || s.zone_en === selectedZone
-      );
+      const targetNorm = normalizeZoneName(selectedZone).toLowerCase();
+      list = list.filter((s) => {
+        const z1 = normalizeZoneName(s.zone).toLowerCase();
+        const z2 = normalizeZoneName(s.zone_en).toLowerCase();
+        const z3 = normalizeZoneName(s.range).toLowerCase();
+        const z4 = normalizeZoneName(s.range_name).toLowerCase();
+        return z1 === targetNorm || z2 === targetNorm || z3 === targetNorm || z4 === targetNorm;
+      });
     }
 
     // Filter by Division
@@ -385,7 +448,7 @@ export default function StationsPageClient({
     }
 
     return list;
-  }, [initialStations, stations, searchQuery, selectedSdo, selectedDivision, selectedType, userCoords]);
+  }, [initialStations, stations, searchQuery, selectedSdo, selectedZone, selectedDivision, selectedType, userCoords]);
 
   // Synchronize pagination states with the computed filtered list length
   useEffect(() => {
@@ -407,7 +470,23 @@ export default function StationsPageClient({
   // Reset userCoords when filters or search query change
   useEffect(() => {
     setUserCoords(null);
-  }, [searchQuery, selectedSdo, selectedDivision, selectedType]);
+  }, [searchQuery, selectedSdo, selectedZone, selectedDivision, selectedType]);
+
+  // Page change handler with smooth auto-scroll to the top of the stations directory
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+    if (directoryRef.current) {
+      const yOffset = -90;
+      const elementPosition = directoryRef.current.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset + yOffset;
+      window.scrollTo({
+        top: Math.max(0, offsetPosition),
+        behavior: "smooth"
+      });
+    } else {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
 
   // Locate Nearby Stations using Geolocation Browser API and modal popup
   const handleNearbySearch = () => {
@@ -464,7 +543,7 @@ export default function StationsPageClient({
       </div>
 
       {/* SECTION 2: POLICE STATIONS DIRECTORY */}
-      <section className="space-y-6">
+      <section ref={directoryRef} className="space-y-6 scroll-mt-24">
         <div className="flex items-center gap-2.5 border-b border-stone-200 dark:border-stone-800 pb-3">
           <div className="w-1.5 h-6 rounded-full bg-brand-maroon" />
           <h2 className="font-display font-black text-sm uppercase tracking-widest text-stone-900 dark:text-white">
@@ -509,14 +588,17 @@ export default function StationsPageClient({
           <div className="relative">
             <select
               value={selectedZone}
-              onChange={(e) => setSelectedZone(e.target.value)}
+              onChange={(e) => {
+                setSelectedZone(e.target.value);
+                setSelectedDivision("All");
+              }}
               className="w-full px-4 py-2.5 bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 text-xs text-stone-800 dark:text-white rounded-xl focus:border-brand-gold focus:outline-none transition-colors appearance-none cursor-pointer font-bold"
             >
               <option className="bg-white dark:bg-stone-950 text-stone-900 dark:text-white" value="All">{language === "ta" ? "அனைத்து மண்டலங்கள்" : "All Zones"}</option>
               {zonesList.map((zone, idx) => (
                 <option className="bg-white dark:bg-stone-950 text-stone-900 dark:text-white" key={`zone-opt-${zone}-${idx}`} value={zone}>
                   {language === "ta" 
-                    ? (zone === "North Zone" ? "வடக்கு மண்டலம்" : zone === "South Zone" ? "தெற்கு மண்டலம்" : zone === "East Zone" ? "கிழக்கு மண்டலம்" : zone === "West Zone" ? "மேற்கு மண்டலம்" : "மத்திய மண்டலம்")
+                    ? (zone === "North Zone" ? "வடக்கு மண்டலம்" : zone === "South Zone" ? "தெற்கு மண்டலம்" : zone === "East Zone" ? "கிழக்கு மண்டலம்" : "மேற்கு மண்டலம்")
                     : zone}
                 </option>
               ))}
@@ -572,7 +654,7 @@ export default function StationsPageClient({
           <div className="flex items-center justify-center gap-4 pt-6 border-t border-stone-200 dark:border-stone-800 animate-fadeIn">
             <button
               disabled={currentPage === 1 || isLoading}
-              onClick={() => setCurrentPage(currentPage - 1)}
+              onClick={() => handlePageChange(currentPage - 1)}
               className="px-4 py-2 bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 text-xs font-bold text-stone-800 dark:text-white rounded-xl hover:bg-brand-gold hover:text-stone-955 disabled:opacity-50 transition cursor-pointer"
             >
               {language === "ta" ? "முந்தைய" : "Previous"}
@@ -584,7 +666,7 @@ export default function StationsPageClient({
             </span>
             <button
               disabled={currentPage === totalPages || isLoading}
-              onClick={() => setCurrentPage(currentPage + 1)}
+              onClick={() => handlePageChange(currentPage + 1)}
               className="px-4 py-2 bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 text-xs font-bold text-stone-800 dark:text-white rounded-xl hover:bg-brand-gold hover:text-stone-955 disabled:opacity-50 transition cursor-pointer"
             >
               {language === "ta" ? "அடுத்தது" : "Next"}

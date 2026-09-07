@@ -629,7 +629,39 @@ export interface DBServiceRequest {
   address?: string;
   serviceRequired?: string;
   policeStation?: string;
-  receiptId?: string;
+}
+
+export interface DBCitizenServiceCategory {
+  id: number;
+  name_en: string;
+  name_ta: string;
+  slug: string;
+  description_en?: string;
+  description_ta?: string;
+  display_order: number;
+  is_active: number; // 1 or 0
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DBCitizenService {
+  id: number;
+  category_id: number;
+  service_name_en: string;
+  service_name_ta: string;
+  description_en: string;
+  description_ta: string;
+  icon: string;
+  external_url: string | null;
+  display_order: number;
+  is_active: number; // 1 or 0
+  is_featured: number; // 1 or 0
+  open_in_new_tab: number; // 1 or 0
+  created_by?: string | null;
+  updated_by?: string | null;
+  created_at: string;
+  updated_at: string;
+  deleted_at?: string | null;
 }
 
 const JSON_DB_PATH = path.join(process.cwd(), "src", "data", "db.json");
@@ -670,6 +702,8 @@ class JSONDatabaseManager {
     media_files: DBMediaFileRecord[];
     backups: DBBackupRecord[];
     security_assessments: DBSecurityAssessmentRecord[];
+    citizen_service_categories: DBCitizenServiceCategory[];
+    citizen_services: DBCitizenService[];
     superadmin_config: Record<string, any>;
   } = {
       users: [],
@@ -701,6 +735,8 @@ class JSONDatabaseManager {
       media_files: [],
       backups: [],
       security_assessments: [],
+      citizen_service_categories: [],
+      citizen_services: [],
       superadmin_config: {}
     };
 
@@ -1841,6 +1877,50 @@ class ChennaiGuardianDatabase {
     };
   }
 
+  // Citizen Service Categories
+  public async getCitizenServiceCategories(includeInactive: boolean = false): Promise<DBCitizenServiceCategory[]> {
+    const list = (jsonDb.getTable("citizen_service_categories") || []) as DBCitizenServiceCategory[];
+    if (includeInactive) {
+      return [...list].sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+    }
+    return list.filter(c => c.is_active === 1).sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+  }
+  public async saveCitizenServiceCategories(categories: DBCitizenServiceCategory[]) {
+    jsonDb.setTable("citizen_service_categories", categories);
+  }
+
+  // Citizen Services
+  public async getCitizenServices(includeInactive: boolean = false): Promise<DBCitizenService[]> {
+    const list = (jsonDb.getTable("citizen_services") || []) as DBCitizenService[];
+    let filtered = list.filter(s => !s.deleted_at);
+    if (!includeInactive) {
+      filtered = filtered.filter(s => s.is_active === 1);
+    }
+    return filtered.sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+  }
+  public async saveCitizenServices(services: DBCitizenService[]) {
+    jsonDb.setTable("citizen_services", services);
+  }
+
+  public async getCitizenServicesWithCategories(includeInactive: boolean = false): Promise<any[]> {
+    const [services, categories] = await Promise.all([
+      this.getCitizenServices(includeInactive),
+      this.getCitizenServiceCategories(includeInactive)
+    ]);
+    const catMap = new Map<number, DBCitizenServiceCategory>();
+    categories.forEach(c => catMap.set(c.id, c));
+
+    return services.map(s => {
+      const cat = catMap.get(s.category_id);
+      return {
+        ...s,
+        category_name_en: cat?.name_en || "Other Services",
+        category_name_ta: cat?.name_ta || "இதர சேவைகள்",
+        category_slug: cat?.slug || "other"
+      };
+    });
+  }
+
   // Superadmin Config
   public async getSuperadminConfig(): Promise<Record<string, any>> {
     const raw = jsonDb.getTable("superadmin_config") as Record<string, any>;
@@ -2402,6 +2482,64 @@ class ChennaiGuardianDatabase {
     });
     jsonDb.setTable("security_assessments", updated);
   }
+
+  // ── Citizen Services & Categories ──
+  public async getCitizenServiceCategories(includeInactive: boolean = true): Promise<DBCitizenServiceCategory[]> {
+    let categories: DBCitizenServiceCategory[] = jsonDb.getTable("citizen_service_categories") || [];
+    return categories
+      .filter((c) => includeInactive || c.is_active === 1)
+      .map((c) => ({
+        ...c,
+        name: c.name || c.name_en || "",
+        name_en: c.name_en || c.name || "",
+        description: c.description || c.description_en || "",
+        description_en: c.description_en || c.description || ""
+      }))
+      .sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0));
+  }
+
+  public async saveCitizenServiceCategories(categories: DBCitizenServiceCategory[]): Promise<void> {
+    jsonDb.setTable("citizen_service_categories", categories);
+  }
+
+  public async getCitizenServices(includeInactive: boolean = true): Promise<DBCitizenService[]> {
+    let services: DBCitizenService[] = jsonDb.getTable("citizen_services") || [];
+    return services
+      .filter((s) => !s.deleted_at && (includeInactive || s.is_active === 1))
+      .map((s) => ({
+        ...s,
+        service_name: s.service_name || s.service_name_en || "",
+        service_name_en: s.service_name_en || s.service_name || "",
+        description: s.description || s.description_en || "",
+        description_en: s.description_en || s.description || ""
+      }))
+      .sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0));
+  }
+
+  public async saveCitizenServices(services: DBCitizenService[]): Promise<void> {
+    jsonDb.setTable("citizen_services", services);
+  }
+
+  public async getCitizenServicesWithCategories(includeInactive: boolean = true): Promise<DBCitizenService[]> {
+    const categories = await this.getCitizenServiceCategories(true);
+    const services = await this.getCitizenServices(includeInactive);
+    const categoryMap = new Map<number, DBCitizenServiceCategory>();
+    categories.forEach((cat) => categoryMap.set(cat.id, cat));
+
+    return services.map((s) => {
+      const cat = categoryMap.get(s.category_id);
+      return {
+        ...s,
+        service_name: s.service_name || s.service_name_en || "",
+        service_name_en: s.service_name_en || s.service_name || "",
+        description: s.description || s.description_en || "",
+        description_en: s.description_en || s.description || "",
+        category: cat,
+        category_name_en: cat?.name_en || cat?.name || "General",
+        category_name_ta: cat?.name_ta || cat?.name || "பொதுவானவை"
+      };
+    });
+  }
 }
 
 export const DEFAULT_ROLE_PERMISSIONS: Record<string, Record<string, string[]>> = {
@@ -2411,6 +2549,7 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<string, Record<string, string[]>> 
   "ADMIN": {
     "dashboard": ["view", "preview"],
     "news": ["view", "create", "edit", "delete", "publish", "approve", "upload", "preview"],
+    "citizen-services": ["view", "create", "edit", "delete", "publish"],
     "police-stations": ["view", "create", "edit", "delete", "publish"],
     "emergency-contacts": ["view", "create", "edit", "delete", "publish"],
     "department-links": ["view", "create", "edit", "delete", "publish"],
@@ -2419,26 +2558,24 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<string, Record<string, string[]>> 
 
   "ADMINISTRATOR": {
     "dashboard": ["view", "preview"],
-    "menu-management": ["view", "edit", "publish"],
-    "page-editor": ["view", "edit", "publish"],
     "news": ["view", "create", "edit", "delete", "publish", "approve", "upload", "preview"],
+    "citizen-services": ["view", "create", "edit", "delete", "publish"],
     "police-stations": ["view", "create", "edit", "delete", "publish"],
     "emergency-contacts": ["view", "create", "edit", "delete", "publish"],
     "department-links": ["view", "create", "edit", "delete", "publish"],
-    "profile": ["view", "edit"],
-    "theme": ["view", "edit"],
-    "settings": ["view", "edit"],
-    "web-stories": ["view", "create", "edit", "delete", "publish"]
+    "profile": ["view", "edit"]
   },
   "EDITOR": {
     "dashboard": ["view", "preview"],
     "news": ["view", "create", "edit", "upload", "preview"],
+    "citizen-services": ["view", "edit"],
     "police-stations": ["view", "edit"],
     "web-stories": ["view", "create", "edit"]
   },
   "CONTENTADMIN": {
     "dashboard": ["view", "preview"],
     "news": ["view", "create", "edit", "upload", "preview"],
+    "citizen-services": ["view", "create", "edit"],
     "police-stations": ["view", "create", "edit"],
     "emergency-contacts": ["view", "create", "edit"],
     "department-links": ["view", "create", "edit"],

@@ -48,6 +48,7 @@ interface SuperAdminConsoleProps {
 
 const MODULES = [
   { id: "news", label: "News & Media" },
+  { id: "citizen-services", label: "Citizen Services" },
   { id: "police-stations", label: "Police Stations" },
   { id: "emergency-contacts", label: "Helplines & Emergency" },
   { id: "department-links", label: "Official Department Links" },

@@ -59,7 +59,7 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
   }, [pathname]);
 
   useEffect(() => {
-    fetch("/api/admin/crud/news")
+    fetch("/api/news")
       .then((res) => {
         if (!res.ok) {
           console.warn(`HTTP error! status: ${res.status}`);
@@ -68,8 +68,9 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
         return res.json();
       })
       .then((data) => {
-        if (Array.isArray(data)) {
-          setNews(data);
+        const items = Array.isArray(data) ? data : data?.news || data?.data || [];
+        if (Array.isArray(items)) {
+          setNews(items);
         }
       })
       .catch((err) => console.warn("Failed to load news for categories:", err));
@@ -143,9 +144,11 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
     { label: language === "ta" ? "சைபர் பாதுகாப்பு" : "Cyber Safety", href: "/category/cyber-safety", id: "cyber-safety" },
     { label: language === "ta" ? "பெண்கள் பாதுகாப்பு" : "Women Safety", href: "/category/women-safety", id: "women-safety" },
     { label: language === "ta" ? "பொது பாதுகாப்பு" : "Public Safety", href: "/category/public-safety", id: "public-safety" },
-    { label: language === "ta" ? "போக்குவரத்து" : "Traffic", href: "/category/traffic", id: "traffic" },
+    { label: language === "ta" ? "குடிமக்கள் சேவைகள்" : "Citizen Services", href: "/citizen-services", id: "citizen-services" },
+    { label: language === "ta" ? "போக்குவரத்து" : "Traffic", href: "/traffic", id: "traffic" },
     { label: language === "ta" ? "சமூக உதவி" : "Outreach", href: "/category/outreach", id: "outreach" },
   ].filter(item => {
+    if (item.id === "citizen-services") return true;
     if (news.length === 0) return true;
     return getCount(item.id) > 0;
   });
@@ -347,13 +350,6 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
       <div className="w-full bg-brand-blue text-white print:hidden hidden md:block" style={{ minHeight: "48px" }}>
         <div className="max-w-[1700px] mx-auto flex items-stretch justify-between h-full">
 
-          <div className="flex items-center px-2 xl:px-4 border-r border-white/15 shrink-0 bg-red-600 hover:bg-red-700 transition cursor-pointer">
-            <span className="flex items-center gap-1 xl:gap-1.5 text-[9px] xl:text-xs font-black text-white uppercase tracking-widest animate-pulse">
-              <span className="w-2 xl:w-2.5 h-2 xl:h-2.5 rounded-full bg-white" />
-              LIVE TV
-            </span>
-          </div>
-
           <nav className="flex items-stretch flex-nowrap flex-grow overflow-visible w-full" style={{ scrollbarWidth: "none" }}>
             {finalNavItems.map((item: any, idx) => {
               const isActive = pathname === item.href;
@@ -426,7 +422,7 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
 
           <div className="hidden lg:flex items-center gap-1.5 xl:gap-2 text-[9px] xl:text-xs font-black text-[#c5a059] tracking-wide px-2 xl:px-5 shrink-0 border-l border-white/15">
             <span className="w-2 xl:w-2.5 h-2 xl:h-2.5 rounded-full bg-[#10b981] animate-pulse" />
-            {language === "ta" ? "உதவி எண்: 1930 / 112" : "Helpline: 1930 / 112"}
+            {language === "ta" ? "உதவி எண்: 112" : "Helpline: 112"}
           </div>
 
         </div>
@@ -446,7 +442,7 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
               {/* Helpdesk badge */}
               <div className="py-2.5 px-4 bg-white/5 rounded-lg text-xs font-bold text-[#c5a059] flex items-center gap-2 mb-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-[#10b981] animate-pulse" />
-                {language === "ta" ? "உதவி எண்: 1930 / 112" : "Helpline: 1930 / 112"}
+                {language === "ta" ? "உதவி எண்: 112" : "Helpline: 112"}
               </div>
 
               {/* Navigation Items (Touch targets optimized to >= 44px) */}

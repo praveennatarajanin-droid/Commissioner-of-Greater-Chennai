@@ -44,7 +44,8 @@ import {
   Lock,
   Layout,
   BookOpen,
-  ChevronDown
+  ChevronDown,
+  ShieldCheck
 } from "lucide-react";
 import { DBUser, DBNewsItem, DBTickerItem, DBSliderItem, DBCommissionerProfile, DBThemeSettings, DBMenuItem, DBContact, DBTtsSettings, DBVideoItem, DBAlertItem, DBAlertSettings } from "@/lib/db";
 import dynamic from "next/dynamic";
@@ -55,6 +56,7 @@ import PageEditor from "./PageEditor";
 import WebStoriesManagement from "./WebStoriesManagement";
 import SeoManager from "./SeoManager";
 import PoliceStationsManagement from "./PoliceStationsManagement";
+import CitizenServicesManagement from "./CitizenServicesManagement";
 import SecurityStatusIndicator from "./SecurityStatusIndicator";
 
 const RichTextEditor = dynamic(() => import("./RichTextEditor"), {
@@ -552,6 +554,7 @@ const getTabTitle = (tab: string): string => {
     videos: "Video & Media",
     "web-stories": "Web Stories",
     alerts: "Official Alerts",
+    "citizen-services": "Citizen Services",
     "police-stations": "Police Stations",
     "emergency-contacts": "Helplines Registry",
     "department-links": "Portal Links",
@@ -572,7 +575,7 @@ interface AdminDashboardProps {
   onTabChange?: (tab: any) => void;
 }
 
-type TabType = "dashboard" | "news" | "ticker" | "slider" | "profile" | "theme" | "footer" | "settings" | "videos" | "alerts" | "media" | "police-stations" | "emergency-contacts" | "department-links" | "menu-management" | "page-editor" | "superadmin" | "web-stories" | "seo";
+type TabType = "dashboard" | "news" | "ticker" | "slider" | "profile" | "theme" | "footer" | "settings" | "videos" | "alerts" | "media" | "citizen-services" | "police-stations" | "emergency-contacts" | "department-links" | "menu-management" | "page-editor" | "superadmin" | "web-stories" | "seo";
 
 export default function AdminDashboard({ user, onLogout, activeTab: propActiveTab, subPage, onTabChange }: AdminDashboardProps) {
   const displayName = user.role === "superadmin" ? "Super Admin" : user.role === "admin" ? "Admin" : user.username;
@@ -641,6 +644,12 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
       label: "Official Alerts Page",
       defaultTitle: "Official Alerts & Traffic Updates | Greater Chennai Police",
       defaultDesc: "Get real-time traffic updates, public safety warnings, and official announcements from Greater Chennai Police."
+    },
+    "citizen-services": {
+      contentType: "citizen_services_page",
+      label: "Citizen Services Directory Page",
+      defaultTitle: "Citizen Services & Online Applications | Greater Chennai Police",
+      defaultDesc: "Access essential police services, online applications, verification services, traffic services and public safety assistance from one place."
     },
     "police-stations": {
       contentType: "police_stations_page",
@@ -944,6 +953,22 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
   const hasModulePermission = (moduleName: string, permissionName: string = "view"): boolean => {
     const r = (user.role || "").toUpperCase().trim().replace(" ", "_");
     if (r === "SUPER_ADMIN" || r === "SUPERADMIN") return true;
+
+    // Allowed modules for admin role:
+    // Dashboard (Overview), News Articles, Citizen Services, Police Stations, Helplines Registry, Portal Links, Profile Settings
+    const allowedAdminModules: string[] = [
+      "dashboard",
+      "news",
+      "citizen-services",
+      "police-stations",
+      "emergency-contacts",
+      "department-links",
+      "profile"
+    ];
+
+    if (r === "ADMIN" || r === "ADMINISTRATOR") {
+      return allowedAdminModules.includes(moduleName);
+    }
 
     const perms = (user as any).permissions || {};
     if (perms["*"]) return perms["*"].includes(permissionName);
@@ -1811,6 +1836,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
               {
                 section: "Public Registry",
                 items: [
+                  { tab: "citizen-services", icon: <ShieldCheck className="w-5 h-5" />, label: "Citizen Services" },
                   { tab: "alerts", icon: <AlertTriangle className="w-5 h-5" />, label: "Official Alerts" },
                   { tab: "police-stations", icon: <MapPin className="w-5 h-5" />, label: "Police Stations" },
                   { tab: "emergency-contacts", icon: <Phone className="w-5 h-5" />, label: "Helplines Registry" },
@@ -1829,10 +1855,6 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                 ]
               }
             ] as { section: string; items: { tab: TabType; icon: React.ReactNode; label: string }[] }[]).map(({ section, items }) => {
-              // Check if any tab in the section is allowed
-              const allowedItems = items.filter(({ tab }) => hasModulePermission(tab, "view"));
-              if (allowedItems.length === 0) return null;
-
               return (
                 <div key={section} className="space-y-1">
                   <h4 className="px-4 text-[13px] font-bold text-[#64748B] uppercase tracking-wider select-none mb-2">
@@ -1845,11 +1867,13 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                       return (
                         <button
                           key={tab}
-                          disabled={!isAllowed}
                           data-active={isActive}
-                          title={isAllowed ? "" : "You don't have permission to access this module."}
+                          title={isAllowed ? label : `${label} (Super Admin Access Only)`}
                           onClick={() => {
-                            if (!isAllowed) return;
+                            if (!isAllowed) {
+                              triggerAlert("error", `Access Restricted: "${label}" module is reserved exclusively for Super Admin.`);
+                              return;
+                            }
                             setActiveTab(tab);
                             setEditingItem(null);
                             setIsAdding(false);
@@ -1859,11 +1883,11 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                               ? isActive
                                 ? "bg-[#1E40AF] text-white shadow-md cursor-pointer"
                                 : "hover:bg-[#E8F0FE] hover:text-[#1E40AF] text-[#64748B] cursor-pointer"
-                              : "cursor-not-allowed opacity-40 text-[#64748B]"
+                              : "text-slate-400 hover:bg-slate-100/60 cursor-pointer opacity-70"
                             }`}
                         >
                           <div className="flex items-center gap-3">
-                            <span className={isActive ? "!text-white" : "text-[#64748B] group-hover:text-[#1E40AF] transition-colors"}>
+                            <span className={isActive ? "!text-white" : isAllowed ? "text-[#64748B] group-hover:text-[#1E40AF] transition-colors" : "text-slate-400"}>
                               {icon}
                             </span>
                             <span className={`leading-none ${isActive ? "!text-white font-bold" : ""}`}>{label}</span>
@@ -1871,7 +1895,6 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                           {isActive && (
                             <div className="absolute right-0 top-1/4 bottom-1/4 w-1 bg-[#D4AF37] rounded-l-md" />
                           )}
-                          {!isAllowed && <Lock className="w-3.5 h-3.5 text-stone-400" />}
                         </button>
                       );
                     })}
@@ -2123,13 +2146,16 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
 
           {/* Access Guard for Restricted Tabs */}
           {activeTab !== "dashboard" && !hasModulePermission(activeTab, "view") && (
-            <div className="min-h-[400px] flex flex-col items-center justify-center text-center p-8 bg-white border border-slate-200 rounded-2xl shadow-sm my-6">
-              <div className="w-16 h-16 rounded-full bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600 mb-4 shadow-sm">
+            <div className="min-h-[420px] flex flex-col items-center justify-center text-center p-8 bg-white border border-slate-200 rounded-2xl shadow-sm my-6">
+              <div className="w-16 h-16 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600 mb-4 shadow-sm">
                 <Lock className="w-8 h-8" />
               </div>
+              <span className="text-[11px] font-bold text-amber-700 bg-amber-100 border border-amber-200 uppercase tracking-widest px-3 py-1 rounded-full mb-3">
+                Super Admin Clearance Required
+              </span>
               <h3 className="text-xl font-bold text-slate-800">Access Restricted</h3>
               <p className="text-sm text-slate-500 max-w-md mt-2 leading-relaxed">
-                Your account role (<span className="font-bold text-slate-700 uppercase">{user.role}</span>) is not authorized to access or manage the <span className="font-bold text-slate-700">{getTabTitle(activeTab)}</span> module.
+                Your account role (<span className="font-bold text-slate-700 uppercase">{user.role}</span>) is not authorized to access or manage the <span className="font-bold text-slate-700">{getTabTitle(activeTab)}</span> module. This section is reserved exclusively for <span className="font-bold text-slate-700">Super Admin</span>.
               </p>
               <button
                 type="button"
@@ -6117,6 +6143,14 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                 }
                 return <SuperAdminConsole user={user} onTabChange={setActiveTab} />;
               })()}
+            </div>
+          )}
+
+          {/* ==================== TAB: CITIZEN SERVICES ==================== */}
+          {activeTab === "citizen-services" && (
+            <div className="space-y-6 w-full">
+              <CitizenServicesManagement user={user} onTabChange={(t: string) => setActiveTab(t as TabType)} />
+              {renderSeoCard()}
             </div>
           )}
 

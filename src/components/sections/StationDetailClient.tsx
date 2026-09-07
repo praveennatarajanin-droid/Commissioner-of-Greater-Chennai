@@ -84,8 +84,13 @@ export default function StationDetailClient({
             </span>
           </div>
           <div className="space-y-1">
-            <h1 className="font-display font-black text-2xl sm:text-4xl uppercase tracking-tight leading-none text-white">
-              🚔 {language === "ta" ? (station.name_ta || sName) : sName}
+            <h1 className="font-display font-black text-2xl sm:text-4xl uppercase tracking-tight leading-none text-white flex items-center gap-2.5">
+              <img 
+                src="/uploads/logo for station.png" 
+                alt="Station Logo" 
+                className="w-7 h-7 sm:w-8 sm:h-8 object-contain shrink-0 brightness-0 invert" 
+              />
+              <span>{language === "ta" ? (station.name_ta || sName) : sName}</span>
             </h1>
             <p className="text-stone-300 text-xs sm:text-sm font-bold uppercase tracking-wider flex items-center gap-1.5 pt-1">
               <MapPin className="w-4 h-4 text-brand-gold shrink-0" />
@@ -98,15 +103,25 @@ export default function StationDetailClient({
       {/* Comprehensive Police Station Details Card (3 Cards Per Line Layout) */}
       <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl p-6 shadow-sm text-left space-y-5">
         <h3 className="font-display font-black text-base uppercase tracking-wider text-slate-800 dark:text-white border-b border-stone-100 dark:border-stone-800 pb-3 flex items-center gap-2">
-          🚔 {language === "ta" ? "காவல் நிலைய விவரங்கள்" : "Police Station Details"}
+          <img 
+            src="/uploads/logo for station.png" 
+            alt="Station Logo" 
+            className="w-5 h-5 object-contain shrink-0" 
+          />
+          <span>{language === "ta" ? "காவல் நிலைய விவரங்கள்" : "Police Station Details"}</span>
         </h3>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Row 1, Card 1: Police Stations */}
           <div className="p-4 bg-stone-50 dark:bg-stone-950 rounded-2xl border border-stone-200/80 dark:border-stone-800 space-y-1.5 shadow-sm">
             <span className="text-[10px] uppercase font-black tracking-widest text-stone-400 block">Police Stations</span>
-            <span className="font-display font-black text-sm sm:text-base text-slate-900 dark:text-white uppercase truncate block">
-              🚔 {sName}
+            <span className="font-display font-black text-sm sm:text-base text-slate-900 dark:text-white uppercase truncate flex items-center gap-2">
+              <img 
+                src="/uploads/logo for station.png" 
+                alt="Station Logo" 
+                className="w-4 h-4 object-contain shrink-0" 
+              />
+              <span className="truncate">{sName}</span>
             </span>
           </div>
 
@@ -241,8 +256,13 @@ export default function StationDetailClient({
       {/* Nearby Precinct Stations */}
       {nearbyStations && nearbyStations.length > 0 && (
         <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl p-6 shadow-sm text-left space-y-4">
-          <h3 className="font-display font-black text-sm uppercase tracking-wider text-stone-900 dark:text-white border-b border-stone-100 dark:border-stone-800 pb-2">
-            🚔 {language === "ta" ? "அருகிலுள்ள காவல் நிலையங்கள்" : "Nearby Precinct Stations"}
+          <h3 className="font-display font-black text-sm uppercase tracking-wider text-stone-900 dark:text-white border-b border-stone-100 dark:border-stone-800 pb-2 flex items-center gap-2">
+            <img 
+              src="/uploads/logo for station.png" 
+              alt="Station Logo" 
+              className="w-4 h-4 object-contain shrink-0" 
+            />
+            <span>{language === "ta" ? "அருகிலுள்ள காவல் நிலையங்கள்" : "Nearby Precinct Stations"}</span>
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {nearbyStations.slice(0, 3).map((ns, idx) => (
@@ -254,8 +274,13 @@ export default function StationDetailClient({
                   <span className="text-[8px] font-bold text-brand-blue dark:text-brand-gold uppercase tracking-wider bg-brand-blue/5 px-2 py-0.5 rounded border border-brand-blue/10">
                     {ns.type || "Station"}
                   </span>
-                  <h4 className="font-bold text-xs uppercase text-stone-900 dark:text-white leading-tight pt-2">
-                    🚔 {language === "ta" ? (ns.name_ta || ns.station_name) : (ns.station_name || ns.name_en)}
+                  <h4 className="font-bold text-xs uppercase text-stone-900 dark:text-white leading-tight pt-2 flex items-center gap-1.5">
+                    <img 
+                      src="/uploads/logo for station.png" 
+                      alt="Station Logo" 
+                      className="w-3.5 h-3.5 object-contain shrink-0" 
+                    />
+                    <span>{language === "ta" ? (ns.name_ta || ns.station_name) : (ns.station_name || ns.name_en)}</span>
                   </h4>
                   <p className="text-[10px] text-stone-500 font-mono pt-1">
                     📞 {ns.phone_no || ns.phone || "044-23452300"}

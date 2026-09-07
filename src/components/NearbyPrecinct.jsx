@@ -831,29 +831,27 @@ export default function NearbyPrecinct({ onClose }) {
                 <div className="lg:col-span-6 border border-stone-200 dark:border-stone-800 rounded-2xl overflow-hidden bg-stone-100 dark:bg-stone-955 h-[380px] lg:h-auto min-h-[350px] shadow-sm relative flex flex-col">
                   {selectedStationForMap && activeLat && activeLon ? (
                     <>
-                      <div className="p-3 bg-[#2e3192] text-white text-[11px] font-bold flex items-center justify-between z-10 shrink-0">
+                      <div className="p-3 bg-[#032B69] text-white text-[11px] font-bold flex items-center justify-between z-10 shrink-0">
                         <span className="truncate">
-                          🗺️ Route: <strong>{locationSource === "gps" ? "YOUR LOCATION" : manualSelectedLocation?.name}</strong> → <strong>{selectedStationForMap.stationName}</strong> ({selectedStationForMap.distanceKm} km)
+                          🗺️ Route: <strong>{locationSource === "gps" ? "YOUR LOCATION" : manualSelectedLocation?.name}</strong> → <strong>{selectedStationForMap.stationName || selectedStationForMap.station_name || selectedStationForMap.name_en}</strong> ({selectedStationForMap.distanceKm ?? selectedStationForMap.distance} km)
                         </span>
                         <a
-                          href={`https://www.google.com/maps/dir/?api=1&origin=${activeLat},${activeLon}&destination=${selectedStationForMap.latitude},${selectedStationForMap.longitude}`}
+                          href={`https://www.google.com/maps/dir/?api=1&origin=${activeLat},${activeLon}&destination=${selectedStationForMap.latitude ?? selectedStationForMap.lat ?? 13.0827},${selectedStationForMap.longitude ?? selectedStationForMap.lon ?? 80.2707}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="px-2.5 py-1 bg-[#c5a059] text-stone-955 rounded-lg text-[10px] font-black uppercase hover:bg-white transition whitespace-nowrap ml-2 shadow-sm"
+                          className="px-2.5 py-1 bg-[#c5a059] text-stone-955 rounded-lg text-[10px] font-black uppercase hover:bg-white transition whitespace-nowrap ml-2 shadow-sm cursor-pointer"
                         >
                           Open Maps
                         </a>
                       </div>
-                      {/* Map Embed using exact coordinate order [latitude, longitude] */}
+                      {/* Live-compatible map embed URL */}
                       <iframe
-                        title="Route Directions Map"
+                        title="Precinct Location Map"
                         width="100%"
                         height="100%"
-                        frameBorder="0"
-                        scrolling="no"
-                        marginHeight={0}
-                        marginWidth={0}
-                        src={`https://maps.google.com/maps?saddr=${activeLat},${activeLon}&daddr=${selectedStationForMap.latitude},${selectedStationForMap.longitude}&output=embed`}
+                        loading="lazy"
+                        referrerPolicy="no-referrer-when-downgrade"
+                        src={`https://maps.google.com/maps?q=${selectedStationForMap.latitude ?? selectedStationForMap.lat ?? 13.0827},${selectedStationForMap.longitude ?? selectedStationForMap.lon ?? 80.2707}&hl=en&z=15&output=embed`}
                         className="w-full flex-grow border-none"
                       />
                     </>

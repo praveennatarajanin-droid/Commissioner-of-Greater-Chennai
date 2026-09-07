@@ -7,6 +7,16 @@ function sanitizeHtml(html: string): string {
   return sanitizeHtmlContent(html);
 }
 
+function validateExternalUrl(url: string | null | undefined): string | null {
+  if (!url || typeof url !== "string" || !url.trim()) return null;
+  const trimmed = url.trim();
+  if (trimmed.startsWith("/")) return trimmed;
+  if (/^https?:\/\/[^\s$.?#].[^\s]*$/i.test(trimmed)) {
+    return trimmed;
+  }
+  return null;
+}
+
 // Authentication Helper
 async function checkAuth(requiredRoles?: string[]) {
   try {
@@ -119,6 +129,10 @@ export async function GET(req: Request, { params }: { params: Promise<{ module: 
       return NextResponse.json(await db.getDepartmentLinks());
     case "web-stories":
       return NextResponse.json(await db.getWebStories());
+    case "citizen-services":
+      return NextResponse.json(await db.getCitizenServicesWithCategories(true));
+    case "citizen-service-categories":
+      return NextResponse.json(await db.getCitizenServiceCategories(true));
     default:
       return NextResponse.json({ error: "Invalid module" }, { status: 400 });
   }
@@ -373,6 +387,72 @@ export async function POST(req: Request, { params }: { params: Promise<{ module:
         await db.saveWebStories(items);
         await db.addActivityLog(auth.username, `Created web story: ${newItem.title_en}`);
         return NextResponse.json({ success: true, item: newItem });
+      }
+      case "citizen-services": {
+        const services = await db.getCitizenServices(true);
+        const id = services.length > 0 ? Math.max(...services.map((s) => s.id || 0)) + 1 : 1;
+        const srvData = data.data || data;
+        const validatedUrl = validateExternalUrl(srvData.external_url);
+        const now = new Date().toISOString();
+        const nameEn = sanitizePlainText(srvData.service_name_en || srvData.service_name || srvData.name || srvData.name_en || "");
+        const nameTa = sanitizePlainText(srvData.service_name_ta || srvData.name_ta || "");
+        const descEn = sanitizePlainText(srvData.description_en || srvData.description || "");
+        const descTa = sanitizePlainText(srvData.description_ta || "");
+        const newService = {
+          id,
+          category_id: parseInt(srvData.category_id, 10) || 1,
+          service_name: nameEn,
+          service_name_en: nameEn,
+          service_name_ta: nameTa,
+          description: descEn,
+          description_en: descEn,
+          description_ta: descTa,
+          icon: sanitizePlainText(srvData.icon || "FileText"),
+          external_url: validatedUrl,
+          display_order: parseInt(srvData.display_order, 10) || id,
+          is_active: srvData.is_active !== undefined ? (srvData.is_active ? 1 : 0) : 1,
+          is_featured: srvData.is_featured !== undefined ? (srvData.is_featured ? 1 : 0) : 0,
+          open_in_new_tab: srvData.open_in_new_tab !== undefined ? (srvData.open_in_new_tab ? 1 : 0) : 1,
+          created_by: auth.username,
+          updated_by: auth.username,
+          created_at: now,
+          updated_at: now,
+          deleted_at: null
+        };
+        services.push(newService);
+        await db.saveCitizenServices(services);
+        await db.addActivityLog(auth.username, `Created citizen service: ${nameEn}`);
+        return NextResponse.json({ success: true, item: newService });
+      }
+      case "citizen-service-categories": {
+        const categories = await db.getCitizenServiceCategories(true);
+        const id = categories.length > 0 ? Math.max(...categories.map((c) => c.id || 0)) + 1 : 1;
+        const catData = data.data || data;
+        const now = new Date().toISOString();
+        const nameEn = sanitizePlainText(catData.name_en || catData.name || "");
+        const nameTa = sanitizePlainText(catData.name_ta || "");
+        const rawSlug = catData.slug || nameEn || `category-${id}`;
+        const slug = rawSlug.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+        const descEn = sanitizePlainText(catData.description_en || catData.description || "");
+        const descTa = sanitizePlainText(catData.description_ta || "");
+        const newCat = {
+          id,
+          name: nameEn,
+          name_en: nameEn,
+          name_ta: nameTa,
+          slug,
+          description: descEn,
+          description_en: descEn,
+          description_ta: descTa,
+          display_order: parseInt(catData.display_order, 10) || id,
+          is_active: catData.is_active !== undefined ? (catData.is_active ? 1 : 0) : 1,
+          created_at: now,
+          updated_at: now
+        };
+        categories.push(newCat);
+        await db.saveCitizenServiceCategories(categories);
+        await db.addActivityLog(auth.username, `Created citizen service category: ${nameEn}`);
+        return NextResponse.json({ success: true, item: newCat });
       }
       default:
         return NextResponse.json({ error: "Method not supported for module" }, { status: 400 });
@@ -664,6 +744,100 @@ export async function PUT(req: Request, { params }: { params: Promise<{ module: 
         await db.addActivityLog(auth.username, `Updated web story: ${data.title_en}`);
         return NextResponse.json({ success: true });
       }
+      case "citizen-services": {
+        let services = await db.getCitizenServices(true);
+        const srvData = data.data || data;
+        const targetId = parseInt(data.id || srvData.id, 10);
+        const existing = services.find((s) => s.id === targetId);
+        if (!existing) {
+          return NextResponse.json({ error: "Citizen service not found" }, { status: 404 });
+        }
+        const validatedUrl = srvData.external_url !== undefined ? validateExternalUrl(srvData.external_url) : existing.external_url;
+        const now = new Date().toISOString();
+        const nameEn = srvData.service_name_en !== undefined || srvData.service_name !== undefined
+          ? sanitizePlainText(srvData.service_name_en || srvData.service_name || "")
+          : (existing.service_name_en || existing.service_name);
+        const nameTa = srvData.service_name_ta !== undefined
+          ? sanitizePlainText(srvData.service_name_ta)
+          : existing.service_name_ta;
+        const descEn = srvData.description_en !== undefined || srvData.description !== undefined
+          ? sanitizePlainText(srvData.description_en || srvData.description || "")
+          : (existing.description_en || existing.description);
+        const descTa = srvData.description_ta !== undefined
+          ? sanitizePlainText(srvData.description_ta)
+          : existing.description_ta;
+
+        services = services.map((s) => {
+          if (s.id === targetId) {
+            return {
+              ...s,
+              category_id: srvData.category_id !== undefined ? (parseInt(srvData.category_id, 10) || s.category_id) : s.category_id,
+              service_name: nameEn,
+              service_name_en: nameEn,
+              service_name_ta: nameTa,
+              description: descEn,
+              description_en: descEn,
+              description_ta: descTa,
+              icon: srvData.icon !== undefined ? sanitizePlainText(srvData.icon) : s.icon,
+              external_url: validatedUrl,
+              display_order: srvData.display_order !== undefined ? parseInt(srvData.display_order, 10) : s.display_order,
+              is_active: srvData.is_active !== undefined ? (srvData.is_active ? 1 : 0) : s.is_active,
+              is_featured: srvData.is_featured !== undefined ? (srvData.is_featured ? 1 : 0) : s.is_featured,
+              open_in_new_tab: srvData.open_in_new_tab !== undefined ? (srvData.open_in_new_tab ? 1 : 0) : s.open_in_new_tab,
+              updated_by: auth.username,
+              updated_at: now
+            };
+          }
+          return s;
+        });
+        await db.saveCitizenServices(services);
+        await db.addActivityLog(auth.username, `Updated citizen service: ${nameEn}`);
+        return NextResponse.json({ success: true });
+      }
+      case "citizen-service-categories": {
+        let categories = await db.getCitizenServiceCategories(true);
+        const catData = data.data || data;
+        const targetId = parseInt(data.id || catData.id, 10);
+        const existing = categories.find((c) => c.id === targetId);
+        if (!existing) {
+          return NextResponse.json({ error: "Category not found" }, { status: 404 });
+        }
+        const now = new Date().toISOString();
+        const nameEn = catData.name_en !== undefined || catData.name !== undefined
+          ? sanitizePlainText(catData.name_en || catData.name || "")
+          : (existing.name_en || existing.name);
+        const nameTa = catData.name_ta !== undefined
+          ? sanitizePlainText(catData.name_ta)
+          : existing.name_ta;
+        const descEn = catData.description_en !== undefined || catData.description !== undefined
+          ? sanitizePlainText(catData.description_en || catData.description || "")
+          : (existing.description_en || existing.description);
+        const descTa = catData.description_ta !== undefined
+          ? sanitizePlainText(catData.description_ta)
+          : existing.description_ta;
+
+        categories = categories.map((c) => {
+          if (c.id === targetId) {
+            return {
+              ...c,
+              name: nameEn,
+              name_en: nameEn,
+              name_ta: nameTa,
+              description: descEn,
+              description_en: descEn,
+              description_ta: descTa,
+              slug: catData.slug !== undefined ? catData.slug : c.slug,
+              display_order: catData.display_order !== undefined ? parseInt(catData.display_order, 10) : c.display_order,
+              is_active: catData.is_active !== undefined ? (catData.is_active ? 1 : 0) : c.is_active,
+              updated_at: now
+            };
+          }
+          return c;
+        });
+        await db.saveCitizenServiceCategories(categories);
+        await db.addActivityLog(auth.username, `Updated citizen service category: ${nameEn}`);
+        return NextResponse.json({ success: true });
+      }
       default:
         return NextResponse.json({ error: "Method not supported for module" }, { status: 400 });
     }
@@ -820,6 +994,30 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ modul
         if (target) {
           await db.addActivityLog(auth.username, `Deleted web story: ${target.title_en}`);
         }
+        return NextResponse.json({ success: true });
+      }
+      case "citizen-services": {
+        let services = await db.getCitizenServices(true);
+        const target = services.find((s) => s.id === id);
+        if (!target) {
+          return NextResponse.json({ error: "Citizen service not found" }, { status: 404 });
+        }
+        // Soft delete
+        const now = new Date().toISOString();
+        services = services.map((s) => (s.id === id ? { ...s, deleted_at: now, is_active: 0, updated_by: auth.username, updated_at: now } : s));
+        await db.saveCitizenServices(services);
+        await db.addActivityLog(auth.username, `Soft deleted citizen service: ${target.service_name_en}`);
+        return NextResponse.json({ success: true });
+      }
+      case "citizen-service-categories": {
+        let categories = await db.getCitizenServiceCategories(true);
+        const target = categories.find((c) => c.id === id);
+        if (!target) {
+          return NextResponse.json({ error: "Category not found" }, { status: 404 });
+        }
+        categories = categories.filter((c) => c.id !== id);
+        await db.saveCitizenServiceCategories(categories);
+        await db.addActivityLog(auth.username, `Deleted citizen service category: ${target.name_en}`);
         return NextResponse.json({ success: true });
       }
       default:
