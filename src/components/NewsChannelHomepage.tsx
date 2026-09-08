@@ -57,6 +57,8 @@ interface NewsItem {
   views_count?: number;
   created_at?: string;
   published?: number;
+  published_at?: string;
+  publishedAt?: string;
 }
 
 interface VideoItem {
@@ -470,13 +472,25 @@ export default function NewsChannelHomepage({
                   ))}
                 </div>
                 <div className="flex justify-end mt-4">
-                  <Link
-                    href={routePath === "traffic" ? "/traffic" : `/category/${routePath}`}
-                    className="flex items-center gap-1.5 text-[10px] font-black uppercase text-stone-500 hover:text-brand-maroon dark:hover:text-brand-gold transition-colors tracking-widest"
-                  >
-                    {language === "ta" ? "மேலும் செய்திகள்" : `More ${cat.title_en} News`}
-                    <ChevronRight className="w-3.5 h-3.5" />
-                  </Link>
+                  {routePath === "traffic" ? (
+                    <a
+                      href="https://gctp.in/chennai-home"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 text-[10px] font-black uppercase text-stone-500 hover:text-brand-maroon dark:hover:text-brand-gold transition-colors tracking-widest"
+                    >
+                      {language === "ta" ? "போக்குவரத்து நேரலை (GCTP)" : "Traffic Portal (GCTP)"}
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </a>
+                  ) : (
+                    <Link
+                      href={`/category/${routePath}`}
+                      className="flex items-center gap-1.5 text-[10px] font-black uppercase text-stone-500 hover:text-brand-maroon dark:hover:text-brand-gold transition-colors tracking-widest"
+                    >
+                      {language === "ta" ? "மேலும் செய்திகள்" : `More ${cat.title_en} News`}
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </Link>
+                  )}
                 </div>
               </section>
             );

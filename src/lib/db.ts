@@ -3,6 +3,7 @@ import path from "path";
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import { newsData } from "@/data/newsData";
+import { query as mysqlQuery } from "@/lib/mysql";
 
 // Username normalization policy
 export function normalizeUsername(username: string | null | undefined): string {
@@ -633,9 +634,11 @@ export interface DBServiceRequest {
 
 export interface DBCitizenServiceCategory {
   id: number;
+  name?: string;
   name_en: string;
   name_ta: string;
   slug: string;
+  description?: string;
   description_en?: string;
   description_ta?: string;
   display_order: number;
@@ -647,8 +650,10 @@ export interface DBCitizenServiceCategory {
 export interface DBCitizenService {
   id: number;
   category_id: number;
+  service_name?: string;
   service_name_en: string;
   service_name_ta: string;
+  description?: string;
   description_en: string;
   description_ta: string;
   icon: string;
@@ -662,6 +667,21 @@ export interface DBCitizenService {
   created_at: string;
   updated_at: string;
   deleted_at?: string | null;
+}
+
+export interface DBVisitorStats {
+  id: number;
+  total_page_views: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DBDailyVisits {
+  id: number;
+  visit_date: string;
+  page_views: number;
+  created_at: string;
+  updated_at: string;
 }
 
 const JSON_DB_PATH = path.join(process.cwd(), "src", "data", "db.json");
@@ -704,6 +724,8 @@ class JSONDatabaseManager {
     security_assessments: DBSecurityAssessmentRecord[];
     citizen_service_categories: DBCitizenServiceCategory[];
     citizen_services: DBCitizenService[];
+    portal_visitor_stats: DBVisitorStats[];
+    portal_daily_visits: DBDailyVisits[];
     superadmin_config: Record<string, any>;
   } = {
       users: [],
@@ -737,6 +759,8 @@ class JSONDatabaseManager {
       security_assessments: [],
       citizen_service_categories: [],
       citizen_services: [],
+      portal_visitor_stats: [],
+      portal_daily_visits: [],
       superadmin_config: {}
     };
 
@@ -774,7 +798,7 @@ class JSONDatabaseManager {
             { id: 4, name_en: "Cyber Safety", name_ta: "இணைய பாதுகாப்பு", slug: "cyber-safety", icon: "Lock", display_order: 4, url: "/category/cyber-safety", page_type: "news_category", status: "active", open_in_new_tab: 0 },
             { id: 5, name_en: "Women Safety", name_ta: "பெண்கள் பாதுகாப்பு", slug: "women-safety", icon: "Heart", display_order: 5, url: "/category/women-safety", page_type: "news_category", status: "active", open_in_new_tab: 0 },
             { id: 6, name_en: "Public Safety", name_ta: "பொது பாதுகாப்பு", slug: "public-safety", icon: "Eye", display_order: 6, url: "/category/public-safety", page_type: "news_category", status: "active", open_in_new_tab: 0 },
-            { id: 7, name_en: "Traffic", name_ta: "போக்குவரத்து", slug: "traffic", icon: "Car", display_order: 7, url: "/category/traffic", page_type: "news_category", status: "active", open_in_new_tab: 0 },
+            { id: 7, name_en: "Traffic", name_ta: "போக்குவரத்து", slug: "traffic", icon: "Car", display_order: 7, url: "https://gctp.in/chennai-home", page_type: "external", status: "active", open_in_new_tab: 1 },
             { id: 8, name_en: "Outreach", name_ta: "சமூக உதவி", slug: "outreach", icon: "Users", display_order: 8, url: "/category/outreach", page_type: "news_category", status: "active", open_in_new_tab: 0 },
             { id: 9, name_en: "Stations", name_ta: "காவல் நிலையங்கள்", slug: "stations", icon: "MapPin", display_order: 9, url: "/stations", page_type: "static", status: "active", open_in_new_tab: 0 },
             { id: 10, name_en: "Videos", name_ta: "வீடியோக்கள்", slug: "videos", icon: "Video", display_order: 10, url: "/videos", page_type: "static", status: "active", open_in_new_tab: 0 },
@@ -943,6 +967,19 @@ class JSONDatabaseManager {
           modified = true;
         }
 
+        if (!this.data.portal_visitor_stats || this.data.portal_visitor_stats.length === 0) {
+          const nowIso = new Date().toISOString();
+          this.data.portal_visitor_stats = [
+            { id: 1, total_page_views: 0, created_at: nowIso, updated_at: nowIso }
+          ];
+          modified = true;
+        }
+
+        if (!this.data.portal_daily_visits) {
+          this.data.portal_daily_visits = [];
+          modified = true;
+        }
+
         if (modified) {
           this.save();
         }
@@ -1081,7 +1118,7 @@ class JSONDatabaseManager {
       { id: 4, name_en: "Cyber Safety", name_ta: "இணைய பாதுகாப்பு", slug: "cyber-safety", icon: "Lock", display_order: 4, url: "/category/cyber-safety", page_type: "news_category", status: "active", open_in_new_tab: 0 },
       { id: 5, name_en: "Women Safety", name_ta: "பெண்கள் பாதுகாப்பு", slug: "women-safety", icon: "Heart", display_order: 5, url: "/category/women-safety", page_type: "news_category", status: "active", open_in_new_tab: 0 },
       { id: 6, name_en: "Public Safety", name_ta: "பொது பாதுகாப்பு", slug: "public-safety", icon: "Eye", display_order: 6, url: "/category/public-safety", page_type: "news_category", status: "active", open_in_new_tab: 0 },
-      { id: 7, name_en: "Traffic", name_ta: "போக்குவரத்து", slug: "traffic", icon: "Car", display_order: 7, url: "/category/traffic", page_type: "news_category", status: "active", open_in_new_tab: 0 },
+      { id: 7, name_en: "Traffic", name_ta: "போக்குவரத்து", slug: "traffic", icon: "Car", display_order: 7, url: "https://gctp.in/chennai-home", page_type: "external", status: "active", open_in_new_tab: 1 },
       { id: 8, name_en: "Outreach", name_ta: "சமூக உதவி", slug: "outreach", icon: "Users", display_order: 8, url: "/category/outreach", page_type: "news_category", status: "active", open_in_new_tab: 0 },
       { id: 9, name_en: "Stations", name_ta: "காவல் நிலையங்கள்", slug: "stations", icon: "MapPin", display_order: 9, url: "/stations", page_type: "static", status: "active", open_in_new_tab: 0 },
       { id: 10, name_en: "Videos", name_ta: "வீடியோக்கள்", slug: "videos", icon: "Video", display_order: 10, url: "/videos", page_type: "static", status: "active", open_in_new_tab: 0 },
@@ -1786,8 +1823,8 @@ class ChennaiGuardianDatabase {
     return (stations || []).map((s, index) => {
       const nameEn = (s.station_name || s.name_en || `Police Station ${s.id || index + 1}`).replace(/"/g, "").trim();
       const address = (s.address || s.ps_address || s.address_en || "Chennai, Tamil Nadu").replace(/\\n/g, "").replace(/"/g, "").trim();
-      const lat = typeof s.latitude === "number" ? s.latitude : (typeof s.lat === "number" ? s.lat : (parseFloat(s.latitude || s.lat) || 13.0827));
-      const lng = typeof s.longitude === "number" ? s.longitude : (typeof s.lng === "number" ? s.lng : (typeof s.lon === "number" ? s.lon : (parseFloat(s.longitude || s.lng || s.lon) || 80.2707)));
+      const lat = typeof s.latitude === "number" ? s.latitude : (typeof s.lat === "number" ? s.lat : (parseFloat(String(s.latitude || s.lat || "13.0827")) || 13.0827));
+      const lng = typeof s.longitude === "number" ? s.longitude : (typeof s.lng === "number" ? s.lng : (typeof s.lon === "number" ? s.lon : (parseFloat(String(s.longitude || s.lng || s.lon || "80.2707")) || 80.2707)));
 
       return {
         ...s,
@@ -1927,9 +1964,9 @@ class ChennaiGuardianDatabase {
     if (!raw || !raw.footer_config) {
       raw.footer_config = {
         logo: "/images/gcp_logo.png",
-        website_name_en: "Chennai Guardian News",
-        website_name_ta: "சென்னை கார்டியன் செய்திகள்",
-        description_en: "Official news platform of Chennai Guardian News, providing 24/7 updates on public safety, cyber alerts, and community-centered policing initiatives.",
+        website_name_en: "Greater Chennai Police",
+        website_name_ta: "சென்னை பெருநகர காவல்",
+        description_en: "Official news platform of Greater Chennai Police, providing 24/7 updates on public safety, cyber alerts, and community-centered policing initiatives.",
         description_ta: "சென்னையின் முன்னணி சட்டம் ஒழுங்கு, குற்றப் புலனாய்வு மற்றும் மக்கள் விழிப்புணர்வு செய்திகளை உடனுக்குடன் வழங்கும் அதிகாரப்பூர்வ செய்தி ஊடகம்.",
         copyright_text_en: "© 2026 Greater Chennai Police. All rights reserved.",
         copyright_text_ta: "© 2026 சென்னை பெருநகர காவல். அனைத்து உரிமைகளும் பாதுகாக்கப்பட்டவை.",
@@ -1950,8 +1987,8 @@ class ChennaiGuardianDatabase {
         footer_visible: true,
         quick_links: [
           { id: "ql1", label_en: "Home", label_ta: "முகப்பு", url: "/", target_blank: false, active: true, order_index: 1 },
-          { id: "ql2", label_en: "Crime News", label_ta: "குற்றம்", url: "/category/crime", target_blank: false, active: true, order_index: 2 },
-          { id: "ql3", label_en: "Cyber Safety", label_ta: "இணைய பாதுகாப்பு", url: "/category/cyber-safety", target_blank: false, active: true, order_index: 3 }
+          { id: "ql2", label_en: "Citizen Services", label_ta: "குடிமக்கள் சேவைகள்", url: "/citizen-services", target_blank: false, active: true, order_index: 2 },
+          { id: "ql3", label_en: "Police Stations", label_ta: "காவல் நிலையங்கள்", url: "/stations", target_blank: false, active: true, order_index: 3 }
         ],
         government_links: [
           { id: "gl1", label_en: "Tamil Nadu Government", label_ta: "தமிழ்நாடு அரசு", url: "https://www.tn.gov.in", target_blank: true, active: true, order_index: 1 },
@@ -2483,62 +2520,132 @@ class ChennaiGuardianDatabase {
     jsonDb.setTable("security_assessments", updated);
   }
 
-  // ── Citizen Services & Categories ──
-  public async getCitizenServiceCategories(includeInactive: boolean = true): Promise<DBCitizenServiceCategory[]> {
-    let categories: DBCitizenServiceCategory[] = jsonDb.getTable("citizen_service_categories") || [];
-    return categories
-      .filter((c) => includeInactive || c.is_active === 1)
-      .map((c) => ({
-        ...c,
-        name: c.name || c.name_en || "",
-        name_en: c.name_en || c.name || "",
-        description: c.description || c.description_en || "",
-        description_en: c.description_en || c.description || ""
-      }))
-      .sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0));
+  // ================= VISITOR ANALYTICS =================
+  public async getVisitorStats(): Promise<{ totalVisitors: number; todayVisitors: number }> {
+    let totalVisitors = 0;
+    let todayVisitors = 0;
+    const todayStr = new Date().toISOString().slice(0, 10);
+
+    // Try MySQL first
+    try {
+      const statsRes: any = await mysqlQuery("SELECT total_page_views FROM portal_visitor_stats WHERE id = 1 LIMIT 1");
+      if (Array.isArray(statsRes) && statsRes.length > 0) {
+        totalVisitors = Number(statsRes[0].total_page_views || 0);
+      }
+      const dailyRes: any = await mysqlQuery("SELECT page_views FROM portal_daily_visits WHERE visit_date = CURDATE() LIMIT 1");
+      if (Array.isArray(dailyRes) && dailyRes.length > 0) {
+        todayVisitors = Number(dailyRes[0].page_views || 0);
+      }
+    } catch {
+      // Fallback to JSON Database
+      const stats: DBVisitorStats[] = jsonDb.getTable("portal_visitor_stats") || [];
+      if (stats.length > 0) {
+        totalVisitors = Number(stats[0].total_page_views || 0);
+      }
+      const daily: DBDailyVisits[] = jsonDb.getTable("portal_daily_visits") || [];
+      const todayEntry = daily.find((d) => d.visit_date === todayStr);
+      if (todayEntry) {
+        todayVisitors = Number(todayEntry.page_views || 0);
+      }
+    }
+
+    // Ensure fallback to JSON DB if MySQL was empty but JSON DB had a value
+    if (totalVisitors === 0) {
+      const stats: DBVisitorStats[] = jsonDb.getTable("portal_visitor_stats") || [];
+      if (stats.length > 0) {
+        totalVisitors = Number(stats[0].total_page_views || 0);
+      }
+    }
+
+    return { totalVisitors, todayVisitors };
   }
 
-  public async saveCitizenServiceCategories(categories: DBCitizenServiceCategory[]): Promise<void> {
-    jsonDb.setTable("citizen_service_categories", categories);
-  }
+  public async incrementVisitorCount(): Promise<{ totalVisitors: number; todayVisitors: number }> {
+    let totalVisitors = 0;
+    let todayVisitors = 0;
+    const nowIso = new Date().toISOString();
+    const todayStr = nowIso.slice(0, 10);
 
-  public async getCitizenServices(includeInactive: boolean = true): Promise<DBCitizenService[]> {
-    let services: DBCitizenService[] = jsonDb.getTable("citizen_services") || [];
-    return services
-      .filter((s) => !s.deleted_at && (includeInactive || s.is_active === 1))
-      .map((s) => ({
-        ...s,
-        service_name: s.service_name || s.service_name_en || "",
-        service_name_en: s.service_name_en || s.service_name || "",
-        description: s.description || s.description_en || "",
-        description_en: s.description_en || s.description || ""
-      }))
-      .sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0));
-  }
+    // 1. MySQL Atomic Increment
+    try {
+      await mysqlQuery(`
+        CREATE TABLE IF NOT EXISTS portal_visitor_stats (
+          id INT PRIMARY KEY,
+          total_page_views BIGINT NOT NULL DEFAULT 0,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+      `);
+      await mysqlQuery(`
+        CREATE TABLE IF NOT EXISTS portal_daily_visits (
+          id INT PRIMARY KEY AUTO_INCREMENT,
+          visit_date DATE NOT NULL UNIQUE,
+          page_views BIGINT NOT NULL DEFAULT 0,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+      `);
 
-  public async saveCitizenServices(services: DBCitizenService[]): Promise<void> {
-    jsonDb.setTable("citizen_services", services);
-  }
+      await mysqlQuery(`
+        INSERT INTO portal_visitor_stats (id, total_page_views, created_at, updated_at)
+        VALUES (1, 1, NOW(), NOW())
+        ON DUPLICATE KEY UPDATE total_page_views = total_page_views + 1, updated_at = NOW();
+      `);
 
-  public async getCitizenServicesWithCategories(includeInactive: boolean = true): Promise<DBCitizenService[]> {
-    const categories = await this.getCitizenServiceCategories(true);
-    const services = await this.getCitizenServices(includeInactive);
-    const categoryMap = new Map<number, DBCitizenServiceCategory>();
-    categories.forEach((cat) => categoryMap.set(cat.id, cat));
+      await mysqlQuery(`
+        INSERT INTO portal_daily_visits (visit_date, page_views, created_at, updated_at)
+        VALUES (CURDATE(), 1, NOW(), NOW())
+        ON DUPLICATE KEY UPDATE page_views = page_views + 1, updated_at = NOW();
+      `);
 
-    return services.map((s) => {
-      const cat = categoryMap.get(s.category_id);
-      return {
-        ...s,
-        service_name: s.service_name || s.service_name_en || "",
-        service_name_en: s.service_name_en || s.service_name || "",
-        description: s.description || s.description_en || "",
-        description_en: s.description_en || s.description || "",
-        category: cat,
-        category_name_en: cat?.name_en || cat?.name || "General",
-        category_name_ta: cat?.name_ta || cat?.name || "பொதுவானவை"
-      };
-    });
+      const statsRes: any = await mysqlQuery("SELECT total_page_views FROM portal_visitor_stats WHERE id = 1 LIMIT 1");
+      if (Array.isArray(statsRes) && statsRes.length > 0) {
+        totalVisitors = Number(statsRes[0].total_page_views || 0);
+      }
+      const dailyRes: any = await mysqlQuery("SELECT page_views FROM portal_daily_visits WHERE visit_date = CURDATE() LIMIT 1");
+      if (Array.isArray(dailyRes) && dailyRes.length > 0) {
+        todayVisitors = Number(dailyRes[0].page_views || 0);
+      }
+    } catch (mysqlErr) {
+      console.warn("MySQL visitor counter increment fallback to JSON DB:", mysqlErr);
+    }
+
+    // 2. JSON Database sync & standalone fallback
+    try {
+      let stats: DBVisitorStats[] = jsonDb.getTable("portal_visitor_stats") || [];
+      if (stats.length === 0) {
+        stats = [{ id: 1, total_page_views: totalVisitors > 0 ? totalVisitors : 1, created_at: nowIso, updated_at: nowIso }];
+      } else {
+        const nextCount = totalVisitors > 0 ? totalVisitors : (stats[0].total_page_views || 0) + 1;
+        stats[0].total_page_views = nextCount;
+        stats[0].updated_at = nowIso;
+      }
+      if (totalVisitors === 0) {
+        totalVisitors = stats[0].total_page_views;
+      }
+      jsonDb.setTable("portal_visitor_stats", stats);
+
+      let daily: DBDailyVisits[] = jsonDb.getTable("portal_daily_visits") || [];
+      const existingToday = daily.find((d) => d.visit_date === todayStr);
+      if (existingToday) {
+        const nextDaily = todayVisitors > 0 ? todayVisitors : (existingToday.page_views || 0) + 1;
+        existingToday.page_views = nextDaily;
+        existingToday.updated_at = nowIso;
+      } else {
+        const nextDaily = todayVisitors > 0 ? todayVisitors : 1;
+        const newId = daily.length > 0 ? Math.max(...daily.map((d) => d.id || 0)) + 1 : 1;
+        daily.push({ id: newId, visit_date: todayStr, page_views: nextDaily, created_at: nowIso, updated_at: nowIso });
+      }
+      if (todayVisitors === 0) {
+        const found = daily.find((d) => d.visit_date === todayStr);
+        todayVisitors = found ? found.page_views : 1;
+      }
+      jsonDb.setTable("portal_daily_visits", daily);
+    } catch (jsonErr) {
+      console.error("JSON DB visitor counter error:", jsonErr);
+    }
+
+    return { totalVisitors, todayVisitors };
   }
 }
 

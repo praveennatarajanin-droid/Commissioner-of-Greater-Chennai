@@ -1422,8 +1422,7 @@ export default function CitizenServicesManagement({
       {/* TOAST NOTIFICATION */}
       {toast && (
         <ToastNotification
-          type={toast.type}
-          message={toast.text}
+          toast={toast}
           onClose={() => setToast(null)}
         />
       )}

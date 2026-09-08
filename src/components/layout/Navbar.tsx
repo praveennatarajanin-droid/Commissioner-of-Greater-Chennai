@@ -145,10 +145,10 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
     { label: language === "ta" ? "பெண்கள் பாதுகாப்பு" : "Women Safety", href: "/category/women-safety", id: "women-safety" },
     { label: language === "ta" ? "பொது பாதுகாப்பு" : "Public Safety", href: "/category/public-safety", id: "public-safety" },
     { label: language === "ta" ? "குடிமக்கள் சேவைகள்" : "Citizen Services", href: "/citizen-services", id: "citizen-services" },
-    { label: language === "ta" ? "போக்குவரத்து" : "Traffic", href: "/traffic", id: "traffic" },
+    { label: language === "ta" ? "போக்குவரத்து" : "Traffic", href: "https://gctp.in/chennai-home", id: "traffic", openInNewTab: true },
     { label: language === "ta" ? "சமூக உதவி" : "Outreach", href: "/category/outreach", id: "outreach" },
   ].filter(item => {
-    if (item.id === "citizen-services") return true;
+    if (item.id === "citizen-services" || item.id === "traffic") return true;
     if (news.length === 0) return true;
     return getCount(item.id) > 0;
   });
@@ -163,17 +163,31 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
     { label: language === "ta" ? "தொடர்பு" : "Contact Us", href: "/contact-us" },
   ];
 
+  const isTrafficItem = (name: string, url: string) => {
+    const n = (name || "").toLowerCase();
+    const u = (url || "").toLowerCase();
+    return n.includes("traffic") || n.includes("போக்குவரத்து") || u === "/traffic" || u === "/category/traffic" || u.includes("gctp.in");
+  };
+
   const finalNavItems = dbMenus.length > 0
-    ? dbMenus.filter(Boolean).map((m: any) => ({
-      label: language === "ta" ? (m.name_ta || m.name_en || "") : (m.name_en || m.name_ta || ""),
-      href: m.url || "",
-      openInNewTab: m.open_in_new_tab === 1,
-      subMenus: (m.subMenus || []).filter(Boolean).map((sub: any) => ({
-        label: language === "ta" ? (sub.name_ta || sub.name_en || "") : (sub.name_en || sub.name_ta || ""),
-        href: sub.url || "",
-        openInNewTab: sub.open_in_new_tab === 1
-      }))
-    }))
+    ? dbMenus.filter(Boolean).map((m: any) => {
+      const isTraffic = isTrafficItem(m.name_en || m.name_ta || m.slug || "", m.url || "");
+      const href = isTraffic ? "https://gctp.in/chennai-home" : (m.url || "");
+      const openInNewTab = isTraffic ? true : m.open_in_new_tab === 1;
+      return {
+        label: language === "ta" ? (m.name_ta || m.name_en || "") : (m.name_en || m.name_ta || ""),
+        href,
+        openInNewTab,
+        subMenus: (m.subMenus || []).filter(Boolean).map((sub: any) => {
+          const isSubTraffic = isTrafficItem(sub.name_en || sub.name_ta || sub.slug || "", sub.url || "");
+          return {
+            label: language === "ta" ? (sub.name_ta || sub.name_en || "") : (sub.name_en || sub.name_ta || ""),
+            href: isSubTraffic ? "https://gctp.in/chennai-home" : (sub.url || ""),
+            openInNewTab: isSubTraffic ? true : sub.open_in_new_tab === 1
+          };
+        })
+      };
+    })
     : fallbackNavItems.map(item => ({ ...item, subMenus: [] }));
 
 
@@ -487,17 +501,31 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
                     </div>
                     {hasSub && isExpanded && (
                       <div className="pl-6 flex flex-col bg-[#0b0c24]/30 rounded-lg mb-2">
-                        {item.subMenus.map((sub: any, sIdx: number) => (
-                          <Link
-                            key={sIdx}
-                            href={sub.href}
-                            target={sub.openInNewTab ? "_blank" : undefined}
-                            onClick={() => setMobileMenuOpen(false)}
-                            className="py-2.5 px-4 text-[12px] uppercase font-bold text-stone-300 hover:text-[#c5a059] text-left border-b border-white/5 last:border-b-0 min-h-[44px] flex items-center"
-                          >
-                            {sub.label}
-                          </Link>
-                        ))}
+                        {item.subMenus.map((sub: any, sIdx: number) => {
+                          const isSubExt = sub.href && (sub.href.startsWith("http://") || sub.href.startsWith("https://") || sub.href.startsWith("www."));
+                          return isSubExt ? (
+                            <a
+                              key={sIdx}
+                              href={sub.href}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={() => setMobileMenuOpen(false)}
+                              className="py-2.5 px-4 text-[12px] uppercase font-bold text-stone-300 hover:text-[#c5a059] text-left border-b border-white/5 last:border-b-0 min-h-[44px] flex items-center"
+                            >
+                              {sub.label}
+                            </a>
+                          ) : (
+                            <Link
+                              key={sIdx}
+                              href={sub.href}
+                              target={sub.openInNewTab ? "_blank" : undefined}
+                              onClick={() => setMobileMenuOpen(false)}
+                              className="py-2.5 px-4 text-[12px] uppercase font-bold text-stone-300 hover:text-[#c5a059] text-left border-b border-white/5 last:border-b-0 min-h-[44px] flex items-center"
+                            >
+                              {sub.label}
+                            </Link>
+                          );
+                        })}
                       </div>
                     )}
                   </div>

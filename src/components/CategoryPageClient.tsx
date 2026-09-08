@@ -324,6 +324,35 @@ export default function CategoryPageClient({
           </div>
         </div>
 
+        {/* Official GCTP Live Portal Banner for Traffic Category */}
+        {id === "traffic" && (
+          <div className="bg-gradient-to-r from-[#1e1b4b] via-[#2e3192] to-[#1e2060] border-2 border-[#c5a059] rounded-2xl p-6 md:p-8 text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
+            <div className="space-y-2 text-center md:text-left">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#c5a059] text-stone-950 font-black text-[11px] uppercase tracking-wider">
+                <span className="w-2 h-2 rounded-full bg-emerald-600 animate-ping" />
+                {language === "ta" ? "நேரலை இணையதளம்" : "Official Live Portal"}
+              </div>
+              <h3 className="font-display font-black text-xl md:text-2xl text-white">
+                {language === "ta" ? "சென்னை பெருநகர போக்குவரத்து காவல்துறை (GCTP)" : "Greater Chennai Traffic Police (GCTP)"}
+              </h3>
+              <p className="text-white/85 text-xs md:text-sm max-w-2xl leading-relaxed">
+                {language === "ta"
+                  ? "நேரடி போக்குவரத்து நிலவரம், மாற்றுப்பாதைகள், விதிமீறல் அபராதம் செலுத்துதல் மற்றும் பிற அதிகாரப்பூர்வ போக்குவரத்து சேவைகளுக்கு GCTP நேரலை தளத்தைப் பார்வையிடவும்."
+                  : "Access real-time traffic advisories, diversions, e-challan services, road safety alerts, and citizen traffic support on the official GCTP portal."}
+              </p>
+            </div>
+            <a
+              href="https://gctp.in/chennai-home"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="shrink-0 px-6 py-3.5 bg-[#c5a059] hover:bg-amber-400 text-stone-950 font-black text-xs md:text-sm uppercase tracking-widest rounded-xl shadow-lg transition-all transform hover:scale-105 flex items-center gap-2 cursor-pointer"
+            >
+              <span>{language === "ta" ? "GCTP தளத்திற்கு செல்க" : "Open GCTP Portal"}</span>
+              <ChevronRight className="w-4 h-4" />
+            </a>
+          </div>
+        )}
+
         {/* News Grid Area */}
         {filteredNews.length > 0 ? (
           <div className="space-y-8">

@@ -1026,6 +1026,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
   const [newAnnouncement, setNewAnnouncement] = useState("");
   const [announcements, setAnnouncements] = useState<{ id: number; text: string; time: string; type: string }[]>([]);
   const [portalHealth] = useState({ db: true, api: true, admin: true, website: true });
+  const [totalPortalVisitors, setTotalPortalVisitors] = useState<number | null>(null);
 
   // News CMS States
   const [searchQuery, setSearchQuery] = useState("");
@@ -1378,6 +1379,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
         fetchMod("emergency-contacts"),
         fetchMod("department-links"),
         fetch("/api/admin/crud/alert_settings").then(res => res.ok ? res.json() : null).catch(() => null),
+        fetch("/api/analytics/visitor-count").then(res => res.ok ? res.json() : null).catch(() => null),
       ];
 
       if (user.role === "superadmin") {
@@ -1399,8 +1401,11 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
       setEmergencyContacts(results[10] || []);
       setDepartmentLinks(results[11] || []);
       if (results[12]) setAlertSettings(results[12]);
-      if (user.role === "superadmin" && results[13]) {
-        setUsers(results[13]);
+      if (results[13] && typeof results[13].totalVisitors === "number") {
+        setTotalPortalVisitors(results[13].totalVisitors);
+      }
+      if (user.role === "superadmin" && results[14]) {
+        setUsers(results[14]);
       }
 
       await fetchMedia();
@@ -2204,7 +2209,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                   { label: "Live Ticker", value: activeTicker.length, sub: `${ticker.length} total items`, icon: <Radio className="w-5 h-5" />, color: "#ed1b24", bg: "rgba(237,27,36,0.1)", border: "rgba(237,27,36,0.2)", tab: "ticker" as TabType },
                   { label: "Videos", value: videos.length, sub: `${activeVideosCount} active in gallery`, icon: <Tv className="w-5 h-5" />, color: "#7c3aed", bg: "rgba(124,58,237,0.1)", border: "rgba(124,58,237,0.2)", tab: "videos" as TabType },
                   { label: "Helplines", value: activeContacts.length, sub: `${contacts.length} total contacts`, icon: <Phone className="w-5 h-5" />, color: "#059669", bg: "rgba(5,150,105,0.1)", border: "rgba(5,150,105,0.2)", tab: "emergency-contacts" as TabType },
-                  { label: "Total Views", value: formatViewsCount(totalViews), sub: `${formatViewsCount(totalNewsViews)} news · ${formatViewsCount(totalVideoViews)} videos`, icon: <Eye className="w-5 h-5" />, color: "#0ea5e9", bg: "rgba(14,165,233,0.1)", border: "rgba(14,165,233,0.2)", tab: "dashboard" as TabType },
+                  { label: "Total Visitors", value: totalPortalVisitors !== null ? totalPortalVisitors.toLocaleString() : formatViewsCount(totalViews), sub: totalPortalVisitors !== null ? "Database verified" : `${formatViewsCount(totalNewsViews)} views`, icon: <Users className="w-5 h-5" />, color: "#0ea5e9", bg: "rgba(14,165,233,0.1)", border: "rgba(14,165,233,0.2)", tab: "dashboard" as TabType },
                 ].filter(k => k.tab === "dashboard" || hasModulePermission(k.tab, "view"));
                 return (
                   <div className="space-y-5">

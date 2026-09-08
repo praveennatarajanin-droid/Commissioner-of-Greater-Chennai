@@ -89,7 +89,9 @@ async function runMigration() {
       mfa_challenges: 'mfa_challenges',
       mfa_recovery_codes: 'mfa_recovery_codes',
       trusted_devices: 'trusted_devices',
-      media_files: 'media_files'
+      media_files: 'media_files',
+      portal_visitor_stats: 'portal_visitor_stats',
+      portal_daily_visits: 'portal_daily_visits'
     };
 
     // Pre-defined fallback fields for tables that are empty in JSON
@@ -237,6 +239,19 @@ async function runMigration() {
         hreflang_en: '',
         hreflang_ta: '',
         seo_score: 0,
+        updated_at: ''
+      },
+      portal_visitor_stats: {
+        id: 1,
+        total_page_views: 0,
+        created_at: '',
+        updated_at: ''
+      },
+      portal_daily_visits: {
+        id: 1,
+        visit_date: '2026-09-08',
+        page_views: 0,
+        created_at: '',
         updated_at: ''
       }
     };

@@ -167,7 +167,7 @@ async function runMigration() {
         ['Cyber Safety', 'இணைய பாதுகாப்பு', 'cyber-safety', 'Lock', 4, '/category/cyber-safety', 'news_category', 'active', 0],
         ['Women Safety', 'பெண்கள் பாதுகாப்பு', 'women-safety', 'Heart', 5, '/category/women-safety', 'news_category', 'active', 0],
         ['Public Safety', 'பொது பாதுகாப்பு', 'public-safety', 'Eye', 6, '/category/public-safety', 'news_category', 'active', 0],
-        ['Traffic', 'போக்குவரத்து', 'traffic', 'Car', 7, '/category/traffic', 'news_category', 'active', 0],
+        ['Traffic', 'போக்குவரத்து', 'traffic', 'Car', 7, 'https://gctp.in/chennai-home', 'external', 'active', 1],
         ['Outreach', 'சமூக உதவி', 'outreach', 'Users', 8, '/category/outreach', 'news_category', 'active', 0],
         ['Stations', 'காவல் நிலையங்கள்', 'stations', 'MapPin', 9, '/stations', 'static', 'active', 0],
         ['Videos', 'வீடியோக்கள்', 'videos', 'Video', 10, '/videos', 'static', 'active', 0],

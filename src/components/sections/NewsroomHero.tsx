@@ -23,6 +23,8 @@ interface NewsItem {
   created_at?: string;
   updated_at?: string;
   published?: number;
+  published_at?: string;
+  publishedAt?: string;
 }
 
 interface SliderItem {

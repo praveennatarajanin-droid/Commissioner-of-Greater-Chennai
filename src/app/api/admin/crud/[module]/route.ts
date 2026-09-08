@@ -756,16 +756,16 @@ export async function PUT(req: Request, { params }: { params: Promise<{ module: 
         const now = new Date().toISOString();
         const nameEn = srvData.service_name_en !== undefined || srvData.service_name !== undefined
           ? sanitizePlainText(srvData.service_name_en || srvData.service_name || "")
-          : (existing.service_name_en || existing.service_name);
+          : (existing.service_name_en || existing.service_name || "");
         const nameTa = srvData.service_name_ta !== undefined
           ? sanitizePlainText(srvData.service_name_ta)
-          : existing.service_name_ta;
+          : (existing.service_name_ta || "");
         const descEn = srvData.description_en !== undefined || srvData.description !== undefined
           ? sanitizePlainText(srvData.description_en || srvData.description || "")
-          : (existing.description_en || existing.description);
+          : (existing.description_en || existing.description || "");
         const descTa = srvData.description_ta !== undefined
           ? sanitizePlainText(srvData.description_ta)
-          : existing.description_ta;
+          : (existing.description_ta || "");
 
         services = services.map((s) => {
           if (s.id === targetId) {
@@ -805,16 +805,16 @@ export async function PUT(req: Request, { params }: { params: Promise<{ module: 
         const now = new Date().toISOString();
         const nameEn = catData.name_en !== undefined || catData.name !== undefined
           ? sanitizePlainText(catData.name_en || catData.name || "")
-          : (existing.name_en || existing.name);
+          : (existing.name_en || existing.name || "");
         const nameTa = catData.name_ta !== undefined
           ? sanitizePlainText(catData.name_ta)
-          : existing.name_ta;
+          : (existing.name_ta || "");
         const descEn = catData.description_en !== undefined || catData.description !== undefined
           ? sanitizePlainText(catData.description_en || catData.description || "")
-          : (existing.description_en || existing.description);
+          : (existing.description_en || existing.description || "");
         const descTa = catData.description_ta !== undefined
           ? sanitizePlainText(catData.description_ta)
-          : existing.description_ta;
+          : (existing.description_ta || "");
 
         categories = categories.map((c) => {
           if (c.id === targetId) {

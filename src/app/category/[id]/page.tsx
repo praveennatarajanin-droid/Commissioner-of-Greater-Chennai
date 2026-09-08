@@ -1,4 +1,5 @@
 import React from "react";
+import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import CategoryPageClient from "@/components/CategoryPageClient";
 import type { Metadata } from "next";
@@ -12,6 +13,12 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const resolvedParams = await params;
   const id = resolvedParams.id;
+  if (id.toLowerCase() === "traffic") {
+    return {
+      title: "Greater Chennai Traffic Police",
+      description: "Official Traffic Updates and Portal",
+    };
+  }
   const formattedTitle = id
     .split("-")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
@@ -29,6 +36,10 @@ export default async function CategoryPage({
 }) {
   const resolvedParams = await params;
   const id = resolvedParams.id;
+  
+  if (id.toLowerCase() === "traffic") {
+    redirect("https://gctp.in/chennai-home");
+  }
   
   const [menuItems, rawTicker, allNews, profile] = await Promise.all([
     db.getMenuItems(),

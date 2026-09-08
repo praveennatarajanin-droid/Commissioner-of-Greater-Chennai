@@ -53,7 +53,7 @@ function OrgChart({ language, imageSrc = "/images/gcp_org_chart.png" }: { langua
   return (
     <div className="space-y-4">
       {/* Main Container Card: Rounded 20px, responsive, auto adjusting height */}
-      <div className="relative bg-white dark:bg-stone-900 rounded-[20px] border border-stone-200 dark:border-stone-800 shadow-xl overflow-hidden p-3 sm:p-6 transition-all duration-300">
+      <div className="relative bg-white dark:bg-stone-900 rounded-[20px] border border-stone-200 dark:border-stone-800 shadow-xl overflow-hidden p-2 sm:p-4 md:p-6 transition-all duration-300">
         
         {/* Loading / Skeleton State */}
         {imageState === "loading" && (
@@ -381,7 +381,7 @@ export default function AboutUsClient({ initialTab, customData }: AboutUsClientP
           <div className="space-y-16 animate-fadeIn">
             
             {/* Org structure chart */}
-            <div className="space-y-8 text-center max-w-4xl mx-auto">
+            <div className="space-y-8 text-center max-w-6xl mx-auto w-full">
               <div className="space-y-2">
                 <h3 className="font-display font-black text-xl uppercase tracking-wider text-brand-blue dark:text-white">
                   {language === "ta" ? "காவல்துறை நிர்வாகக் கட்டமைப்பு" : "Organizational Structure Chart"}

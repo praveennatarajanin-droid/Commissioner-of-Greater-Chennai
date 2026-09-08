@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Landmark, Mail, Phone, MapPin, Globe, ExternalLink } from "lucide-react";
+import { Landmark, Mail, Phone, MapPin, Globe, ExternalLink, Users } from "lucide-react";
 import { useTranslation } from "@/context/LanguageContext";
 
 interface FooterProps {
@@ -13,6 +13,7 @@ interface FooterProps {
 export default function Footer({ customProfile }: FooterProps = {}) {
   const { t, language } = useTranslation();
   const [config, setConfig] = useState<any>(null);
+  const [visitorCount, setVisitorCount] = useState<number | null>(null);
 
   useEffect(() => {
     fetch("/api/admin/crud/config")
@@ -26,6 +27,27 @@ export default function Footer({ customProfile }: FooterProps = {}) {
         }
       })
       .catch((err) => console.warn("Failed to load footer config:", err));
+
+    // Fetch live persistent visitor count from database
+    fetch("/api/analytics/visitor-count")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data && data.success && typeof data.totalVisitors === "number") {
+          setVisitorCount(data.totalVisitors);
+        }
+      })
+      .catch((err) => console.warn("Failed to load visitor count:", err));
+
+    // Listen to real-time updates broadcasted by VisitorTracker
+    const handleUpdate = (e: Event) => {
+      const customEvent = e as CustomEvent<{ totalVisitors?: number }>;
+      if (typeof customEvent.detail?.totalVisitors === "number") {
+        setVisitorCount(customEvent.detail.totalVisitors);
+      }
+    };
+
+    window.addEventListener("visitor-count-updated", handleUpdate);
+    return () => window.removeEventListener("visitor-count-updated", handleUpdate);
   }, []);
 
   if (config && config.footer_visible === false) {
@@ -43,7 +65,7 @@ export default function Footer({ customProfile }: FooterProps = {}) {
 
   const websiteName = config
     ? (language === "ta" ? config.website_name_ta : config.website_name_en)
-    : (language === "ta" ? "சென்னை பெருநகர காவல் செய்திகள்" : "GREATER CHENNAI POLICE NEWS");
+    : (language === "ta" ? "சென்னை பெருநகர காவல்" : "GREATER CHENNAI POLICE");
 
   const description = config
     ? (language === "ta" ? config.description_ta : config.description_en)
@@ -66,13 +88,9 @@ export default function Footer({ customProfile }: FooterProps = {}) {
     ? config.quick_links.filter((l: any) => l.active !== false)
     : [
         { id: "ql1", label_en: "Home", label_ta: "முகப்பு", url: "/" },
-        { id: "ql2", label_en: "Crime News", label_ta: "குற்றம்", url: "/category/crime" },
-        { id: "ql3", label_en: "Cyber Safety", label_ta: "இணைய பாதுகாப்பு", url: "/category/cyber-safety" },
-        { id: "ql4", label_en: "Women Safety", label_ta: "பெண்கள் பாதுகாப்பு", url: "/category/women-safety" },
-        { id: "ql5", label_en: "About Us", label_ta: "எங்களைப் பற்றி", url: "/about" },
-        { id: "ql6", label_en: "Achievements", label_ta: "சாதனைகள்", url: "/achievements" },
-        { id: "ql7", label_en: "Police Stations", label_ta: "காவல் நிலையங்கள்", url: "/stations" },
-        { id: "ql8", label_en: "Contact Us", label_ta: "தொடர்பு கொள்ள", url: "/contact-us" }
+        { id: "ql2", label_en: "Citizen Services", label_ta: "குடிமக்கள் சேவைகள்", url: "/citizen-services" },
+        { id: "ql3", label_en: "Police Stations", label_ta: "காவல் நிலையங்கள்", url: "/stations" },
+        { id: "ql4", label_en: "Contact Us", label_ta: "தொடர்பு கொள்ள", url: "/contact-us" }
       ];
 
   const hasContactUs = rawQuickLinks.some((l: any) => l.url === "/contact-us" || (l.label_en || "").toLowerCase().includes("contact"));
@@ -230,6 +248,17 @@ export default function Footer({ customProfile }: FooterProps = {}) {
                 </a>
               </div>
             </div>
+          </div>
+
+          {/* Real-time Visitor Counter under Location box */}
+          <div className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-white/10 border border-white/15 text-xs text-white/90 shadow-sm">
+            <div className="flex items-center gap-2">
+              <Users className="w-4 h-4 text-brand-gold shrink-0" />
+              <span className="font-semibold">{language === "ta" ? "பார்வையாளர்களின் எண்ணிக்கை" : "No. of Visitors"}:</span>
+            </div>
+            <span className="font-black text-brand-gold text-sm tracking-wider font-mono">
+              {visitorCount !== null ? visitorCount.toLocaleString() : "—"}
+            </span>
           </div>
         </div>
 
