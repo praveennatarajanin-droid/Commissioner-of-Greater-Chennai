@@ -91,6 +91,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ module: 
       return NextResponse.json(await db.getTicker());
     case "slider":
       return NextResponse.json(await db.getSlider());
+    case "commissioner":
     case "profile":
       return NextResponse.json(await db.getCommissionerProfile());
     case "theme":
@@ -593,6 +594,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ module: 
         await db.saveSlider(items);
         return NextResponse.json({ success: true });
       }
+      case "commissioner":
       case "profile": {
         await db.saveCommissionerProfile(data);
         return NextResponse.json({ success: true });

@@ -4,8 +4,7 @@ import { LanguageProvider } from "@/context/LanguageContext";
 import ContentProtection from "@/components/security/ContentProtection";
 import VisitorTracker from "@/components/analytics/VisitorTracker";
 import { db } from "@/lib/db";
-import { cookies } from "next/headers";
-import Script from "next/script";
+import { cookies, headers } from "next/headers";
 import "./globals.css";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -49,6 +48,8 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const cookieStore = await cookies();
+  const headerList = await headers();
+  const nonce = headerList.get("x-nonce") || undefined;
   const initialLanguage = (cookieStore.get("preferred-language")?.value || "en") as "en" | "ta";
   const themeSettings = await db.getThemeSettings();
   const seoSettings = await db.getSeoSettings();
@@ -107,7 +108,11 @@ export default async function RootLayout({
   return (
     <html lang={initialLanguage} className="h-full antialiased scroll-smooth" suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
-        <Script src="/theme-detector.js" strategy="beforeInteractive" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var s=localStorage.getItem('theme'),p=window.matchMedia('(prefers-color-scheme: dark)').matches;if(s==='dark'||(!s&&p)){document.documentElement.classList.add('dark');document.documentElement.style.colorScheme='dark';}else{document.documentElement.classList.remove('dark');document.documentElement.style.colorScheme='light';}}catch(e){}})();`,
+          }}
+        />
         <style dangerouslySetInnerHTML={{ __html: inlineStyles }} />
         <link rel="icon" href="/favicon.ico?v=2" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=2" />
