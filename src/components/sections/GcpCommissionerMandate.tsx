@@ -29,20 +29,20 @@ export default function GcpCommissionerMandate() {
     : (language === "ta" ? "1996 பேட்ச் ஐபிஎஸ் அதிகாரி" : "1996 BATCH IPS OFFICER");
 
   return (
-    <section className="w-full bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-850 p-6 md:p-8 shadow-sm text-left relative overflow-hidden">
+    <section className="w-full bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-850 p-6 md:p-8 shadow-sm text-left relative overflow-hidden gcp-commissioner-section">
       {/* Decorative background logo tint */}
       <div className="absolute top-1/2 right-0 -translate-y-1/2 w-80 h-80 bg-brand-blue/5 rounded-full blur-3xl pointer-events-none" />
 
       <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
         {/* Left Column: Commissioner's Profile Portrait (4 cols) */}
-        <div className="lg:col-span-4 bg-white dark:bg-stone-950 rounded-2xl border border-stone-250 dark:border-stone-850 shadow-sm overflow-hidden flex flex-col items-center pb-6 text-center">
+        <div className="lg:col-span-4 bg-white dark:bg-stone-950 rounded-2xl border border-stone-250 dark:border-stone-850 shadow-sm overflow-hidden flex flex-col items-center pb-6 text-center commissioner-profile-card">
           {/* Top Blue Wave Header Banner */}
-          <div className="w-full h-32 bg-gradient-to-r from-[#030b1b] via-[#0b1d3d] to-[#030b1b] relative flex items-end justify-center pb-0 border-b border-[#c5a059]/20">
+          <div className="w-full h-32 bg-gradient-to-r from-[#030b1b] via-[#0b1d3d] to-[#030b1b] relative flex items-end justify-center pb-0 border-b border-[#c5a059]/20 commissioner-header-banner">
             <div className="absolute inset-0 opacity-15 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.1),transparent)] pointer-events-none" />
             
             {/* Portrait */}
-            <div className="absolute top-10 w-32 h-32 rounded-full border-[5px] border-[#c5a059] overflow-hidden bg-white shadow-xl">
+            <div className="absolute top-10 w-32 h-32 rounded-full border-[5px] border-[#c5a059] overflow-hidden bg-white shadow-xl commissioner-portrait-frame">
               <Image
                 src={photo}
                 alt={name}
@@ -61,41 +61,41 @@ export default function GcpCommissionerMandate() {
           <div className="h-14" />
           
           {/* Three gold stars */}
-          <div className="flex items-center gap-1 text-[#c5a059] text-base animate-pulse">
+          <div className="flex items-center gap-1 text-[#c5a059] text-base animate-pulse commissioner-stars">
             ★ ★ ★
           </div>
           
           {/* Profile Details */}
           <div className="px-6 mt-3 space-y-1">
-            <h3 className="font-display font-black text-xl tracking-wide text-brand-blue dark:text-white uppercase leading-tight">
+            <h3 className="font-display font-black text-xl tracking-wide text-brand-blue dark:text-white uppercase leading-tight commissioner-name">
               {name}
             </h3>
-            <p className="text-[9px] font-black uppercase text-brand-maroon dark:text-brand-gold tracking-wider leading-relaxed">
+            <p className="text-[9px] font-black uppercase text-brand-maroon dark:text-brand-gold tracking-wider leading-relaxed commissioner-designation">
               {designation}
             </p>
             
             <div className="pt-2 flex justify-center">
-              <span className="inline-flex items-center px-4 py-1.5 rounded-full text-[9px] font-black tracking-widest text-white bg-brand-blue uppercase shadow-sm border border-white/10">
+              <span className="inline-flex items-center px-4 py-1.5 rounded-full text-[9px] font-black tracking-widest text-white bg-brand-blue uppercase shadow-sm border border-white/10 commissioner-batch-badge">
                 {ipsBatch}
               </span>
             </div>
           </div>
           
           {/* Medals List cards */}
-          <div className="w-full px-6 mt-6 pt-5 border-t border-stone-100 dark:border-stone-850 space-y-2.5">
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-amber-550/5 dark:bg-brand-gold/5 border border-[#c5a059]/25 text-left transition duration-300 hover:bg-[#c5a059]/10">
-              <div className="p-2 rounded-lg bg-[#c5a059]/15 text-[#c5a059] shrink-0">
+          <div className="w-full px-6 mt-6 pt-5 border-t border-stone-100 dark:border-stone-850 space-y-2.5 commissioner-medals-container">
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-amber-550/5 dark:bg-brand-gold/5 border border-[#c5a059]/25 text-left transition duration-300 hover:bg-[#c5a059]/10 commissioner-medal-card">
+              <div className="p-2 rounded-lg bg-[#c5a059]/15 text-[#c5a059] shrink-0 commissioner-medal-icon">
                 <Award className="w-5 h-5" />
               </div>
-              <span className="text-xs font-black text-stone-800 dark:text-stone-200">
+              <span className="text-xs font-black text-stone-800 dark:text-stone-200 commissioner-medal-text">
                 {language === "ta" ? "குடியரசுத் தலைவரின் சிறந்த காவல் பதக்கம்" : "President's Police Medal"}
               </span>
             </div>
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-amber-550/5 dark:bg-brand-gold/5 border border-[#c5a059]/25 text-left transition duration-300 hover:bg-[#c5a059]/10">
-              <div className="p-2 rounded-lg bg-[#c5a059]/15 text-[#c5a059] shrink-0">
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-amber-550/5 dark:bg-brand-gold/5 border border-[#c5a059]/25 text-left transition duration-300 hover:bg-[#c5a059]/10 commissioner-medal-card">
+              <div className="p-2 rounded-lg bg-[#c5a059]/15 text-[#c5a059] shrink-0 commissioner-medal-icon">
                 <Shield className="w-5 h-5" />
               </div>
-              <span className="text-xs font-black text-stone-800 dark:text-stone-200">
+              <span className="text-xs font-black text-stone-800 dark:text-stone-200 commissioner-medal-text">
                 {language === "ta" ? "முதலமைச்சரின் சிறப்பு காவல் பதக்கம்" : "Chief Minister's Special Medal"}
               </span>
             </div>
@@ -103,35 +103,35 @@ export default function GcpCommissionerMandate() {
         </div>
  
         {/* Right Column: Tabbed Content (8 cols) */}
-        <div className="lg:col-span-8 space-y-6">
+        <div className="lg:col-span-8 space-y-6 commissioner-content-col">
           {/* Tab Navigation */}
-          <div className="flex border-b border-stone-200 dark:border-stone-800 pb-px">
+          <div className="flex border-b border-stone-200 dark:border-stone-800 pb-px commissioner-tabs-bar">
             <button
               onClick={() => setActiveTab("message")}
-              className={`pb-3 px-4 font-display font-black text-xs uppercase tracking-widest border-b-2 cursor-pointer transition-all ${
+              className={`pb-3 px-4 font-display font-black text-xs uppercase tracking-widest border-b-2 cursor-pointer transition-all commissioner-tab-btn ${
                 activeTab === "message"
-                  ? "border-brand-maroon dark:border-brand-gold text-brand-maroon dark:text-brand-gold"
-                  : "border-transparent text-stone-400 hover:text-stone-800 dark:hover:text-stone-250"
+                  ? "border-brand-maroon dark:border-brand-gold text-brand-maroon dark:text-brand-gold commissioner-tab-active"
+                  : "border-transparent text-stone-400 hover:text-stone-800 dark:hover:text-stone-250 commissioner-tab-inactive"
               }`}
             >
               {language === "ta" ? "ஆணையரின் செய்தி" : "Commissioner's Message"}
             </button>
             <button
               onClick={() => setActiveTab("mission")}
-              className={`pb-3 px-4 font-display font-black text-xs uppercase tracking-widest border-b-2 cursor-pointer transition-all ${
+              className={`pb-3 px-4 font-display font-black text-xs uppercase tracking-widest border-b-2 cursor-pointer transition-all commissioner-tab-btn ${
                 activeTab === "mission"
-                  ? "border-brand-maroon dark:border-brand-gold text-brand-maroon dark:text-brand-gold"
-                  : "border-transparent text-stone-400 hover:text-stone-800 dark:hover:text-stone-250"
+                  ? "border-brand-maroon dark:border-brand-gold text-brand-maroon dark:text-brand-gold commissioner-tab-active"
+                  : "border-transparent text-stone-400 hover:text-stone-800 dark:hover:text-stone-250 commissioner-tab-inactive"
               }`}
             >
               {language === "ta" ? "எமது கொள்கை" : "Mission"}
             </button>
             <button
               onClick={() => setActiveTab("vision")}
-              className={`pb-3 px-4 font-display font-black text-xs uppercase tracking-widest border-b-2 cursor-pointer transition-all ${
+              className={`pb-3 px-4 font-display font-black text-xs uppercase tracking-widest border-b-2 cursor-pointer transition-all commissioner-tab-btn ${
                 activeTab === "vision"
-                  ? "border-brand-maroon dark:border-brand-gold text-brand-maroon dark:text-brand-gold"
-                  : "border-transparent text-stone-400 hover:text-stone-800 dark:hover:text-stone-250"
+                  ? "border-brand-maroon dark:border-brand-gold text-brand-maroon dark:text-brand-gold commissioner-tab-active"
+                  : "border-transparent text-stone-400 hover:text-stone-800 dark:hover:text-stone-250 commissioner-tab-inactive"
               }`}
             >
               {language === "ta" ? "நோக்கு பார்வை" : "Vision"}
@@ -141,38 +141,38 @@ export default function GcpCommissionerMandate() {
           {/* Active Tab Panel Rendering */}
           <div className="min-h-[220px]">
             {activeTab === "message" && (
-              <div className="space-y-6 animate-fade-in relative text-left">
+              <div className="space-y-6 animate-fade-in relative text-left commissioner-tab-panel">
                 
                 {/* Underline Title & Subtitle */}
                 <div className="space-y-2.5">
-                  <h2 className="font-display font-black text-2xl text-brand-blue dark:text-white uppercase tracking-wide">
+                  <h2 className="font-display font-black text-2xl text-brand-blue dark:text-white uppercase tracking-wide commissioner-tab-heading">
                     {language === "ta" ? "ஆணையரின் செய்தி" : "Commissioner's Message"}
                   </h2>
                   {/* Gold Divider with Star */}
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 commissioner-star-divider">
                     <div className="h-0.5 bg-[#c5a059]/40 w-16" />
                     <span className="text-[#c5a059] text-xs">★</span>
                     <div className="h-0.5 bg-[#c5a059]/40 w-16" />
                   </div>
-                  <p className="text-xs font-bold text-stone-500 uppercase tracking-wider mt-2">
+                  <p className="text-xs font-bold text-stone-500 uppercase tracking-wider mt-2 commissioner-tab-subtitle">
                     {language === "ta" ? "சென்னை பெருநகர காவல் துறையை பாதுகாப்பான, புத்திசாலித்தனமான மற்றும் மக்கள் சார்ந்த எதிர்காலத்தை நோக்கி வழிநடத்துதல்." : "Leading Greater Chennai Police towards a safer, smarter and citizen-centric future."}
                   </p>
                 </div>
 
                 {/* Red accented open/close quote box */}
-                <div className="relative p-5 rounded-2xl bg-stone-50/50 dark:bg-stone-950/50 backdrop-blur-[1px] border border-stone-200/80 dark:border-stone-850 shadow-sm flex items-start gap-4 overflow-hidden">
-                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-brand-maroon" />
-                  <div className="flex-grow pl-2 py-1 leading-relaxed text-brand-blue dark:text-stone-100 font-display font-bold italic text-sm sm:text-base text-justify">
-                    <span className="text-brand-maroon text-2xl font-black mr-1 select-none">“</span>
+                <div className="relative p-5 rounded-2xl bg-stone-50/50 dark:bg-stone-950/50 backdrop-blur-[1px] border border-stone-200/80 dark:border-stone-850 shadow-sm flex items-start gap-4 overflow-hidden commissioner-quote-box">
+                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-brand-maroon commissioner-quote-bar" />
+                  <div className="flex-grow pl-2 py-1 leading-relaxed text-brand-blue dark:text-stone-100 font-display font-bold italic text-sm sm:text-base text-justify commissioner-quote-text">
+                    <span className="text-brand-maroon text-2xl font-black mr-1 select-none commissioner-quote-mark">“</span>
                     {language === "ta"
                       ? "மக்களின் நம்பிக்கை, அறிவியல் பூர்வமான கண்டுபிடிப்புகள் மற்றும் எல்லையற்ற இரக்கம் ஆகியவற்றின் அடிப்படையிலேயே திறமையான சட்ட அமலாக்கம் கட்டமைக்கப்படுகிறது."
                       : "Effective law enforcement is built upon the foundation of public trust, scientific innovation, and unconditional compassion."}
-                    <span className="text-brand-maroon text-2xl font-black ml-1 select-none">”</span>
+                    <span className="text-brand-maroon text-2xl font-black ml-1 select-none commissioner-quote-mark">”</span>
                   </div>
                 </div>
                 
                 {/* Paragraphs */}
-                <div className="text-xs sm:text-sm text-stone-600 dark:text-stone-300 leading-relaxed space-y-4 text-justify">
+                <div className="text-xs sm:text-sm text-stone-600 dark:text-stone-300 leading-relaxed space-y-4 text-justify commissioner-message-body">
                   <p>
                     {language === "ta"
                       ? "சென்னை பெருநகர காவல் ஆணையராக, வரலாற்றுச் சிறப்புமிக்க இந்த மாநகர குடிமக்களுக்கு ஒரு நவீன, அதிநவீன தொழில்நுட்பம் சார்ந்த மற்றும் சமூகத்துடன் இணைந்த பாதுகாப்புப் படையைக் கட்டமைப்பதே எனது உறுதிமொழியாகும். நாங்கள் அறிவியல் பூர்வமான காவல் மாதிரிகள், நிகழ்நேர கட்டுப்பாட்டு அமைப்புகள் மற்றும் விரிவான சிசிடிவி வலைப்பின்னல்களைப் பயன்படுத்துவதன் மூலம் சட்ட அமலாக்கத்தை மாற்றி வருகிறோம்."
@@ -185,23 +185,23 @@ export default function GcpCommissionerMandate() {
                   </p>
                 </div>
                 
-                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold text-[9px] uppercase tracking-wider w-max">
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold text-[9px] uppercase tracking-wider w-max commissioner-official-badge">
                   <CheckCircle className="w-3.5 h-3.5" /> {language === "ta" ? "அதிகாரப்பூர்வ ஆணையர் செய்தி" : "Official Executive Message"}
                 </div>
               </div>
             )}
 
             {activeTab === "mission" && (
-              <div className="space-y-5 animate-fade-in">
+              <div className="space-y-5 animate-fade-in commissioner-tab-panel">
                 <div className="flex gap-4 items-start">
-                  <div className="p-2.5 rounded-lg bg-brand-maroon/5 dark:bg-brand-gold/10 text-brand-maroon dark:text-brand-gold shrink-0 border border-brand-maroon/10 dark:border-brand-gold/10">
+                  <div className="p-2.5 rounded-lg bg-brand-maroon/5 dark:bg-brand-gold/10 text-brand-maroon dark:text-brand-gold shrink-0 border border-brand-maroon/10 dark:border-brand-gold/10 commissioner-panel-icon">
                     <Target className="w-6 h-6" />
                   </div>
                   <div className="space-y-2">
-                    <h4 className="font-display font-black text-sm uppercase tracking-wider text-stone-850 dark:text-stone-100">
+                    <h4 className="font-display font-black text-sm uppercase tracking-wider text-stone-850 dark:text-stone-100 commissioner-panel-title">
                       {language === "ta" ? "ஜிசிபி கொள்கை அறிக்கை" : "GCP Mission Statement"}
                     </h4>
-                    <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-300 leading-relaxed text-justify">
+                    <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-300 leading-relaxed text-justify commissioner-panel-desc">
                       {language === "ta"
                         ? "மக்களின் கூட்டுறவு, மேம்பட்ட தொழில்நுட்பம் மற்றும் தொழில்முறை காவல் பணி ஆகியவற்றின் மூலம் சென்னை பெருநகர குடிமக்களின் பாதுகாப்பை உறுதி செய்வதுடன், பொது ஒழுங்கைப் பேணவும், குற்றங்களைத் தடுக்கவும் கண்டறியவும் பாடுபடுகிறோம். சமுதாயத்தின் அமைதிக்கும் வளர்ச்சிக்கும் காவல்துறை உற்ற துணையாக இருக்கும்."
                         : "To maintain public order, prevent and detect crime, and ensure the safety of all citizens of Chennai through active community partnership, advanced technologies, and highly professional policing. We serve with integrity to foster a peaceful and crime-free urban environment."}
@@ -210,33 +210,37 @@ export default function GcpCommissionerMandate() {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                  <div className="p-3.5 rounded-lg bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-850 text-xs">
-                    <span className="font-extrabold text-stone-800 dark:text-stone-200 block mb-1 uppercase tracking-wide">
+                  <div className="p-3.5 rounded-lg bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-850 text-xs commissioner-objective-card">
+                    <span className="font-extrabold text-stone-800 dark:text-stone-200 block mb-1 uppercase tracking-wide commissioner-objective-title">
                       {language === "ta" ? "குற்றத் தடுப்பு" : "Crime Prevention"}
                     </span>
-                    {language === "ta" ? "விழிப்புணர்வு மற்றும் தீவிர ரோந்து மூலம் குற்றங்களை முன்கூட்டியே தடுத்தல்." : "Proactive patrolling, intelligence gathering, and public safety programs to preempt criminal operations."}
+                    <p className="commissioner-objective-desc">
+                      {language === "ta" ? "விழிப்புணர்வு மற்றும் தீவிர ரோந்து மூலம் குற்றங்களை முன்கூட்டியே தடுத்தல்." : "Proactive patrolling, intelligence gathering, and public safety programs to preempt criminal operations."}
+                    </p>
                   </div>
-                  <div className="p-3.5 rounded-lg bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-850 text-xs">
-                    <span className="font-extrabold text-stone-800 dark:text-stone-200 block mb-1 uppercase tracking-wide">
+                  <div className="p-3.5 rounded-lg bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-850 text-xs commissioner-objective-card">
+                    <span className="font-extrabold text-stone-800 dark:text-stone-200 block mb-1 uppercase tracking-wide commissioner-objective-title">
                       {language === "ta" ? "சமூக காவல்" : "Community Engagement"}
                     </span>
-                    {language === "ta" ? "மக்களுடனான நல்லுறவை வளர்த்து, கூட்டு முயற்சியுடன் பாதுகாப்பை மேம்படுத்தல்." : "Building mutual trust by involving resident groups, volunteers, and public outreach programs."}
+                    <p className="commissioner-objective-desc">
+                      {language === "ta" ? "மக்களுடனான நல்லுறவை வளர்த்து, கூட்டு முயற்சியுடன் பாதுகாப்பை மேம்படுத்தல்." : "Building mutual trust by involving resident groups, volunteers, and public outreach programs."}
+                    </p>
                   </div>
                 </div>
               </div>
             )}
 
             {activeTab === "vision" && (
-              <div className="space-y-5 animate-fade-in">
+              <div className="space-y-5 animate-fade-in commissioner-tab-panel">
                 <div className="flex gap-4 items-start">
-                  <div className="p-2.5 rounded-lg bg-brand-blue/5 dark:bg-brand-gold/10 text-brand-blue dark:text-brand-gold shrink-0 border border-brand-blue/10 dark:border-brand-gold/10">
+                  <div className="p-2.5 rounded-lg bg-brand-blue/5 dark:bg-brand-gold/10 text-brand-blue dark:text-brand-gold shrink-0 border border-brand-blue/10 dark:border-brand-gold/10 commissioner-panel-icon">
                     <Eye className="w-6 h-6" />
                   </div>
                   <div className="space-y-2">
-                    <h4 className="font-display font-black text-sm uppercase tracking-wider text-stone-850 dark:text-stone-100">
+                    <h4 className="font-display font-black text-sm uppercase tracking-wider text-stone-850 dark:text-stone-100 commissioner-panel-title">
                       {language === "ta" ? "ஜிசிபி தொலைநோக்கு பார்வை" : "GCP Vision Statement"}
                     </h4>
-                    <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-300 leading-relaxed text-justify">
+                    <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-300 leading-relaxed text-justify commissioner-panel-desc">
                       {language === "ta"
                         ? "சென்னை பெருநகர காவல்துறையை ஒரு உலகத்தரம் வாய்ந்த, மக்கள் சார்ந்த, தொழில்நுட்பத்தால் இயக்கப்படும் ஸ்மார்ட் பாதுகாப்பு வலையமைப்பாக மாற்றுவதுடன், விரைவான துரித நடவடிக்கை, எளியோர்க்கான ஆதரவு மற்றும் நேர்மையுடன் கூடிய நீதியை நிலைநாட்டுவது எமது நோக்கமாகும். 7 நிமிடங்களுக்குள் நடவடிக்கை எடுக்கும் பாதுகாப்பு அமைப்பைக் கட்டமைக்கிறோம்."
                         : "To transform Greater Chennai Police into a world-class, citizen-centric, technology-driven smart safety network that responds within minutes, supports the vulnerable, and upholds justice with integrity. We aim to secure Chennai as a benchmark of modern urban policing."}
@@ -245,17 +249,21 @@ export default function GcpCommissionerMandate() {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                  <div className="p-3.5 rounded-lg bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-850 text-xs">
-                    <span className="font-extrabold text-stone-800 dark:text-stone-200 block mb-1 uppercase tracking-wide">
+                  <div className="p-3.5 rounded-lg bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-850 text-xs commissioner-objective-card">
+                    <span className="font-extrabold text-stone-800 dark:text-stone-200 block mb-1 uppercase tracking-wide commissioner-objective-title">
                       {language === "ta" ? "ஸ்மார்ட் காவல்" : "Smart Policing"}
                     </span>
-                    {language === "ta" ? "செயற்கை நுண்ணறிவு மற்றும் அதிநவீன கண்காணிப்பு மூலம் துரித நடவடிக்கை." : "Using AI and smart city grids to reduce emergency response times to less than 7 minutes."}
+                    <p className="commissioner-objective-desc">
+                      {language === "ta" ? "செயற்கை நுண்ணறிவு மற்றும் அதிநவீன கண்காணிப்பு மூலம் துரித நடவடிக்கை." : "Using AI and smart city grids to reduce emergency response times to less than 7 minutes."}
+                    </p>
                   </div>
-                  <div className="p-3.5 rounded-lg bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-850 text-xs">
-                    <span className="font-extrabold text-stone-800 dark:text-stone-200 block mb-1 uppercase tracking-wide">
+                  <div className="p-3.5 rounded-lg bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-850 text-xs commissioner-objective-card">
+                    <span className="font-extrabold text-stone-800 dark:text-stone-200 block mb-1 uppercase tracking-wide commissioner-objective-title">
                       {language === "ta" ? "நீதி மற்றும் நேர்மை" : "Fairness & Integrity"}
                     </span>
-                    {language === "ta" ? "அனைத்து குடிமக்களுக்கும் பாகுபாடற்ற, வெளிப்படையான சட்ட அமலாக்கம்." : "Ensuring transparent, unbiased, and humane justice guidelines for every citizen."}
+                    <p className="commissioner-objective-desc">
+                      {language === "ta" ? "அனைத்து குடிமக்களுக்கும் பாகுபாடற்ற, வெளிப்படையான சட்ட அமலாக்கம்." : "Ensuring transparent, unbiased, and humane justice guidelines for every citizen."}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -267,3 +275,4 @@ export default function GcpCommissionerMandate() {
     </section>
   );
 }
+

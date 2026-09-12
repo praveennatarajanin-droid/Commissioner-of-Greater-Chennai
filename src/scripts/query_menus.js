@@ -22,7 +22,7 @@ const dbHost = envConfig.DB_HOST || '127.0.0.1';
 const dbPort = parseInt(envConfig.DB_PORT || '3306', 10);
 const dbUser = envConfig.DB_USER || 'root';
 const dbPassword = envConfig.DB_PASSWORD || '';
-const dbName = envConfig.DB_NAME || 'chennai_guardian';
+const dbName = envConfig.DB_NAME || 'startup_TN';
 
 async function main() {
   const connection = await mysql.createConnection({

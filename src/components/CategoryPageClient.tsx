@@ -283,10 +283,10 @@ export default function CategoryPageClient({
 
   return (
     <div className="flex flex-col min-h-screen bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100">
-      <Navbar customMenuItems={menuItems} />
       <NewsTicker customTickerItems={ticker} />
+      <Navbar customMenuItems={menuItems} stickyOffset="38px" />
 
-      <main className="flex-grow max-w-[1700px] w-full mx-auto px-4 py-8 space-y-8">
+      <main id="main-content" tabIndex={-1} className="flex-grow max-w-[1700px] w-full mx-auto px-4 py-8 space-y-8 focus:outline-none">
         
         {/* Breadcrumbs / Back button */}
         <div>
@@ -366,7 +366,7 @@ export default function CategoryPageClient({
                   <Link
                     key={n.id}
                     href={n.slug ? `/news/${n.slug}` : "#"}
-                    className="group flex flex-col bg-white dark:bg-stone-900 rounded-xl overflow-hidden border border-stone-200 dark:border-stone-850 hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 text-left"
+                    className="group flex flex-col bg-white dark:bg-stone-900 rounded-xl overflow-hidden border border-stone-200 dark:border-stone-850 hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 text-left news-card-white app-card-white"
                   >
                     <div className="relative w-full overflow-hidden" style={{ paddingTop: "56.25%" }}>
                       <Image
@@ -381,24 +381,24 @@ export default function CategoryPageClient({
 
                     <div className="p-4 flex flex-col flex-grow gap-2">
                       <span 
-                        className="text-[9px] font-black uppercase tracking-widest block"
+                        className="text-[9px] font-black uppercase tracking-widest block news-card-category-badge"
                         style={{ color: catInfo.color }}
                       >
                         {category}
                       </span>
-                      <h4 className="font-bold text-sm sm:text-base text-stone-900 dark:text-white leading-snug line-clamp-2 group-hover:text-brand-maroon dark:group-hover:text-brand-gold transition-colors flex-grow">
+                      <h4 className="font-bold text-sm sm:text-base text-stone-900 dark:text-white leading-snug line-clamp-2 group-hover:text-brand-maroon dark:group-hover:text-brand-gold transition-colors flex-grow news-card-title">
                         {title}
                       </h4>
-                      <p className="text-xs text-stone-500 dark:text-stone-400 line-clamp-2">
+                      <p className="text-xs text-stone-500 dark:text-stone-400 line-clamp-2 news-card-summary">
                         {summary}
                       </p>
 
-                      <div className="flex items-center justify-between pt-3 border-t border-stone-100 dark:border-stone-850 mt-auto text-[9px] text-stone-400 font-bold uppercase tracking-wider">
-                        <span className="flex items-center gap-1">
+                      <div className="flex items-center justify-between pt-3 border-t border-stone-100 dark:border-stone-850 mt-auto text-[9px] text-stone-400 font-bold uppercase tracking-wider news-card-footer">
+                        <span className="flex items-center gap-1 news-card-time">
                           <Clock className="w-3 h-3 text-stone-400" /> {formatPublishedTime(n.published_at || (n as any).publishedAt || n.date || n.created_at, language, liveNow)}
                         </span>
 
-                        <span className="flex items-center gap-0.5 text-brand-maroon dark:text-brand-gold group-hover:gap-1.5 transition-all text-[8px] font-black tracking-widest uppercase">
+                        <span className="flex items-center gap-0.5 text-brand-maroon dark:text-brand-gold group-hover:gap-1.5 transition-all text-[8px] font-black tracking-widest uppercase news-card-read-more">
                           {language === "ta" ? "மேலும் படிக்க" : "Read More"} <ChevronRight className="w-2.5 h-2.5" />
                         </span>
                       </div>

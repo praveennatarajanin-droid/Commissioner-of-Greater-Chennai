@@ -1,18 +1,6 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { db, DBMenu } from "@/lib/db";
-
-// Helper to check authentication
-async function getSessionUser() {
-  try {
-    const cookieStore = await cookies();
-    const sessionCookie = cookieStore.get("admin_session");
-    if (!sessionCookie || !sessionCookie.value) return null;
-    return JSON.parse(sessionCookie.value);
-  } catch {
-    return null;
-  }
-}
+import { getSessionUser } from "@/lib/auth";
 
 // Helper to enforce menu management permissions
 async function checkPermission(role: string, actionField: "can_read" | "can_write" | "can_approve" | "can_delete") {

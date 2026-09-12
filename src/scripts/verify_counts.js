@@ -2,7 +2,7 @@ const mysql = require('mysql2/promise');
 const fs = require('fs');
 const path = require('path');
 
-const envPath = path.join(__dirname, '../.env.local');
+const envPath = path.join(__dirname, '../../.env.local');
 const envConfig = {};
 if (fs.existsSync(envPath)) {
   const lines = fs.readFileSync(envPath, 'utf8').split('\n');
@@ -22,7 +22,7 @@ const dbHost = envConfig.DB_HOST || '127.0.0.1';
 const dbPort = parseInt(envConfig.DB_PORT || '3306', 10);
 const dbUser = envConfig.DB_USER || 'root';
 const dbPassword = envConfig.DB_PASSWORD || '';
-const dbName = envConfig.DB_NAME || 'chennai_guardian';
+const dbName = envConfig.DB_NAME || 'startup_TN';
 
 async function main() {
   const connection = await mysql.createConnection({
@@ -35,13 +35,13 @@ async function main() {
 
   try {
     const [tables] = await connection.query('SHOW TABLES');
-    const key = `Tables_in_${dbName}`;
     
+    console.log(`Database: ${dbName}`);
     console.log('| Table Name | Record Count |');
     console.log('|---|---|');
     
     for (const row of tables) {
-      const tableName = row[key];
+      const tableName = Object.values(row)[0];
       const [countRows] = await connection.query(`SELECT COUNT(*) as count FROM \`${tableName}\``);
       console.log(`| ${tableName} | ${countRows[0].count} |`);
     }

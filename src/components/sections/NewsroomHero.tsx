@@ -298,7 +298,7 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
                     <Link
                       key={item.id}
                       href={item.slug ? `/news/${item.slug}` : "#"}
-                      className="flex gap-3 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-850 p-2.5 rounded-xl hover:shadow-md hover:border-brand-maroon/20 dark:hover:border-brand-gold/20 transition-all duration-300 group text-left"
+                      className="news-card-white flex gap-3 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-850 p-2.5 rounded-xl hover:shadow-md hover:border-brand-maroon/20 dark:hover:border-brand-gold/20 transition-all duration-300 group text-left"
                     >
                       {/* Image Left */}
                       <div className="relative w-20 sm:w-24 shrink-0 rounded-lg overflow-hidden bg-stone-100 dark:bg-stone-800" style={{ aspectRatio: "4/3" }}>
@@ -425,18 +425,18 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
 
               {/* Bottom text wrapper */}
               <div className="absolute bottom-0 inset-x-0 p-6 z-10 text-left">
-                <h2 className="font-display font-black text-white text-lg sm:text-2xl leading-tight mb-2 group-hover/slider:text-brand-gold transition-colors duration-300 line-clamp-2">
+                <h2 className="font-display font-black text-white text-lg sm:text-2xl leading-tight mb-2 group-hover/slider:text-brand-gold transition-colors duration-300 line-clamp-2 newsroom-hero-title">
                   {slideTitle}
                 </h2>
                 {slideDesc && (
-                  <p className="text-white/80 text-xs sm:text-sm font-semibold leading-relaxed mb-4 line-clamp-2">
+                  <p className="text-white/80 text-xs sm:text-sm font-semibold leading-relaxed mb-4 line-clamp-2 newsroom-hero-desc">
                     {slideDesc}
                   </p>
                 )}
                 <div className="flex items-center gap-4 flex-wrap pt-2 border-t border-white/10">
                   <Link 
                     href={currentLink}
-                    className="text-[10px] font-black uppercase text-brand-gold flex items-center gap-1 ml-auto group-hover/slider:translate-x-1 transition-transform"
+                    className="text-[10px] font-black uppercase text-brand-gold flex items-center gap-1 ml-auto group-hover/slider:translate-x-1 transition-transform newsroom-hero-readmore"
                   >
                     {language === "ta" ? "மேலும் படிக்க" : "Read More"} <ChevronRight className="w-3.5 h-3.5" />
                   </Link>
@@ -449,27 +449,27 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
           <div className="lg:col-span-3 p-4 flex flex-col justify-between">
             <div>
               {/* Tabs header */}
-              <div className="flex items-stretch border-b border-stone-200 dark:border-stone-850 bg-stone-50 dark:bg-stone-900 rounded-lg p-0.5 mb-3 text-[10px] font-black uppercase tracking-wider">
+              <div className="flex items-stretch border-b border-stone-200 dark:border-stone-850 bg-stone-50 dark:bg-stone-900 rounded-lg p-0.5 mb-3 text-[10px] font-black uppercase tracking-wider newsroom-tabs-header">
                 <button
                   onClick={() => setActiveTab("trending")}
-                  className={`flex-1 text-center py-1.5 rounded-md cursor-pointer transition ${
-                    activeTab === "trending" ? "bg-brand-maroon text-white" : "text-stone-500 hover:text-stone-800"
+                  className={`newsroom-tab-btn flex-1 text-center py-1.5 rounded-md cursor-pointer transition ${
+                    activeTab === "trending" ? "bg-brand-maroon text-white newsroom-tab-active" : "text-stone-500 hover:text-stone-800 newsroom-tab-inactive"
                   }`}
                 >
                   {language === "ta" ? "பிரபலம்" : "Trending"}
                 </button>
                 <button
                   onClick={() => setActiveTab("most-read")}
-                  className={`flex-1 text-center py-1.5 rounded-md cursor-pointer transition ${
-                    activeTab === "most-read" ? "bg-brand-maroon text-white" : "text-stone-500 hover:text-stone-800"
+                  className={`newsroom-tab-btn flex-1 text-center py-1.5 rounded-md cursor-pointer transition ${
+                    activeTab === "most-read" ? "bg-brand-maroon text-white newsroom-tab-active" : "text-stone-500 hover:text-stone-800 newsroom-tab-inactive"
                   }`}
                 >
                   {language === "ta" ? "அதிக வாசிப்பு" : "Most Read"}
                 </button>
                 <button
                   onClick={() => setActiveTab("videos")}
-                  className={`flex-1 text-center py-1.5 rounded-md cursor-pointer transition ${
-                    activeTab === "videos" ? "bg-brand-maroon text-white" : "text-stone-500 hover:text-stone-800"
+                  className={`newsroom-tab-btn flex-1 text-center py-1.5 rounded-md cursor-pointer transition ${
+                    activeTab === "videos" ? "bg-brand-maroon text-white newsroom-tab-active" : "text-stone-500 hover:text-stone-800 newsroom-tab-inactive"
                   }`}
                 >
                   {language === "ta" ? "வீடியோக்கள்" : "Videos"}
@@ -486,7 +486,7 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
                     <Link
                       key={item.id}
                       href={item.slug ? `/news/${item.slug}` : "#"}
-                      className="flex items-center gap-2.5 group border-b border-stone-100 dark:border-stone-900 pb-2.5 last:border-0 text-left"
+                      className="flex items-center gap-2.5 group border-b border-stone-100 dark:border-stone-900 pb-2.5 last:border-0 text-left newsroom-sidebar-item"
                     >
                       {/* Image Block with Overlay Rank */}
                       <div className="relative w-16 h-12 shrink-0 rounded bg-stone-100 dark:bg-stone-850 overflow-hidden">
@@ -524,7 +524,7 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
                     <Link
                       key={item.id}
                       href={item.slug ? `/news/${item.slug}` : "#"}
-                      className="flex items-center gap-2.5 group border-b border-stone-100 dark:border-stone-900 pb-2.5 last:border-0 text-left"
+                      className="flex items-center gap-2.5 group border-b border-stone-100 dark:border-stone-900 pb-2.5 last:border-0 text-left newsroom-sidebar-item"
                     >
                       {/* Image Block with Overlay Rank */}
                       <div className="relative w-16 h-12 shrink-0 rounded bg-stone-100 dark:bg-stone-850 overflow-hidden">
@@ -562,7 +562,7 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
                       // Fire increment trigger asynchronously
                       fetch(`/api/videos/${video.id}/view`, { method: "POST" }).catch(() => {});
                     }}
-                    className="flex items-start gap-2.5 group border-b border-stone-100 dark:border-stone-900 pb-2.5 last:border-0"
+                    className="flex items-start gap-2.5 group border-b border-stone-100 dark:border-stone-900 pb-2.5 last:border-0 newsroom-sidebar-item"
                   >
                     <div className="relative w-16 h-10 rounded overflow-hidden shrink-0 bg-stone-200">
                       <Image

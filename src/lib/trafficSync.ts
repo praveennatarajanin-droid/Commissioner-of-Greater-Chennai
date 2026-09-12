@@ -86,9 +86,14 @@ const OFFICIAL_BULLETINS = [
 
 export async function syncTrafficNews() {
   try {
-    console.log("Starting Traffic News Synchronization...");
     const existingNews = await db.getAllRawNews();
+    // Only seed initial traffic news if the database has zero news articles
+    if (existingNews && existingNews.length > 0) {
+      return { success: true, updated: false, message: "Database already populated, skipping auto-seed." };
+    }
+
     let updated = false;
+    const seededList: DBNewsItem[] = [];
 
     // Check each official bulletin
     for (const bulletin of OFFICIAL_BULLETINS) {
@@ -97,53 +102,43 @@ export async function syncTrafficNews() {
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/(^-|-$)/g, "");
 
-      const alreadyExists = existingNews.some(
-        (n) => n.slug === slug || n.title_en === bulletin.title_en
-      );
+      const id = seededList.length + 1;
+      const newArticle: DBNewsItem = {
+        id,
+        slug,
+        category_en: "Traffic",
+        category_ta: "போக்குவரத்து செய்திகள்",
+        title_en: bulletin.title_en,
+        title_ta: bulletin.title_ta,
+        summary_en: bulletin.summary_en,
+        summary_ta: bulletin.summary_ta,
+        content_en: bulletin.content_en,
+        content_ta: bulletin.content_ta,
+        image: bulletin.image || "/images/tn_police_patrol.jpg",
+        date: new Date().toLocaleDateString("en-US", {
+          month: "long",
+          day: "2-digit",
+          year: "numeric",
+        }),
+        author_en: "Chennai Traffic Police",
+        author_ta: "சென்னை போக்குவரத்து காவல்துறை",
+        tags_en: bulletin.tags_en,
+        tags_ta: bulletin.tags_ta,
+        section: "latest",
+        published: 1,
+        sourceName: "Official Traffic Department",
+        sourceUrl: bulletin.sourceUrl,
+        views_count: Math.floor(Math.random() * 500) + 100,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
 
-      if (!alreadyExists) {
-        const id = existingNews.length > 0 ? Math.max(...existingNews.map((i) => i.id)) + 1 : 1;
-        const newArticle: DBNewsItem = {
-          id,
-          slug,
-          category_en: "Traffic",
-          category_ta: "போக்குவரத்து செய்திகள்",
-          title_en: bulletin.title_en,
-          title_ta: bulletin.title_ta,
-          summary_en: bulletin.summary_en,
-          summary_ta: bulletin.summary_ta,
-          content_en: bulletin.content_en,
-          content_ta: bulletin.content_ta,
-          image: bulletin.image || "/images/tn_police_patrol.jpg",
-          date: new Date().toLocaleDateString("en-US", {
-            month: "long",
-            day: "2-digit",
-            year: "numeric",
-          }),
-          author_en: "Chennai Traffic Police",
-          author_ta: "சென்னை போக்குவரத்து காவல்துறை",
-          tags_en: bulletin.tags_en,
-          tags_ta: bulletin.tags_ta,
-          section: "latest",
-          published: 1, // Default approved/published, admins can edit/reject
-          sourceName: "Official Traffic Department",
-          sourceUrl: bulletin.sourceUrl,
-          views_count: Math.floor(Math.random() * 500) + 100,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        };
-
-        existingNews.unshift(newArticle);
-        updated = true;
-        console.log(`Synchronized new traffic advisory: "${bulletin.title_en}"`);
-      }
+      seededList.push(newArticle);
+      updated = true;
     }
 
     if (updated) {
-      await db.saveNews(existingNews);
-      console.log("Traffic news successfully synchronized and saved to database.");
-    } else {
-      console.log("Traffic news database is already up to date.");
+      await db.saveNews(seededList);
     }
     return { success: true, updated };
   } catch (error) {

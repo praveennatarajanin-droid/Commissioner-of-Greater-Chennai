@@ -49,8 +49,8 @@ export default async function StationsPage() {
           dangerouslySetInnerHTML={{ __html: schemaJson }}
         />
       )}
-      <Navbar customMenuItems={menuItems} />
       <NewsTicker customTickerItems={tickerItems} />
+      <Navbar customMenuItems={menuItems} stickyOffset="38px" />
       
       <main className="flex-grow py-8">
         {dynamicContent && dynamicContent.sections && dynamicContent.sections.length > 0 ? (

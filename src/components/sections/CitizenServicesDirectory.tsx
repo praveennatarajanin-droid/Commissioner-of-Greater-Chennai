@@ -288,7 +288,7 @@ export default function CitizenServicesDirectory({
     return (
       <div
         key={service.id}
-        className="group relative bg-white dark:bg-stone-900 rounded-xl border border-slate-200 dark:border-stone-800 p-6 shadow-xs hover:shadow-lg hover:border-blue-900/40 dark:hover:border-blue-500/50 transition-all duration-200 flex flex-col justify-between"
+        className="group relative bg-white dark:bg-stone-900 rounded-xl border border-slate-200 dark:border-stone-800 p-6 shadow-xs hover:shadow-lg hover:border-blue-900/40 dark:hover:border-blue-500/50 transition-all duration-200 flex flex-col justify-between news-card-white service-card-white app-card-white"
       >
         <div>
           {/* Top Row: Icon and Category Tag */}

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { isArticlePubliclyVisible } from "@/lib/dateUtils";
+import { getSessionUser, isAdmin } from "@/lib/auth";
 
 export async function GET(req: Request) {
   try {
@@ -8,12 +9,21 @@ export async function GET(req: Request) {
     const category = searchParams.get("category");
     const search = searchParams.get("search") || searchParams.get("q");
     const limit = searchParams.get("limit") ? parseInt(searchParams.get("limit")!) : null;
-    const includeUnpublished = searchParams.get("all") === "true";
+    const requestedAll = searchParams.get("all") === "true" || searchParams.get("status") === "draft";
 
     let news = await db.getNews();
 
-    // Filter public visibility (published === 1 and not future-scheduled) unless requested
-    if (!includeUnpublished) {
+    // Check if requester is an authenticated administrator
+    let allowDrafts = false;
+    if (requestedAll) {
+      const authUser = await getSessionUser();
+      if (authUser && isAdmin(authUser.role)) {
+        allowDrafts = true;
+      }
+    }
+
+    // Filter public visibility (published === 1 and not future-scheduled) unless authenticated admin
+    if (!allowDrafts) {
       news = news.filter(isArticlePubliclyVisible);
     }
 

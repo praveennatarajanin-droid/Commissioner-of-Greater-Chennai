@@ -105,10 +105,10 @@ export default function VideosPageClient({
 
   return (
     <div className="flex flex-col min-h-screen bg-stone-900 text-white">
-      <Navbar customMenuItems={menuItems} />
       <NewsTicker customTickerItems={ticker} />
+      <Navbar customMenuItems={menuItems} stickyOffset="38px" />
 
-      <main className="flex-grow max-w-[1700px] w-full mx-auto px-4 py-8 space-y-6">
+      <main id="main-content" tabIndex={-1} className="flex-grow max-w-[1700px] w-full mx-auto px-4 py-8 space-y-6 focus:outline-none">
         
         {/* Breadcrumb */}
         <div>

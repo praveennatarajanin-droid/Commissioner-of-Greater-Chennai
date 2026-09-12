@@ -51,8 +51,8 @@ export default async function AboutPage({ searchParams }: AboutPageProps) {
           dangerouslySetInnerHTML={{ __html: schemaJson }}
         />
       )}
-      <Navbar customMenuItems={menuItems} />
       <NewsTicker customTickerItems={tickerItems} />
+      <Navbar customMenuItems={menuItems} stickyOffset="38px" />
       
       <main className="flex-grow py-8">
         <AboutUsClient initialTab={tab} customData={dynamicContent} />

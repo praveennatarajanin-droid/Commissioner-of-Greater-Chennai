@@ -140,8 +140,8 @@ export default function ChiefMinisterPage() {
     <div className="flex flex-col min-h-screen bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100">
       
       {/* 1. Header Navigation */}
-      <Navbar customMenuItems={menuItems} />
       <NewsTicker customTickerItems={ticker} />
+      <Navbar customMenuItems={menuItems} stickyOffset="38px" />
 
       {/* 2. Breadcrumb Panel */}
       <div className="bg-brand-blue text-white/80 py-3 border-b border-white/10 text-xs">

@@ -63,7 +63,7 @@ const StationCard = React.memo(({ station, language }: { station: DBPoliceStatio
 
   return (
     <div 
-      className="bg-white dark:bg-stone-900 border border-slate-200/90 dark:border-stone-800 p-5 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between hover:-translate-y-1 text-left animate-fadeIn relative overflow-hidden"
+      className="bg-white dark:bg-stone-900 border border-slate-200/90 dark:border-stone-800 p-5 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between hover:-translate-y-1 text-left animate-fadeIn relative overflow-hidden news-card-white station-card-white app-card-white"
     >
       <div className="space-y-3.5 flex-grow">
         {/* TOP HEADER: Zone Badge & Proximity Distance */}
@@ -690,7 +690,7 @@ export default function StationsPageClient({
             return (
               <div 
                 key={h.id}
-                className="bg-stone-50 dark:bg-stone-900/60 border border-stone-200/60 dark:border-stone-850 p-5 rounded-2xl flex flex-col justify-between items-start gap-4 hover:border-brand-maroon/20 hover:bg-white dark:hover:bg-stone-900 transition-all duration-300 hover:shadow-sm text-left"
+                className="bg-stone-50 dark:bg-stone-900/60 border border-stone-200/60 dark:border-stone-850 p-5 rounded-2xl flex flex-col justify-between items-start gap-4 hover:border-brand-maroon/20 hover:bg-white dark:hover:bg-stone-900 transition-all duration-300 hover:shadow-sm text-left news-card-white app-card-white"
               >
                 <div className="space-y-2">
                   <div className={`p-2 rounded-lg border w-max ${color}`}>
@@ -735,7 +735,7 @@ export default function StationsPageClient({
               href={link.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-850 p-5 rounded-2xl hover:border-brand-gold/30 hover:shadow-md transition-all duration-300 flex flex-col justify-between text-left group"
+              className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-850 p-5 rounded-2xl hover:border-brand-gold/30 hover:shadow-md transition-all duration-300 flex flex-col justify-between text-left group news-card-white app-card-white"
             >
               <div className="space-y-2">
                 <div className="p-2 bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg w-max text-stone-500 group-hover:text-brand-gold transition-colors">

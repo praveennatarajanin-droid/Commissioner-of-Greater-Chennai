@@ -2,35 +2,23 @@ import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
 import os from "os";
-import { cookies } from "next/headers";
 import { db } from "@/lib/db";
+import { authenticateApiRequest, authorizeRole, forbiddenResponse, unauthorizedResponse } from "@/lib/security";
 
 declare global {
   var __UPLOAD_CACHE__: Map<string, { buffer: Buffer; mime: string }>;
 }
 
-async function checkAuth(requiredRoles?: string[]) {
-  try {
-    const cookieStore = await cookies();
-    const sessionCookie = cookieStore.get("admin_session");
-    if (!sessionCookie || !sessionCookie.value) {
-      return null;
-    }
-    const user = JSON.parse(sessionCookie.value);
-    if (requiredRoles) {
-      const userRole = (user.role || "").toUpperCase().replace(/[_\s]+/g, "");
-      const normalizedRequired = requiredRoles.map(r => r.toUpperCase().replace(/[_\s]+/g, ""));
-      if (!normalizedRequired.includes(userRole)) {
-        return null;
-      }
-    }
-    return user;
-  } catch {
-    return null;
-  }
-}
-
 export async function GET(req: Request) {
+  // Enforce server-side authentication
+  const { user, errorResponse } = await authenticateApiRequest(req);
+  if (errorResponse) return errorResponse;
+  if (!user) return unauthorizedResponse("Authentication required to access media management registry.");
+
+  if (!authorizeRole(user, ["SUPER_ADMIN", "ADMIN", "CONTENTADMIN", "EDITOR"])) {
+    return forbiddenResponse("Insufficient administrative privileges to view media assets.");
+  }
+
   try {
     const publicUploadDir = path.join(process.cwd(), "public/uploads");
     const tmpUploadDir = path.join(os.tmpdir(), "uploads");
@@ -42,6 +30,7 @@ export async function GET(req: Request) {
       try {
         const publicFiles = fs.readdirSync(publicUploadDir);
         for (const file of publicFiles) {
+          if (file === "quarantine" || file.startsWith(".")) continue;
           const filePath = path.join(publicUploadDir, file);
           try {
             const stats = fs.statSync(filePath);
@@ -58,6 +47,7 @@ export async function GET(req: Request) {
       try {
         const tmpFiles = fs.readdirSync(tmpUploadDir);
         for (const file of tmpFiles) {
+          if (file.startsWith(".")) continue;
           if (!foundFilesMap.has(file)) {
             const filePath = path.join(tmpUploadDir, file);
             try {
@@ -82,7 +72,6 @@ export async function GET(req: Request) {
 
     // Load asset metadata from DB to merge
     const dbMetadata = await db.getAssetMetadata();
-    let dbMetadataModified = false;
     let nextId = dbMetadata.length > 0 ? Math.max(...dbMetadata.map(i => i.id)) + 1 : 1;
 
     const mediaList = Array.from(foundFilesMap.values()).map(({ name: file, size, mtime }) => {
@@ -99,33 +88,27 @@ export async function GET(req: Request) {
           id: nextId++,
           image: url,
           title: prettyTitle,
+          category: "General",
           articleId: null,
           articleSlug: null,
-          category: "Police Update",
-          createdAt: mtime.toISOString()
+          createdAt: mtime.toISOString(),
         };
-        dbMetadata.push(meta);
-        dbMetadataModified = true;
       }
 
+      const safeMeta = meta as any;
       return {
-        id: meta.id,
+        id: safeMeta.id,
         name: file,
-        image: meta.image || url,
-        url: meta.image || url,
+        url: url,
         size: size,
+        mime: file.endsWith(".png") ? "image/png" : file.endsWith(".webp") ? "image/webp" : file.endsWith(".pdf") ? "application/pdf" : file.endsWith(".mp4") ? "video/mp4" : "image/jpeg",
+        title: safeMeta.title || file,
+        category: safeMeta.category || "General",
+        articleId: safeMeta.articleId || null,
+        articleSlug: safeMeta.articleSlug || null,
         updatedAt: mtime.toISOString(),
-        createdAt: meta.createdAt || mtime.toISOString(),
-        title: meta.title,
-        category: meta.category,
-        articleId: meta.articleId || null,
-        articleSlug: meta.articleSlug || null,
       };
     });
-
-    if (dbMetadataModified) {
-      await db.saveAssetMetadata(dbMetadata);
-    }
 
     // Merge registered media_files DB records
     const registeredMedia = await db.getMediaFiles();
@@ -140,9 +123,10 @@ export async function GET(req: Request) {
 }
 
 export async function PUT(req: Request) {
-  const auth = await checkAuth(["superadmin", "contentadmin", "editor"]);
-  if (!auth) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { user, errorResponse } = await authenticateApiRequest(req);
+  if (errorResponse) return errorResponse;
+  if (!user || !authorizeRole(user, ["SUPER_ADMIN", "ADMIN", "CONTENTADMIN", "EDITOR"])) {
+    return forbiddenResponse("Unauthorized to update media metadata.");
   }
 
   try {
@@ -173,9 +157,10 @@ export async function PUT(req: Request) {
 }
 
 export async function DELETE(req: Request) {
-  const auth = await checkAuth(["superadmin", "contentadmin"]);
-  if (!auth) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { user, errorResponse } = await authenticateApiRequest(req);
+  if (errorResponse) return errorResponse;
+  if (!user || !authorizeRole(user, ["SUPER_ADMIN", "ADMIN", "CONTENTADMIN"])) {
+    return forbiddenResponse("Unauthorized to delete media assets.");
   }
 
   try {

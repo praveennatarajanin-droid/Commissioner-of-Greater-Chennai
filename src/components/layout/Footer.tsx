@@ -94,9 +94,14 @@ export default function Footer({ customProfile }: FooterProps = {}) {
       ];
 
   const hasContactUs = rawQuickLinks.some((l: any) => l.url === "/contact-us" || (l.label_en || "").toLowerCase().includes("contact"));
-  const finalQuickLinks = hasContactUs
+  const withContact = hasContactUs
     ? rawQuickLinks
     : [...rawQuickLinks, { id: "ql-contact-us", label_en: "Contact Us", label_ta: "தொடர்பு கொள்ள", url: "/contact-us" }];
+
+  const hasScreenReaderLink = withContact.some((l: any) => l.url === "/screen-reader-access");
+  const finalQuickLinks = hasScreenReaderLink
+    ? withContact
+    : [...withContact, { id: "ql-screen-reader", label_en: "Screen Reader Access", label_ta: "திரை வாசிப்பான் அணுகல்", url: "/screen-reader-access" }];
 
   // Fallback Gov Links
   const finalGovLinks = config?.government_links && config.government_links.length > 0

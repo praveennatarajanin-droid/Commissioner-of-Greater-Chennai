@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { db } from "./db";
-import { getIpAddress } from "./auth";
+import { getIpAddress, verifySignedSessionToken } from "./auth";
 
 // ── IN-MEMORY SLIDING WINDOW RATE LIMITER ──
 interface RateLimitRecord {
@@ -108,21 +108,17 @@ export interface AuthApiResult {
 
 /**
  * Authenticates request via HttpOnly cookie or Authorization header.
- * Validates active session state in DB and checks session expiry.
+ * Strictly validates active session state in DB and resolves role from trusted database record.
  */
 export async function authenticateApiRequest(req: Request): Promise<AuthApiResult> {
   try {
     const cookieStore = await cookies();
     const sessionCookie = cookieStore.get("admin_session");
 
-    let sessionData: { username: string; role: string; sessionId?: string } | null = null;
+    let sessionData: { username: string; sessionId?: string } | null = null;
 
     if (sessionCookie && sessionCookie.value) {
-      try {
-        sessionData = JSON.parse(sessionCookie.value);
-      } catch {
-        sessionData = null;
-      }
+      sessionData = verifySignedSessionToken(sessionCookie.value);
     }
 
     // Fallback check: Authorization Header (Bearer token)
@@ -130,17 +126,18 @@ export async function authenticateApiRequest(req: Request): Promise<AuthApiResul
       const authHeader = req.headers.get("authorization");
       if (authHeader && authHeader.startsWith("Bearer ")) {
         const token = authHeader.substring(7).trim();
-        try {
-          const parsed = JSON.parse(Buffer.from(token, "base64").toString("utf-8"));
-          if (parsed.username && parsed.role) {
-            sessionData = parsed;
-          }
-        } catch {}
+        sessionData = verifySignedSessionToken(token);
       }
     }
 
-    if (!sessionData || !sessionData.username) {
+    if (!sessionData || !sessionData.username || !sessionData.sessionId) {
       return { user: null, errorResponse: unauthorizedResponse(), authenticated: false, sessionStatus: "NO_SESSION" };
+    }
+
+    // Mandatory DB Session Validation
+    const dbSession = await db.validateSession(sessionData.sessionId);
+    if (!dbSession) {
+      return { user: null, errorResponse: unauthorizedResponse("SESSION EXPIRED. Please sign in again."), authenticated: false, sessionStatus: "SESSION_EXPIRED" };
     }
 
     // Check user record in database
@@ -155,16 +152,14 @@ export async function authenticateApiRequest(req: Request): Promise<AuthApiResul
       return { user: null, errorResponse: forbiddenResponse("Account is locked or disabled."), authenticated: false, sessionStatus: "LOCKED_OR_DISABLED" };
     }
 
-    // Validate active session in DB if session ID present
-    if (sessionData.sessionId) {
-      const dbSession = await db.validateSession(sessionData.sessionId);
-      if (!dbSession) {
-        return { user: null, errorResponse: unauthorizedResponse("SESSION EXPIRED. Please sign in again."), authenticated: false, sessionStatus: "SESSION_EXPIRED" };
-      }
-      // Touch session activity
-      await db.touchSession(sessionData.sessionId);
+    if (dbSession.username.toLowerCase() !== userRecord.username.toLowerCase()) {
+      return { user: null, errorResponse: unauthorizedResponse("Session user mismatch."), authenticated: false, sessionStatus: "SESSION_MISMATCH" };
     }
 
+    // Touch session activity
+    await db.touchSession(sessionData.sessionId);
+
+    // Resolve authoritative permissions from database
     const permissions = await db.getResolvedPermissions(userRecord.username, userRecord.role);
 
     return {
@@ -172,7 +167,7 @@ export async function authenticateApiRequest(req: Request): Promise<AuthApiResul
       sessionStatus: "ACTIVE",
       user: {
         username: userRecord.username,
-        role: userRecord.role,
+        role: userRecord.role, // Always server-side authoritative role
         sessionId: sessionData.sessionId,
         email: userRecord.email,
         permissions,
@@ -241,6 +236,7 @@ export function sanitizeString(input: any): string {
   if (typeof input !== "string") return "";
   return input
     .trim()
+    .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")

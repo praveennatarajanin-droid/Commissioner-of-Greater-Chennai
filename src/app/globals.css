@@ -5,8 +5,9 @@
 @theme {
   --font-sans: "Inter", sans-serif;
   --font-display: "Outfit", sans-serif;
-  
-  --color-brand-maroon: #ed1b24; /* Logo Red */
+
+  --color-brand-maroon: #ed1b24;
+  /* Logo Red */
   --color-brand-maroon-dark: #b80f16;
   --color-brand-maroon-light: #f25259;
   --color-brand-gold: #c5a059;
@@ -14,7 +15,8 @@
   --color-brand-gold-light: #d8b776;
   --color-brand-bg-warm: #faf8f5;
 
-  --color-brand-blue: #2e3192; /* Logo Blue */
+  --color-brand-blue: #2e3192;
+  /* Logo Blue */
   --color-brand-blue-dark: #1d206f;
   --color-brand-blue-light: #4a4ebd;
 
@@ -33,29 +35,55 @@
   --color-stone-955: #0c0a09;
 
   /* Redefine text sizing scale for globally larger, more readable text */
-  --text-xs: 0.775rem;   /* ~12.4px */
-  --text-sm: 0.875rem;   /* ~14px */
-  --text-base: 1rem;     /* ~16px */
-  --text-lg: 1.125rem;   /* ~18px */
-  --text-xl: 1.25rem;    /* ~20px */
-  --text-2xl: 1.5rem;    /* ~24px */
-  --text-3xl: 1.875rem;  /* ~30px */
-  --text-4xl: 2.25rem;   /* ~36px */
-  --text-5xl: 3rem;      /* ~48px */
+  --text-xs: 0.775rem;
+  /* ~12.4px */
+  --text-sm: 0.875rem;
+  /* ~14px */
+  --text-base: 1rem;
+  /* ~16px */
+  --text-lg: 1.125rem;
+  /* ~18px */
+  --text-xl: 1.25rem;
+  /* ~20px */
+  --text-2xl: 1.5rem;
+  /* ~24px */
+  --text-3xl: 1.875rem;
+  /* ~30px */
+  --text-4xl: 2.25rem;
+  /* ~36px */
+  --text-5xl: 3rem;
+  /* ~48px */
 }
 
 /* Base Styles matching screenshot */
 html {
   scroll-behavior: smooth;
-  font-size: 102%; /* Globally boost font size of all rem elements slightly */
+  font-size: 102%;
+  /* Globally boost font size of all rem elements slightly */
   overflow-x: hidden;
 }
 
 /* Accessibility overrides: scale up custom inline arbitrary font-sizes */
-.text-\[8px\] { font-size: 0.625rem !important; } /* ~10px */
-.text-\[9px\] { font-size: 0.6875rem !important; } /* ~11px */
-.text-\[10px\] { font-size: 0.75rem !important; } /* ~12px */
-.text-\[11px\] { font-size: 0.8125rem !important; } /* ~13px */
+.text-\[8px\] {
+  font-size: 0.625rem !important;
+}
+
+/* ~10px */
+.text-\[9px\] {
+  font-size: 0.6875rem !important;
+}
+
+/* ~11px */
+.text-\[10px\] {
+  font-size: 0.75rem !important;
+}
+
+/* ~12px */
+.text-\[11px\] {
+  font-size: 0.8125rem !important;
+}
+
+/* ~13px */
 
 body {
   font-family: var(--font-sans);
@@ -66,8 +94,10 @@ body {
 }
 
 .dark body {
-  background-color: #0c0a09; /* stone-950 */
-  color: #f5f5f4;           /* stone-100 */
+  background-color: #0c0a09;
+  /* stone-950 */
+  color: #f5f5f4;
+  /* stone-100 */
 }
 
 /* Border styling helper */
@@ -84,7 +114,8 @@ body {
 }
 
 .dark .gov-card {
-  background-color: #1c1917; /* stone-900 */
+  background-color: #1c1917;
+  /* stone-900 */
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-top: 3px solid var(--color-brand-gold);
 }
@@ -110,8 +141,13 @@ body {
 
 /* Custom marquee animation for Live News Ticker — TV reading speed */
 @keyframes marquee {
-  0%   { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
 .animate-marquee {
@@ -136,17 +172,23 @@ body {
 
 /* Story card ring animation */
 @keyframes ring-fill {
-  from { width: 0%; }
-  to   { width: 100%; }
+  from {
+    width: 0%;
+  }
+
+  to {
+    width: 100%;
+  }
 }
 
 /* News card hover lift */
 .news-card-hover {
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
+
 .news-card-hover:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(0,0,0,0.10);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.10);
 }
 
 
@@ -199,8 +241,13 @@ body {
    Content is DOUBLED in JSX → translateX(-50%) = one full pass
    ============================================================ */
 @keyframes tickerScroll {
-  0%   { transform: translateX(0%); }
-  100% { transform: translateX(-50%); }
+  0% {
+    transform: translateX(0%);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
 /* Shared base styles */
@@ -221,6 +268,7 @@ body {
 
 /* Tablet */
 @media (max-width: 1023px) and (min-width: 768px) {
+
   .ticker-content,
   .breaking-news-track {
     animation-duration: var(--marquee-duration-tablet, 50s);
@@ -229,10 +277,12 @@ body {
 
 /* Mobile — no hover pause on touch devices */
 @media (max-width: 767px) {
+
   .ticker-content,
   .breaking-news-track {
     animation-duration: var(--marquee-duration-mobile, 40s);
   }
+
   .ticker-content:hover,
   .breaking-news-track:hover {
     animation-play-state: running;
@@ -339,5 +389,1792 @@ button.bg-blue-950 *,
   color: #ffffff !important;
 }
 
+#main-content:focus,
+#main-content:focus-visible {
+  outline: none !important;
+}
 
+/* ============================================================
+   GLOBAL ACCESSIBILITY: TEXT SIZE LEVELS (ROOT SCALING)
+   Controlled scaling across all pages without breaking layouts
+   ============================================================ */
+html[data-font-size="small"] {
+  font-size: 92% !important;
+}
 
+html[data-font-size="normal"] {
+  font-size: 102% !important;
+}
+
+html[data-font-size="large"] {
+  font-size: 114% !important;
+}
+
+html[data-font-size="xlarge"] {
+  font-size: 126% !important;
+}
+
+/* Text size scaling overrides for arbitrary pixel font sizes */
+html[data-font-size="small"] .text-\[8px\] {
+  font-size: 0.55rem !important;
+}
+
+html[data-font-size="small"] .text-\[9px\] {
+  font-size: 0.62rem !important;
+}
+
+html[data-font-size="small"] .text-\[10px\] {
+  font-size: 0.68rem !important;
+}
+
+html[data-font-size="small"] .text-\[11px\] {
+  font-size: 0.74rem !important;
+}
+
+html[data-font-size="small"] .text-\[12px\] {
+  font-size: 0.80rem !important;
+}
+
+html[data-font-size="large"] .text-\[8px\] {
+  font-size: 0.72rem !important;
+}
+
+html[data-font-size="large"] .text-\[9px\] {
+  font-size: 0.78rem !important;
+}
+
+html[data-font-size="large"] .text-\[10px\] {
+  font-size: 0.85rem !important;
+}
+
+html[data-font-size="large"] .text-\[11px\] {
+  font-size: 0.92rem !important;
+}
+
+html[data-font-size="large"] .text-\[12px\] {
+  font-size: 1.00rem !important;
+}
+
+html[data-font-size="xlarge"] .text-\[8px\] {
+  font-size: 0.82rem !important;
+}
+
+html[data-font-size="xlarge"] .text-\[9px\] {
+  font-size: 0.88rem !important;
+}
+
+html[data-font-size="xlarge"] .text-\[10px\] {
+  font-size: 0.96rem !important;
+}
+
+html[data-font-size="xlarge"] .text-\[11px\] {
+  font-size: 1.05rem !important;
+}
+
+html[data-font-size="xlarge"] .text-\[12px\] {
+  font-size: 1.15rem !important;
+}
+
+/* ============================================================
+   GLOBAL ACCESSIBILITY: HIGH CONTRAST GOVERNMENT PORTAL THEME
+   Near-Black (#000000 / #0a0a0a) + Bright Yellow (#ffff00)
+   + Yellow Icons & Borders + Crisp High-Contrast Secondary Text
+   ============================================================ */
+html.high-contrast,
+html.high-contrast body,
+html[data-high-contrast="true"],
+html[data-high-contrast="true"] body {
+  background-color: #000000 !important;
+  color: #ffff00 !important;
+}
+
+html.high-contrast {
+  --background: #000000;
+  --surface: #0a0a0a;
+  --text-primary: #ffff00;
+  --text-secondary: #ffffff;
+  --border: #ffff00;
+  --accent: #ffff00;
+}
+
+/* Primary text & headings in High Contrast */
+html.high-contrast h1,
+html.high-contrast h2,
+html.high-contrast h3,
+html.high-contrast h4,
+html.high-contrast h5,
+html.high-contrast h6,
+html.high-contrast p,
+html.high-contrast span:not(.no-hc),
+html.high-contrast label,
+html.high-contrast time,
+html.high-contrast blockquote,
+html.high-contrast strong,
+html.high-contrast b,
+html.high-contrast li,
+html[data-high-contrast="true"] h1,
+html[data-high-contrast="true"] h2,
+html[data-high-contrast="true"] h3,
+html[data-high-contrast="true"] h4,
+html[data-high-contrast="true"] h5,
+html[data-high-contrast="true"] h6,
+html[data-high-contrast="true"] p,
+html[data-high-contrast="true"] span:not(.no-hc),
+html[data-high-contrast="true"] label,
+html[data-high-contrast="true"] time,
+html[data-high-contrast="true"] blockquote,
+html[data-high-contrast="true"] strong,
+html[data-high-contrast="true"] b,
+html[data-high-contrast="true"] li {
+  color: #ffff00 !important;
+}
+
+/* Secondary / muted text in High Contrast */
+html.high-contrast .text-slate-400,
+html.high-contrast .text-stone-400,
+html.high-contrast .text-stone-500,
+html.high-contrast .text-gray-400,
+html.high-contrast .text-muted,
+html[data-high-contrast="true"] .text-slate-400,
+html[data-high-contrast="true"] .text-stone-400,
+html[data-high-contrast="true"] .text-stone-500,
+html[data-high-contrast="true"] .text-gray-400,
+html[data-high-contrast="true"] .text-muted {
+  color: #ffffff !important;
+}
+
+/* Links in High Contrast */
+html.high-contrast a,
+html[data-high-contrast="true"] a {
+  color: #ffff00 !important;
+}
+
+html.high-contrast header a,
+html.high-contrast nav a,
+html[data-high-contrast="true"] header a,
+html[data-high-contrast="true"] nav a {
+  text-decoration: none !important;
+}
+
+html.high-contrast p a,
+html.high-contrast article a,
+html.high-contrast main a:not([class*="btn"]):not([class*="card"]),
+html[data-high-contrast="true"] p a,
+html[data-high-contrast="true"] article a,
+html[data-high-contrast="true"] main a:not([class*="btn"]):not([class*="card"]) {
+  text-decoration: underline !important;
+  text-decoration-color: #ffff00 !important;
+}
+
+html.high-contrast a:hover,
+html.high-contrast a:focus,
+html[data-high-contrast="true"] a:hover,
+html[data-high-contrast="true"] a:focus {
+  color: #ffffff !important;
+}
+
+/* Icons & SVGs in High Contrast */
+html.high-contrast svg,
+html[data-high-contrast="true"] svg {
+  color: #ffff00 !important;
+  stroke: #ffff00 !important;
+}
+
+html.high-contrast svg[fill]:not([fill="none"]),
+html[data-high-contrast="true"] svg[fill]:not([fill="none"]) {
+  fill: #ffff00 !important;
+}
+
+/* Cards, sections, headers, footers & surfaces in High Contrast */
+html.high-contrast header,
+html.high-contrast nav,
+html.high-contrast main,
+html.high-contrast section,
+html.high-contrast footer,
+html.high-contrast article,
+html.high-contrast aside,
+html.high-contrast .gov-card,
+html.high-contrast .news-card-hover,
+html[data-high-contrast="true"] header,
+html[data-high-contrast="true"] nav,
+html[data-high-contrast="true"] main,
+html[data-high-contrast="true"] section,
+html[data-high-contrast="true"] footer,
+html[data-high-contrast="true"] article,
+html[data-high-contrast="true"] aside,
+html[data-high-contrast="true"] .gov-card,
+html[data-high-contrast="true"] .news-card-hover {
+  background-color: #000000 !important;
+  border-color: #ffff00 !important;
+}
+
+/* ============================================================
+   WHITE NEWS CARDS & CATEGORY CARDS IN HIGH CONTRAST MODE:
+   Where background is white -> ALL text, headings, dates, links & icons MUST BE SOLID BLACK (#000000)
+   Covers Crime, Cyber Safety, Women Safety, Public Safety, Outreach, Citizen Services, Stations, Profile, Contact Us, etc.
+   ============================================================ */
+html.high-contrast .news-card-white,
+html.high-contrast a.news-card-white,
+html.high-contrast a[href*="/news"],
+html.high-contrast a[href^="/news"],
+html.high-contrast .category-news-card,
+html.high-contrast a.group[href*="/news"],
+html[data-high-contrast="true"] .news-card-white,
+html[data-high-contrast="true"] a.news-card-white,
+html[data-high-contrast="true"] a[href*="/news"],
+html[data-high-contrast="true"] a[href^="/news"],
+html[data-high-contrast="true"] .category-news-card,
+html[data-high-contrast="true"] a.group[href*="/news"] {
+  background-color: #ffffff !important;
+  border: 2px solid #ffff00 !important;
+}
+
+/* ALL text, headings, dates, spans, times, and icons inside white news cards MUST BE SOLID BLACK */
+html.high-contrast .news-card-white *,
+html.high-contrast a.news-card-white *:not(img),
+html.high-contrast a[href*="/news"] *:not(img),
+html.high-contrast a[href^="/news"] *:not(img),
+html.high-contrast .category-news-card *:not(img),
+html.high-contrast a.group[href*="/news"] *:not(img),
+html[data-high-contrast="true"] .news-card-white *,
+html[data-high-contrast="true"] a.news-card-white *:not(img),
+html[data-high-contrast="true"] a[href*="/news"] *:not(img),
+html[data-high-contrast="true"] a[href^="/news"] *:not(img),
+html[data-high-contrast="true"] .category-news-card *:not(img),
+html[data-high-contrast="true"] a.group[href*="/news"] *:not(img) {
+  color: #000000 !important;
+  stroke: #000000 !important;
+  text-decoration-color: #000000 !important;
+}
+
+/* Headings inside white news cards */
+html.high-contrast .news-card-white h1,
+html.high-contrast .news-card-white h2,
+html.high-contrast .news-card-white h3,
+html.high-contrast .news-card-white h4,
+html.high-contrast .news-card-white h5,
+html.high-contrast .news-card-white h6,
+html.high-contrast .news-card-white p,
+html.high-contrast .news-card-white span,
+html.high-contrast .news-card-white time,
+html.high-contrast a[href*="/news"] h1,
+html.high-contrast a[href*="/news"] h2,
+html.high-contrast a[href*="/news"] h3,
+html.high-contrast a[href*="/news"] h4,
+html.high-contrast a[href*="/news"] h5,
+html.high-contrast a[href*="/news"] h6,
+html.high-contrast a[href*="/news"] p,
+html.high-contrast a[href*="/news"] span,
+html.high-contrast a[href*="/news"] time,
+html[data-high-contrast="true"] .news-card-white h1,
+html[data-high-contrast="true"] .news-card-white h2,
+html[data-high-contrast="true"] .news-card-white h3,
+html[data-high-contrast="true"] .news-card-white h4,
+html[data-high-contrast="true"] .news-card-white h5,
+html[data-high-contrast="true"] .news-card-white h6,
+html[data-high-contrast="true"] .news-card-white p,
+html[data-high-contrast="true"] .news-card-white span,
+html[data-high-contrast="true"] .news-card-white time,
+html[data-high-contrast="true"] a[href*="/news"] h1,
+html[data-high-contrast="true"] a[href*="/news"] h2,
+html[data-high-contrast="true"] a[href*="/news"] h3,
+html[data-high-contrast="true"] a[href*="/news"] h4,
+html[data-high-contrast="true"] a[href*="/news"] h5,
+html[data-high-contrast="true"] a[href*="/news"] h6,
+html[data-high-contrast="true"] a[href*="/news"] p,
+html[data-high-contrast="true"] a[href*="/news"] span,
+html[data-high-contrast="true"] a[href*="/news"] time {
+  color: #000000 !important;
+  font-weight: 700 !important;
+}
+
+/* Category badge & Read More inside white news cards */
+html.high-contrast .news-card-white span[class*="uppercase"],
+html.high-contrast a[href*="/news"] span[class*="uppercase"],
+html.high-contrast a[href*="/news"] .news-card-category-badge,
+html.high-contrast a[href*="/news"] .news-card-read-more,
+html[data-high-contrast="true"] .news-card-white span[class*="uppercase"],
+html[data-high-contrast="true"] a[href*="/news"] span[class*="uppercase"],
+html[data-high-contrast="true"] a[href*="/news"] .news-card-category-badge,
+html[data-high-contrast="true"] a[href*="/news"] .news-card-read-more {
+  color: #000000 !important;
+  font-weight: 900 !important;
+}
+
+/* Icons inside white news cards */
+html.high-contrast .news-card-white svg,
+html.high-contrast a[href*="/news"] svg,
+html[data-high-contrast="true"] .news-card-white svg,
+html[data-high-contrast="true"] a[href*="/news"] svg {
+  color: #000000 !important;
+  stroke: #000000 !important;
+}
+
+/* Hide/neutralize dark overlay divs covering news images */
+html.high-contrast .high-contrast-hidden,
+html.high-contrast [class*="bg-black/"],
+html[data-high-contrast="true"] .high-contrast-hidden,
+html[data-high-contrast="true"] [class*="bg-black/"] {
+  display: none !important;
+  background: transparent !important;
+}
+
+/* Images in High Contrast: Always natural, sharp, and 100% visible */
+html.high-contrast img,
+html.high-contrast a[href*="/news"] img,
+html.high-contrast .news-card-white img,
+html[data-high-contrast="true"] img,
+html[data-high-contrast="true"] a[href*="/news"] img,
+html[data-high-contrast="true"] .news-card-white img {
+  opacity: 1 !important;
+  visibility: visible !important;
+  filter: none !important;
+  display: block !important;
+  z-index: 1 !important;
+}
+
+/* Borders in High Contrast */
+html.high-contrast *[class*="border"],
+html.high-contrast table,
+html.high-contrast th,
+html.high-contrast td,
+html.high-contrast hr,
+html[data-high-contrast="true"] *[class*="border"],
+html[data-high-contrast="true"] table,
+html[data-high-contrast="true"] th,
+html[data-high-contrast="true"] td,
+html[data-high-contrast="true"] hr {
+  border-color: #ffff00 !important;
+}
+
+/* Buttons in High Contrast (Default State: Black Background + Yellow Border + Yellow Text) */
+html.high-contrast button,
+html.high-contrast input[type="button"],
+html.high-contrast input[type="submit"],
+html.high-contrast .btn,
+html[data-high-contrast="true"] button,
+html[data-high-contrast="true"] input[type="button"],
+html[data-high-contrast="true"] input[type="submit"],
+html[data-high-contrast="true"] .btn {
+  background-color: #000000 !important;
+  color: #ffff00 !important;
+  border: 2px solid #ffff00 !important;
+}
+
+html.high-contrast button svg,
+html[data-high-contrast="true"] button svg {
+  stroke: currentColor !important;
+}
+
+html.high-contrast button:not([class*="tab"]):not([class*="about"]):not([class*="commissioner"]):not([class*="initiative"]):not([class*="official"]):not([class*="citizen"]):hover,
+html.high-contrast button:not([class*="tab"]):not([class*="about"]):not([class*="commissioner"]):not([class*="initiative"]):not([class*="official"]):not([class*="citizen"]):focus,
+html[data-high-contrast="true"] button:not([class*="tab"]):not([class*="about"]):not([class*="commissioner"]):not([class*="initiative"]):not([class*="official"]):not([class*="citizen"]):hover,
+html[data-high-contrast="true"] button:not([class*="tab"]):not([class*="about"]):not([class*="commissioner"]):not([class*="initiative"]):not([class*="official"]):not([class*="citizen"]):focus {
+  background-color: #ffff00 !important;
+  color: #000000 !important;
+}
+
+html.high-contrast button:not([class*="tab"]):not([class*="about"]):not([class*="commissioner"]):not([class*="initiative"]):not([class*="official"]):not([class*="citizen"]):hover *,
+html[data-high-contrast="true"] button:not([class*="tab"]):not([class*="about"]):not([class*="commissioner"]):not([class*="initiative"]):not([class*="official"]):not([class*="citizen"]):hover * {
+  color: #000000 !important;
+  stroke: #000000 !important;
+}
+
+/* Active Yellow Background Elements: High Contrast Toggle, Active Text Size, Expanded Navbar Button */
+.accessibility-hc-active,
+.accessibility-btn-active,
+#navbar-accessibility-btn.bg-yellow-400,
+#navbar-accessibility-btn[aria-expanded="true"],
+html.high-contrast .accessibility-hc-active,
+html[data-high-contrast="true"] .accessibility-hc-active,
+html.high-contrast .accessibility-btn-active,
+html[data-high-contrast="true"] .accessibility-btn-active,
+html.high-contrast #navbar-accessibility-btn[aria-expanded="true"],
+html[data-high-contrast="true"] #navbar-accessibility-btn[aria-expanded="true"] {
+  background-color: #ffff00 !important;
+  color: #000000 !important;
+  border-color: #000000 !important;
+}
+
+.accessibility-hc-active *,
+.accessibility-btn-active *,
+#navbar-accessibility-btn.bg-yellow-400 *,
+#navbar-accessibility-btn[aria-expanded="true"] *,
+html.high-contrast .accessibility-hc-active *,
+html[data-high-contrast="true"] .accessibility-hc-active *,
+html.high-contrast .accessibility-btn-active *,
+html[data-high-contrast="true"] .accessibility-btn-active *,
+html.high-contrast #navbar-accessibility-btn[aria-expanded="true"] *,
+html[data-high-contrast="true"] #navbar-accessibility-btn[aria-expanded="true"] * {
+  color: #000000 !important;
+  stroke: #000000 !important;
+}
+
+/* Light Mode Button in Accessibility Panel: Always White Background with Solid Black Text & Icon */
+.accessibility-light-btn,
+#accessibility-light-mode-btn,
+html.high-contrast .accessibility-light-btn,
+html[data-high-contrast="true"] .accessibility-light-btn,
+html.high-contrast #accessibility-light-mode-btn,
+html[data-high-contrast="true"] #accessibility-light-mode-btn {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border-color: #000000 !important;
+}
+
+.accessibility-light-btn *,
+#accessibility-light-mode-btn *,
+html.high-contrast .accessibility-light-btn *,
+html[data-high-contrast="true"] .accessibility-light-btn *,
+html.high-contrast #accessibility-light-mode-btn *,
+html[data-high-contrast="true"] #accessibility-light-mode-btn * {
+  color: #000000 !important;
+  stroke: #000000 !important;
+}
+
+/* Images & Logos: Full Natural Colors (Never Blacked Out) */
+html.high-contrast img,
+html[data-high-contrast="true"] img {
+  filter: none !important;
+  opacity: 1 !important;
+}
+
+/* Navbar Accessibility Emblem: Filter to Solid Black ONLY when its button is yellow (Active or Hovered) */
+#navbar-accessibility-btn.bg-yellow-400 img,
+#navbar-accessibility-btn[aria-expanded="true"] img,
+#navbar-accessibility-btn:hover img,
+#navbar-accessibility-btn:focus img,
+.navbar-accessibility-img:hover,
+#navbar-accessibility-btn:hover .navbar-accessibility-img,
+#navbar-accessibility-btn:focus .navbar-accessibility-img,
+#navbar-accessibility-btn[aria-expanded="true"] .navbar-accessibility-img,
+html.high-contrast #navbar-accessibility-btn[aria-expanded="true"] img,
+html.high-contrast #navbar-accessibility-btn:hover img,
+html.high-contrast #navbar-accessibility-btn:focus img,
+html[data-high-contrast="true"] #navbar-accessibility-btn[aria-expanded="true"] img,
+html[data-high-contrast="true"] #navbar-accessibility-btn:hover img,
+html[data-high-contrast="true"] #navbar-accessibility-btn:focus img {
+  filter: brightness(0) !important;
+}
+
+/* Form inputs & Search in High Contrast */
+html.high-contrast input,
+html.high-contrast textarea,
+html.high-contrast select,
+html[data-high-contrast="true"] input,
+html[data-high-contrast="true"] textarea,
+html[data-high-contrast="true"] select {
+  background-color: #050505 !important;
+  color: #ffff00 !important;
+  border: 2px solid #ffff00 !important;
+}
+
+html.high-contrast input::placeholder,
+html.high-contrast textarea::placeholder,
+html[data-high-contrast="true"] input::placeholder,
+html[data-high-contrast="true"] textarea::placeholder {
+  color: #ffff88 !important;
+}
+
+/* ============================================================
+   TOP HEADER BAR & CONTROLS IN HIGH CONTRAST MODE
+   ============================================================ */
+html.high-contrast header,
+html[data-high-contrast="true"] header {
+  background-color: #000000 !important;
+  border-bottom: 2px solid #ffff00 !important;
+}
+
+html.high-contrast .navbar-top-header,
+html[data-high-contrast="true"] .navbar-top-header,
+html.high-contrast header>div:first-child,
+html[data-high-contrast="true"] header>div:first-child {
+  background-color: #000000 !important;
+  border-bottom: 2px solid #ffff00 !important;
+  color: #ffff00 !important;
+}
+
+html.high-contrast .navbar-brand-title,
+html[data-high-contrast="true"] .navbar-brand-title,
+html.high-contrast header h1,
+html[data-high-contrast="true"] header h1 {
+  color: #ffff00 !important;
+  text-decoration: none !important;
+}
+
+html.high-contrast .navbar-brand-subtitle,
+html[data-high-contrast="true"] .navbar-brand-subtitle {
+  color: #ffff88 !important;
+}
+
+html.high-contrast .navbar-logo-badge,
+html[data-high-contrast="true"] .navbar-logo-badge {
+  background-color: #ffffff !important;
+  border: 2px solid #ffff00 !important;
+}
+
+/* High Contrast Desktop Search Bar */
+html.high-contrast .navbar-search-form,
+html[data-high-contrast="true"] .navbar-search-form {
+  background: transparent !important;
+}
+
+html.high-contrast .navbar-search-input,
+html[data-high-contrast="true"] .navbar-search-input {
+  background-color: #000000 !important;
+  border: 2px solid #ffff00 !important;
+  color: #ffff00 !important;
+  border-radius: 8px !important;
+}
+
+html.high-contrast .navbar-search-input::placeholder,
+html[data-high-contrast="true"] .navbar-search-input::placeholder {
+  color: #ffff88 !important;
+  opacity: 1 !important;
+}
+
+html.high-contrast .navbar-search-btn,
+html[data-high-contrast="true"] .navbar-search-btn {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: #ffff00 !important;
+}
+
+html.high-contrast .navbar-search-btn:hover,
+html[data-high-contrast="true"] .navbar-search-btn:hover {
+  background: transparent !important;
+  color: #ffffff !important;
+}
+
+html.high-contrast .navbar-search-btn svg,
+html[data-high-contrast="true"] .navbar-search-btn svg {
+  color: #ffff00 !important;
+  stroke: #ffff00 !important;
+}
+
+html.high-contrast .navbar-search-btn:hover svg,
+html[data-high-contrast="true"] .navbar-search-btn:hover svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+/* High Contrast Social Links */
+html.high-contrast .navbar-social-link,
+html[data-high-contrast="true"] .navbar-social-link,
+html.high-contrast header a[href*="facebook"],
+html.high-contrast header a[href*="x.com"],
+html.high-contrast header a[href*="twitter"],
+html.high-contrast header a[href*="instagram"],
+html.high-contrast header a[href*="youtube"],
+html[data-high-contrast="true"] header a[href*="facebook"],
+html[data-high-contrast="true"] header a[href*="x.com"],
+html[data-high-contrast="true"] header a[href*="twitter"],
+html[data-high-contrast="true"] header a[href*="instagram"],
+html[data-high-contrast="true"] header a[href*="youtube"] {
+  background-color: #000000 !important;
+  border: 1.5px solid #ffff00 !important;
+  color: #ffff00 !important;
+}
+
+html.high-contrast .navbar-social-link svg,
+html[data-high-contrast="true"] .navbar-social-link svg,
+html.high-contrast header a[href*="facebook"] svg,
+html.high-contrast header a[href*="x.com"] svg,
+html.high-contrast header a[href*="twitter"] svg,
+html.high-contrast header a[href*="instagram"] svg,
+html.high-contrast header a[href*="youtube"] svg,
+html[data-high-contrast="true"] header a[href*="facebook"] svg,
+html[data-high-contrast="true"] header a[href*="x.com"] svg,
+html[data-high-contrast="true"] header a[href*="twitter"] svg,
+html[data-high-contrast="true"] header a[href*="instagram"] svg,
+html[data-high-contrast="true"] header a[href*="youtube"] svg {
+  color: #ffff00 !important;
+  stroke: #ffff00 !important;
+  fill: currentColor !important;
+}
+
+html.high-contrast .navbar-social-link:hover,
+html[data-high-contrast="true"] .navbar-social-link:hover,
+html.high-contrast header a[href*="facebook"]:hover,
+html.high-contrast header a[href*="x.com"]:hover,
+html.high-contrast header a[href*="twitter"]:hover,
+html.high-contrast header a[href*="instagram"]:hover,
+html.high-contrast header a[href*="youtube"]:hover,
+html[data-high-contrast="true"] header a[href*="facebook"]:hover,
+html[data-high-contrast="true"] header a[href*="x.com"]:hover,
+html[data-high-contrast="true"] header a[href*="twitter"]:hover,
+html[data-high-contrast="true"] header a[href*="instagram"]:hover,
+html[data-high-contrast="true"] header a[href*="youtube"]:hover {
+  background-color: #ffff00 !important;
+  color: #000000 !important;
+}
+
+html.high-contrast .navbar-social-link:hover svg,
+html[data-high-contrast="true"] .navbar-social-link:hover svg,
+html.high-contrast header a[href*="facebook"]:hover svg,
+html.high-contrast header a[href*="x.com"]:hover svg,
+html.high-contrast header a[href*="twitter"]:hover svg,
+html.high-contrast header a[href*="instagram"]:hover svg,
+html.high-contrast header a[href*="youtube"]:hover svg,
+html[data-high-contrast="true"] header a[href*="facebook"]:hover svg,
+html[data-high-contrast="true"] header a[href*="x.com"]:hover svg,
+html[data-high-contrast="true"] header a[href*="twitter"]:hover svg,
+html[data-high-contrast="true"] header a[href*="instagram"]:hover svg,
+html[data-high-contrast="true"] header a[href*="youtube"]:hover svg {
+  color: #000000 !important;
+  stroke: #000000 !important;
+  fill: #000000 !important;
+}
+
+/* High Contrast Language Switcher */
+html.high-contrast .navbar-lang-switcher,
+html[data-high-contrast="true"] .navbar-lang-switcher {
+  background-color: #000000 !important;
+  border: 1.5px solid #ffff00 !important;
+  border-radius: 8px !important;
+}
+
+html.high-contrast .navbar-lang-active,
+html[data-high-contrast="true"] .navbar-lang-active {
+  background-color: #ffff00 !important;
+  color: #000000 !important;
+  font-weight: 900 !important;
+  border: 1px solid #ffff00 !important;
+  border-radius: 4px !important;
+}
+
+html.high-contrast .navbar-lang-inactive,
+html[data-high-contrast="true"] .navbar-lang-inactive {
+  background-color: transparent !important;
+  color: #ffff00 !important;
+  font-weight: bold !important;
+  border: 1px solid transparent !important;
+}
+
+html.high-contrast .navbar-lang-inactive:hover,
+html[data-high-contrast="true"] .navbar-lang-inactive:hover {
+  background-color: rgba(255, 255, 0, 0.25) !important;
+  color: #ffff00 !important;
+}
+
+html.high-contrast .navbar-lang-divider,
+html[data-high-contrast="true"] .navbar-lang-divider {
+  color: #ffff00 !important;
+  opacity: 0.8 !important;
+}
+
+/* High Contrast Profile Avatar */
+html.high-contrast .navbar-avatar,
+html[data-high-contrast="true"] .navbar-avatar {
+  border: 2px solid #ffff00 !important;
+}
+
+/* Active focus indicators in High Contrast */
+html.high-contrast *:focus,
+html.high-contrast *:focus-visible,
+html[data-high-contrast="true"] *:focus,
+html[data-high-contrast="true"] *:focus-visible {
+  outline: 3px solid #ffff00 !important;
+  outline-offset: 3px !important;
+}
+
+html.high-contrast nav,
+html[data-high-contrast="true"] nav {
+  background-color: #000000 !important;
+}
+
+html.high-contrast nav a,
+html[data-high-contrast="true"] nav a {
+  background-color: #000000 !important;
+  color: #ffff00 !important;
+  border-color: #ffff00 !important;
+}
+
+html.high-contrast nav a:hover,
+html[data-high-contrast="true"] nav a:hover {
+  background-color: #ffff00 !important;
+  color: #000000 !important;
+}
+
+html.high-contrast nav a:hover *,
+html[data-high-contrast="true"] nav a:hover * {
+  color: #000000 !important;
+}
+
+html.high-contrast nav a.bg-\[\#1e2060\],
+html[data-high-contrast="true"] nav a.bg-\[\#1e2060\] {
+  background-color: #ffff00 !important;
+  color: #000000 !important;
+  border-color: #000000 !important;
+}
+
+html.high-contrast nav a.bg-\[\#1e2060\] *,
+html[data-high-contrast="true"] nav a.bg-\[\#1e2060\] * {
+  color: #000000 !important;
+}
+
+/* News Cards & Spotlight in High Contrast */
+html.high-contrast .news-card-hover,
+html[data-high-contrast="true"] .news-card-hover {
+  background-color: #050505 !important;
+  border: 1px solid #ffff00 !important;
+}
+
+html.high-contrast .news-card-hover img,
+html[data-high-contrast="true"] .news-card-hover img {
+  border: 1px solid #ffff00 !important;
+}
+
+/* ============================================================
+   NEWSROOM HERO SIDEBAR TABS (Trending, Most Read, Videos)
+   ============================================================ */
+html.high-contrast .newsroom-tabs-header,
+html[data-high-contrast="true"] .newsroom-tabs-header {
+  background-color: #000000 !important;
+  border: 1.5px solid #ffff00 !important;
+  border-radius: 8px !important;
+  padding: 3px !important;
+  gap: 4px !important;
+}
+
+html.high-contrast .newsroom-tab-btn,
+html[data-high-contrast="true"] .newsroom-tab-btn {
+  border-radius: 6px !important;
+  font-weight: 800 !important;
+  transition: all 0.2s ease !important;
+  cursor: pointer !important;
+}
+
+/* Active tab: Bright Yellow background + Bold Black text */
+html.high-contrast .newsroom-tab-active,
+html[data-high-contrast="true"] .newsroom-tab-active {
+  background-color: #ffff00 !important;
+  color: #000000 !important;
+  border: 2px solid #ffff00 !important;
+  font-weight: 900 !important;
+}
+
+html.high-contrast .newsroom-tab-active *,
+html[data-high-contrast="true"] .newsroom-tab-active * {
+  color: #000000 !important;
+}
+
+/* Inactive tabs: Deep Black background + Bright Yellow text */
+html.high-contrast .newsroom-tab-inactive,
+html[data-high-contrast="true"] .newsroom-tab-inactive {
+  background-color: #000000 !important;
+  color: #ffff00 !important;
+  border: 1.5px solid #ffff00 !important;
+}
+
+html.high-contrast .newsroom-tab-inactive *,
+html[data-high-contrast="true"] .newsroom-tab-inactive * {
+  color: #ffff00 !important;
+}
+
+html.high-contrast .newsroom-tab-inactive:hover,
+html[data-high-contrast="true"] .newsroom-tab-inactive:hover {
+  background-color: #ffff00 !important;
+  color: #000000 !important;
+}
+
+html.high-contrast .newsroom-tab-inactive:hover *,
+html[data-high-contrast="true"] .newsroom-tab-inactive:hover * {
+  color: #000000 !important;
+}
+
+/* Newsroom Hero Center Slide Text */
+html.high-contrast .newsroom-hero-title,
+html[data-high-contrast="true"] .newsroom-hero-title {
+  color: #ffff00 !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.95), 0 0 10px rgba(0, 0, 0, 0.8) !important;
+}
+
+html.high-contrast .newsroom-hero-desc,
+html[data-high-contrast="true"] .newsroom-hero-desc {
+  color: #ffffff !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.95) !important;
+}
+
+html.high-contrast .newsroom-hero-readmore,
+html[data-high-contrast="true"] .newsroom-hero-readmore {
+  background-color: #000000 !important;
+  color: #ffff00 !important;
+  border: 1.5px solid #ffff00 !important;
+  padding: 4px 10px !important;
+  border-radius: 6px !important;
+}
+
+html.high-contrast .newsroom-hero-readmore:hover,
+html[data-high-contrast="true"] .newsroom-hero-readmore:hover {
+  background-color: #ffff00 !important;
+  color: #000000 !important;
+}
+
+/* Sidebar List Items in Column 3 */
+html.high-contrast .newsroom-sidebar-item,
+html.high-contrast .newsroom-sidebar-item *,
+html[data-high-contrast="true"] .newsroom-sidebar-item,
+html[data-high-contrast="true"] .newsroom-sidebar-item * {
+  text-decoration: none !important;
+}
+
+html.high-contrast .newsroom-sidebar-item,
+html[data-high-contrast="true"] .newsroom-sidebar-item {
+  border-bottom: 1px solid #333333 !important;
+}
+
+html.high-contrast .newsroom-sidebar-item h4,
+html[data-high-contrast="true"] .newsroom-sidebar-item h4 {
+  color: #ffff00 !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+}
+
+html.high-contrast .newsroom-sidebar-item:hover h4,
+html[data-high-contrast="true"] .newsroom-sidebar-item:hover h4 {
+  color: #ffffff !important;
+  text-decoration: underline !important;
+  text-decoration-color: #ffffff !important;
+}
+
+html.high-contrast .newsroom-sidebar-item span,
+html[data-high-contrast="true"] .newsroom-sidebar-item span {
+  color: #ffff88 !important;
+}
+
+html.high-contrast .newsroom-sidebar-item div[class*="top-0.5"],
+html[data-high-contrast="true"] .newsroom-sidebar-item div[class*="top-0.5"] {
+  background-color: #ffff00 !important;
+  border: 1px solid #000000 !important;
+}
+
+html.high-contrast .newsroom-sidebar-item span[class*="font-display"],
+html[data-high-contrast="true"] .newsroom-sidebar-item span[class*="font-display"] {
+  color: #000000 !important;
+  font-weight: 900 !important;
+}
+
+/* ============================================================
+   CITIZEN QUICK ACTIONS / "HOW CAN WE HELP YOU TODAY?" SECTION
+   ============================================================ */
+html.high-contrast #citizen-services-gateway,
+html[data-high-contrast="true"] #citizen-services-gateway {
+  background-color: transparent !important;
+}
+
+html.high-contrast .citizen-quick-actions-container,
+html[data-high-contrast="true"] .citizen-quick-actions-container {
+  background-color: #000000 !important;
+  border: 2px solid #ffff00 !important;
+  color: #ffff00 !important;
+}
+
+html.high-contrast .citizen-quick-actions-label,
+html[data-high-contrast="true"] .citizen-quick-actions-label {
+  color: #ffff00 !important;
+  font-weight: 900 !important;
+}
+
+html.high-contrast .citizen-quick-actions-title,
+html[data-high-contrast="true"] .citizen-quick-actions-title {
+  color: #ffff00 !important;
+}
+
+html.high-contrast .citizen-quick-actions-desc,
+html[data-high-contrast="true"] .citizen-quick-actions-desc {
+  color: #ffffff !important;
+}
+
+/* Primary Action Button: "View all services" -> Bright Yellow Pill with Bold Black Text */
+html.high-contrast a.citizen-quick-actions-btn-primary,
+html.high-contrast a.citizen-quick-actions-btn-primary span,
+html.high-contrast a.citizen-quick-actions-btn-primary .citizen-quick-actions-btn-primary-text,
+html.high-contrast a.citizen-quick-actions-btn-primary svg,
+html.high-contrast .citizen-quick-actions-btn-primary,
+html.high-contrast .citizen-quick-actions-btn-primary span,
+html.high-contrast .citizen-quick-actions-btn-primary .citizen-quick-actions-btn-primary-text,
+html.high-contrast .citizen-quick-actions-btn-primary svg,
+html.high-contrast .citizen-quick-actions-btn-primary *,
+html[data-high-contrast="true"] a.citizen-quick-actions-btn-primary,
+html[data-high-contrast="true"] a.citizen-quick-actions-btn-primary span,
+html[data-high-contrast="true"] a.citizen-quick-actions-btn-primary .citizen-quick-actions-btn-primary-text,
+html[data-high-contrast="true"] a.citizen-quick-actions-btn-primary svg,
+html[data-high-contrast="true"] .citizen-quick-actions-btn-primary,
+html[data-high-contrast="true"] .citizen-quick-actions-btn-primary span,
+html[data-high-contrast="true"] .citizen-quick-actions-btn-primary .citizen-quick-actions-btn-primary-text,
+html[data-high-contrast="true"] .citizen-quick-actions-btn-primary svg,
+html[data-high-contrast="true"] .citizen-quick-actions-btn-primary * {
+  background-color: #ffff00 !important;
+  color: #000000 !important;
+  stroke: #000000 !important;
+  fill: none !important;
+  font-weight: 900 !important;
+  text-decoration: none !important;
+}
+
+html.high-contrast a.citizen-quick-actions-btn-primary,
+html[data-high-contrast="true"] a.citizen-quick-actions-btn-primary {
+  border: 2px solid #ffff00 !important;
+}
+
+html.high-contrast a.citizen-quick-actions-btn-primary:hover,
+html.high-contrast a.citizen-quick-actions-btn-primary:hover span,
+html.high-contrast a.citizen-quick-actions-btn-primary:hover .citizen-quick-actions-btn-primary-text,
+html.high-contrast a.citizen-quick-actions-btn-primary:hover svg,
+html.high-contrast .citizen-quick-actions-btn-primary:hover,
+html.high-contrast .citizen-quick-actions-btn-primary:hover span,
+html.high-contrast .citizen-quick-actions-btn-primary:hover .citizen-quick-actions-btn-primary-text,
+html.high-contrast .citizen-quick-actions-btn-primary:hover svg,
+html.high-contrast .citizen-quick-actions-btn-primary:hover *,
+html[data-high-contrast="true"] a.citizen-quick-actions-btn-primary:hover,
+html[data-high-contrast="true"] a.citizen-quick-actions-btn-primary:hover span,
+html[data-high-contrast="true"] a.citizen-quick-actions-btn-primary:hover .citizen-quick-actions-btn-primary-text,
+html[data-high-contrast="true"] a.citizen-quick-actions-btn-primary:hover svg,
+html[data-high-contrast="true"] .citizen-quick-actions-btn-primary:hover,
+html[data-high-contrast="true"] .citizen-quick-actions-btn-primary:hover span,
+html[data-high-contrast="true"] .citizen-quick-actions-btn-primary:hover .citizen-quick-actions-btn-primary-text,
+html[data-high-contrast="true"] .citizen-quick-actions-btn-primary:hover svg,
+html[data-high-contrast="true"] .citizen-quick-actions-btn-primary:hover * {
+  background-color: #000000 !important;
+  color: #ffff00 !important;
+  stroke: #ffff00 !important;
+  text-decoration: none !important;
+}
+
+/* Secondary Action Button: "Find nearest station" -> Black Background + Yellow Text */
+html.high-contrast .citizen-quick-actions-btn-secondary,
+html[data-high-contrast="true"] .citizen-quick-actions-btn-secondary {
+  background-color: #000000 !important;
+  color: #ffff00 !important;
+  border: 2px solid #ffff00 !important;
+}
+
+html.high-contrast .citizen-quick-actions-btn-secondary *,
+html[data-high-contrast="true"] .citizen-quick-actions-btn-secondary * {
+  color: #ffff00 !important;
+  stroke: #ffff00 !important;
+  font-weight: 700 !important;
+}
+
+html.high-contrast .citizen-quick-actions-btn-secondary:hover,
+html[data-high-contrast="true"] .citizen-quick-actions-btn-secondary:hover {
+  background-color: #ffff00 !important;
+  color: #000000 !important;
+}
+
+html.high-contrast .citizen-quick-actions-btn-secondary:hover *,
+html[data-high-contrast="true"] .citizen-quick-actions-btn-secondary:hover * {
+  color: #000000 !important;
+  stroke: #000000 !important;
+}
+
+/* Citizen Service Cards in 2x3 Grid */
+html.high-contrast .citizen-service-card-link,
+html.high-contrast .citizen-service-card-link *,
+html[data-high-contrast="true"] .citizen-service-card-link,
+html[data-high-contrast="true"] .citizen-service-card-link * {
+  text-decoration: none !important;
+}
+
+html.high-contrast .citizen-service-card,
+html[data-high-contrast="true"] .citizen-service-card {
+  background-color: #050505 !important;
+  border: 1.5px solid #ffff00 !important;
+}
+
+html.high-contrast .citizen-service-card:hover,
+html[data-high-contrast="true"] .citizen-service-card:hover {
+  background-color: #111111 !important;
+  border-color: #ffffff !important;
+}
+
+/* Icon Box on Left */
+html.high-contrast .citizen-service-icon-box,
+html[data-high-contrast="true"] .citizen-service-icon-box {
+  background-color: #000000 !important;
+  border: 1.5px solid #ffff00 !important;
+}
+
+html.high-contrast .citizen-service-icon-box svg,
+html[data-high-contrast="true"] .citizen-service-icon-box svg {
+  color: #ffff00 !important;
+  stroke: #ffff00 !important;
+}
+
+/* Title */
+html.high-contrast .citizen-service-title,
+html[data-high-contrast="true"] .citizen-service-title {
+  color: #ffff00 !important;
+}
+
+html.high-contrast .citizen-service-card:hover .citizen-service-title,
+html[data-high-contrast="true"] .citizen-service-card:hover .citizen-service-title {
+  color: #ffffff !important;
+}
+
+/* Description */
+html.high-contrast .citizen-service-desc,
+html[data-high-contrast="true"] .citizen-service-desc {
+  color: #ffff88 !important;
+}
+
+/* Right Circular Arrow Button */
+html.high-contrast .citizen-service-arrow-btn,
+html[data-high-contrast="true"] .citizen-service-arrow-btn {
+  background-color: #000000 !important;
+  border: 1.5px solid #ffff00 !important;
+  color: #ffff00 !important;
+}
+
+html.high-contrast .citizen-service-arrow-btn svg,
+html[data-high-contrast="true"] .citizen-service-arrow-btn svg {
+  color: #ffff00 !important;
+  stroke: #ffff00 !important;
+}
+
+html.high-contrast .citizen-service-card:hover .citizen-service-arrow-btn,
+html[data-high-contrast="true"] .citizen-service-card:hover .citizen-service-arrow-btn {
+  background-color: #ffff00 !important;
+  color: #000000 !important;
+}
+
+html.high-contrast .citizen-service-card:hover .citizen-service-arrow-btn svg,
+html[data-high-contrast="true"] .citizen-service-card:hover .citizen-service-arrow-btn svg {
+  color: #000000 !important;
+  stroke: #000000 !important;
+}
+
+/* ============================================================
+   COMMISSIONER MANDATE & PROFILE IN HIGH CONTRAST MODE
+   - Black Backgrounds (#000000 / #050505)
+   - Yellow Accents & Titles (#ffff00)
+   - Crisp White Body & Subtitles (#ffffff)
+   ============================================================ */
+
+/* Outer Section */
+html.high-contrast .gcp-commissioner-section,
+html[data-high-contrast="true"] .gcp-commissioner-section {
+  background-color: #000000 !important;
+  border: 2px solid #ffff00 !important;
+}
+
+/* Commissioner Profile Card (Left Column) */
+html.high-contrast .commissioner-profile-card,
+html[data-high-contrast="true"] .commissioner-profile-card {
+  background-color: #050505 !important;
+  border: 2px solid #ffff00 !important;
+}
+
+html.high-contrast .commissioner-header-banner,
+html[data-high-contrast="true"] .commissioner-header-banner {
+  background: #000000 !important;
+  border-bottom: 2px solid #ffff00 !important;
+}
+
+html.high-contrast .commissioner-portrait-frame,
+html[data-high-contrast="true"] .commissioner-portrait-frame {
+  border: 4px solid #ffff00 !important;
+  background-color: #000000 !important;
+}
+
+html.high-contrast .commissioner-stars,
+html[data-high-contrast="true"] .commissioner-stars {
+  color: #ffff00 !important;
+}
+
+html.high-contrast .commissioner-name,
+html[data-high-contrast="true"] .commissioner-name {
+  color: #ffff00 !important;
+  font-weight: 900 !important;
+}
+
+html.high-contrast .commissioner-designation,
+html[data-high-contrast="true"] .commissioner-designation {
+  color: #ffffff !important;
+  font-weight: 800 !important;
+}
+
+/* 1996 IPS Officer Badge */
+html.high-contrast .commissioner-batch-badge,
+html.high-contrast span.commissioner-batch-badge,
+html[data-high-contrast="true"] .commissioner-batch-badge,
+html[data-high-contrast="true"] span.commissioner-batch-badge {
+  background-color: #ffff00 !important;
+  color: #000000 !important;
+  border: 1.5px solid #ffff00 !important;
+  font-weight: 900 !important;
+}
+
+/* Medal Cards */
+html.high-contrast .commissioner-medals-container,
+html[data-high-contrast="true"] .commissioner-medals-container {
+  border-top: 1.5px solid #ffff00 !important;
+}
+
+html.high-contrast .commissioner-medal-card,
+html[data-high-contrast="true"] .commissioner-medal-card {
+  background-color: #0a0a0a !important;
+  border: 1.5px solid #ffff00 !important;
+}
+
+html.high-contrast .commissioner-medal-card:hover,
+html[data-high-contrast="true"] .commissioner-medal-card:hover {
+  background-color: #141414 !important;
+  border-color: #ffffff !important;
+}
+
+html.high-contrast .commissioner-medal-icon,
+html[data-high-contrast="true"] .commissioner-medal-icon {
+  background-color: #000000 !important;
+  border: 1px solid #ffff00 !important;
+  color: #ffff00 !important;
+}
+
+html.high-contrast .commissioner-medal-icon svg,
+html[data-high-contrast="true"] .commissioner-medal-icon svg {
+  color: #ffff00 !important;
+  stroke: #ffff00 !important;
+}
+
+html.high-contrast .commissioner-medal-text,
+html[data-high-contrast="true"] .commissioner-medal-text {
+  color: #ffff00 !important;
+  font-weight: 800 !important;
+}
+
+/* Tab Navigation Bar */
+html.high-contrast .commissioner-tabs-bar,
+html[data-high-contrast="true"] .commissioner-tabs-bar {
+  border-bottom: 2px solid #ffff00 !important;
+}
+
+html.high-contrast .commissioner-tab-btn,
+html[data-high-contrast="true"] .commissioner-tab-btn {
+  font-weight: 900 !important;
+}
+
+html.high-contrast .commissioner-tab-active,
+html[data-high-contrast="true"] .commissioner-tab-active {
+  background-color: #000000 !important;
+  color: #ffff00 !important;
+  border-bottom: 3px solid #ffff00 !important;
+}
+
+html.high-contrast .commissioner-tab-inactive,
+html[data-high-contrast="true"] .commissioner-tab-inactive {
+  background-color: transparent !important;
+  color: #bbbbbb !important;
+  border-bottom: 3px solid transparent !important;
+}
+
+html.high-contrast .commissioner-tab-inactive:hover,
+html[data-high-contrast="true"] .commissioner-tab-inactive:hover {
+  color: #ffffff !important;
+}
+
+/* Tab Panel Headings & Dividers */
+html.high-contrast .commissioner-tab-heading,
+html[data-high-contrast="true"] .commissioner-tab-heading {
+  color: #ffff00 !important;
+  font-weight: 900 !important;
+}
+
+html.high-contrast .commissioner-star-divider div,
+html[data-high-contrast="true"] .commissioner-star-divider div {
+  background-color: #ffff00 !important;
+}
+
+html.high-contrast .commissioner-star-divider span,
+html[data-high-contrast="true"] .commissioner-star-divider span {
+  color: #ffff00 !important;
+}
+
+html.high-contrast .commissioner-tab-subtitle,
+html[data-high-contrast="true"] .commissioner-tab-subtitle {
+  color: #ffffff !important;
+  font-weight: 700 !important;
+}
+
+/* Quote Box */
+html.high-contrast .commissioner-quote-box,
+html[data-high-contrast="true"] .commissioner-quote-box {
+  background-color: #080808 !important;
+  border: 1.5px solid #ffff00 !important;
+  border-left: 5px solid #ffff00 !important;
+}
+
+html.high-contrast .commissioner-quote-bar,
+html[data-high-contrast="true"] .commissioner-quote-bar {
+  background-color: #ffff00 !important;
+}
+
+html.high-contrast .commissioner-quote-mark,
+html[data-high-contrast="true"] .commissioner-quote-mark {
+  color: #ffff00 !important;
+}
+
+html.high-contrast .commissioner-quote-text,
+html[data-high-contrast="true"] .commissioner-quote-text {
+  color: #ffff00 !important;
+  font-style: italic !important;
+}
+
+/* Commissioner Message Body */
+html.high-contrast .commissioner-message-body p,
+html[data-high-contrast="true"] .commissioner-message-body p {
+  color: #ffffff !important;
+  line-height: 1.75 !important;
+}
+
+/* Official Executive Badge */
+html.high-contrast .commissioner-official-badge,
+html[data-high-contrast="true"] .commissioner-official-badge {
+  background-color: #000000 !important;
+  border: 1.5px solid #ffff00 !important;
+  color: #ffff00 !important;
+}
+
+html.high-contrast .commissioner-official-badge svg,
+html[data-high-contrast="true"] .commissioner-official-badge svg {
+  color: #ffff00 !important;
+  stroke: #ffff00 !important;
+}
+
+/* Mission & Vision Panels */
+html.high-contrast .commissioner-panel-icon,
+html[data-high-contrast="true"] .commissioner-panel-icon {
+  background-color: #000000 !important;
+  border: 1.5px solid #ffff00 !important;
+  color: #ffff00 !important;
+}
+
+html.high-contrast .commissioner-panel-icon svg,
+html[data-high-contrast="true"] .commissioner-panel-icon svg {
+  color: #ffff00 !important;
+  stroke: #ffff00 !important;
+}
+
+html.high-contrast .commissioner-panel-title,
+html[data-high-contrast="true"] .commissioner-panel-title {
+  color: #ffff00 !important;
+  font-weight: 900 !important;
+}
+
+html.high-contrast .commissioner-panel-desc,
+html[data-high-contrast="true"] .commissioner-panel-desc {
+  color: #ffffff !important;
+}
+
+/* 4 Mandate Objective Cards: Crime Prevention, Community Engagement, Smart Policing, Fairness & Integrity */
+html.high-contrast .commissioner-objective-card,
+html[data-high-contrast="true"] .commissioner-objective-card {
+  background-color: #050505 !important;
+  border: 2px solid #ffff00 !important;
+}
+
+html.high-contrast .commissioner-objective-card:hover,
+html[data-high-contrast="true"] .commissioner-objective-card:hover {
+  background-color: #111111 !important;
+  border-color: #ffffff !important;
+}
+
+html.high-contrast .commissioner-objective-title,
+html[data-high-contrast="true"] .commissioner-objective-title {
+  color: #ffff00 !important;
+  font-weight: 900 !important;
+}
+
+html.high-contrast .commissioner-objective-desc,
+html[data-high-contrast="true"] .commissioner-objective-desc {
+  color: #ffffff !important;
+  font-weight: 500 !important;
+}
+
+/* ============================================================
+   LATEST NEWS & UPDATES (OFFICIAL ALERTS FEED) IN HIGH CONTRAST MODE
+   - Black Backgrounds (#000000 / #050505)
+   - Yellow Borders & Headings (#ffff00)
+   - Crisp White Summaries & Sources (#ffffff)
+   ============================================================ */
+
+/* Outer Section */
+html.high-contrast .official-alerts-feed-section,
+html[data-high-contrast="true"] .official-alerts-feed-section {
+  background-color: #000000 !important;
+  border-bottom: 2px solid #ffff00 !important;
+}
+
+/* Section Header */
+html.high-contrast .official-alerts-accent-bar,
+html[data-high-contrast="true"] .official-alerts-accent-bar {
+  background-color: #ffff00 !important;
+}
+
+html.high-contrast .official-alerts-header-icon,
+html[data-high-contrast="true"] .official-alerts-header-icon {
+  color: #ffff00 !important;
+  stroke: #ffff00 !important;
+}
+
+html.high-contrast .official-alerts-header-title,
+html[data-high-contrast="true"] .official-alerts-header-title {
+  color: #ffff00 !important;
+  font-weight: 900 !important;
+}
+
+/* Auto-Updating Badge */
+html.high-contrast .official-alerts-badge,
+html.high-contrast span.official-alerts-badge,
+html[data-high-contrast="true"] .official-alerts-badge,
+html[data-high-contrast="true"] span.official-alerts-badge {
+  background-color: #ffff00 !important;
+  color: #000000 !important;
+  border: 1.5px solid #ffff00 !important;
+  font-weight: 900 !important;
+}
+
+html.high-contrast .official-alerts-badge span,
+html[data-high-contrast="true"] .official-alerts-badge span {
+  background-color: #000000 !important;
+}
+
+/* Updated Time */
+html.high-contrast .official-alerts-updated-text,
+html[data-high-contrast="true"] .official-alerts-updated-text {
+  color: #ffffff !important;
+  font-weight: 700 !important;
+}
+
+html.high-contrast .official-alerts-clock-icon,
+html[data-high-contrast="true"] .official-alerts-clock-icon {
+  color: #ffff00 !important;
+  stroke: #ffff00 !important;
+}
+
+/* Refresh Button */
+html.high-contrast .official-alerts-refresh-btn,
+html.high-contrast button.official-alerts-refresh-btn,
+html[data-high-contrast="true"] .official-alerts-refresh-btn,
+html[data-high-contrast="true"] button.official-alerts-refresh-btn {
+  background-color: #000000 !important;
+  color: #ffff00 !important;
+  border: 1.5px solid #ffff00 !important;
+}
+
+html.high-contrast .official-alerts-refresh-btn:hover,
+html[data-high-contrast="true"] .official-alerts-refresh-btn:hover {
+  background-color: #ffff00 !important;
+  color: #000000 !important;
+}
+
+/* News Alert Cards (3x3 Grid) */
+html.high-contrast .official-alert-card,
+html[data-high-contrast="true"] .official-alert-card {
+  background-color: #050505 !important;
+  border: 1.5px solid #ffff00 !important;
+}
+
+html.high-contrast .official-alert-card:hover,
+html[data-high-contrast="true"] .official-alert-card:hover {
+  background-color: #111111 !important;
+  border-color: #ffffff !important;
+}
+
+/* Icon Box on Left */
+html.high-contrast .official-alert-icon-box,
+html[data-high-contrast="true"] .official-alert-icon-box {
+  background-color: #000000 !important;
+  border: 1px solid #ffff00 !important;
+}
+
+html.high-contrast .official-alert-newspaper-icon,
+html.high-contrast .official-alert-icon-box svg,
+html[data-high-contrast="true"] .official-alert-newspaper-icon,
+html[data-high-contrast="true"] .official-alert-icon-box svg {
+  color: #ffff00 !important;
+  stroke: #ffff00 !important;
+}
+
+/* Card Title */
+html.high-contrast .official-alert-title,
+html[data-high-contrast="true"] .official-alert-title {
+  color: #ffff00 !important;
+  font-weight: 800 !important;
+}
+
+/* Card Summary */
+html.high-contrast .official-alert-summary,
+html[data-high-contrast="true"] .official-alert-summary {
+  color: #ffffff !important;
+}
+
+/* Source Name */
+html.high-contrast .official-alert-source,
+html.high-contrast span.official-alert-source,
+html[data-high-contrast="true"] .official-alert-source,
+html[data-high-contrast="true"] span.official-alert-source {
+  color: #ffff00 !important;
+  font-weight: 900 !important;
+}
+
+/* Published Time */
+html.high-contrast .official-alert-time,
+html.high-contrast span.official-alert-time,
+html[data-high-contrast="true"] .official-alert-time,
+html[data-high-contrast="true"] span.official-alert-time {
+  color: #ffff88 !important;
+}
+
+html.high-contrast .official-alert-time svg,
+html[data-high-contrast="true"] .official-alert-time svg {
+  color: #ffff88 !important;
+  stroke: #ffff88 !important;
+}
+
+/* Source Link */
+html.high-contrast .official-alert-source-link,
+html.high-contrast a.official-alert-source-link,
+html[data-high-contrast="true"] .official-alert-source-link,
+html[data-high-contrast="true"] a.official-alert-source-link {
+  color: #ffff00 !important;
+  font-weight: 900 !important;
+  text-decoration: none !important;
+}
+
+html.high-contrast .official-alert-source-link svg,
+html[data-high-contrast="true"] .official-alert-source-link svg {
+  color: #ffff00 !important;
+  stroke: #ffff00 !important;
+}
+
+html.high-contrast .official-alert-source-link:hover,
+html[data-high-contrast="true"] .official-alert-source-link:hover {
+  color: #ffffff !important;
+  text-decoration: underline !important;
+}
+
+/* ============================================================
+   ABOUT US PAGE IN HIGH CONTRAST MODE
+   - Black Backgrounds (#000000 / #050505)
+   - Yellow Accents, Headers & Badges (#ffff00)
+   - Crisp White Text (#ffffff)
+   ============================================================ */
+
+/* Page Header */
+html.high-contrast .about-page-title,
+html[data-high-contrast="true"] .about-page-title {
+  color: #ffff00 !important;
+  font-weight: 900 !important;
+}
+
+html.high-contrast .about-page-subtitle,
+html[data-high-contrast="true"] .about-page-subtitle {
+  color: #ffffff !important;
+}
+
+html.high-contrast .about-title-bar,
+html[data-high-contrast="true"] .about-title-bar {
+  background-color: #ffff00 !important;
+}
+
+/* Tab Navigation Bar */
+html.high-contrast .about-tabs-bar,
+html[data-high-contrast="true"] .about-tabs-bar {
+  border-bottom: 2px solid #ffff00 !important;
+}
+
+html.high-contrast .about-tab-btn,
+html.high-contrast button.about-tab-btn,
+html[data-high-contrast="true"] .about-tab-btn,
+html[data-high-contrast="true"] button.about-tab-btn {
+  font-weight: 900 !important;
+}
+
+/* Active Tab Button: Black Background, Yellow Underline & Bright Yellow Text */
+html.high-contrast .about-tab-active,
+html.high-contrast button.about-tab-active,
+html.high-contrast .about-tab-active:hover,
+html.high-contrast .about-tab-active:focus,
+html.high-contrast .about-tab-active:active,
+html[data-high-contrast="true"] .about-tab-active,
+html[data-high-contrast="true"] button.about-tab-active,
+html[data-high-contrast="true"] .about-tab-active:hover,
+html[data-high-contrast="true"] .about-tab-active:focus,
+html[data-high-contrast="true"] .about-tab-active:active {
+  background-color: #000000 !important;
+  color: #ffff00 !important;
+  border-bottom: 3px solid #ffff00 !important;
+}
+
+html.high-contrast .about-tab-active *,
+html.high-contrast .about-tab-active svg,
+html.high-contrast .about-tab-active:hover *,
+html.high-contrast .about-tab-active:hover svg,
+html.high-contrast .about-tab-active:focus *,
+html.high-contrast .about-tab-active:focus svg,
+html.high-contrast .about-tab-active:active *,
+html.high-contrast .about-tab-active:active svg,
+html[data-high-contrast="true"] .about-tab-active *,
+html[data-high-contrast="true"] .about-tab-active svg,
+html[data-high-contrast="true"] .about-tab-active:hover *,
+html[data-high-contrast="true"] .about-tab-active:hover svg,
+html[data-high-contrast="true"] .about-tab-active:focus *,
+html[data-high-contrast="true"] .about-tab-active:focus svg,
+html[data-high-contrast="true"] .about-tab-active:active *,
+html[data-high-contrast="true"] .about-tab-active:active svg {
+  color: #ffff00 !important;
+  stroke: #ffff00 !important;
+  font-weight: 900 !important;
+}
+
+/* Inactive Tab Button: Transparent with light gray text & icon */
+html.high-contrast .about-tab-inactive,
+html.high-contrast button.about-tab-inactive,
+html[data-high-contrast="true"] .about-tab-inactive,
+html[data-high-contrast="true"] button.about-tab-inactive {
+  background-color: transparent !important;
+  color: #dddddd !important;
+  border-bottom: 3px solid transparent !important;
+}
+
+html.high-contrast .about-tab-inactive svg,
+html[data-high-contrast="true"] .about-tab-inactive svg {
+  color: #dddddd !important;
+  stroke: #dddddd !important;
+}
+
+/* When touching / hovering / focusing inactive tab: Bright Yellow Text & Yellow Icon */
+html.high-contrast .about-tab-inactive:hover,
+html.high-contrast .about-tab-inactive:focus,
+html.high-contrast .about-tab-inactive:active,
+html.high-contrast button.about-tab-inactive:hover,
+html.high-contrast button.about-tab-inactive:focus,
+html.high-contrast button.about-tab-inactive:active,
+html[data-high-contrast="true"] .about-tab-inactive:hover,
+html[data-high-contrast="true"] .about-tab-inactive:focus,
+html[data-high-contrast="true"] .about-tab-inactive:active,
+html[data-high-contrast="true"] button.about-tab-inactive:hover,
+html[data-high-contrast="true"] button.about-tab-inactive:focus,
+html[data-high-contrast="true"] button.about-tab-inactive:active {
+  background-color: #111111 !important;
+  color: #ffff00 !important;
+}
+
+html.high-contrast .about-tab-inactive:hover *,
+html.high-contrast .about-tab-inactive:hover svg,
+html.high-contrast .about-tab-inactive:focus *,
+html.high-contrast .about-tab-inactive:focus svg,
+html.high-contrast .about-tab-inactive:active *,
+html.high-contrast .about-tab-inactive:active svg,
+html[data-high-contrast="true"] .about-tab-inactive:hover *,
+html[data-high-contrast="true"] .about-tab-inactive:hover svg,
+html[data-high-contrast="true"] .about-tab-inactive:focus *,
+html[data-high-contrast="true"] .about-tab-inactive:focus svg,
+html[data-high-contrast="true"] .about-tab-inactive:active *,
+html[data-high-contrast="true"] .about-tab-inactive:active svg {
+  color: #ffff00 !important;
+  stroke: #ffff00 !important;
+}
+
+/* Section Headings */
+html.high-contrast .about-section-heading,
+html[data-high-contrast="true"] .about-section-heading {
+  color: #ffff00 !important;
+  font-weight: 900 !important;
+}
+
+html.high-contrast .about-section-subheading,
+html[data-high-contrast="true"] .about-section-subheading {
+  color: #ffffff !important;
+}
+
+/* History Section */
+html.high-contrast .about-history-title,
+html[data-high-contrast="true"] .about-history-title {
+  color: #ffff00 !important;
+  border-left-color: #ffff00 !important;
+  font-weight: 900 !important;
+}
+
+html.high-contrast .about-history-text,
+html.high-contrast .about-history-text p,
+html[data-high-contrast="true"] .about-history-text,
+html[data-high-contrast="true"] .about-history-text p {
+  color: #ffffff !important;
+  line-height: 1.75 !important;
+}
+
+html.high-contrast .about-history-img-box,
+html[data-high-contrast="true"] .about-history-img-box {
+  border: 2px solid #ffff00 !important;
+  background-color: #000000 !important;
+}
+
+html.high-contrast .about-history-img-caption,
+html[data-high-contrast="true"] .about-history-img-caption {
+  background-color: rgba(0, 0, 0, 0.95) !important;
+  color: #ffff00 !important;
+  border-top: 1px solid #ffff00 !important;
+}
+
+/* 1. Core Roles & Responsibilities (2x3 Grid Cards) */
+html.high-contrast .about-role-card,
+html[data-high-contrast="true"] .about-role-card {
+  background-color: #050505 !important;
+  border: 2px solid #ffff00 !important;
+}
+
+html.high-contrast .about-role-card:hover,
+html[data-high-contrast="true"] .about-role-card:hover {
+  background-color: #111111 !important;
+  border-color: #ffffff !important;
+}
+
+html.high-contrast .about-role-bar,
+html[data-high-contrast="true"] .about-role-bar {
+  background-color: #ffff00 !important;
+}
+
+html.high-contrast .about-role-title,
+html[data-high-contrast="true"] .about-role-title {
+  color: #ffff00 !important;
+  font-weight: 900 !important;
+}
+
+html.high-contrast .about-role-desc,
+html[data-high-contrast="true"] .about-role-desc {
+  color: #ffffff !important;
+  line-height: 1.6 !important;
+}
+
+/* 2. Commissioner Hall of Fame Cards */
+html.high-contrast .about-hof-card,
+html[data-high-contrast="true"] .about-hof-card {
+  background-color: #050505 !important;
+  border: 2px solid #ffff00 !important;
+}
+
+html.high-contrast .about-hof-card:hover,
+html[data-high-contrast="true"] .about-hof-card:hover {
+  background-color: #111111 !important;
+  border-color: #ffffff !important;
+}
+
+html.high-contrast .about-hof-img-box,
+html[data-high-contrast="true"] .about-hof-img-box {
+  background-color: #000000 !important;
+  border-bottom: 1.5px solid #ffff00 !important;
+}
+
+html.high-contrast .about-hof-period-badge,
+html.high-contrast div.about-hof-period-badge,
+html[data-high-contrast="true"] .about-hof-period-badge,
+html[data-high-contrast="true"] div.about-hof-period-badge {
+  background-color: #ffff00 !important;
+  color: #000000 !important;
+  border: 1px solid #ffff00 !important;
+  font-weight: 900 !important;
+}
+
+html.high-contrast .about-hof-name,
+html[data-high-contrast="true"] .about-hof-name {
+  color: #ffff00 !important;
+  font-weight: 900 !important;
+}
+
+html.high-contrast .about-hof-designation,
+html.high-contrast span.about-hof-designation,
+html[data-high-contrast="true"] .about-hof-designation,
+html[data-high-contrast="true"] span.about-hof-designation {
+  color: #ffff88 !important;
+  font-weight: 800 !important;
+}
+
+html.high-contrast .about-hof-desc,
+html[data-high-contrast="true"] .about-hof-desc {
+  color: #ffffff !important;
+  line-height: 1.6 !important;
+}
+
+/* 3. Key Safety Initiatives Cards */
+html.high-contrast .about-initiative-card,
+html[data-high-contrast="true"] .about-initiative-card {
+  background-color: #050505 !important;
+  border: 2px solid #ffff00 !important;
+}
+
+html.high-contrast .about-initiative-card:hover,
+html[data-high-contrast="true"] .about-initiative-card:hover {
+  background-color: #111111 !important;
+  border-color: #ffffff !important;
+}
+
+html.high-contrast .about-initiative-img-box,
+html[data-high-contrast="true"] .about-initiative-img-box {
+  border: 1.5px solid #ffff00 !important;
+  background-color: #000000 !important;
+}
+
+html.high-contrast .about-initiative-title,
+html[data-high-contrast="true"] .about-initiative-title {
+  color: #ffff00 !important;
+  font-weight: 900 !important;
+}
+
+html.high-contrast .about-initiative-desc,
+html[data-high-contrast="true"] .about-initiative-desc {
+  color: #ffffff !important;
+  line-height: 1.6 !important;
+}
+
+html.high-contrast .about-initiative-btn,
+html.high-contrast a.about-initiative-btn,
+html[data-high-contrast="true"] .about-initiative-btn,
+html[data-high-contrast="true"] a.about-initiative-btn {
+  background-color: #000000 !important;
+  color: #ffff00 !important;
+  border: 1.5px solid #ffff00 !important;
+  font-weight: 900 !important;
+  text-decoration: none !important;
+}
+
+html.high-contrast .about-initiative-btn *,
+html.high-contrast a.about-initiative-btn *,
+html[data-high-contrast="true"] .about-initiative-btn *,
+html[data-high-contrast="true"] a.about-initiative-btn * {
+  color: #ffff00 !important;
+}
+
+html.high-contrast .about-initiative-btn:hover,
+html.high-contrast .about-initiative-btn:focus,
+html.high-contrast .about-initiative-btn:active,
+html.high-contrast a.about-initiative-btn:hover,
+html.high-contrast a.about-initiative-btn:focus,
+html.high-contrast a.about-initiative-btn:active,
+html[data-high-contrast="true"] .about-initiative-btn:hover,
+html[data-high-contrast="true"] .about-initiative-btn:focus,
+html[data-high-contrast="true"] .about-initiative-btn:active,
+html[data-high-contrast="true"] a.about-initiative-btn:hover,
+html[data-high-contrast="true"] a.about-initiative-btn:focus,
+html[data-high-contrast="true"] a.about-initiative-btn:active {
+  background-color: #ffff00 !important;
+  color: #000000 !important;
+}
+
+html.high-contrast .about-initiative-btn:hover *,
+html.high-contrast a.about-initiative-btn:hover *,
+html[data-high-contrast="true"] .about-initiative-btn:hover *,
+html[data-high-contrast="true"] a.about-initiative-btn:hover * {
+  color: #000000 !important;
+}
+
+/* Org Chart Container in High Contrast */
+html.high-contrast .about-orgchart-container>div,
+html[data-high-contrast="true"] .about-orgchart-container>div {
+  background-color: #050505 !important;
+  border: 2px solid #ffff00 !important;
+}

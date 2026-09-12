@@ -99,11 +99,24 @@ export function sanitizeHtmlContent(html: string | null | undefined): string {
 
     const safeAttrs = attrMatch.filter((attr) => {
       const attrName = attr.split("=")[0].trim().toLowerCase();
-      return ALLOWED_ATTRIBUTES.has(attrName) && !attrName.startsWith("on");
+      return ALLOWED_ATTRIBUTES.has(attrName);
     });
 
     return `<${lowerTag}${safeAttrs.length > 0 ? " " + safeAttrs.join(" ") : ""}>`;
   });
 
-  return cleaned;
+  return cleaned.trim();
+}
+
+/**
+ * Escapes HTML entities to prevent HTML injection in emails, templates, and raw attributes.
+ */
+export function escapeHtml(input: string | null | undefined): string {
+  if (!input || typeof input !== "string") return "";
+  return input
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }

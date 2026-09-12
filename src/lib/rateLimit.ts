@@ -16,6 +16,8 @@ export interface RateLimitPolicy {
 
 // Configurable Category Policies
 export class RateLimitPolicies {
+  public static EMAIL: RateLimitPolicy = { keyPrefix: "rl_email", maxLimit: 5, windowMs: 15 * 60 * 1000 };        // 5 / 15 mins
+  public static CONTACT: RateLimitPolicy = { keyPrefix: "rl_contact", maxLimit: 5, windowMs: 15 * 60 * 1000 };    // 5 / 15 mins
   public static AUTH: RateLimitPolicy = { keyPrefix: "rl_auth", maxLimit: 5, windowMs: 15 * 60 * 1000 };        // 5 / 15 mins
   public static MFA: RateLimitPolicy = { keyPrefix: "rl_mfa", maxLimit: 5, windowMs: 10 * 60 * 1000 };          // 5 / 10 mins
   public static SEARCH: RateLimitPolicy = { keyPrefix: "rl_search", maxLimit: 30, windowMs: 60 * 1000 };         // 30 / 1 min
@@ -26,7 +28,7 @@ export class RateLimitPolicies {
   public static SUPERADMIN: RateLimitPolicy = { keyPrefix: "rl_super", maxLimit: 500, windowMs: 15 * 60 * 1000 }; // 500 / 15 mins
 }
 
-// In-Memory Sliding-Window Store (Fallback if Redis is unavailable)
+// In-Memory Sliding-Window Store
 interface WindowEntry {
   timestamps: number[];
 }

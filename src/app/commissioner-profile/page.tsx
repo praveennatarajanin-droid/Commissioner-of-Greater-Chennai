@@ -46,10 +46,10 @@ export default async function CommissionerProfilePage() {
         />
       )}
       {/* 1. Header Navigation Bar */}
-      <Navbar customMenuItems={menuItems} />
       <NewsTicker customTickerItems={tickerItems} />
+      <Navbar customMenuItems={menuItems} stickyOffset="38px" />
 
-      <main className="flex-grow py-8">
+      <main id="main-content" tabIndex={-1} className="flex-grow py-8 focus:outline-none">
         <CommissionerProfileClient profile={profile} />
       </main>
 

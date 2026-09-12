@@ -213,16 +213,16 @@ export default function StationDetailClient({
           </div>
         </div>
         
-        <div className="w-full h-80 rounded-xl overflow-hidden border border-stone-200 dark:border-stone-800 shadow-inner">
+        <div className="w-full h-80 rounded-xl overflow-hidden border border-stone-200 dark:border-stone-800 shadow-inner bg-stone-100 dark:bg-stone-950">
           <iframe 
             title="Station Map Embed"
             width="100%" 
             height="100%" 
-            frameBorder="0" 
-            scrolling="no" 
-            marginHeight={0} 
-            marginWidth={0} 
-            src={`https://www.openstreetmap.org/export/embed.html?bbox=${lng - 0.012}%2C${lat - 0.012}%2C${lng + 0.012}%2C${lat + 0.012}&layer=mapnik&marker=${lat}%2C${lng}`}
+            style={{ border: 0 }}
+            loading="lazy"
+            allowFullScreen
+            referrerPolicy="no-referrer-when-downgrade"
+            src={`https://maps.google.com/maps?q=${lat},${lng}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
           />
         </div>
       </div>

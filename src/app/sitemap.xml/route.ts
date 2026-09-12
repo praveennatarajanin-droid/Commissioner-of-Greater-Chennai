@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { isArticlePubliclyVisible } from "@/lib/dateUtils";
 
 export const dynamic = "force-dynamic";
 
@@ -7,7 +8,7 @@ export async function GET() {
   const seoSettings = await db.getSeoSettings();
   const baseUrl = seoSettings.site_url || "https://chennaiguardian.in";
   const news = await db.getNews();
-  const publishedNews = news.filter(n => n.published === 1);
+  const publishedNews = news.filter(isArticlePubliclyVisible);
   const now = new Date().toISOString();
   
   const articleSeoList = await db.getArticleSeo();

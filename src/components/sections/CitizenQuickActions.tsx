@@ -227,7 +227,7 @@ export default function CitizenQuickActions({ language: propLang }: CitizenQuick
       className="w-full"
     >
       {/* Outer Single Horizontal Rectangle Container */}
-      <div className="w-full bg-[#faf8f5] dark:bg-stone-900/95 border border-[#ede9e2] dark:border-stone-800 rounded-2xl p-6 sm:p-7 lg:p-8 shadow-[0_2px_12px_rgba(0,0,0,0.03)] transition-colors duration-200">
+      <div className="w-full bg-[#faf8f5] dark:bg-stone-900/95 border border-[#ede9e2] dark:border-stone-800 rounded-2xl p-6 sm:p-7 lg:p-8 shadow-[0_2px_12px_rgba(0,0,0,0.03)] transition-colors duration-200 citizen-quick-actions-container">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
           
           {/* ========================================================= */}
@@ -237,13 +237,13 @@ export default function CitizenQuickActions({ language: propLang }: CitizenQuick
             
             {/* Small Gold Uppercase Label */}
             <div className="mb-3">
-              <span className="text-[#c5a059] dark:text-[#d4af37] text-xs sm:text-[13px] font-extrabold tracking-[0.18em] uppercase">
+              <span className="text-[#c5a059] dark:text-[#d4af37] text-xs sm:text-[13px] font-extrabold tracking-[0.18em] uppercase citizen-quick-actions-label">
                 {isTa ? "குடிமக்கள் சேவைகள்" : "CITIZEN SERVICES"}
               </span>
             </div>
 
             {/* Main Heading */}
-            <h2 className="font-serif font-bold text-3xl sm:text-4xl lg:text-[50px] text-[#032B69] dark:text-white leading-[1.12] tracking-tight mb-4">
+            <h2 className="font-serif font-bold text-3xl sm:text-4xl lg:text-[50px] text-[#032B69] dark:text-white leading-[1.12] tracking-tight mb-4 citizen-quick-actions-title">
               {isTa ? (
                 <>
                   நாங்கள் உங்களுக்கு <br className="hidden sm:inline" />
@@ -258,7 +258,7 @@ export default function CitizenQuickActions({ language: propLang }: CitizenQuick
             </h2>
 
             {/* Supporting Description */}
-            <p className="text-sm sm:text-[15px] text-slate-600 dark:text-slate-300 font-normal leading-relaxed mb-8 max-w-[480px]">
+            <p className="text-sm sm:text-[15px] text-slate-600 dark:text-slate-300 font-normal leading-relaxed mb-8 max-w-[480px] citizen-quick-actions-desc">
               {isTa
                 ? "அத்தியாவசிய காவல் சேவைகளைப் பெறுங்கள், சம்பவங்களைப் புகாரளிக்கவும், புகார்களைக் கண்காணிக்கவும் மற்றும் பெருநகர சென்னை காவல்துறையிடமிருந்து உதவிகளைப் பெறவும் — அனைத்தும் ஒரே இடத்தில்."
                 : "Access essential police services, report incidents, check complaints, and find assistance from Greater Chennai Police — all in one place."}
@@ -269,20 +269,19 @@ export default function CitizenQuickActions({ language: propLang }: CitizenQuick
               {/* PRIMARY BUTTON: View all services */}
               <Link
                 href="/citizen-services"
-                style={{ color: "#ffffff", backgroundColor: "#05204c" }}
-                className="h-12 px-6 rounded-lg bg-[#05204c] hover:bg-[#031533] !text-white text-white font-semibold text-xs sm:text-sm tracking-wide inline-flex items-center justify-center gap-2 shadow-sm hover:shadow transition-all duration-200 active:scale-[0.98] group shrink-0"
+                className="h-12 px-6 rounded-lg bg-[#05204c] hover:bg-[#031533] text-white font-semibold text-xs sm:text-sm tracking-wide inline-flex items-center justify-center gap-2 shadow-sm hover:shadow transition-all duration-200 active:scale-[0.98] group shrink-0 citizen-quick-actions-btn-primary"
               >
-                <span className="!text-white text-white font-bold" style={{ color: "#ffffff" }}>{isTa ? "அனைத்து சேவைகளும்" : "View all services"}</span>
-                <ArrowRight className="w-4 h-4 text-[#c5a059] group-hover:translate-x-1 transition-transform duration-200" />
+                <span className="font-bold citizen-quick-actions-btn-primary-text">{isTa ? "அனைத்து சேவைகளும்" : "View all services"}</span>
+                <ArrowRight className="w-4 h-4 text-[#c5a059] group-hover:translate-x-1 transition-transform duration-200 citizen-quick-actions-arrow" />
               </Link>
 
               {/* SECONDARY BUTTON: Find nearest station */}
               <Link
                 href="/stations"
-                className="h-12 px-6 rounded-lg bg-white/90 dark:bg-stone-800/90 hover:bg-white dark:hover:bg-stone-800 text-[#05204c] dark:text-slate-200 font-semibold text-xs sm:text-sm tracking-wide inline-flex items-center justify-center gap-2 border border-slate-300/90 dark:border-stone-700 hover:border-[#05204c] dark:hover:border-[#c5a059] shadow-2xs transition-all duration-200 active:scale-[0.98] group shrink-0"
+                className="h-12 px-6 rounded-lg bg-white/90 dark:bg-stone-800/90 hover:bg-white dark:hover:bg-stone-800 text-[#05204c] dark:text-slate-200 font-semibold text-xs sm:text-sm tracking-wide inline-flex items-center justify-center gap-2 border border-slate-300/90 dark:border-stone-700 hover:border-[#05204c] dark:hover:border-[#c5a059] shadow-2xs transition-all duration-200 active:scale-[0.98] group shrink-0 citizen-quick-actions-btn-secondary"
               >
                 <span>{isTa ? "அருகிலுள்ள நிலையம்" : "Find nearest station"}</span>
-                <ArrowRight className="w-4 h-4 text-slate-400 group-hover:translate-x-1 group-hover:text-[#05204c] dark:group-hover:text-[#c5a059] transition-all duration-200" />
+                <ArrowRight className="w-4 h-4 text-slate-400 group-hover:translate-x-1 group-hover:text-[#05204c] dark:group-hover:text-[#c5a059] transition-all duration-200 citizen-quick-actions-arrow" />
               </Link>
             </div>
 
@@ -299,24 +298,24 @@ export default function CitizenQuickActions({ language: propLang }: CitizenQuick
                 const desc = isTa ? card.descTa : card.descEn;
 
                 const CardContent = (
-                  <div className="relative h-full min-h-[118px] sm:min-h-[125px] p-4 sm:p-5 bg-white dark:bg-stone-900 rounded-2xl border border-slate-200/90 dark:border-stone-800 hover:border-[#032B69]/40 dark:hover:border-[#c5a059]/50 shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 flex items-center justify-between gap-3.5 group cursor-pointer text-left">
+                  <div className="relative h-full min-h-[118px] sm:min-h-[125px] p-4 sm:p-5 bg-white dark:bg-stone-900 rounded-2xl border border-slate-200/90 dark:border-stone-800 hover:border-[#032B69]/40 dark:hover:border-[#c5a059]/50 shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 flex items-center justify-between gap-3.5 group cursor-pointer text-left citizen-service-card">
                     {/* Left: Pastel Icon Container */}
-                    <div className={`w-12 h-12 rounded-xl ${card.iconBg} ${card.iconColor} flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-105`}>
+                    <div className={`w-12 h-12 rounded-xl ${card.iconBg} ${card.iconColor} flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-105 citizen-service-icon-box`}>
                       <IconComponent className="w-5 h-5" />
                     </div>
 
                     {/* Center: Title (Sentence Case) & Description */}
                     <div className="flex-1 min-w-0 pr-1">
-                      <h3 className="font-display font-bold text-sm sm:text-[15px] text-[#032B69] dark:text-white tracking-tight group-hover:text-[#032B69] dark:group-hover:text-[#c5a059] transition-colors line-clamp-1">
+                      <h3 className="font-display font-bold text-sm sm:text-[15px] text-[#032B69] dark:text-white tracking-tight group-hover:text-[#032B69] dark:group-hover:text-[#c5a059] transition-colors line-clamp-1 citizen-service-title">
                         {title}
                       </h3>
-                      <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 leading-snug font-normal mt-1 line-clamp-2">
+                      <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 leading-snug font-normal mt-1 line-clamp-2 citizen-service-desc">
                         {desc}
                       </p>
                     </div>
 
                     {/* Right: Circular Arrow Action Button */}
-                    <div className="w-8 h-8 rounded-full bg-slate-50 dark:bg-stone-800/90 border border-slate-100 dark:border-stone-700/60 group-hover:bg-[#05204c] group-hover:text-white dark:group-hover:bg-[#c5a059] dark:group-hover:text-stone-950 text-slate-400 flex items-center justify-center shrink-0 transition-all duration-200 group-hover:translate-x-0.5 shadow-none">
+                    <div className="w-8 h-8 rounded-full bg-slate-50 dark:bg-stone-800/90 border border-slate-100 dark:border-stone-700/60 group-hover:bg-[#05204c] group-hover:text-white dark:group-hover:bg-[#c5a059] dark:group-hover:text-stone-950 text-slate-400 flex items-center justify-center shrink-0 transition-all duration-200 group-hover:translate-x-0.5 shadow-none citizen-service-arrow-btn">
                       <ArrowRight className="w-3.5 h-3.5" />
                     </div>
 
@@ -329,7 +328,7 @@ export default function CitizenQuickActions({ language: propLang }: CitizenQuick
                     href={card.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-[#032B69] dark:focus-visible:ring-[#c5a059] rounded-2xl"
+                    className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-[#032B69] dark:focus-visible:ring-[#c5a059] rounded-2xl citizen-service-card-link"
                   >
                     {CardContent}
                   </a>
@@ -337,7 +336,7 @@ export default function CitizenQuickActions({ language: propLang }: CitizenQuick
                   <Link
                     key={card.id}
                     href={card.href}
-                    className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-[#032B69] dark:focus-visible:ring-[#c5a059] rounded-2xl"
+                    className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-[#032B69] dark:focus-visible:ring-[#c5a059] rounded-2xl citizen-service-card-link"
                   >
                     {CardContent}
                   </Link>

@@ -231,23 +231,23 @@ export default function AboutUsClient({ initialTab, customData }: AboutUsClientP
   }, [initialTab]);
 
   return (
-    <div className="w-full max-w-[1700px] mx-auto px-4 py-8 space-y-12">
+    <div className="w-full max-w-[1700px] mx-auto px-4 py-8 space-y-12 about-page-container">
       
       {/* Page Title */}
       <div className="text-center space-y-4 max-w-3xl mx-auto">
-        <h1 className="font-display font-black text-3xl sm:text-4xl lg:text-5xl uppercase tracking-tight text-brand-blue dark:text-white leading-none">
+        <h1 className="font-display font-black text-3xl sm:text-4xl lg:text-5xl uppercase tracking-tight text-brand-blue dark:text-white leading-none about-page-title">
           {language === "ta" ? "சென்னை பெருநகர காவல்துறை" : "Greater Chennai Police"}
         </h1>
-        <p className="text-xs sm:text-sm font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+        <p className="text-xs sm:text-sm font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400 about-page-subtitle">
           {language === "ta"
             ? "சேவை, ஒழுங்கு மற்றும் பாதுகாப்புடன் 1856 முதல் சென்னையின் மக்களின் பாதுகாப்பினை உறுதி செய்கிறது."
             : "Protecting, serving, and securing the people of Chennai since 1856. One of the oldest metropolitan police commissionerates in India."}
         </p>
-        <div className="w-24 h-1.5 bg-brand-maroon mx-auto rounded-full" />
+        <div className="w-24 h-1.5 bg-brand-maroon mx-auto rounded-full about-title-bar" />
       </div>
 
       {/* Tabs Controller */}
-      <div className="flex justify-center border-b border-stone-200 dark:border-stone-800 pb-px">
+      <div className="flex justify-center border-b border-stone-200 dark:border-stone-800 pb-px about-tabs-bar">
         <div className="flex flex-wrap gap-2 sm:gap-6 justify-center">
           {(["history", "org", "initiatives"] as const).map((tab) => {
             const label = {
@@ -266,10 +266,10 @@ export default function AboutUsClient({ initialTab, customData }: AboutUsClientP
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`flex items-center gap-2 px-4 py-3 text-xs uppercase font-black tracking-widest border-b-2 transition-all cursor-pointer ${
+                className={`flex items-center gap-2 px-4 py-3 text-xs uppercase font-black tracking-widest border-b-2 transition-all cursor-pointer about-tab-btn ${
                   activeTab === tab 
-                    ? "border-brand-maroon text-brand-maroon dark:border-brand-gold dark:text-brand-gold font-black" 
-                    : "border-transparent text-stone-500 hover:text-stone-900 dark:hover:text-stone-300 font-bold"
+                    ? "border-brand-maroon text-brand-maroon dark:border-brand-gold dark:text-brand-gold font-black about-tab-active" 
+                    : "border-transparent text-stone-500 hover:text-stone-900 dark:hover:text-stone-300 font-bold about-tab-inactive"
                 }`}
               >
                 {icon}
@@ -290,12 +290,12 @@ export default function AboutUsClient({ initialTab, customData }: AboutUsClientP
             {/* History Section */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center text-left">
               <div className="space-y-6">
-                <h3 className="font-display font-black text-xl sm:text-2xl uppercase tracking-wider text-brand-blue dark:text-white border-l-4 border-brand-maroon pl-3">
+                <h3 className="font-display font-black text-xl sm:text-2xl uppercase tracking-wider text-brand-blue dark:text-white border-l-4 border-brand-maroon pl-3 about-history-title">
                   {language === "ta" 
                     ? (historySec?.content_json?.title_ta || "காவல்துறையின் வரலாறு")
                     : (historySec?.content_json?.title_en || "History of Greater Chennai Police")}
                 </h3>
-                <div className="text-stone-700 dark:text-stone-300 space-y-4 text-sm leading-relaxed">
+                <div className="text-stone-700 dark:text-stone-300 space-y-4 text-sm leading-relaxed about-history-text">
                   {historySec?.content_json?.paragraphs_en ? (
                     (language === "ta" ? historySec.content_json.paragraphs_ta : historySec.content_json.paragraphs_en).map((para: string, pIdx: number) => (
                       <p key={pIdx}>{para}</p>
@@ -323,7 +323,7 @@ export default function AboutUsClient({ initialTab, customData }: AboutUsClientP
               </div>
 
               {/* HQ Image Container */}
-              <div className="relative rounded-2xl overflow-hidden border border-stone-250 dark:border-stone-850 shadow-md group">
+              <div className="relative rounded-2xl overflow-hidden border border-stone-250 dark:border-stone-850 shadow-md group about-history-img-box">
                 <Image 
                   src={historySec?.content_json?.image_url || "/images/office.png"} 
                   alt="Greater Chennai Police Headquarters"
@@ -332,7 +332,7 @@ export default function AboutUsClient({ initialTab, customData }: AboutUsClientP
                   priority
                   className="w-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
-                <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent text-white text-xs">
+                <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent text-white text-xs about-history-img-caption">
                   <span className="font-bold uppercase tracking-wider">
                     {language === "ta"
                       ? (historySec?.content_json?.caption_ta || "சென்னை பெருநகர காவல் தலைமையகம், வேப்பேரி")
@@ -345,10 +345,10 @@ export default function AboutUsClient({ initialTab, customData }: AboutUsClientP
             {/* Roles and Responsibilities */}
             <div className="space-y-8">
               <div className="text-center max-w-2xl mx-auto space-y-2">
-                <h3 className="font-display font-black text-xl uppercase tracking-wider text-brand-blue dark:text-white">
+                <h3 className="font-display font-black text-xl uppercase tracking-wider text-brand-blue dark:text-white about-section-heading">
                   {language === "ta" ? "கடமைகள் மற்றும் பொறுப்புகள்" : "Roles & Responsibilities of GCP"}
                 </h3>
-                <p className="text-xs text-stone-500 dark:text-stone-400">
+                <p className="text-xs text-stone-500 dark:text-stone-400 about-section-subheading">
                   {language === "ta" ? "சமூகத்தின் அமைதியையும் பாதுகாப்பையும் நிலைநிறுத்த சென்னை காவல்துறை மேற்கொள்ளும் முதன்மைப் பணிகள்." : "Core directives governing our officers to maintain metropolitan peace and security."}
                 </p>
               </div>
@@ -357,15 +357,15 @@ export default function AboutUsClient({ initialTab, customData }: AboutUsClientP
                 {((rolesSec?.content_json?.roles || gcpRoles) as typeof gcpRoles).map((role, idx) => (
                   <div 
                     key={idx} 
-                    className="p-6 bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-850 rounded-2xl space-y-3 hover:border-brand-maroon/20 dark:hover:border-brand-gold/30 transition shadow-sm"
+                    className="p-6 bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-850 rounded-2xl space-y-3 hover:border-brand-maroon/20 dark:hover:border-brand-gold/30 transition shadow-sm about-role-card"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-2 h-6 bg-brand-maroon rounded-full" />
-                      <h4 className="font-display font-black text-xs uppercase text-stone-900 dark:text-white tracking-widest">
+                      <div className="w-2 h-6 bg-brand-maroon rounded-full about-role-bar" />
+                      <h4 className="font-display font-black text-xs uppercase text-stone-900 dark:text-white tracking-widest about-role-title">
                         {language === "ta" ? role.title_ta : role.title_en}
                       </h4>
                     </div>
-                    <p className="text-xs text-stone-600 dark:text-stone-405 leading-relaxed">
+                    <p className="text-xs text-stone-600 dark:text-stone-405 leading-relaxed about-role-desc">
                       {language === "ta" ? role.desc_ta : role.desc_en}
                     </p>
                   </div>
@@ -383,26 +383,28 @@ export default function AboutUsClient({ initialTab, customData }: AboutUsClientP
             {/* Org structure chart */}
             <div className="space-y-8 text-center max-w-6xl mx-auto w-full">
               <div className="space-y-2">
-                <h3 className="font-display font-black text-xl uppercase tracking-wider text-brand-blue dark:text-white">
+                <h3 className="font-display font-black text-xl uppercase tracking-wider text-brand-blue dark:text-white about-section-heading">
                   {language === "ta" ? "காவல்துறை நிர்வாகக் கட்டமைப்பு" : "Organizational Structure Chart"}
                 </h3>
-                <p className="text-xs text-stone-500 dark:text-stone-400">
+                <p className="text-xs text-stone-500 dark:text-stone-400 about-section-subheading">
                   {language === "ta" 
                     ? "ஆணையர் தலைமையிலான சென்னை காவல் துறையின் படிநிலை மற்றும் நிர்வாகக் கட்டமைப்பு." 
                     : "Hierarchy representation showing executive roles reporting directly to the Commissioner of Police."}
                 </p>
               </div>
 
-              <OrgChart language={language} imageSrc={orgChartImage} />
+              <div className="about-orgchart-container">
+                <OrgChart language={language} imageSrc={orgChartImage} />
+              </div>
             </div>
 
             {/* Hall of Fame / Commissioners */}
             <div className="space-y-8 text-left">
               <div className="text-center max-w-2xl mx-auto space-y-2">
-                <h3 className="font-display font-black text-xl uppercase tracking-wider text-brand-blue dark:text-white">
+                <h3 className="font-display font-black text-xl uppercase tracking-wider text-brand-blue dark:text-white about-section-heading">
                   🏆 {language === "ta" ? "புகழ் பெற்ற முன்னாள் ஆணையர்கள்" : "Commissioner Hall of Fame"}
                 </h3>
-                <p className="text-xs text-stone-500 dark:text-stone-400">
+                <p className="text-xs text-stone-500 dark:text-stone-400 about-section-subheading">
                   {language === "ta" 
                     ? "வெவ்வேறு காலகட்டங்களில் சென்னைக்கு பெருமை சேர்த்த புகழ்பெற்ற காவல் ஆணையர்கள்." 
                     : "Pioneering Commissioners of Police who served and shaped the Greater Chennai Police legacy."}
@@ -413,29 +415,29 @@ export default function AboutUsClient({ initialTab, customData }: AboutUsClientP
                 {((hallSec?.content_json?.hallOfFame || hallOfFame) as typeof hallOfFame).map((officer, idx) => (
                   <div 
                     key={idx} 
-                    className="bg-white dark:bg-stone-900 border border-stone-250 dark:border-stone-850 rounded-2xl overflow-hidden hover:border-brand-maroon/20 dark:hover:border-brand-gold/30 hover:-translate-y-1 hover:shadow-md transition-all duration-300 flex flex-col"
+                    className="bg-white dark:bg-stone-900 border border-stone-250 dark:border-stone-850 rounded-2xl overflow-hidden hover:border-brand-maroon/20 dark:hover:border-brand-gold/30 hover:-translate-y-1 hover:shadow-md transition-all duration-300 flex flex-col about-hof-card"
                   >
-                    <div className="relative h-60 w-full bg-stone-100 dark:bg-stone-955">
+                    <div className="relative h-60 w-full bg-stone-100 dark:bg-stone-955 about-hof-img-box">
                       <Image 
                         src={officer.image} 
                         alt={officer.name_en} 
                         fill
                         className="object-contain p-2 group-hover:scale-105 transition-transform duration-500"
                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
-                      <div className="absolute top-4 left-4 bg-brand-maroon text-white font-mono text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded border border-brand-maroon-dark">
+                      <div className="absolute top-4 left-4 bg-brand-maroon text-white font-mono text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded border border-brand-maroon-dark about-hof-period-badge">
                         {language === "ta" ? officer.period_ta : officer.period_en}
                       </div>
                     </div>
 
-                    <div className="p-5 flex-grow flex flex-col justify-between">
+                    <div className="p-5 flex-grow flex flex-col justify-between about-hof-content">
                       <div className="space-y-2">
-                        <h4 className="font-display font-black text-sm uppercase text-stone-900 dark:text-white">
+                        <h4 className="font-display font-black text-sm uppercase text-stone-900 dark:text-white about-hof-name">
                           {language === "ta" ? officer.name_ta : officer.name_en}
                         </h4>
-                        <span className="text-[10px] uppercase font-black text-brand-gold tracking-widest block leading-none">
+                        <span className="text-[10px] uppercase font-black text-brand-gold tracking-widest block leading-none about-hof-designation">
                           {language === "ta" ? officer.designation_ta : officer.designation_en}
                         </span>
-                        <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed pt-2">
+                        <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed pt-2 about-hof-desc">
                           {language === "ta" ? officer.profile_ta : officer.profile_en}
                         </p>
                       </div>
@@ -452,10 +454,10 @@ export default function AboutUsClient({ initialTab, customData }: AboutUsClientP
         {activeTab === "initiatives" && (
           <div className="space-y-8 animate-fadeIn text-left">
             <div className="text-center max-w-2xl mx-auto space-y-2 mb-10">
-              <h3 className="font-display font-black text-xl uppercase tracking-wider text-brand-blue dark:text-white">
+              <h3 className="font-display font-black text-xl uppercase tracking-wider text-brand-blue dark:text-white about-section-heading">
                 {language === "ta" ? "முக்கிய பாதுகாப்புத் திட்டங்கள்" : "Key Police Initiatives"}
               </h3>
-              <p className="text-xs text-stone-500 dark:text-stone-400">
+              <p className="text-xs text-stone-500 dark:text-stone-400 about-section-subheading">
                 {language === "ta" 
                   ? "சென்னையின் பாதுகாப்பிற்காகவும் குற்றத் தடுப்பிற்காகவும் காவல்துறை அறிமுகப்படுத்தியுள்ள நவீனத் திட்டங்கள்." 
                   : "Technological solutions and specialized units implemented to maximize citizen welfare and security."}
@@ -466,10 +468,10 @@ export default function AboutUsClient({ initialTab, customData }: AboutUsClientP
               {((initiativesSec?.content_json?.initiatives || gcpInitiatives) as typeof gcpInitiatives).map((item) => (
                 <div 
                   key={item.id}
-                  className="bg-white dark:bg-stone-900 border border-stone-250 dark:border-stone-850 p-5 rounded-2xl hover:border-brand-maroon/20 dark:hover:border-brand-gold/30 hover:-translate-y-1 hover:shadow-md transition-all duration-300 flex flex-col justify-between"
+                  className="bg-white dark:bg-stone-900 border border-stone-250 dark:border-stone-850 p-5 rounded-2xl hover:border-brand-maroon/20 dark:hover:border-brand-gold/30 hover:-translate-y-1 hover:shadow-md transition-all duration-300 flex flex-col justify-between about-initiative-card"
                 >
                   <div className="space-y-4">
-                    <div className="relative h-44 rounded-xl overflow-hidden border border-stone-100 dark:border-stone-800">
+                    <div className="relative h-44 rounded-xl overflow-hidden border border-stone-100 dark:border-stone-800 about-initiative-img-box">
                       <Image 
                         src={item.image} 
                         alt={item.name_en} 
@@ -478,10 +480,10 @@ export default function AboutUsClient({ initialTab, customData }: AboutUsClientP
                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
                     </div>
                     <div>
-                      <h4 className="font-display font-black text-sm uppercase text-stone-900 dark:text-white">
+                      <h4 className="font-display font-black text-sm uppercase text-stone-900 dark:text-white about-initiative-title">
                         {language === "ta" ? item.name_ta : item.name_en}
                       </h4>
-                      <p className="text-xs text-stone-600 dark:text-stone-400 mt-2 leading-relaxed line-clamp-3">
+                      <p className="text-xs text-stone-600 dark:text-stone-400 mt-2 leading-relaxed line-clamp-3 about-initiative-desc">
                         {language === "ta" ? item.desc_ta : item.desc_en}
                       </p>
                     </div>
@@ -491,7 +493,7 @@ export default function AboutUsClient({ initialTab, customData }: AboutUsClientP
                     href={`/about/initiatives/${item.id}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mt-6 w-full py-2 bg-stone-50 hover:bg-brand-gold hover:text-stone-950 dark:bg-stone-955 dark:hover:bg-brand-gold text-xs font-black uppercase tracking-wider text-stone-800 dark:text-white rounded-xl border border-stone-200 dark:border-stone-800 transition cursor-pointer text-center block"
+                    className="mt-6 w-full py-2.5 bg-stone-50 hover:bg-brand-gold hover:text-stone-950 dark:bg-stone-955 dark:hover:bg-brand-gold text-xs font-black uppercase tracking-wider text-stone-800 dark:text-white rounded-xl border border-stone-200 dark:border-stone-800 transition cursor-pointer text-center block about-initiative-btn"
                   >
                     {language === "ta" ? "விபரங்களைக் காண்க" : "View Full Details"}
                   </Link>

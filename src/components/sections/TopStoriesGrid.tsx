@@ -116,7 +116,7 @@ export default function TopStoriesGrid({ news, language = "en" }: TopStoriesGrid
                 <Link
                   key={item.id}
                   href={item.slug ? `/news/${item.slug}` : "#"}
-                  className="group flex flex-col bg-white dark:bg-stone-950 rounded-xl overflow-hidden border border-stone-100 dark:border-stone-800 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5"
+                  className="group flex flex-col bg-white dark:bg-stone-950 rounded-xl overflow-hidden border border-stone-100 dark:border-stone-800 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 news-card-white"
                 >
                   {/* Thumbnail */}
                   <div className="relative w-full overflow-hidden" style={{ paddingTop: "56.25%" }}>

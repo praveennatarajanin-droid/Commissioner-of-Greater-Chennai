@@ -17,6 +17,8 @@ function validateExternalUrl(url: string | null | undefined): string | null {
   return null;
 }
 
+import { verifySignedSessionToken } from "@/lib/auth";
+
 // Authentication Helper
 async function checkAuth(requiredRoles?: string[]) {
   try {
@@ -25,30 +27,41 @@ async function checkAuth(requiredRoles?: string[]) {
     if (!sessionCookie || !sessionCookie.value) {
       return null;
     }
-    const user = JSON.parse(sessionCookie.value);
-
-    // Verify session validity in DB
-    if (user.sessionId) {
-      const dbSession = await db.validateSession(user.sessionId);
-      if (!dbSession) return null;
-      await db.touchSession(user.sessionId);
+    const sessionData = verifySignedSessionToken(sessionCookie.value);
+    if (!sessionData || !sessionData.username || !sessionData.sessionId) {
+      return null;
     }
 
-    // Verify user account status
+    // Verify session validity in DB
+    const dbSession = await db.validateSession(sessionData.sessionId);
+    if (!dbSession) return null;
+    await db.touchSession(sessionData.sessionId);
+
+    // Verify user account status and fetch server-authoritative role
     const users = await db.getUsers();
-    const uRec = users.find((u) => u.username.toLowerCase() === (user.username || "").toLowerCase());
+    const uRec = users.find((u) => u.username.toLowerCase() === sessionData.username.toLowerCase());
     if (!uRec || uRec.status === "disabled" || uRec.locked === 1) {
       return null;
     }
 
+    if (dbSession.username.toLowerCase() !== uRec.username.toLowerCase()) {
+      return null;
+    }
+
+    const trueRole = uRec.role;
+
     if (requiredRoles) {
-      const userRole = (user.role || "").toUpperCase().replace(/[_\s]+/g, "");
+      const userRole = (trueRole || "").toUpperCase().replace(/[_\s]+/g, "");
       const normalizedRequired = requiredRoles.map((r) => r.toUpperCase().replace(/[_\s]+/g, ""));
       if (!normalizedRequired.includes(userRole)) {
         return null;
       }
     }
-    return user;
+    return {
+      username: uRec.username,
+      role: trueRole, // Strictly server-side DB role
+      sessionId: sessionData.sessionId
+    };
   } catch {
     return null;
   }

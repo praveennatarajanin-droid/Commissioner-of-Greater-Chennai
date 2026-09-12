@@ -1423,7 +1423,7 @@ export default function SuperAdminConsole({ user, onTabChange }: SuperAdminConso
                   <p><b>NODE_ENV:</b> {process.env.NODE_ENV}</p>
                   <p><b>NEXT_PUBLIC_APP_URL:</b> {process.env.NEXT_PUBLIC_APP_URL || (typeof window !== "undefined" ? window.location.origin : "/")}</p>
                   <p><b>DB_HOST:</b> 127.0.0.1</p>
-                  <p><b>DB_NAME:</b> chennai_guardian</p>
+                  <p><b>DB_NAME:</b> startup_TN</p>
                   <p><b>PORT:</b> 3306</p>
                 </div>
               </div>

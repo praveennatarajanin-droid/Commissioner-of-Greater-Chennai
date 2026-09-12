@@ -111,7 +111,7 @@ export default function CategoryNewsSection({ news, language = "en" }: CategoryN
                 <Link
                   key={item.id}
                   href={item.slug ? `/news/${item.slug}` : "#"}
-                  className="group flex flex-col bg-stone-50 dark:bg-stone-900 rounded-xl overflow-hidden border border-stone-100 dark:border-stone-800 hover:shadow-md transition-all duration-300 hover:-translate-y-0.5"
+                  className="group flex flex-col bg-stone-50 dark:bg-stone-900 rounded-xl overflow-hidden border border-stone-100 dark:border-stone-800 hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 news-card-white"
                 >
                   {/* Image */}
                   <div className="relative w-full overflow-hidden" style={{ paddingTop: "60%" }}>

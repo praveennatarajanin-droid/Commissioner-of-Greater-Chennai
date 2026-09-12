@@ -76,40 +76,38 @@ export default function OfficialAlertsFeed({ initialAlerts = [], language = "en"
   }, []);
 
   return (
-    <section className="w-full py-8 px-4 md:px-6" style={{ background: "#F7F9FC", borderBottom: "1px solid #D9E2F0" }}>
+    <section className="w-full py-8 px-4 md:px-6 bg-[#F7F9FC] dark:bg-black border-b border-[#D9E2F0] dark:border-stone-800 official-alerts-feed-section">
       <div className="max-w-[1700px] mx-auto space-y-5">
 
         {/* Section Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between official-alerts-header-bar">
           <div className="flex items-center gap-3">
-            <div className="w-1 h-6 rounded-full" style={{ background: "#1E3A8A" }} />
-            <AlertTriangle className="w-4 h-4" style={{ color: "#1E3A8A" }} />
-            <h2 className="font-display font-black text-base uppercase tracking-widest" style={{ color: "#172554" }}>
-              Latest News & Updates
+            <div className="w-1 h-6 rounded-full bg-[#1E3A8A] official-alerts-accent-bar" />
+            <AlertTriangle className="w-4 h-4 text-[#1E3A8A] official-alerts-header-icon" />
+            <h2 className="font-display font-black text-base uppercase tracking-widest text-[#172554] dark:text-white official-alerts-header-title">
+              {language === "ta" ? "சமீபத்திய செய்திகள் மற்றும் அறிவிப்புகள்" : "Latest News & Updates"}
             </h2>
             <span
-              className="flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-black text-white uppercase tracking-widest"
-              style={{ background: "#1E3A8A", border: "1px solid rgba(201, 162, 39, 0.35)" }}
+              className="flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-black text-white bg-[#1E3A8A] border border-[rgba(201,162,39,0.35)] uppercase tracking-widest official-alerts-badge"
             >
               <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-              AUTO-UPDATING
+              {language === "ta" ? "தானியங்கி புதுப்பிப்பு" : "AUTO-UPDATING"}
             </span>
           </div>
 
           <div className="flex items-center gap-3">
             {lastUpdated && (
-              <span className="flex items-center gap-1.5 text-[10px] font-bold text-stone-500">
-                <Clock className="w-3 h-3" style={{ color: "#1E3A8A" }} /> Updated {lastUpdated}
+              <span className="flex items-center gap-1.5 text-[10px] font-bold text-stone-500 dark:text-stone-400 official-alerts-updated-text">
+                <Clock className="w-3 h-3 text-[#1E3A8A] official-alerts-clock-icon" /> {language === "ta" ? "புதுப்பிக்கப்பட்டது" : "Updated"} {lastUpdated}
               </span>
             )}
             <button
               onClick={() => refresh()}
               disabled={loading}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-black text-white transition hover:opacity-90 cursor-pointer shadow-sm"
-              style={{ background: "#1E3A8A" }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-black text-white bg-[#1E3A8A] hover:bg-[#152e6f] transition cursor-pointer shadow-sm official-alerts-refresh-btn"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
-              Refresh
+              {language === "ta" ? "புதுப்பி" : "Refresh"}
             </button>
           </div>
         </div>
@@ -120,32 +118,30 @@ export default function OfficialAlertsFeed({ initialAlerts = [], language = "en"
             {alerts.slice(0, 9).map((alert) => (
               <div
                 key={alert.id}
-                className="flex gap-3 p-4 rounded-xl border bg-white hover:shadow-md transition-all"
-                style={{ borderColor: "#D9E2F0", background: "#FFFFFF" }}
+                className="flex gap-3 p-4 rounded-xl border border-[#D9E2F0] dark:border-stone-800 bg-white dark:bg-stone-950 hover:shadow-md transition-all official-alert-card"
               >
                 <div
-                  className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
-                  style={{ background: "rgba(30, 58, 138, 0.08)" }}
+                  className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5 bg-[rgba(30,58,138,0.08)] dark:bg-blue-950/40 official-alert-icon-box"
                 >
-                  <Newspaper className="w-4 h-4" style={{ color: "#1E3A8A" }} />
+                  <Newspaper className="w-4 h-4 text-[#1E3A8A] dark:text-blue-400 official-alert-newspaper-icon" />
                 </div>
                 <div className="flex-grow min-w-0 space-y-1">
-                  <p className="text-sm font-bold text-stone-900 leading-snug line-clamp-2">
+                  <p className="text-sm font-bold text-stone-900 dark:text-stone-100 leading-snug line-clamp-2 official-alert-title">
                     {alert.title}
                   </p>
                   {alert.summary && !alert.summary.includes("href=") && !alert.summary.includes("&lt;a") && (
-                    <p className="text-xs text-stone-500 leading-relaxed line-clamp-2 hidden md:block">
+                    <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed line-clamp-2 hidden md:block official-alert-summary">
                       {alert.summary.replace(/<[^>]+>/g, "").replace(/&amp;/g, "&").replace(/&quot;/g, '"')}
                     </p>
                   )}
                   <div className="flex items-center gap-3 flex-wrap">
                     {alert.source && (
-                      <span className="text-[9px] font-black uppercase tracking-widest text-stone-400">
+                      <span className="text-[9px] font-black uppercase tracking-widest text-stone-400 dark:text-stone-300 official-alert-source">
                         {alert.source}
                       </span>
                     )}
                     {alert.published_at && (
-                      <span className="flex items-center gap-1 text-[9px] text-stone-400 font-medium">
+                      <span className="flex items-center gap-1 text-[9px] text-stone-400 dark:text-stone-300 font-medium official-alert-time">
                         <Clock className="w-2.5 h-2.5" />
                         {formatPublishedTime(alert.published_at, language, liveNow)}
                       </span>
@@ -155,11 +151,10 @@ export default function OfficialAlertsFeed({ initialAlerts = [], language = "en"
                         href={alert.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-1 text-[9px] font-black uppercase tracking-wider hover:opacity-75 transition ml-auto"
-                        style={{ color: "#1E3A8A" }}
+                        className="flex items-center gap-1 text-[9px] font-black uppercase tracking-wider text-[#1E3A8A] dark:text-blue-400 hover:opacity-75 transition ml-auto official-alert-source-link"
                       >
                         <ExternalLink className="w-2.5 h-2.5" />
-                        Source
+                        {language === "ta" ? "மூலம்" : "Source"}
                       </a>
                     )}
                   </div>
@@ -169,12 +164,11 @@ export default function OfficialAlertsFeed({ initialAlerts = [], language = "en"
           </div>
         ) : (
           <div
-            className="py-10 rounded-xl border border-dashed text-center flex flex-col items-center gap-3"
-            style={{ borderColor: "#D9E2F0", background: "rgba(30, 58, 138, 0.02)" }}
+            className="py-10 rounded-xl border border-dashed border-[#D9E2F0] dark:border-stone-800 bg-[rgba(30,58,138,0.02)] dark:bg-stone-950 text-center flex flex-col items-center gap-3"
           >
-            <CheckCircle className="w-8 h-8" style={{ color: "#1E3A8A" }} />
+            <CheckCircle className="w-8 h-8 text-[#1E3A8A] dark:text-blue-400" />
             <div>
-              <p className="text-sm font-bold text-stone-700">
+              <p className="text-sm font-bold text-stone-700 dark:text-stone-200">
                 {language === "ta" ? "தற்போது அதிகாரப்பூர்வ எச்சரிக்கைகள் இல்லை" : "No active official alerts at this time"}
               </p>
               <p className="text-xs text-stone-400 mt-0.5">

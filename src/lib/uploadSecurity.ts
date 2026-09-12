@@ -1,6 +1,5 @@
 import fs from "fs";
 import path from "path";
-import os from "os";
 import crypto from "crypto";
 
 export interface FileValidationResult {
@@ -11,6 +10,7 @@ export interface FileValidationResult {
   extension?: string;
   sha256Hash?: string;
   sanitizedFilename?: string;
+  sanitizedBuffer?: Buffer;
 }
 
 // Category Size Limits (in Bytes)
@@ -102,6 +102,183 @@ export function detectMagicBytes(buffer: Buffer): { mime: string; extension: str
 }
 
 /**
+ * Strips EXIF, GPS, camera metadata and extraneous application markers from JPEG buffers.
+ */
+function stripJpegMetadata(buffer: Buffer): Buffer {
+  if (buffer.length < 4 || buffer[0] !== 0xff || buffer[1] !== 0xd8) {
+    return buffer;
+  }
+
+  const chunks: Buffer[] = [Buffer.from([0xff, 0xd8])];
+  let offset = 2;
+
+  while (offset < buffer.length) {
+    if (buffer[offset] !== 0xff) {
+      // Not a valid marker start, append remainder
+      chunks.push(buffer.subarray(offset));
+      break;
+    }
+
+    // Skip fill bytes (0xFF)
+    while (offset < buffer.length && buffer[offset] === 0xff) {
+      offset++;
+    }
+
+    if (offset >= buffer.length) break;
+
+    const marker = buffer[offset];
+    offset++;
+
+    // End of Image (EOI) or Start of Scan (SOS)
+    if (marker === 0xd9) {
+      chunks.push(Buffer.from([0xff, 0xd9]));
+      break;
+    }
+
+    if (marker === 0xda) {
+      // SOS: Start of Scan, the rest is entropy data until EOI
+      chunks.push(Buffer.from([0xff, 0xda]));
+      chunks.push(buffer.subarray(offset));
+      break;
+    }
+
+    // Standalone markers with no length payload (RST0..RST7, SOI, TEM)
+    if ((marker >= 0xd0 && marker <= 0xd7) || marker === 0x01) {
+      chunks.push(Buffer.from([0xff, marker]));
+      continue;
+    }
+
+    // Variable length markers
+    if (offset + 2 > buffer.length) break;
+    const length = buffer.readUInt16BE(offset);
+    if (offset + length > buffer.length) break;
+
+    // Markers to STRIP for privacy/security:
+    // 0xE1 = APP1 (EXIF / XMP / GPS metadata)
+    // 0xE2 = APP2 (FlashPix / Non-standard metadata)
+    // 0xED = APP13 (Photoshop IPTC)
+    // 0xFE = COM (Comments)
+    const isMetadataMarker = marker === 0xe1 || marker === 0xe2 || marker === 0xed || marker === 0xfe;
+
+    if (!isMetadataMarker) {
+      // Keep essential headers (APP0/JFIF, DQT, DHT, SOF, etc.)
+      chunks.push(Buffer.from([0xff, marker]));
+      chunks.push(buffer.subarray(offset, offset + length));
+    }
+
+    offset += length;
+  }
+
+  return Buffer.concat(chunks);
+}
+
+/**
+ * Strips eXIf, tEXt, zTXt, iTXt, and tIME metadata chunks from PNG buffers.
+ */
+function stripPngMetadata(buffer: Buffer): Buffer {
+  const PNG_SIG = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+  if (buffer.length < 8 || !buffer.subarray(0, 8).equals(PNG_SIG)) {
+    return buffer;
+  }
+
+  const chunks: Buffer[] = [PNG_SIG];
+  let offset = 8;
+
+  const STRIP_TYPES = new Set(["eXIf", "tEXt", "zTXt", "iTXt", "tIME"]);
+
+  while (offset + 12 <= buffer.length) {
+    const length = buffer.readUInt32BE(offset);
+    const type = buffer.subarray(offset + 4, offset + 8).toString("ascii");
+    const totalChunkLength = 12 + length; // 4 len + 4 type + data + 4 crc
+
+    if (offset + totalChunkLength > buffer.length) {
+      chunks.push(buffer.subarray(offset));
+      break;
+    }
+
+    if (!STRIP_TYPES.has(type)) {
+      chunks.push(buffer.subarray(offset, offset + totalChunkLength));
+    }
+
+    offset += totalChunkLength;
+
+    if (type === "IEND") break;
+  }
+
+  return Buffer.concat(chunks);
+}
+
+/**
+ * Strips EXIF and XMP metadata chunks from WebP RIFF buffers.
+ */
+function stripWebpMetadata(buffer: Buffer): Buffer {
+  if (buffer.length < 12) return buffer;
+  const isRiff = buffer.subarray(0, 4).toString("ascii") === "RIFF";
+  const isWebp = buffer.subarray(8, 12).toString("ascii") === "WEBP";
+  if (!isRiff || !isWebp) return buffer;
+
+  const chunks: Buffer[] = [];
+  let offset = 12;
+
+  while (offset + 8 <= buffer.length) {
+    const fourCC = buffer.subarray(offset, offset + 4).toString("ascii");
+    const chunkSize = buffer.readUInt32LE(offset + 4);
+    const paddedSize = chunkSize + (chunkSize % 2);
+    const totalLength = 8 + paddedSize;
+
+    if (offset + totalLength > buffer.length) {
+      chunks.push(buffer.subarray(offset));
+      break;
+    }
+
+    if (fourCC === "EXIF" || fourCC === "XMP ") {
+      // Strip metadata chunk
+    } else if (fourCC === "VP8X") {
+      // Clear EXIF and XMP flags in VP8X chunk (offset + 8 is flags byte)
+      const vp8xChunk = Buffer.from(buffer.subarray(offset, offset + totalLength));
+      if (vp8xChunk.length >= 9) {
+        // bit 3 = EXIF (0x08), bit 2 = XMP (0x04)
+        vp8xChunk[8] = vp8xChunk[8] & ~(0x08 | 0x04);
+      }
+      chunks.push(vp8xChunk);
+    } else {
+      chunks.push(buffer.subarray(offset, offset + totalLength));
+    }
+
+    offset += totalLength;
+  }
+
+  const payload = Buffer.concat(chunks);
+  const totalRiffSize = payload.length + 4; // +4 for 'WEBP'
+  const header = Buffer.alloc(12);
+  header.write("RIFF", 0, "ascii");
+  header.writeUInt32LE(totalRiffSize, 4);
+  header.write("WEBP", 8, "ascii");
+
+  return Buffer.concat([header, payload]);
+}
+
+/**
+ * Strips EXIF and sensitive metadata from supported image formats.
+ */
+export function stripExifMetadata(buffer: Buffer, mime: string): Buffer {
+  try {
+    if (mime === "image/jpeg") {
+      return stripJpegMetadata(buffer);
+    }
+    if (mime === "image/png") {
+      return stripPngMetadata(buffer);
+    }
+    if (mime === "image/webp") {
+      return stripWebpMetadata(buffer);
+    }
+  } catch (e) {
+    console.error("EXIF stripping error, falling back to original buffer:", e);
+  }
+  return buffer;
+}
+
+/**
  * Validates filename against path traversal, double extension attacks, and script extensions.
  */
 export function sanitizeFilename(filename: string): { safeName: string; ext: string; valid: boolean; error?: string } {
@@ -146,7 +323,7 @@ export function sanitizeFilename(filename: string): { safeName: string; ext: str
 
 /**
  * Complete File Upload Security Inspector.
- * Enforces: Size Limits -> Extension Check -> Double Extension Guard -> Magic Bytes Signature.
+ * Enforces: Size Limits -> Extension Check -> Double Extension Guard -> Magic Bytes Signature -> EXIF Stripping.
  */
 export function inspectFileBuffer(
   buffer: Buffer,
@@ -185,8 +362,13 @@ export function inspectFileBuffer(
     };
   }
 
-  // 4. Calculate SHA-256 Digest
-  const sha256Hash = crypto.createHash("sha256").update(buffer).digest("hex");
+  // 4. Strip EXIF / Privacy Metadata from images
+  const sanitizedBuffer = extMeta.category === "image"
+    ? stripExifMetadata(buffer, magic.mime)
+    : buffer;
+
+  // 5. Calculate SHA-256 Digest of Sanitized Derivative
+  const sha256Hash = crypto.createHash("sha256").update(sanitizedBuffer).digest("hex");
 
   return {
     valid: true,
@@ -194,13 +376,14 @@ export function inspectFileBuffer(
     detectedMime: magic.mime,
     extension: fnCheck.ext,
     sha256Hash,
-    sanitizedFilename: fnCheck.safeName
+    sanitizedFilename: fnCheck.safeName,
+    sanitizedBuffer
   };
 }
 
 /**
  * Staging & Quarantine File Storage Helper.
- * Saves initially to /uploads/quarantine/ before moving to approved public uploads.
+ * Saves sanitized buffer to approved public uploads.
  */
 export function stageAndApproveFile(
   buffer: Buffer,

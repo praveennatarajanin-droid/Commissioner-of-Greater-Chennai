@@ -213,7 +213,7 @@ export default function CommissionerProfileClient({ profile }: CommissionerProfi
         <div className="max-w-[1200px] mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           
           {/* Stat Item 1 */}
-          <div className="bg-white dark:bg-stone-900 border border-slate-200/80 dark:border-stone-800 rounded-xl p-5 shadow-lg hover:shadow-xl hover:-translate-y-1 transition duration-300 flex items-start gap-4">
+          <div className="bg-white dark:bg-stone-900 border border-slate-200/80 dark:border-stone-800 rounded-xl p-5 shadow-lg hover:shadow-xl hover:-translate-y-1 transition duration-300 flex items-start gap-4 news-card-white profile-card-white app-card-white">
             <div className="p-3 bg-[#E41E26]/10 text-[#E41E26] rounded-xl shrink-0">
               <Calendar className="w-5 h-5" />
             </div>
@@ -228,7 +228,7 @@ export default function CommissionerProfileClient({ profile }: CommissionerProfi
           </div>
 
           {/* Stat Item 2 */}
-          <div className="bg-white dark:bg-stone-900 border border-slate-200/80 dark:border-stone-800 rounded-xl p-5 shadow-lg hover:shadow-xl hover:-translate-y-1 transition duration-300 flex items-start gap-4">
+          <div className="bg-white dark:bg-stone-900 border border-slate-200/80 dark:border-stone-800 rounded-xl p-5 shadow-lg hover:shadow-xl hover:-translate-y-1 transition duration-300 flex items-start gap-4 news-card-white profile-card-white app-card-white">
             <div className="p-3 bg-[#1E2A78]/10 text-[#1E2A78] dark:text-sky-400 rounded-xl shrink-0">
               <Briefcase className="w-5 h-5" />
             </div>
@@ -243,7 +243,7 @@ export default function CommissionerProfileClient({ profile }: CommissionerProfi
           </div>
 
           {/* Stat Item 3 */}
-          <div className="bg-white dark:bg-stone-900 border border-slate-200/80 dark:border-stone-800 rounded-xl p-5 shadow-lg hover:shadow-xl hover:-translate-y-1 transition duration-300 flex items-start gap-4">
+          <div className="bg-white dark:bg-stone-900 border border-slate-200/80 dark:border-stone-800 rounded-xl p-5 shadow-lg hover:shadow-xl hover:-translate-y-1 transition duration-300 flex items-start gap-4 news-card-white profile-card-white app-card-white">
             <div className="p-3 bg-[#D4AF37]/10 text-[#D4AF37] rounded-xl shrink-0">
               <Award className="w-5 h-5" />
             </div>
@@ -258,7 +258,7 @@ export default function CommissionerProfileClient({ profile }: CommissionerProfi
           </div>
 
           {/* Stat Item 4 */}
-          <div className="bg-white dark:bg-stone-900 border border-slate-200/80 dark:border-stone-800 rounded-xl p-5 shadow-lg hover:shadow-xl hover:-translate-y-1 transition duration-300 flex items-start gap-4">
+          <div className="bg-white dark:bg-stone-900 border border-slate-200/80 dark:border-stone-800 rounded-xl p-5 shadow-lg hover:shadow-xl hover:-translate-y-1 transition duration-300 flex items-start gap-4 news-card-white profile-card-white app-card-white">
             <div className="p-3 bg-[#E41E26]/10 text-[#E41E26] rounded-xl shrink-0">
               <Activity className="w-5 h-5" />
             </div>
@@ -293,7 +293,7 @@ export default function CommissionerProfileClient({ profile }: CommissionerProfi
             {/* Educational / Birth Info Panel */}
             <div className="lg:col-span-4 space-y-4">
               {birthplace && (
-                <div className="flex gap-3.5 items-start p-4 rounded-xl bg-stone-50 dark:bg-stone-900 border border-slate-200/50 dark:border-stone-850">
+                <div className="flex gap-3.5 items-start p-4 rounded-xl bg-stone-50 dark:bg-stone-900 border border-slate-200/50 dark:border-stone-850 news-card-white profile-card-white app-card-white">
                   <MapPin className="w-5 h-5 text-[#E41E26] shrink-0 mt-0.5" />
                   <div className="text-left">
                     <h4 className="font-black text-xs uppercase tracking-wider text-stone-500 dark:text-stone-400">{l.birthplace}</h4>
@@ -303,7 +303,7 @@ export default function CommissionerProfileClient({ profile }: CommissionerProfi
               )}
 
               {education && (
-                <div className="flex gap-3.5 items-start p-4 rounded-xl bg-stone-50 dark:bg-stone-900 border border-slate-200/50 dark:border-stone-850">
+                <div className="flex gap-3.5 items-start p-4 rounded-xl bg-stone-50 dark:bg-stone-900 border border-slate-200/50 dark:border-stone-850 news-card-white profile-card-white app-card-white">
                   <GraduationCap className="w-5 h-5 text-[#1E2A78] dark:text-sky-400 shrink-0 mt-0.5" />
                   <div className="text-left">
                     <h4 className="font-black text-xs uppercase tracking-wider text-stone-500 dark:text-stone-400">{l.education}</h4>
@@ -487,7 +487,7 @@ export default function CommissionerProfileClient({ profile }: CommissionerProfi
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
             
             {/* Contact details */}
-            <div className="lg:col-span-8 bg-white dark:bg-stone-900 rounded-2xl border border-slate-200/50 dark:border-stone-850 p-6 md:p-8 shadow-sm flex flex-col justify-between text-left">
+            <div className="lg:col-span-8 bg-white dark:bg-stone-900 rounded-2xl border border-slate-200/50 dark:border-stone-850 p-6 md:p-8 shadow-sm flex flex-col justify-between text-left news-card-white profile-card-white app-card-white">
               <div className="space-y-6">
                 <h3 className="text-lg font-display font-black text-[#1E2A78] dark:text-white border-b border-slate-100 dark:border-stone-850 pb-3 flex items-center gap-2">
                   <Phone className="w-5 h-5 text-[#E41E26]" />

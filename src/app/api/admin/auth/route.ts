@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db, normalizeUsername, verifyPassword } from "@/lib/db";
 import { cookies } from "next/headers";
-import { getIpAddress } from "@/lib/auth";
+import { getIpAddress, createSignedSessionToken, verifySignedSessionToken } from "@/lib/auth";
 import { verifyCaptchaToken } from "@/lib/captcha";
 import { checkRateLimit, rateLimitResponse } from "@/lib/security";
 import crypto from "crypto";
@@ -142,15 +142,16 @@ export async function POST(req: Request) {
     await db.addRbacAuditLog(user.username, user.role, ip, "User logged in successfully", "Auth", browser);
     await db.logSecurityEvent(user.username, "LOGIN_SUCCESS", "info", ip, browser, "User authenticated successfully.");
 
-    // Set secure HttpOnly cookie containing username, role, and sessionId
+    // Set secure HttpOnly signed session cookie
+    const signedToken = createSignedSessionToken({
+      username: user.username,
+      sessionId: sessionInfo.session_id,
+      role: user.role,
+    });
+
     cookieStore.set(
       "admin_session",
-      JSON.stringify({
-        username: user.username,
-        role: user.role,
-        sessionId: sessionInfo.session_id,
-        status: "MFA_VERIFIED",
-      }),
+      signedToken,
       {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
@@ -193,24 +194,20 @@ export async function GET(req: Request) {
       return NextResponse.json({ authenticated: false });
     }
 
-    let session: { username: string; role: string; sessionId?: string };
-    try {
-      session = JSON.parse(sessionCookie.value);
-    } catch {
+    const session = verifySignedSessionToken(sessionCookie.value);
+    if (!session || !session.sessionId || !session.username) {
+      cookieStore.delete("admin_session");
       return NextResponse.json({ authenticated: false });
     }
 
     // Verify session validity in DB
-    if (session.sessionId) {
-      const dbSession = await db.validateSession(session.sessionId);
-      if (!dbSession) {
-        cookieStore.delete("admin_session");
-        return NextResponse.json({ authenticated: false, message: "SESSION EXPIRED" });
-      }
-      await db.touchSession(session.sessionId);
+    const dbSession = await db.validateSession(session.sessionId);
+    if (!dbSession) {
+      cookieStore.delete("admin_session");
+      return NextResponse.json({ authenticated: false, message: "SESSION EXPIRED" });
     }
+    await db.touchSession(session.sessionId);
 
-    const permissions = await db.getResolvedPermissions(session.username, session.role);
     const usersList = await db.getUsers();
     const userRecord = usersList.find((u) => normalizeUsername(u.username) === normalizeUsername(session.username));
 
@@ -219,11 +216,13 @@ export async function GET(req: Request) {
       return NextResponse.json({ authenticated: false, message: "Account disabled or locked" });
     }
 
+    const permissions = await db.getResolvedPermissions(userRecord.username, userRecord.role);
+
     return NextResponse.json({
       authenticated: true,
       user: {
-        username: session.username,
-        role: session.role,
+        username: userRecord.username,
+        role: userRecord.role, // from DB record
         email: userRecord.email || "",
         mobile: (userRecord as any)?.mobile || "",
         profile_photo: (userRecord as any)?.profile_photo || "",
@@ -243,13 +242,13 @@ export async function DELETE(req: Request) {
     const sessionCookie = cookieStore.get("admin_session");
     if (sessionCookie && sessionCookie.value) {
       try {
-        const session = JSON.parse(sessionCookie.value);
+        const session = verifySignedSessionToken(sessionCookie.value);
         const ip = getIpAddress(req);
-        if (session.sessionId) {
+        if (session && session.sessionId) {
           await db.revokeSession(session.sessionId);
+          await db.addRbacAuditLog(session.username, "ADMIN", ip, "User logged out", "Auth");
+          await db.logSecurityEvent(session.username, "LOGOUT", "info", ip, undefined, "User logged out.");
         }
-        await db.addRbacAuditLog(session.username, session.role, ip, "User logged out", "Auth");
-        await db.logSecurityEvent(session.username, "LOGOUT", "info", ip, undefined, "User logged out.");
       } catch {}
     }
     cookieStore.delete("admin_session");

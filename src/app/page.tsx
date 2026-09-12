@@ -4,7 +4,6 @@ import Navbar from "@/components/layout/Navbar";
 import BreakingNewsBanner from "@/components/sections/BreakingNewsBanner";
 import DynamicPageRenderer from "@/components/sections/DynamicPageRenderer";
 import { db } from "@/lib/db";
-import { syncTrafficNews } from "@/lib/trafficSync";
 import { getMetadataForPage } from "@/lib/seoHelper";
 import type { Metadata } from "next";
 
@@ -23,8 +22,6 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function Home() {
   // Sync alerts in background (non-blocking)
   db.syncAlerts(false).catch((e) => console.error("Background syncAlerts error:", e));
-  // Sync traffic news in background (non-blocking)
-  syncTrafficNews().catch((e) => console.error("Background syncTrafficNews error:", e));
 
   const [menuItems, rawTicker, news, allVideos, allAlerts, profile, allSlider, dynamicContent, rawStories] = await Promise.all([
     db.getMenuItems(),

@@ -134,7 +134,7 @@ export default function GcpEmergencyHelpline() {
               return (
                 <div
                   key={h.number}
-                  className="bg-stone-50 dark:bg-stone-950 border border-stone-200/60 dark:border-stone-850 p-4 rounded-xl flex items-start gap-4 hover:border-brand-maroon/20 transition-colors"
+                  className="bg-stone-50 dark:bg-stone-950 border border-stone-200/60 dark:border-stone-850 p-4 rounded-xl flex items-start gap-4 hover:border-brand-maroon/20 transition-colors news-card-white app-card-white"
                 >
                   <div className={`p-2 rounded-lg shrink-0 border ${h.color}`}>
                     {h.icon}
@@ -177,7 +177,7 @@ export default function GcpEmergencyHelpline() {
               return (
                 <div
                   key={e.id}
-                  className="bg-stone-50 dark:bg-stone-950 border border-stone-200/60 dark:border-stone-850 p-4 rounded-xl space-y-2 hover:border-[#c5a059]/30 transition-colors duration-350"
+                  className="bg-stone-50 dark:bg-stone-950 border border-stone-200/60 dark:border-stone-850 p-4 rounded-xl space-y-2 hover:border-[#c5a059]/30 transition-colors duration-350 news-card-white app-card-white"
                 >
                   <div>
                     <h4 className="font-extrabold text-xs text-stone-900 dark:text-stone-100">

@@ -4,6 +4,8 @@ import NewsTicker from "@/components/layout/NewsTicker";
 import Footer from "@/components/layout/Footer";
 import NewsDetailClient from "@/components/NewsDetailClient";
 import { db } from "@/lib/db";
+import { isArticlePubliclyVisible } from "@/lib/dateUtils";
+import { getSessionUser, isAdmin } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -19,6 +21,15 @@ export async function generateMetadata({
     return {
       title: "Article Not Found | Chennai Guardian",
     };
+  }
+
+  if (!isArticlePubliclyVisible(article)) {
+    const authUser = await getSessionUser();
+    if (!authUser || !isAdmin(authUser.role)) {
+      return {
+        title: "Article Not Found | Chennai Guardian",
+      };
+    }
   }
 
   const seoSettings = await db.getSeoSettings();
@@ -86,7 +97,15 @@ export default async function Page({
   const news = await db.getNews();
   const article = news.find((item) => item.slug === slug);
 
-  if (!article) {
+  let isVisible = article ? isArticlePubliclyVisible(article) : false;
+  if (article && !isVisible) {
+    const authUser = await getSessionUser();
+    if (authUser && isAdmin(authUser.role)) {
+      isVisible = true;
+    }
+  }
+
+  if (!article || !isVisible) {
     return (
       <div className="flex flex-col min-h-screen bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100">
         <Navbar />
@@ -162,8 +181,8 @@ export default async function Page({
       />
 
       {/* Header Navigation */}
-      <Navbar />
       <NewsTicker />
+      <Navbar stickyOffset="38px" />
 
       {/* Main Content Area */}
       <main className="flex-grow bg-white dark:bg-stone-950">

@@ -23,7 +23,7 @@ const dbHost = envConfig.DB_HOST || '127.0.0.1';
 const dbPort = parseInt(envConfig.DB_PORT || '3306', 10);
 const dbUser = envConfig.DB_USER || 'root';
 const dbPassword = envConfig.DB_PASSWORD || '';
-const dbName = envConfig.DB_NAME || 'chennai_guardian';
+const dbName = envConfig.DB_NAME || 'startup_TN';
 
 console.log(`Connecting to MySQL server at ${dbHost}:${dbPort} as ${dbUser}...`);
 
@@ -293,14 +293,25 @@ async function runMigration() {
           dbType = 'LONGTEXT'; 
         } else {
           const colLower = col.toLowerCase();
-          const longTextKeys = ['content_en', 'content_ta', 'summary_en', 'summary_ta', 'description', 'message', 'bio_en1', 'bio_en2', 'bio_ta1', 'bio_ta2', 'action', 'schema_json', 'default_keywords', 'site_description', 'meta_description', 'meta_keywords', 'address', 'address_en', 'address_ta', 'ps_address', 'landmark', 'jurisdiction_areas', 'google_map_link', 'district', 'sdo', 'range', 'pincode', 'phone_no'];
+          const longTextKeys = ['external_id', 'content_en', 'content_ta', 'summary', 'summary_en', 'summary_ta', 'description', 'message', 'bio_en1', 'bio_en2', 'bio_ta1', 'bio_ta2', 'action', 'schema_json', 'default_keywords', 'site_description', 'meta_description', 'meta_keywords', 'address', 'address_en', 'address_ta', 'ps_address', 'landmark', 'jurisdiction_areas', 'google_map_link', 'district', 'sdo', 'range', 'pincode', 'phone_no', 'details', 'user_agent', 'user_agent_summary', 'secret_encrypted', 'token_hash', 'code_hash', 'permissions_json', 'before_state', 'after_state'];
+          let maxLen = 0;
+          for (const rec of recordsToScan) {
+            if (rec && typeof rec[col] === 'string') {
+              maxLen = Math.max(maxLen, rec[col].length);
+            }
+          }
           if (
+            maxLen > 250 ||
             longTextKeys.includes(col) || 
             colLower.includes('url') || 
             colLower.includes('src') || 
             colLower.includes('image') || 
             colLower.includes('path') || 
-            colLower.includes('photo')
+            colLower.includes('photo') ||
+            colLower.includes('link') ||
+            colLower.includes('token') ||
+            colLower.includes('hash') ||
+            colLower.includes('detail')
           ) {
             dbType = 'LONGTEXT';
           }

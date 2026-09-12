@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import crypto from "crypto";
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -13,38 +14,6 @@ export function proxy(request: NextRequest) {
     pathname.startsWith("/uploads/")
   ) {
     return NextResponse.next();
-  }
-
-  // Bypass API routes with standard security headers
-  if (pathname.startsWith("/api/")) {
-    const response = NextResponse.next();
-    response.headers.set("X-Content-Type-Options", "nosniff");
-    response.headers.set("X-Frame-Options", "SAMEORIGIN");
-    response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-    return response;
-  }
-
-  // Obvious administrative & scanner honeypot paths to block
-  const blockedPaths = [
-    "/admin",
-    "/administrator",
-    "/backend",
-    "/dashboard",
-    "/login",
-    "/login/admin",
-    "/superadmin",
-    "/wp-admin",
-    "/cpanel",
-    "/user/login"
-  ];
-
-  // If path is an obvious scanner path, rewrite to 404
-  const shouldBlock = blockedPaths.some(
-    (path) => pathname.toLowerCase() === path || pathname.toLowerCase().startsWith(path + "/")
-  );
-
-  if (shouldBlock) {
-    return NextResponse.rewrite(new URL("/404", request.url));
   }
 
   // 1. Generate Cryptographically Secure Per-Request Nonce
@@ -77,6 +46,44 @@ export function proxy(request: NextRequest) {
   requestHeaders.set("x-nonce", nonce);
   requestHeaders.set("Content-Security-Policy", contentSecurityPolicyHeaderValue);
 
+  // API routes response headers
+  if (pathname.startsWith("/api/")) {
+    const response = NextResponse.next({
+      request: {
+        headers: requestHeaders,
+      },
+    });
+    response.headers.set("Content-Security-Policy", contentSecurityPolicyHeaderValue);
+    response.headers.set("X-Content-Type-Options", "nosniff");
+    response.headers.set("X-Frame-Options", "DENY");
+    response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+    response.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
+    return response;
+  }
+
+  // Obvious administrative & scanner honeypot paths to block
+  const blockedPaths = [
+    "/admin",
+    "/administrator",
+    "/backend",
+    "/dashboard",
+    "/login",
+    "/login/admin",
+    "/superadmin",
+    "/wp-admin",
+    "/cpanel",
+    "/user/login"
+  ];
+
+  // If path is an obvious scanner path, rewrite to 404
+  const shouldBlock = blockedPaths.some(
+    (path) => pathname.toLowerCase() === path || pathname.toLowerCase().startsWith(path + "/")
+  );
+
+  if (shouldBlock) {
+    return NextResponse.rewrite(new URL("/404", request.url));
+  }
+
   // Handle Admin URL routing (both /control-center and /controller)
   if (pathname.toLowerCase() === "/control-center" || pathname.toLowerCase().startsWith("/control-center/")) {
     const subPath = pathname.substring("/control-center".length);
@@ -93,7 +100,7 @@ export function proxy(request: NextRequest) {
     response.headers.set("X-Content-Type-Options", "nosniff");
     response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
     response.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=(self)");
-    response.headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+    response.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
     response.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive, noimageindex");
     return response;
   }
@@ -109,7 +116,7 @@ export function proxy(request: NextRequest) {
     response.headers.set("X-Content-Type-Options", "nosniff");
     response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
     response.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=(self)");
-    response.headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+    response.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
     response.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive, noimageindex");
     return response;
   }
@@ -126,7 +133,7 @@ export function proxy(request: NextRequest) {
   response.headers.set("X-Frame-Options", "SAMEORIGIN");
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   response.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=(self)");
-  response.headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+  response.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
   return response;
 }
 
@@ -149,5 +156,3 @@ export const config = {
     },
   ],
 };
-
-

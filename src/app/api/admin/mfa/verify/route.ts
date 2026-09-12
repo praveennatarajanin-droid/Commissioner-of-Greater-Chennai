@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db, normalizeUsername } from "@/lib/db";
 import { cookies } from "next/headers";
-import { getIpAddress } from "@/lib/auth";
+import { getIpAddress, createSignedSessionToken } from "@/lib/auth";
 import { verifyTotpCode } from "@/lib/totp";
 import { checkRateLimit, rateLimitResponse } from "@/lib/security";
 import crypto from "crypto";
@@ -118,14 +118,15 @@ export async function POST(req: Request) {
     const secConfig = await db.getSecurityPolicyConfig();
     const sessionInfo = await db.createSession(user.username, user.role, ip, browser, secConfig.session_timeout_minutes || 30);
 
+    const sessionToken = createSignedSessionToken({
+      username: user.username,
+      sessionId: sessionInfo.session_id,
+      role: user.role,
+    });
+
     cookieStore.set(
       "admin_session",
-      JSON.stringify({
-        username: user.username,
-        role: user.role,
-        sessionId: sessionInfo.session_id,
-        status: "MFA_VERIFIED",
-      }),
+      sessionToken,
       {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",

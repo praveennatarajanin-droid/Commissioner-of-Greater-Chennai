@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { LanguageProvider } from "@/context/LanguageContext";
+import { AccessibilityProvider } from "@/context/AccessibilityContext";
+import GlobalAccessibilityTool from "@/components/accessibility/GlobalAccessibilityTool";
 import ContentProtection from "@/components/security/ContentProtection";
 import VisitorTracker from "@/components/analytics/VisitorTracker";
 import { db } from "@/lib/db";
@@ -110,7 +112,25 @@ export default async function RootLayout({
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var s=localStorage.getItem('theme'),p=window.matchMedia('(prefers-color-scheme: dark)').matches;if(s==='dark'||(!s&&p)){document.documentElement.classList.add('dark');document.documentElement.style.colorScheme='dark';}else{document.documentElement.classList.remove('dark');document.documentElement.style.colorScheme='light';}}catch(e){}})();`,
+            __html: `(function(){try{
+              var hc = localStorage.getItem('accessibility-high-contrast');
+              if(hc === 'true'){
+                document.documentElement.classList.add('high-contrast');
+                document.documentElement.setAttribute('data-high-contrast','true');
+              }
+              var fs = localStorage.getItem('accessibility-text-size');
+              if(fs && ['small','normal','large','xlarge'].indexOf(fs) !== -1){
+                document.documentElement.setAttribute('data-font-size', fs);
+              }
+              var s = localStorage.getItem('theme'), p = window.matchMedia('(prefers-color-scheme: dark)').matches;
+              if(s === 'dark' || (!s && p)){
+                document.documentElement.classList.add('dark');
+                document.documentElement.style.colorScheme = 'dark';
+              } else {
+                document.documentElement.classList.remove('dark');
+                document.documentElement.style.colorScheme = 'light';
+              }
+            }catch(e){}})();`,
           }}
         />
         <style dangerouslySetInnerHTML={{ __html: inlineStyles }} />
@@ -160,9 +180,12 @@ export default async function RootLayout({
         )}
         <LanguageProvider initialLanguage={initialLanguage}>
           <ThemeProvider>
-            <ContentProtection />
-            <VisitorTracker />
-            {children}
+            <AccessibilityProvider>
+              <ContentProtection />
+              <VisitorTracker />
+              {children}
+              <GlobalAccessibilityTool />
+            </AccessibilityProvider>
           </ThemeProvider>
         </LanguageProvider>
       </body>

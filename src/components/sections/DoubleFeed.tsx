@@ -93,7 +93,7 @@ export default function DoubleFeed({ customNews }: DoubleFeedProps = {}) {
                 <Link 
                   key={item.id}
                   href={`/news/${item.slug}`}
-                  className="flex gap-4 p-3 bg-stone-50 dark:bg-stone-900 rounded-xl border border-stone-150 dark:border-stone-855 hover:bg-stone-100/50 dark:hover:bg-stone-850/50 transition duration-300 block"
+                  className="flex gap-4 p-3 bg-stone-50 dark:bg-stone-900 rounded-xl border border-stone-150 dark:border-stone-855 hover:bg-stone-100/50 dark:hover:bg-stone-850/50 transition duration-300 block news-card-white app-card-white"
                 >
                   <div className="w-16 h-16 shrink-0 rounded-lg overflow-hidden relative bg-slate-950/20">
                     <Image
@@ -137,7 +137,7 @@ export default function DoubleFeed({ customNews }: DoubleFeedProps = {}) {
                 <Link 
                   key={item.id}
                   href={`/news/${item.slug}`}
-                  className="flex gap-4 p-3 bg-stone-50 dark:bg-stone-900 rounded-xl border border-stone-150 dark:border-stone-855 hover:bg-stone-100/50 dark:hover:bg-stone-850/50 transition duration-300 block"
+                  className="flex gap-4 p-3 bg-stone-50 dark:bg-stone-900 rounded-xl border border-stone-150 dark:border-stone-855 hover:bg-stone-100/50 dark:hover:bg-stone-850/50 transition duration-300 block news-card-white app-card-white"
                 >
                   <div className="w-16 h-16 shrink-0 rounded-lg overflow-hidden relative bg-slate-950/20">
                     <Image

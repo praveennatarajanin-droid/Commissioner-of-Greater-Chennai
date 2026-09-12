@@ -210,7 +210,7 @@ export default function ContactUsClient() {
               { icon: <Mail className="w-6 h-6" />, label: "Email", value: "cop@tncctns.gov.in", color: "text-brand-gold", href: "mailto:cop@tncctns.gov.in" },
               { icon: <Clock className="w-6 h-6" />, label: "Working Hours", value: "Mon – Sat\n09:00 AM – 06:00 PM", color: "text-emerald-600" },
             ].map((item) => (
-              <div key={item.label} className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-850 rounded-2xl p-5 flex flex-col gap-3 hover:shadow-md transition group">
+              <div key={item.label} className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-850 rounded-2xl p-5 flex flex-col gap-3 hover:shadow-md transition group news-card-white contact-card-white app-card-white">
                 <div className={`p-2.5 rounded-xl w-max bg-stone-100 dark:bg-stone-950 ${item.color} group-hover:scale-105 transition-transform`}>
                   {item.icon}
                 </div>
@@ -242,7 +242,7 @@ export default function ContactUsClient() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {contactDesks.map((desk) => (
-              <div key={desk.id} className={`bg-white dark:bg-stone-900 border ${desk.color} rounded-2xl p-5 space-y-4 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col`}>
+              <div key={desk.id} className={`bg-white dark:bg-stone-900 border ${desk.color} rounded-2xl p-5 space-y-4 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col news-card-white contact-card-white app-card-white`}>
                 <div className={`p-3 rounded-xl w-max ${desk.iconBg}`}>
                   {desk.icon}
                 </div>
@@ -311,21 +311,21 @@ export default function ContactUsClient() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 rounded-2xl overflow-hidden border border-stone-200 dark:border-stone-800 shadow-md h-80">
+            <div className="lg:col-span-2 rounded-2xl overflow-hidden border border-stone-200 dark:border-stone-800 shadow-md h-80 bg-stone-100 dark:bg-stone-950">
               <iframe
                 title="Commissioner Office Map"
                 width="100%"
                 height="100%"
-                frameBorder="0"
-                scrolling="no"
-                marginHeight={0}
-                marginWidth={0}
-                src="https://www.openstreetmap.org/export/embed.html?bbox=80.259%2C13.078%2C80.270%2C13.088&layer=mapnik&marker=13.083%2C80.264"
+                style={{ border: 0 }}
+                loading="lazy"
+                allowFullScreen
+                referrerPolicy="no-referrer-when-downgrade"
+                src="https://maps.google.com/maps?q=Greater+Chennai+Police+Commissioner+Office,+Vepery,+Chennai&t=&z=15&ie=UTF8&iwloc=&output=embed"
               />
             </div>
 
             <div className="flex flex-col gap-4">
-              <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-850 rounded-2xl p-5 space-y-3 flex-grow">
+              <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-850 rounded-2xl p-5 space-y-3 flex-grow news-card-white contact-card-white app-card-white">
                 <h3 className="font-black text-sm uppercase tracking-wide text-stone-900 dark:text-white">Commissioner Office</h3>
                 <div className="space-y-2 text-xs text-stone-600 dark:text-stone-400">
                   <p className="flex gap-2 items-start"><MapPin className="w-4 h-4 text-brand-maroon shrink-0 mt-0.5" /> Commissioner Office, Vepery, Chennai – 600007, Tamil Nadu, India.</p>
@@ -367,7 +367,7 @@ export default function ContactUsClient() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {helpCards.map((card) => (
-              <Link key={card.title} href={card.href} className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-850 rounded-2xl p-6 flex gap-4 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group">
+              <Link key={card.title} href={card.href} className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-850 rounded-2xl p-6 flex gap-4 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group news-card-white contact-card-white app-card-white">
                 <div className={`shrink-0 p-3 rounded-xl bg-stone-100 dark:bg-stone-950 ${card.color} group-hover:scale-110 transition-transform`}>
                   {card.icon}
                 </div>

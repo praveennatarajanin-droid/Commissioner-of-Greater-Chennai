@@ -103,8 +103,8 @@ export default async function StationDetailPage({ params }: PageProps) {
 
   return (
     <div className="flex flex-col min-h-screen bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 animate-fadeIn">
-      <Navbar customMenuItems={menuItems} />
       <NewsTicker customTickerItems={tickerItems} />
+      <Navbar customMenuItems={menuItems} stickyOffset="38px" />
       
       <main className="flex-grow">
         <StationDetailClient 

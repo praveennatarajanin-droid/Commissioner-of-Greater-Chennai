@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { db } from "@/lib/db";
 import { inspectFileBuffer, stageAndApproveFile } from "@/lib/uploadSecurity";
+import { authenticateApiRequest, forbiddenResponse, unauthorizedResponse } from "@/lib/security";
 import crypto from "crypto";
 
 // Shared memory cache declaration for serverless runtimes
@@ -13,22 +13,10 @@ if (!globalThis.__UPLOAD_CACHE__) {
   globalThis.__UPLOAD_CACHE__ = new Map();
 }
 
-async function checkAuth() {
-  try {
-    const cookieStore = await cookies();
-    const sessionCookie = cookieStore.get("admin_session");
-    if (!sessionCookie?.value) return null;
-    return JSON.parse(sessionCookie.value);
-  } catch {
-    return null;
-  }
-}
-
 export async function POST(req: Request) {
-  const auth = await checkAuth();
-  if (!auth) {
-    return NextResponse.json({ error: "Unauthorized: Authentication required." }, { status: 401 });
-  }
+  const { user, errorResponse } = await authenticateApiRequest(req);
+  if (errorResponse) return errorResponse;
+  if (!user) return unauthorizedResponse("Authentication required.");
 
   try {
     const formData = await req.formData();
@@ -38,28 +26,30 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "No file provided in form data." }, { status: 400 });
     }
 
-    const fileBuffer = Buffer.from(await file.arrayBuffer());
+    const rawBuffer = Buffer.from(await file.arrayBuffer());
 
-    // 1. Binary Magic Byte & Security Inspection
-    const inspection = inspectFileBuffer(fileBuffer, file.name, file.type);
+    // 1. Binary Magic Byte & Security Inspection + EXIF Stripping
+    const inspection = inspectFileBuffer(rawBuffer, file.name, file.type);
     if (!inspection.valid || !inspection.sanitizedFilename) {
       // Log security event for rejected upload attempt
       await db.addSecurityEvent({
         event_type: "FILE_UPLOAD_REJECTED",
         severity: "warning",
-        username: auth.username || "unknown",
+        username: user.username,
         details: `Rejected upload of "${file.name}": ${inspection.error}`
       });
 
       return NextResponse.json({ error: inspection.error || "File security validation failed." }, { status: 400 });
     }
 
-    // 2. Stage to Quarantine and Approve
-    const { publicUrl, approvedPath } = stageAndApproveFile(fileBuffer, inspection.sanitizedFilename);
+    const finalBuffer = inspection.sanitizedBuffer || rawBuffer;
+
+    // 2. Stage to Quarantine and Approve with Sanitized Buffer
+    const { publicUrl, approvedPath } = stageAndApproveFile(finalBuffer, inspection.sanitizedFilename);
 
     // 3. Cache in RAM for fast serverless serving
     globalThis.__UPLOAD_CACHE__.set(inspection.sanitizedFilename, {
-      buffer: fileBuffer,
+      buffer: finalBuffer,
       mime: inspection.detectedMime || "application/octet-stream"
     });
 
@@ -72,19 +62,19 @@ export async function POST(req: Request) {
       mime_type: file.type || inspection.detectedMime || "application/octet-stream",
       detected_mime: inspection.detectedMime || "application/octet-stream",
       extension: inspection.extension || ".jpg",
-      file_size: fileBuffer.length,
+      file_size: finalBuffer.length,
       sha256_hash: inspection.sha256Hash || "",
       storage_path: approvedPath,
       status: "APPROVED",
       scan_status: "CLEAN",
-      uploaded_by: auth.username || "admin",
+      uploaded_by: user.username,
       created_at: new Date().toISOString()
     });
 
     // 5. Log Success Audit
     await db.addActivityLog(
-      auth.username || "admin",
-      `Uploaded & approved file: ${file.name} (SHA-256: ${inspection.sha256Hash?.substring(0, 12)}...)`
+      user.username,
+      `Uploaded & approved sanitized file: ${file.name} (SHA-256: ${inspection.sha256Hash?.substring(0, 12)}...)`
     );
 
     return NextResponse.json({

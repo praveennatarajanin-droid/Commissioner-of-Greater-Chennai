@@ -226,7 +226,7 @@ const NewsCard = ({ n, lang, idx, liveNow }: { n: NewsItem; lang: "en" | "ta"; i
   return (
     <Link
       href={n.slug ? `/news/${n.slug}` : "#"}
-      className="group flex flex-col bg-white dark:bg-stone-900 rounded-xl overflow-hidden border border-stone-200 dark:border-stone-850 hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 text-left"
+      className="news-card-white group flex flex-col bg-white dark:bg-stone-900 rounded-xl overflow-hidden border border-stone-200 dark:border-stone-850 hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 text-left"
     >
       <div className="relative w-full overflow-hidden" style={{ paddingTop: "56.25%" }}>
         <Image
@@ -236,7 +236,7 @@ const NewsCard = ({ n, lang, idx, liveNow }: { n: NewsItem; lang: "en" | "ta"; i
           className="object-cover object-center group-hover:scale-[1.03] transition-transform duration-500"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/images/police_medal.jpg"; }}
         />
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 pointer-events-none high-contrast-hidden" />
 
         {/* Dynamic Badge Overlays */}
         <div className="absolute top-2 left-2 flex flex-col gap-1 z-10">
@@ -390,10 +390,10 @@ export default function NewsChannelHomepage({
       <BreakingNewsBanner breakingNews={activeTickerList} language={language} />
 
       {/* SECTION 1: Sticky Header */}
-      <Navbar customMenuItems={menuItems} stickyOffset="42px" />
+      <Navbar customMenuItems={menuItems} stickyOffset="38px" />
 
       {/* Main body wrapper */}
-      <main className="w-full max-w-[1700px] mx-auto px-4 py-8 space-y-12">
+      <main id="main-content" tabIndex={-1} className="w-full max-w-[1700px] mx-auto px-4 py-8 space-y-12 focus:outline-none">
 
         {/* Search Results Zone */}
         {searchQ && (

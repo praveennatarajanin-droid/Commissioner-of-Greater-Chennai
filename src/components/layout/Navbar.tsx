@@ -4,8 +4,9 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { Search, Menu, X, Sun, Moon, ChevronDown } from "lucide-react";
+import { Search, Menu, X, ChevronDown } from "lucide-react";
 import { useTheme } from "@/components/ThemeProvider";
+import { useAccessibility } from "@/context/AccessibilityContext";
 import { useTranslation } from "@/context/LanguageContext";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -45,6 +46,7 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [searchVal, setSearchVal] = useState("");
   const { theme, toggleTheme } = useTheme();
+  const { togglePanel, isPanelOpen, isHighContrast } = useAccessibility();
   const { t, language, changeLanguage } = useTranslation();
   const [news, setNews] = useState<any[]>([]);
   const router = useRouter();
@@ -221,12 +223,12 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
       style={{ top: stickyOffset || 0 }}
     >
       {/* 1. Red Top Header Bar */}
-      <div className="w-full bg-brand-maroon text-white py-2 md:py-3.5 px-4 md:px-6">
+      <div className="w-full bg-brand-maroon text-white py-2 md:py-3.5 px-4 md:px-6 navbar-top-header">
         <div className="max-w-[1700px] mx-auto flex items-center justify-between gap-2 md:gap-4">
 
           {/* Left Block: Logo + Brand Title */}
           <Link href="/" className="flex items-center gap-2 md:gap-4 shrink-1 min-w-0">
-            <div className="relative w-14 h-14 md:w-20 md:h-20 shrink-0 bg-white rounded-full p-1 border border-white/20 shadow-md">
+            <div className="relative w-14 h-14 md:w-20 md:h-20 shrink-0 bg-white rounded-full p-1 border border-white/20 shadow-md navbar-logo-badge">
               <Image
                 src="/images/gcp_logo.png"
                 alt="Logo"
@@ -236,25 +238,25 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
               />
             </div>
             <div className="text-left min-w-0">
-              <h1 className="font-display font-black text-sm md:text-xl tracking-wider uppercase leading-tight text-white truncate">
+              <h1 className="font-display font-black text-sm md:text-xl tracking-wider uppercase leading-tight text-white truncate navbar-brand-title">
                 {language === "ta" ? "சென்னை பெருநகர காவல்" : "GREATER CHENNAI POLICE"}
               </h1>
-              <p className="text-[8px] md:text-[10px] text-brand-blue font-black tracking-wider uppercase mt-0.5 md:mt-1 hidden xs:block">
+              <p className="text-[8px] md:text-[10px] text-brand-blue font-black tracking-wider uppercase mt-0.5 md:mt-1 hidden xs:block navbar-brand-subtitle">
                 {language === "ta" ? "24/7 தமிழ் செய்தித் தொலைக்காட்சி" : "24/7 TAMIL NEWS CHANNEL"}
               </p>
             </div>
           </Link>
 
           {/* Central Block: Desktop Search (Hidden on Mobile) */}
-          <form onSubmit={handleSearchSubmit} className="relative w-full max-w-md hidden md:block print:hidden">
+          <form onSubmit={handleSearchSubmit} className="relative w-full max-w-md hidden md:block print:hidden navbar-search-form">
             <input
               type="text"
               value={searchVal}
               onChange={(e) => setSearchVal(e.target.value)}
               placeholder={language === "ta" ? "செய்திகளைத் தேடுங்கள்..." : "Search news stories..."}
-              className="w-full bg-white/10 border border-white/20 rounded-md py-2 pl-4 pr-10 text-xs placeholder:text-white/70 text-white focus:outline-none focus:bg-white/20 focus:border-white/40 transition"
+              className="w-full bg-white/10 border border-white/20 rounded-md py-2 pl-4 pr-10 text-xs placeholder:text-white/70 text-white focus:outline-none focus:bg-white/20 focus:border-white/40 transition navbar-search-input"
             />
-            <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2 text-white/70 hover:text-white transition cursor-pointer p-1">
+            <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2 text-white/70 hover:text-white transition cursor-pointer p-1 navbar-search-btn" title="Search">
               <Search className="w-4 h-4" />
             </button>
           </form>
@@ -264,36 +266,44 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
 
             {/* Desktop Social Links (Hidden on Mobile) */}
             <div className="hidden lg:flex items-center gap-2">
-              <a href="https://www.facebook.com/Chennai.Police/" target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/25 border border-white/20 text-white flex items-center justify-center transition">
+              <a href="https://www.facebook.com/Chennai.Police/" target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/25 border border-white/20 text-white flex items-center justify-center transition navbar-social-link" title="Facebook">
                 <FacebookIcon className="w-4 h-4" />
               </a>
-              <a href="https://x.com/chennaipolice_?lang=en" target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/25 border border-white/20 text-white flex items-center justify-center transition">
+              <a href="https://x.com/chennaipolice_?lang=en" target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/25 border border-white/20 text-white flex items-center justify-center transition navbar-social-link" title="Twitter / X">
                 <TwitterIcon className="w-4 h-4" />
               </a>
-              <a href="https://www.instagram.com/greater_chennai_police_/?hl=en" target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/25 border border-white/20 text-white flex items-center justify-center transition">
+              <a href="https://www.instagram.com/greater_chennai_police_/?hl=en" target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/25 border border-white/20 text-white flex items-center justify-center transition navbar-social-link" title="Instagram">
                 <InstagramIcon className="w-4 h-4" />
               </a>
-              <a href="https://www.youtube.com/channel/UCLvvfVRsqeVIPI3MO_VlLKw" target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/25 border border-white/20 text-white flex items-center justify-center transition">
+              <a href="https://www.youtube.com/channel/UCLvvfVRsqeVIPI3MO_VlLKw" target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/25 border border-white/20 text-white flex items-center justify-center transition navbar-social-link" title="YouTube">
                 <YoutubeIcon className="w-4 h-4" />
               </a>
             </div>
 
             {/* Language Switcher (Compact/Hidden on Mobile - inside drawer) */}
-            <div className="hidden md:flex items-center border border-white/20 bg-white/10 rounded-md p-0.5 text-[9px] font-black tracking-wider text-white">
+            <div className="hidden md:flex items-center border border-white/20 bg-white/10 rounded-md p-0.5 text-xs font-black tracking-wider text-white navbar-lang-switcher">
               <button
+                type="button"
                 onClick={() => changeLanguage("en")}
-                className={`px-2 py-1 rounded cursor-pointer transition-all ${language === "en" ? "bg-[#c5a059] text-black" : "hover:bg-white/10 text-white"
-                  }`}
+                className={`px-2 py-0.5 rounded cursor-pointer transition-all font-bold navbar-lang-btn ${
+                  language === "en" ? "bg-[#c5a059] text-black navbar-lang-active" : "hover:bg-white/10 text-white navbar-lang-inactive"
+                }`}
+                title="English"
+                aria-label="English"
               >
-                EN
+                A
               </button>
-              <span className="text-white/30 px-0.5 select-none">|</span>
+              <span className="text-white/30 px-0.5 select-none navbar-lang-divider">|</span>
               <button
+                type="button"
                 onClick={() => changeLanguage("ta")}
-                className={`px-2 py-1 rounded cursor-pointer transition-all ${language === "ta" ? "bg-[#c5a059] text-black" : "hover:bg-white/10 text-white"
-                  }`}
+                className={`px-2 py-0.5 rounded cursor-pointer transition-all font-bold navbar-lang-btn ${
+                  language === "ta" ? "bg-[#c5a059] text-black navbar-lang-active" : "hover:bg-white/10 text-white navbar-lang-inactive"
+                }`}
+                title="தமிழ் (Tamil)"
+                aria-label="தமிழ்"
               >
-                தமிழ்
+                அ
               </button>
             </div>
 
@@ -306,19 +316,48 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
               <Search className="w-4.5 h-4.5" />
             </button>
 
-            {/* Theme Toggle (Touch optimized target 44px on mobile via padding) */}
+            {/* Accessibility & Display Tools Button */}
             <button
-              onClick={toggleTheme}
-              className="w-10 h-10 md:w-8 md:h-8 rounded-full bg-white/10 hover:bg-white/25 border border-white/20 text-white flex items-center justify-center cursor-pointer transition shrink-0"
-              title="Theme Toggle"
+              type="button"
+              id="navbar-accessibility-btn"
+              onClick={togglePanel}
+              className={`navbar-accessibility-btn w-10 h-10 md:w-9 md:h-9 rounded-lg border-2 flex items-center justify-center cursor-pointer transition-all shadow-sm shrink-0 p-1 group ${
+                isPanelOpen
+                  ? "bg-yellow-400 border-yellow-400 text-black shadow-md ring-2 ring-yellow-400/50"
+                  : isHighContrast
+                    ? "bg-[#000000] hover:bg-yellow-400 border-yellow-400 text-yellow-400 hover:text-black"
+                    : "bg-[#0e2c6c] hover:bg-[#153a8a] border-yellow-400 hover:border-yellow-300 text-white"
+              }`}
+              title={language === "ta" ? "அணுகல்தன்மை கருவிகள்" : "Accessibility Tools"}
+              aria-label={language === "ta" ? "அணுகல்தன்மை கருவிகள்" : "Accessibility Tools"}
+              aria-expanded={isPanelOpen}
+              aria-controls="accessibility-panel"
             >
-              {theme === "light" ? <Moon className="w-4.5 h-4.5 md:w-4 md:h-4" /> : <Sun className="w-4.5 h-4.5 md:w-4 md:h-4" />}
+              <div className="relative w-6 h-6 flex items-center justify-center pointer-events-none">
+                <Image
+                  src="/images/accessibility_icon.png"
+                  alt="Accessibility & Theme Tools"
+                  width={24}
+                  height={24}
+                  className={`w-auto h-auto max-w-full max-h-full object-contain transition-all navbar-accessibility-img ${
+                    isPanelOpen
+                      ? "brightness-0"
+                      : "group-hover:brightness-0 group-focus-visible:brightness-0"
+                  }`}
+                  style={{
+                    width: "auto",
+                    height: "auto",
+                    ...(isPanelOpen ? { filter: "brightness(0)" } : {}),
+                  }}
+                  priority
+                />
+              </div>
             </button>
 
             {/* Circular Profile Avatar — matched to logo size */}
             <Link
               href="/chief-minister"
-              className="relative w-14 h-14 md:w-20 md:h-20 shrink-0 rounded-full border-2 border-white/90 shadow-md overflow-hidden bg-white cursor-pointer hover:border-brand-gold hover:scale-105 transition-all duration-300 block"
+              className="relative w-14 h-14 md:w-20 md:h-20 shrink-0 rounded-full border-2 border-white/90 shadow-md overflow-hidden bg-white cursor-pointer hover:border-brand-gold hover:scale-105 transition-all duration-300 block navbar-avatar"
             >
               <Image
                 src="/images/vijay_profile.png"
@@ -537,18 +576,27 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
                 <span className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Select Language</span>
                 <div className="flex items-center border border-white/20 bg-white/5 rounded-lg p-0.5 text-xs font-black tracking-wider text-white">
                   <button
+                    type="button"
                     onClick={() => { changeLanguage("en"); setMobileMenuOpen(false); }}
-                    className={`px-4 py-2 rounded-md cursor-pointer transition-all ${language === "en" ? "bg-[#c5a059] text-black" : "hover:bg-white/10 text-white"
-                      }`}
+                    className={`px-4 py-2 rounded-md cursor-pointer transition-all font-bold text-sm ${
+                      language === "en" ? "bg-[#c5a059] text-black" : "hover:bg-white/10 text-white"
+                    }`}
+                    title="English"
+                    aria-label="English"
                   >
-                    ENGLISH
+                    A
                   </button>
+                  <span className="text-white/30 px-0.5 select-none">|</span>
                   <button
+                    type="button"
                     onClick={() => { changeLanguage("ta"); setMobileMenuOpen(false); }}
-                    className={`px-4 py-2 rounded-md cursor-pointer transition-all ${language === "ta" ? "bg-[#c5a059] text-black" : "hover:bg-white/10 text-white"
-                      }`}
+                    className={`px-4 py-2 rounded-md cursor-pointer transition-all font-bold text-sm ${
+                      language === "ta" ? "bg-[#c5a059] text-black" : "hover:bg-white/10 text-white"
+                    }`}
+                    title="தமிழ்"
+                    aria-label="தமிழ்"
                   >
-                    தமிழ்
+                    அ
                   </button>
                 </div>
               </div>

@@ -152,16 +152,16 @@ export default function StoriesPageClient({ stories, news = [], menuItems, ticke
     <div className="min-h-screen bg-slate-50 dark:bg-stone-950 text-slate-800 dark:text-stone-100 flex flex-col justify-between">
       
       <div>
-        {/* Navigation header */}
-        <Navbar customMenuItems={menuItems} />
-        
         {/* News Ticker */}
         {ticker && ticker.length > 0 && (
           <BreakingNewsBanner breakingNews={ticker} language={language} />
         )}
 
+        {/* Navigation header */}
+        <Navbar customMenuItems={menuItems} stickyOffset="38px" />
+
         {/* Stories Listing page body */}
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8 text-left animate-fadeIn">
+        <main id="main-content" tabIndex={-1} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8 text-left animate-fadeIn focus:outline-none">
           
           <div className="border-b border-stone-200 dark:border-stone-850 pb-6 flex items-center justify-between">
             <div className="space-y-1">

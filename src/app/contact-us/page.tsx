@@ -45,10 +45,10 @@ export default async function ContactUsPage() {
           dangerouslySetInnerHTML={{ __html: schemaJson }}
         />
       )}
-      <Navbar customMenuItems={menuItems} />
       <NewsTicker customTickerItems={tickerItems} />
+      <Navbar customMenuItems={menuItems} stickyOffset="38px" />
 
-      <main className="flex-grow py-8">
+      <main id="main-content" tabIndex={-1} className="flex-grow py-8 focus:outline-none">
         {dynamicContent && dynamicContent.sections && dynamicContent.sections.length > 0 ? (
           <DynamicPageRenderer sections={dynamicContent.sections} />
         ) : (

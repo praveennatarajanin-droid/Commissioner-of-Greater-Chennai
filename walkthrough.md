@@ -4,6 +4,49 @@ The data storage layer has been fully migrated from local `db.json` file storage
 
 Additionally, a dynamic **Traffic News Portal** has been added with real official advisories, dynamic menu integration, and automated background sync, and the **Admin Login Page** has been redesigned with a premium, cinematic patrolling Tamil Nadu Police SUV moving along a static highway.
 
+## High Contrast Top Header Bar & Controls Redesign
+
+Fixed the visual presentation of the top header control strip in High Contrast mode to meet GIGW 3.0 and WCAG 2.1 AAA standards:
+
+1. **Header Bar Background**:
+   - Styled `.navbar-top-header` to deep black (`#000000`) with a clean bright yellow bottom border (`2px solid #ffff00`), creating seamless visual harmony with the Breaking News ticker and Navigation bar.
+2. **Search Input & Button**:
+   - Replaced white input background with solid black (`#000000`) and a `2px solid #ffff00` border.
+   - Set placeholder text to clear, legible light yellow (`#ffff88`, 100% opacity).
+   - Removed awkward black button block; integrated transparent search button with bright yellow icon (`#ffff00`).
+3. **Social Links**:
+   - Deep black circular buttons (`#000000`) with bright yellow borders (`1.5px solid #ffff00`) and yellow icons.
+   - Smooth hover transition to bright yellow background with solid black icon (`#000000`).
+4. **Language Switcher (`A | அ`)**:
+   - Fixed text invisibility bug (previously caused by white card selector turning text black on black button).
+   - Container: Deep black background with yellow border.
+   - Active language button (`A` or `அ`): Vibrant yellow pill (`#ffff00`) with bold black text (`#000000`).
+   - Inactive language button: Clean black background with bright yellow text (`#ffff00`).
+   - Divider: Crisp yellow pipe (`#ffff00`).
+5. **Logo & Avatar**:
+   - Tamil Nadu police emblem badge has a crisp yellow border on white circle for 100% emblem clarity.
+   - Profile avatar has a high-contrast yellow border.
+
+## High Contrast Citizen Services Section ("How can we help you today?")
+
+Redesigned the Citizen Services section in High Contrast mode with dark backgrounds and sharp yellow contrast:
+
+1. **Outer Container**:
+   - Deep solid black background (`#000000`) with a `2px solid #ffff00` border, perfectly aligning with the portal's high-contrast theme.
+2. **Typography & Intro**:
+   - Label ("CITIZEN SERVICES"): Bright yellow (`#ffff00`).
+   - Title ("How can we help you today?"): Vibrant yellow (`#ffff00`).
+   - Supporting Description: Clear crisp white (`#ffffff`) for maximum legibility.
+3. **Action Buttons**:
+   - Primary ("View all services"): Vibrant yellow pill (`#ffff00`) with bold solid black text (`#000000`, 900 font weight) and black arrow icon with maximum CSS specificity.
+   - Secondary ("Find nearest station"): Deep black background (`#000000`) with yellow border (`#ffff00`), yellow text, and yellow arrow.
+4. **Citizen Service Cards (2x3 Grid)**:
+   - Cards: Deep black background (`#050505`) with bright yellow border (`1.5px solid #ffff00`) and hover transition.
+   - Left Icon Box: Solid black box with bright yellow border and yellow icon.
+   - Title: Crisp yellow text (`#ffff00`), turns white on hover.
+   - Description: Readable soft yellow text (`#ffff88`).
+   - Circular Arrow Action Button: Black circle with yellow border and yellow arrow; flips to bright yellow with black arrow on hover.
+
 ## Changes Made
 
 ### 1. Database Config & Connection Pool Layer

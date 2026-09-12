@@ -48,10 +48,10 @@ export default async function CitizenServicesPage() {
       <BreakingNewsBanner breakingNews={activeTickerList} />
 
       {/* Main Header */}
-      <Navbar customMenuItems={menuItems} stickyOffset="42px" />
+      <Navbar customMenuItems={menuItems} stickyOffset="38px" />
 
       {/* Page Body */}
-      <main className="flex-grow w-full max-w-[1700px] mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-10">
+      <main id="main-content" tabIndex={-1} className="flex-grow w-full max-w-[1700px] mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-10 focus:outline-none">
         <CitizenServicesDirectory
           initialCategories={categories}
           initialServices={services}

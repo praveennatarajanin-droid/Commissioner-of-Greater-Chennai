@@ -41,7 +41,7 @@ export async function GET(req: Request) {
       return new NextResponse(backupJson, {
         headers: {
           "Content-Type": "application/json",
-          "Content-Disposition": `attachment; filename="chennai_guardian_backup_${Date.now()}.json"`,
+          "Content-Disposition": `attachment; filename="startup_TN_backup_${Date.now()}.json"`,
         },
       });
     }

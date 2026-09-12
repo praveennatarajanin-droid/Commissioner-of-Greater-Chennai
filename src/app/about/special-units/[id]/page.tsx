@@ -65,8 +65,8 @@ export default async function SpecialUnitDetailPage({ params }: PageProps) {
 
   return (
     <div className="flex flex-col min-h-screen bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 animate-fadeIn font-sans">
-      <Navbar customMenuItems={menuItems} />
       <NewsTicker customTickerItems={tickerItems} />
+      <Navbar customMenuItems={menuItems} stickyOffset="38px" />
       
       <main className="flex-grow">
         <SpecialUnitDetailClient unit={unit} />
