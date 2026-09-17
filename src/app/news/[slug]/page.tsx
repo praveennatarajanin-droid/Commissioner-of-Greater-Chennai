@@ -185,7 +185,7 @@ export default async function Page({
       <Navbar stickyOffset="38px" />
 
       {/* Main Content Area */}
-      <main className="flex-grow bg-white dark:bg-stone-950">
+      <main id="main-content" tabIndex={-1} className="flex-grow bg-white dark:bg-stone-950 focus:outline-none">
         <NewsDetailClient article={article} />
       </main>
 

@@ -19,15 +19,17 @@ export async function GET() {
 
   const staticPages = [
     { url: "/", contentType: "homepage", id: 0, priority: "1.0", changefreq: "hourly" },
-    { url: "/commissioner-profile", contentType: "commissioner_profile_page", id: 0, priority: "0.8", changefreq: "monthly" },
+    { url: "/commissioner-profile", contentType: "commissioner_profile_page", id: 0, priority: "0.9", changefreq: "monthly" },
+    { url: "/chief-minister", contentType: "chief_minister_page", id: 0, priority: "0.9", changefreq: "monthly" },
+    { url: "/citizen-services", contentType: "citizen_services_page", id: 0, priority: "0.9", changefreq: "weekly" },
+    { url: "/stations", contentType: "police_stations_page", id: 0, priority: "0.8", changefreq: "weekly" },
+    { url: "/screen-reader-access", contentType: "screen_reader_access_page", id: 0, priority: "0.7", changefreq: "monthly" },
     { url: "/videos", contentType: "video_gallery_page", id: 0, priority: "0.7", changefreq: "weekly" },
+    { url: "/stories", contentType: "web_stories_page", id: 0, priority: "0.7", changefreq: "weekly" },
     { url: "/about", contentType: "about_page", id: 0, priority: "0.6", changefreq: "monthly" },
     { url: "/achievements", contentType: "achievements_page", id: 0, priority: "0.6", changefreq: "monthly" },
-    { url: "/stations", contentType: "police_stations_page", id: 0, priority: "0.8", changefreq: "weekly" },
     { url: "/traffic", contentType: "traffic_alerts_page", id: 0, priority: "0.8", changefreq: "daily" },
-    { url: "/emergency-contacts", contentType: "emergency_contacts_page", id: 0, priority: "0.8", changefreq: "monthly" },
-    { url: "/contact-us", contentType: "contact_us_page", id: 0, priority: "0.5", changefreq: "monthly" },
-    { url: "/stories", contentType: "web_stories_page", id: 0, priority: "0.7", changefreq: "weekly" },
+    { url: "/contact-us", contentType: "contact_us_page", id: 0, priority: "0.6", changefreq: "monthly" },
   ];
 
   let xml = `<?xml version="1.0" encoding="UTF-8"?>

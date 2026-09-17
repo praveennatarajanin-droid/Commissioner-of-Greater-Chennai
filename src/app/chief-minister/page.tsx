@@ -143,6 +143,9 @@ export default function ChiefMinisterPage() {
       <NewsTicker customTickerItems={ticker} />
       <Navbar customMenuItems={menuItems} stickyOffset="38px" />
 
+      {/* Main Content Landmark */}
+      <main id="main-content" tabIndex={-1} className="flex-grow focus:outline-none">
+
       {/* 2. Breadcrumb Panel */}
       <div className="bg-brand-blue text-white/80 py-3 border-b border-white/10 text-xs">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
@@ -654,6 +657,7 @@ export default function ChiefMinisterPage() {
           </div>
         </div>
       </section>
+      </main>
 
       {/* 12. Footer */}
       <Footer customProfile={profile} />

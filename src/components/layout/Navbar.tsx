@@ -285,9 +285,8 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
               <button
                 type="button"
                 onClick={() => changeLanguage("en")}
-                className={`px-2 py-0.5 rounded cursor-pointer transition-all font-bold navbar-lang-btn ${
-                  language === "en" ? "bg-[#c5a059] text-black navbar-lang-active" : "hover:bg-white/10 text-white navbar-lang-inactive"
-                }`}
+                className={`px-2 py-0.5 rounded cursor-pointer transition-all font-bold navbar-lang-btn ${language === "en" ? "bg-[#c5a059] text-black navbar-lang-active" : "hover:bg-white/10 text-white navbar-lang-inactive"
+                  }`}
                 title="English"
                 aria-label="English"
               >
@@ -297,9 +296,8 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
               <button
                 type="button"
                 onClick={() => changeLanguage("ta")}
-                className={`px-2 py-0.5 rounded cursor-pointer transition-all font-bold navbar-lang-btn ${
-                  language === "ta" ? "bg-[#c5a059] text-black navbar-lang-active" : "hover:bg-white/10 text-white navbar-lang-inactive"
-                }`}
+                className={`px-2 py-0.5 rounded cursor-pointer transition-all font-bold navbar-lang-btn ${language === "ta" ? "bg-[#c5a059] text-black navbar-lang-active" : "hover:bg-white/10 text-white navbar-lang-inactive"
+                  }`}
                 title="தமிழ் (Tamil)"
                 aria-label="தமிழ்"
               >
@@ -321,36 +319,45 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
               type="button"
               id="navbar-accessibility-btn"
               onClick={togglePanel}
-              className={`navbar-accessibility-btn w-10 h-10 md:w-9 md:h-9 rounded-lg border-2 flex items-center justify-center cursor-pointer transition-all shadow-sm shrink-0 p-1 group ${
+              className={`navbar-accessibility-btn relative flex items-center justify-center cursor-pointer transition-all duration-200 shrink-0 bg-transparent border-0 outline-none group focus:outline-none select-none ${
                 isPanelOpen
-                  ? "bg-yellow-400 border-yellow-400 text-black shadow-md ring-2 ring-yellow-400/50"
-                  : isHighContrast
-                    ? "bg-[#000000] hover:bg-yellow-400 border-yellow-400 text-yellow-400 hover:text-black"
-                    : "bg-[#0e2c6c] hover:bg-[#153a8a] border-yellow-400 hover:border-yellow-300 text-white"
+                  ? "scale-110 opacity-100"
+                  : "opacity-95 hover:opacity-100 hover:scale-110 active:scale-95"
               }`}
+              style={{ WebkitTapHighlightColor: "transparent" }}
               title={language === "ta" ? "அணுகல்தன்மை கருவிகள்" : "Accessibility Tools"}
               aria-label={language === "ta" ? "அணுகல்தன்மை கருவிகள்" : "Accessibility Tools"}
               aria-expanded={isPanelOpen}
               aria-controls="accessibility-panel"
             >
-              <div className="relative w-6 h-6 flex items-center justify-center pointer-events-none">
-                <Image
-                  src="/images/accessibility_icon.png"
-                  alt="Accessibility & Theme Tools"
-                  width={24}
-                  height={24}
-                  className={`w-auto h-auto max-w-full max-h-full object-contain transition-all navbar-accessibility-img ${
+              <div className="w-8 h-8 md:w-9 md:h-9 lg:w-10 lg:h-10 flex items-center justify-center pointer-events-none">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  className={`w-full h-full transition-all duration-200 navbar-accessibility-img text-white ${
                     isPanelOpen
-                      ? "brightness-0"
-                      : "group-hover:brightness-0 group-focus-visible:brightness-0"
+                      ? "drop-shadow-[0_0_10px_rgba(255,255,255,0.85)]"
+                      : "drop-shadow-sm group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.7)]"
                   }`}
-                  style={{
-                    width: "auto",
-                    height: "auto",
-                    ...(isPanelOpen ? { filter: "brightness(0)" } : {}),
-                  }}
-                  priority
-                />
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  {/* Outer circle */}
+                  <circle cx="12" cy="12" r="10" />
+                  {/* Head */}
+                  <circle cx="12" cy="7.5" r="1.5" fill="currentColor" stroke="none" />
+                  {/* Outstretched arms */}
+                  <path d="M 5.8 10.2 Q 12 11.8 18.2 10.2" />
+                  {/* Torso */}
+                  <path d="M 12 11.2 V 15.2" />
+                  {/* Legs */}
+                  <path d="M 12 15.2 L 8.5 19.5" />
+                  <path d="M 12 15.2 L 15.5 19.5" />
+                </svg>
               </div>
             </button>
 
@@ -408,11 +415,10 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
               const isActive = pathname === item.href;
               const hasSub = item.subMenus && item.subMenus.length > 0;
               const isExternal = item.href && (item.href.startsWith("http://") || item.href.startsWith("https://") || item.href.startsWith("www."));
-              const navLinkClass = `flex items-center justify-center w-full uppercase font-black tracking-wider hover:bg-[#1e2060] transition border-r border-white/10 whitespace-nowrap cursor-pointer ${
-                language === "ta"
+              const navLinkClass = `flex items-center justify-center w-full uppercase font-black tracking-wider hover:bg-[#1e2060] transition border-r border-white/10 whitespace-nowrap cursor-pointer ${language === "ta"
                   ? "gap-1 px-1 lg:px-1.5 xl:px-2 text-[8px] lg:text-[9px] xl:text-[10px]"
                   : "gap-1 px-1.5 lg:px-2 xl:px-3 text-[8.5px] lg:text-[9.5px] xl:text-[11px]"
-              } ${isActive ? "bg-[#1e2060] text-[#c5a059] border-b-2 border-[#c5a059]" : ""}`;
+                } ${isActive ? "bg-[#1e2060] text-[#c5a059] border-b-2 border-[#c5a059]" : ""}`;
               return (
                 <div key={idx} className="relative group flex items-stretch flex-1 shrink md:shrink-0">
                   {isExternal ? (
@@ -578,9 +584,8 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
                   <button
                     type="button"
                     onClick={() => { changeLanguage("en"); setMobileMenuOpen(false); }}
-                    className={`px-4 py-2 rounded-md cursor-pointer transition-all font-bold text-sm ${
-                      language === "en" ? "bg-[#c5a059] text-black" : "hover:bg-white/10 text-white"
-                    }`}
+                    className={`px-4 py-2 rounded-md cursor-pointer transition-all font-bold text-sm ${language === "en" ? "bg-[#c5a059] text-black" : "hover:bg-white/10 text-white"
+                      }`}
                     title="English"
                     aria-label="English"
                   >
@@ -590,9 +595,8 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
                   <button
                     type="button"
                     onClick={() => { changeLanguage("ta"); setMobileMenuOpen(false); }}
-                    className={`px-4 py-2 rounded-md cursor-pointer transition-all font-bold text-sm ${
-                      language === "ta" ? "bg-[#c5a059] text-black" : "hover:bg-white/10 text-white"
-                    }`}
+                    className={`px-4 py-2 rounded-md cursor-pointer transition-all font-bold text-sm ${language === "ta" ? "bg-[#c5a059] text-black" : "hover:bg-white/10 text-white"
+                      }`}
                     title="தமிழ்"
                     aria-label="தமிழ்"
                   >

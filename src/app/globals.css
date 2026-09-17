@@ -780,32 +780,20 @@ html[data-high-contrast="true"] button:not([class*="tab"]):not([class*="about"])
   stroke: #000000 !important;
 }
 
-/* Active Yellow Background Elements: High Contrast Toggle, Active Text Size, Expanded Navbar Button */
-.accessibility-hc-active,
-.accessibility-btn-active,
-#navbar-accessibility-btn.bg-yellow-400,
-#navbar-accessibility-btn[aria-expanded="true"],
+/* Active Yellow Background ONLY in High Contrast Mode */
 html.high-contrast .accessibility-hc-active,
 html[data-high-contrast="true"] .accessibility-hc-active,
 html.high-contrast .accessibility-btn-active,
-html[data-high-contrast="true"] .accessibility-btn-active,
-html.high-contrast #navbar-accessibility-btn[aria-expanded="true"],
-html[data-high-contrast="true"] #navbar-accessibility-btn[aria-expanded="true"] {
+html[data-high-contrast="true"] .accessibility-btn-active {
   background-color: #ffff00 !important;
   color: #000000 !important;
   border-color: #000000 !important;
 }
 
-.accessibility-hc-active *,
-.accessibility-btn-active *,
-#navbar-accessibility-btn.bg-yellow-400 *,
-#navbar-accessibility-btn[aria-expanded="true"] *,
 html.high-contrast .accessibility-hc-active *,
 html[data-high-contrast="true"] .accessibility-hc-active *,
 html.high-contrast .accessibility-btn-active *,
-html[data-high-contrast="true"] .accessibility-btn-active *,
-html.high-contrast #navbar-accessibility-btn[aria-expanded="true"] *,
-html[data-high-contrast="true"] #navbar-accessibility-btn[aria-expanded="true"] * {
+html[data-high-contrast="true"] .accessibility-btn-active * {
   color: #000000 !important;
   stroke: #000000 !important;
 }
@@ -837,24 +825,6 @@ html.high-contrast img,
 html[data-high-contrast="true"] img {
   filter: none !important;
   opacity: 1 !important;
-}
-
-/* Navbar Accessibility Emblem: Filter to Solid Black ONLY when its button is yellow (Active or Hovered) */
-#navbar-accessibility-btn.bg-yellow-400 img,
-#navbar-accessibility-btn[aria-expanded="true"] img,
-#navbar-accessibility-btn:hover img,
-#navbar-accessibility-btn:focus img,
-.navbar-accessibility-img:hover,
-#navbar-accessibility-btn:hover .navbar-accessibility-img,
-#navbar-accessibility-btn:focus .navbar-accessibility-img,
-#navbar-accessibility-btn[aria-expanded="true"] .navbar-accessibility-img,
-html.high-contrast #navbar-accessibility-btn[aria-expanded="true"] img,
-html.high-contrast #navbar-accessibility-btn:hover img,
-html.high-contrast #navbar-accessibility-btn:focus img,
-html[data-high-contrast="true"] #navbar-accessibility-btn[aria-expanded="true"] img,
-html[data-high-contrast="true"] #navbar-accessibility-btn:hover img,
-html[data-high-contrast="true"] #navbar-accessibility-btn:focus img {
-  filter: brightness(0) !important;
 }
 
 /* Form inputs & Search in High Contrast */

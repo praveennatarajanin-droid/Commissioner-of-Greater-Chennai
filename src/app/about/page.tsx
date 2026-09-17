@@ -54,7 +54,7 @@ export default async function AboutPage({ searchParams }: AboutPageProps) {
       <NewsTicker customTickerItems={tickerItems} />
       <Navbar customMenuItems={menuItems} stickyOffset="38px" />
       
-      <main className="flex-grow py-8">
+      <main id="main-content" tabIndex={-1} className="flex-grow py-8 focus:outline-none">
         <AboutUsClient initialTab={tab} customData={dynamicContent} />
       </main>
 

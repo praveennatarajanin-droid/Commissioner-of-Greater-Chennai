@@ -106,7 +106,7 @@ export default async function StationDetailPage({ params }: PageProps) {
       <NewsTicker customTickerItems={tickerItems} />
       <Navbar customMenuItems={menuItems} stickyOffset="38px" />
       
-      <main className="flex-grow">
+      <main id="main-content" tabIndex={-1} className="flex-grow focus:outline-none">
         <StationDetailClient 
           station={station} 
           nearbyStations={sortedNearby} 
