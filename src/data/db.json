@@ -56998,9 +56998,9 @@
   "portal_visitor_stats": [
     {
       "id": 1,
-      "total_page_views": 301,
+      "total_page_views": 304,
       "created_at": "2026-09-08T05:38:30.468Z",
-      "updated_at": "2026-09-17T11:53:12.980Z"
+      "updated_at": "2026-09-17T12:01:05.255Z"
     }
   ],
   "portal_daily_visits": [
@@ -57049,9 +57049,9 @@
     {
       "id": 7,
       "visit_date": "2026-09-17",
-      "page_views": 89,
+      "page_views": 92,
       "created_at": "2026-09-17T05:21:25.049Z",
-      "updated_at": "2026-09-17T11:53:12.980Z"
+      "updated_at": "2026-09-17T12:01:05.255Z"
     }
   ],
   "superadmin_config": {
