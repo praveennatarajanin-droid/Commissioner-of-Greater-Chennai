@@ -163,16 +163,12 @@ async function runMigration() {
       const defaultMenus = [
         ['Home', 'முகப்பு', 'home', 'Home', 1, '/', 'static', 'active', 0],
         ['About Us', 'எங்களைப் பற்றி', 'about', 'Info', 2, '/about', 'static', 'active', 0],
-        ['Crime', 'குற்றம்', 'crime', 'Shield', 3, '/category/crime', 'news_category', 'active', 0],
-        ['Cyber Safety', 'இணைய பாதுகாப்பு', 'cyber-safety', 'Lock', 4, '/category/cyber-safety', 'news_category', 'active', 0],
-        ['Women Safety', 'பெண்கள் பாதுகாப்பு', 'women-safety', 'Heart', 5, '/category/women-safety', 'news_category', 'active', 0],
-        ['Public Safety', 'பொது பாதுகாப்பு', 'public-safety', 'Eye', 6, '/category/public-safety', 'news_category', 'active', 0],
-        ['Traffic', 'போக்குவரத்து', 'traffic', 'Car', 7, 'https://gctp.in/chennai-home', 'external', 'active', 1],
-        ['Outreach', 'சமூக உதவி', 'outreach', 'Users', 8, '/category/outreach', 'news_category', 'active', 0],
-        ['Stations', 'காவல் நிலையங்கள்', 'stations', 'MapPin', 9, '/stations', 'static', 'active', 0],
-        ['Videos', 'வீடியோக்கள்', 'videos', 'Video', 10, '/videos', 'static', 'active', 0],
-        ['Profile', 'ஆணையர் சுயவிவரம்', 'commissioner-profile', 'User', 11, '/commissioner-profile', 'static', 'active', 0],
-        ['Contact Us', 'தொடர்பு கொள்ளுங்கள்', 'contact-us', 'Phone', 12, '/contact-us', 'static', 'active', 0]
+        ['Citizen Services', 'குடிமக்கள் சேவைகள்', 'citizen-services', 'Handshake', 3, '/citizen-services', 'static', 'active', 0],
+        ['Traffic', 'போக்குவரத்து', 'traffic', 'Car', 4, 'https://gctp.in/chennai-home', 'external', 'active', 1],
+        ['Stations', 'காவல் நிலையங்கள்', 'stations', 'MapPin', 5, '/stations', 'static', 'active', 0],
+        ['Media Service', 'வீடியோக்கள்', 'videos', 'Video', 6, '/videos', 'static', 'active', 0],
+        ['Profile', 'ஆணையர் சுயவிவரம்', 'commissioner-profile', 'User', 7, '/commissioner-profile', 'static', 'active', 0],
+        ['Contact Us', 'தொடர்பு கொள்ளுங்கள்', 'contact-us', 'Phone', 8, '/contact-us', 'static', 'active', 0]
       ];
 
       for (const menu of defaultMenus) {
@@ -182,45 +178,67 @@ async function runMigration() {
         );
         const menuId = result.insertId;
 
-        // Seed sub_menus for Crime, Cyber Safety, Women Safety
-        if (menu[2] === 'crime') {
+        // Seed sub_menus for Citizen Services
+        if (menu[2] === 'citizen-services') {
+          // 1. Crime
+          const [crimeRes] = await connection.query(
+            'INSERT INTO `sub_menus` (parent_menu_id, parent_sub_id, name_en, name_ta, slug, url, icon, display_order, status) VALUES (?, NULL, ?, ?, ?, ?, ?, ?, ?)',
+            [menuId, 'Crime', 'குற்றம்', 'crime', '/category/crime', 'Shield', 1, 'active']
+          );
+          const crimeId = crimeRes.insertId;
           await connection.query(
-            'INSERT INTO `sub_menus` (parent_menu_id, name_en, name_ta, slug, url, icon, display_order, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-            [menuId, 'Crime News', 'குற்றச் செய்திகள்', 'crime-news', '/category/crime', 'FileText', 1, 'active']
+            'INSERT INTO `sub_menus` (parent_menu_id, parent_sub_id, name_en, name_ta, slug, url, icon, display_order, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            [menuId, crimeId, 'Wanted Criminals', 'தேடப்படும் குற்றவாளிகள்', 'wanted-criminals', '/category/wanted-criminals', 'UserX', 1, 'active']
           );
           await connection.query(
-            'INSERT INTO `sub_menus` (parent_menu_id, name_en, name_ta, slug, url, icon, display_order, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-            [menuId, 'Wanted Criminals', 'தேடப்படும் குற்றவாளிகள்', 'wanted-criminals', '/category/wanted-criminals', 'UserX', 2, 'active']
+            'INSERT INTO `sub_menus` (parent_menu_id, parent_sub_id, name_en, name_ta, slug, url, icon, display_order, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            [menuId, crimeId, 'Missing Persons', 'காணாமல் போனவர்கள்', 'missing-persons', '/category/missing-persons', 'Search', 2, 'active']
+          );
+
+          // 2. Cyber Safety
+          const [cyberRes] = await connection.query(
+            'INSERT INTO `sub_menus` (parent_menu_id, parent_sub_id, name_en, name_ta, slug, url, icon, display_order, status) VALUES (?, NULL, ?, ?, ?, ?, ?, ?, ?)',
+            [menuId, 'Cyber Safety', 'இணைய பாதுகாப்பு', 'cyber-safety', '/category/cyber-safety', 'Lock', 2, 'active']
+          );
+          const cyberId = cyberRes.insertId;
+          await connection.query(
+            'INSERT INTO `sub_menus` (parent_menu_id, parent_sub_id, name_en, name_ta, slug, url, icon, display_order, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            [menuId, cyberId, 'Cyber Awareness', 'இணைய விழிப்புணர்வு', 'cyber-awareness', '/category/cyber-awareness', 'Globe', 1, 'active']
           );
           await connection.query(
-            'INSERT INTO `sub_menus` (parent_menu_id, name_en, name_ta, slug, url, icon, display_order, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-            [menuId, 'Missing Persons', 'காணாமல் போனவர்கள்', 'missing-persons', '/category/missing-persons', 'Search', 3, 'active']
+            'INSERT INTO `sub_menus` (parent_menu_id, parent_sub_id, name_en, name_ta, slug, url, icon, display_order, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            [menuId, cyberId, 'Online Fraud', 'ஆன்லைன் மோசடி', 'online-fraud', '/category/online-fraud', 'AlertTriangle', 2, 'active']
           );
-        } else if (menu[2] === 'cyber-safety') {
-          await connection.query(
-            'INSERT INTO `sub_menus` (parent_menu_id, name_en, name_ta, slug, url, icon, display_order, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-            [menuId, 'Cyber Awareness', 'இணைய விழிப்புணர்வு', 'cyber-awareness', '/category/cyber-awareness', 'Globe', 1, 'active']
+
+          // 3. Women Safety
+          const [womenRes] = await connection.query(
+            'INSERT INTO `sub_menus` (parent_menu_id, parent_sub_id, name_en, name_ta, slug, url, icon, display_order, status) VALUES (?, NULL, ?, ?, ?, ?, ?, ?, ?)',
+            [menuId, 'Women Safety', 'பெண்கள் பாதுகாப்பு', 'women-safety', '/category/women-safety', 'Heart', 3, 'active']
           );
+          const womenId = womenRes.insertId;
           await connection.query(
-            'INSERT INTO `sub_menus` (parent_menu_id, name_en, name_ta, slug, url, icon, display_order, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-            [menuId, 'Online Fraud', 'ஆன்லைன் மோசடி', 'online-fraud', '/category/online-fraud', 'AlertTriangle', 2, 'active']
-          );
-          await connection.query(
-            'INSERT INTO `sub_menus` (parent_menu_id, name_en, name_ta, slug, url, icon, display_order, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-            [menuId, 'Complaint Portal', 'புகார் போர்டல்', 'complaint-portal', 'https://cybercrime.gov.in', 'ExternalLink', 3, 'active']
-          );
-        } else if (menu[2] === 'women-safety') {
-          await connection.query(
-            'INSERT INTO `sub_menus` (parent_menu_id, name_en, name_ta, slug, url, icon, display_order, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-            [menuId, 'Pink Patrol', 'பிங்க் பேட்ரோல்', 'pink-patrol', '/category/pink-patrol', 'ShieldAlert', 1, 'active']
+            'INSERT INTO `sub_menus` (parent_menu_id, parent_sub_id, name_en, name_ta, slug, url, icon, display_order, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            [menuId, womenId, 'Pink Patrol', 'பிங்க் பேட்ரோல்', 'pink-patrol', '/category/pink-patrol', 'ShieldAlert', 1, 'active']
           );
           await connection.query(
-            'INSERT INTO `sub_menus` (parent_menu_id, name_en, name_ta, slug, url, icon, display_order, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-            [menuId, 'AVAL Support Wing', 'அவள் ஆதரவு பிரிவு', 'aval-support', '/category/aval-support', 'Smile', 2, 'active']
+            'INSERT INTO `sub_menus` (parent_menu_id, parent_sub_id, name_en, name_ta, slug, url, icon, display_order, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            [menuId, womenId, 'AVAL Support Wing', 'அவள் ஆதரவு பிரிவு', 'aval-support', '/category/aval-support', 'Smile', 2, 'active']
           );
           await connection.query(
-            'INSERT INTO `sub_menus` (parent_menu_id, name_en, name_ta, slug, url, icon, display_order, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-            [menuId, 'Women Helpline', 'பெண்கள் உதவி எண்', 'women-helpline', '/category/women-helpline', 'PhoneCall', 3, 'active']
+            'INSERT INTO `sub_menus` (parent_menu_id, parent_sub_id, name_en, name_ta, slug, url, icon, display_order, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            [menuId, womenId, 'Women Helpline', 'பெண்கள் உதவி எண்', 'women-helpline', '/category/women-helpline', 'PhoneCall', 3, 'active']
+          );
+
+          // 4. Public Safety
+          await connection.query(
+            'INSERT INTO `sub_menus` (parent_menu_id, parent_sub_id, name_en, name_ta, slug, url, icon, display_order, status) VALUES (?, NULL, ?, ?, ?, ?, ?, ?, ?)',
+            [menuId, 'Public Safety', 'பொது பாதுகாப்பு', 'public-safety', '/category/public-safety', 'Eye', 4, 'active']
+          );
+
+          // 5. Outreach
+          await connection.query(
+            'INSERT INTO `sub_menus` (parent_menu_id, parent_sub_id, name_en, name_ta, slug, url, icon, display_order, status) VALUES (?, NULL, ?, ?, ?, ?, ?, ?, ?)',
+            [menuId, 'Outreach', 'சமூக உதவி', 'outreach', '/category/outreach', 'Users', 5, 'active']
           );
         }
       }

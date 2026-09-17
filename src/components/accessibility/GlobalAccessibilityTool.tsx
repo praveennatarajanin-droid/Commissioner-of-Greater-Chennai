@@ -5,6 +5,8 @@ import { X, Sun, Eye, Headphones, RotateCcw } from "lucide-react";
 import { useAccessibility, TextSize } from "@/context/AccessibilityContext";
 import { useTranslation } from "@/context/LanguageContext";
 
+import ScreenReaderModal from "@/components/accessibility/ScreenReaderModal";
+
 export default function GlobalAccessibilityTool() {
   const {
     isHighContrast,
@@ -72,6 +74,9 @@ export default function GlobalAccessibilityTool() {
 
   return (
     <>
+      {/* Screen Reader Modal accessible across the portal */}
+      <ScreenReaderModal />
+
       {/* ══════════════════════════════════════════════════════════════════════
           ACCESSIBILITY TOOLS PANEL
           Opens from the Navbar Accessibility Button directly beneath the header

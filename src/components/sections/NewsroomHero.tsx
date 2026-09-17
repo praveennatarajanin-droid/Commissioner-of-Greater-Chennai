@@ -134,16 +134,11 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
     return (b.id || 0) - (a.id || 0);
   });
 
-  // Center Hero story: Breaking or featured first, or newest
+  // Main Hero story: Breaking or featured first, or newest
   const heroStory = sortedNews.find(n => n.breaking === 1) ||
-    sortedNews.find(n => n.featured === 1 && n.section !== "spotlight") ||
+    sortedNews.find(n => n.featured === 1) ||
     sortedNews.find(n => n.section === "slider") ||
     sortedNews[0];
-
-  // Left Column: Spotlight Updates (Strictly newest / most recently updated news from backend)
-  const spotlightUpdates = sortedNews
-    .filter(n => n.id !== heroStory?.id)
-    .slice(0, 3);
 
   // Slides list setup (reusing backend Hero Slider + news marked as "slider" section)
   const newsSlides = (news || [])
@@ -205,14 +200,15 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
 
   // Derive slide URL link
   const findSlideLink = (slide: typeof currentSlide) => {
-    if (heroStory && slide.id === heroStory.id && heroStory.slug) {
-      return `/news/${heroStory.slug}`;
-    }
+    if (!slide) return "/news";
+    const matchingById = news.find(n => n.id === slide.id && n.slug);
+    if (matchingById) return `/news/${matchingById.slug}`;
     const matchingNews = news.find(n => 
-      (n.title_en && n.title_en.toLowerCase() === slide.title_en?.toLowerCase()) ||
-      (n.title_ta && n.title_ta.toLowerCase() === slide.title_ta?.toLowerCase())
+      ((n.title_en && n.title_en.toLowerCase() === slide.title_en?.toLowerCase()) ||
+      (n.title_ta && n.title_ta.toLowerCase() === slide.title_ta?.toLowerCase())) && n.slug
     );
     if (matchingNews) return `/news/${matchingNews.slug}`;
+    if (heroStory?.slug) return `/news/${heroStory.slug}`;
     return "/news";
   };
 
@@ -248,18 +244,18 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
       if (aTrend !== bTrend) return bTrend - aTrend;
       return (b.views_count || 0) - (a.views_count || 0);
     })
-    .filter(n => n.id !== heroStory?.id && !spotlightUpdates.some(l => l.id === n.id))
-    .slice(0, 5);
+    .filter(n => n.id !== heroStory?.id)
+    .slice(0, 8);
 
   const mostReadNews = dbMostRead.length > 0 ? dbMostRead : [...sortedNews]
     .sort((a, b) => (b.views_count || 0) - (a.views_count || 0))
-    .filter(n => n.id !== heroStory?.id && !spotlightUpdates.some(l => l.id === n.id))
-    .slice(0, 5);
+    .filter(n => n.id !== heroStory?.id)
+    .slice(0, 8);
 
   const sidebarVideos = dbVideos.length > 0 ? dbVideos : (videos || [])
     .filter(v => v.active === 1)
     .sort((a, b) => b.id - a.id)
-    .slice(0, 5);
+    .slice(0, 8);
 
   if (!heroStory) {
     return (
@@ -269,104 +265,46 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
     );
   }
 
-  const heroTitle = language === "ta" ? (heroStory.title_ta || heroStory.title_en) : heroStory.title_en;
-  const heroSummary = language === "ta" ? (heroStory.summary_ta || heroStory.summary_en) : heroStory.summary_en;
-  const heroCategory = language === "ta" ? (heroStory.category_ta || heroStory.category_en) : heroStory.category_en;
-  const heroColor = getCategoryColor(heroStory.category_en);
+  // Double arrays for continuous infinite marquee looping
+  const trendingMarqueeList = trendingNews.length > 0 ? [...trendingNews, ...trendingNews] : [];
+  const mostReadMarqueeList = mostReadNews.length > 0 ? [...mostReadNews, ...mostReadNews] : [];
+  const videosMarqueeList = sidebarVideos.length > 0 ? [...sidebarVideos, ...sidebarVideos] : [];
 
   return (
     <section className="w-full bg-white dark:bg-stone-950 border-b border-stone-200 dark:border-stone-850">
       <div className="max-w-[1700px] mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-0 divide-y lg:divide-y-0 lg:divide-x divide-stone-200 dark:divide-stone-850">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 divide-y lg:divide-y-0 lg:divide-x divide-stone-200 dark:divide-stone-850">
           
-          {/* ══ COLUMN 1 (LEFT): Spotlight Updates / Latest News (3 cols) ══ */}
-          <div className="lg:col-span-3 p-4 flex flex-col justify-between">
-            <div>
-              <div className="flex items-center gap-2 mb-4 pb-2.5 border-b-2 border-brand-maroon">
-                <FileText className="w-4.5 h-4.5 text-brand-maroon shrink-0" />
-                <h3 className="font-display font-black text-xs uppercase tracking-widest text-brand-maroon dark:text-white">
-                  {language === "ta" ? "சிறப்புச் செய்திகள்" : "Spotlight Updates"}
-                </h3>
-              </div>
-              <div className="space-y-3.5">
-                {spotlightUpdates.map((item) => {
-                  const title = language === "ta" ? (item.title_ta || item.title_en) : item.title_en;
-                  const category = language === "ta" ? (item.category_ta || item.category_en) : item.category_en;
-                  const displayDate = item.updated_at || item.created_at || item.date;
-                  
-                  return (
-                    <Link
-                      key={item.id}
-                      href={item.slug ? `/news/${item.slug}` : "#"}
-                      className="news-card-white flex gap-3 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-850 p-2.5 rounded-xl hover:shadow-md hover:border-brand-maroon/20 dark:hover:border-brand-gold/20 transition-all duration-300 group text-left"
-                    >
-                      {/* Image Left */}
-                      <div className="relative w-20 sm:w-24 shrink-0 rounded-lg overflow-hidden bg-stone-100 dark:bg-stone-800" style={{ aspectRatio: "4/3" }}>
-                        <Image
-                          src={item.image || "/images/police_medal.jpg"}
-                          alt={title}
-                          fill
-                          className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
-                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/images/police_medal.jpg"; }}
-                        />
-                      </div>
-                      
-                      {/* Details Right */}
-                      <div className="flex flex-col justify-between flex-grow min-w-0">
-                        <div>
-                          <span className="text-[9px] font-black uppercase tracking-widest text-[#c5a059] block mb-0.5">
-                            {category}
-                          </span>
-                          <h4 className="text-[11px] font-bold text-stone-900 dark:text-stone-100 line-clamp-2 leading-snug group-hover:text-brand-maroon dark:group-hover:text-brand-gold transition-colors">
-                            {title}
-                          </h4>
-                        </div>
-                        
-                        <div className="flex items-center justify-between text-[8px] font-bold uppercase tracking-wider text-stone-400 mt-1">
-                          <span className="flex items-center gap-1">
-                            <Clock className="w-3 h-3 text-stone-400 shrink-0" />
-                            {formatPublishedTime(displayDate, language, mounted ? liveNow : undefined)}
-                          </span>
-                          <span className="flex items-center gap-0.5 text-brand-maroon dark:text-brand-gold font-black uppercase text-[8px] tracking-widest shrink-0">
-                            {language === "ta" ? "படிக்க" : "READ MORE"} <span className="text-[9px]">→</span>
-                          </span>
-                        </div>
-                      </div>
-                    </Link>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-
-          {/* ══ COLUMN 2 (CENTER): Dynamic Hero News Slider (6 cols) ══ */}
+          {/* ══ COLUMN 1 (LEFT): Dynamic Hero News Slider (8 cols) ══ */}
           <div 
-            className="lg:col-span-6 p-4 flex flex-col justify-between"
+            className="lg:col-span-8 p-4 md:p-5 flex flex-col justify-between"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
           >
             <div 
-              className="relative w-full rounded-xl overflow-hidden shadow-lg group/slider flex-grow flex flex-col select-none min-h-[260px] sm:min-h-[380px]"
+              className="relative w-full rounded-2xl overflow-hidden shadow-lg group/slider flex-grow flex flex-col select-none min-h-[320px] sm:min-h-[440px] lg:min-h-[480px]"
               style={{ height: "100%" }}
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
               onTouchEnd={handleTouchEnd}
             >
-              {/* Background Slide Content */}
+              {/* Background Slide Image */}
               <div className="absolute inset-0 z-0 bg-stone-955 flex items-center justify-center overflow-hidden">
                 <Image
                   src={currentSlide.src || "/images/police_medal.jpg"}
                   alt={slideTitle}
                   fill
-                  className="object-cover object-center group-hover/slider:scale-[1.02] transition-transform duration-700"
                   priority
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/images/police_medal.jpg"; }}
+                  loading="eager"
+                  className="object-cover object-center group-hover/slider:scale-[1.02] transition-transform duration-700"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 70vw, 66vw"
+                  onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/images/police_medal.jpg"; }}
                 />
                 
-                {/* Gradient overlay for text contrast (reduced shading for brightness) */}
+                {/* Gradient overlay for text contrast */}
                 <div 
                   className="absolute inset-0 z-0" 
-                  style={{ background: "linear-gradient(to top, rgba(0,0,0,0.45), rgba(0,0,0,0.15))" }}
+                  style={{ background: "linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.15) 100%)" }}
                 />
               </div>
 
@@ -379,7 +317,7 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
                       e.stopPropagation();
                       setSliderIndex((prev) => (prev - 1 + slidesToUse.length) % slidesToUse.length);
                     }}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-xl bg-black/45 border border-white/10 text-white hover:bg-brand-maroon hover:border-brand-gold/50 transition duration-300 opacity-0 group-hover/slider:opacity-100 flex items-center justify-center z-20 cursor-pointer"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 p-2.5 rounded-xl bg-black/50 border border-white/20 text-white hover:bg-brand-maroon hover:border-brand-gold/50 transition duration-300 opacity-0 group-hover/slider:opacity-100 flex items-center justify-center z-20 cursor-pointer shadow-lg backdrop-blur-xs"
                     aria-label="Previous Slide"
                   >
                     <ChevronLeft className="w-5 h-5 text-slate-100" />
@@ -390,7 +328,7 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
                       e.stopPropagation();
                       setSliderIndex((prev) => (prev + 1) % slidesToUse.length);
                     }}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-xl bg-black/45 border border-white/10 text-white hover:bg-brand-maroon hover:border-brand-gold/50 transition duration-300 opacity-0 group-hover/slider:opacity-100 flex items-center justify-center z-20 cursor-pointer"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 p-2.5 rounded-xl bg-black/50 border border-white/20 text-white hover:bg-brand-maroon hover:border-brand-gold/50 transition duration-300 opacity-0 group-hover/slider:opacity-100 flex items-center justify-center z-20 cursor-pointer shadow-lg backdrop-blur-xs"
                     aria-label="Next Slide"
                   >
                     <ChevronRight className="w-5 h-5 text-slate-100" />
@@ -401,7 +339,7 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
               {/* Slider Badges */}
               {slideCategory && (
                 <div className="absolute top-4 left-4 z-10 flex items-center gap-2">
-                  <span className="px-2 py-0.5 rounded font-black text-[9px] text-white uppercase tracking-wider bg-brand-maroon shadow-md">
+                  <span className="px-3 py-1 rounded-md font-black text-[10px] text-white uppercase tracking-wider bg-brand-maroon shadow-md border border-white/15">
                     {slideCategory}
                   </span>
                 </div>
@@ -409,13 +347,13 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
 
               {/* Pagination Dot Indicators */}
               {slidesToUse.length > 1 && (
-                <div className="absolute top-4 right-4 flex items-center gap-1 z-10 bg-black/35 backdrop-blur-sm px-2 py-1 rounded-full border border-white/5">
+                <div className="absolute top-4 right-4 flex items-center gap-1.5 z-10 bg-black/45 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 shadow-md">
                   {slidesToUse.map((_, idx) => (
                     <button
                       key={idx}
                       onClick={() => setSliderIndex(idx)}
-                      className={`h-1 rounded-full transition-all duration-300 cursor-pointer ${
-                        sliderIndex === idx ? "w-4 bg-brand-gold" : "w-1 bg-white/40 hover:bg-white"
+                      className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
+                        sliderIndex === idx ? "w-5 bg-brand-gold" : "w-1.5 bg-white/40 hover:bg-white"
                       }`}
                       aria-label={`Go to slide ${idx + 1}`}
                     />
@@ -424,171 +362,247 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
               )}
 
               {/* Bottom text wrapper */}
-              <div className="absolute bottom-0 inset-x-0 p-6 z-10 text-left">
-                <h2 className="font-display font-black text-white text-lg sm:text-2xl leading-tight mb-2 group-hover/slider:text-brand-gold transition-colors duration-300 line-clamp-2 newsroom-hero-title">
+              <div className="absolute bottom-0 inset-x-0 p-6 md:p-8 z-10 text-left">
+                <h2 className="font-display font-black text-white text-xl sm:text-2xl md:text-3xl leading-tight mb-2.5 group-hover/slider:text-brand-gold transition-colors duration-300 line-clamp-2 newsroom-hero-title drop-shadow-md">
                   {slideTitle}
                 </h2>
                 {slideDesc && (
-                  <p className="text-white/80 text-xs sm:text-sm font-semibold leading-relaxed mb-4 line-clamp-2 newsroom-hero-desc">
+                  <p className="text-white/85 text-xs sm:text-sm md:text-base font-medium leading-relaxed mb-4 line-clamp-2 max-w-3xl newsroom-hero-desc drop-shadow-sm">
                     {slideDesc}
                   </p>
                 )}
-                <div className="flex items-center gap-4 flex-wrap pt-2 border-t border-white/10">
+                <div className="flex items-center gap-4 flex-wrap pt-3 border-t border-white/15">
                   <Link 
                     href={currentLink}
-                    className="text-[10px] font-black uppercase text-brand-gold flex items-center gap-1 ml-auto group-hover/slider:translate-x-1 transition-transform newsroom-hero-readmore"
+                    className="inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-brand-gold bg-black/40 hover:bg-brand-maroon hover:text-white px-4 py-2 rounded-lg border border-brand-gold/40 hover:border-brand-maroon transition-all duration-300 backdrop-blur-xs group-hover/slider:translate-x-1"
                   >
-                    {language === "ta" ? "மேலும் படிக்க" : "Read More"} <ChevronRight className="w-3.5 h-3.5" />
+                    <span>{language === "ta" ? "மேலும் படிக்க" : "Read Full Story"}</span>
+                    <ChevronRight className="w-4 h-4" />
                   </Link>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* ══ COLUMN 3 (RIGHT): Tabbed sidebar (3 cols) ══ */}
-          <div className="lg:col-span-3 p-4 flex flex-col justify-between">
+          {/* ══ COLUMN 2 (RIGHT): Auto-scrolling Tabbed Feed (4 cols) ══ */}
+          <div className="lg:col-span-4 p-4 md:p-5 flex flex-col justify-between">
             <div>
+              {/* Header with Title */}
+              <div className="flex items-center justify-between gap-2 mb-3 pb-2 border-b border-stone-200 dark:border-stone-850">
+                <div className="flex items-center gap-2">
+                  <Flame className="w-4 h-4 text-brand-maroon shrink-0" />
+                  <span className="font-display font-black text-xs uppercase tracking-wider text-stone-900 dark:text-white">
+                    {language === "ta" ? "நேரலை டிரெண்டிங் செய்திகள்" : "Trending News Feed"}
+                  </span>
+                </div>
+              </div>
+
               {/* Tabs header */}
-              <div className="flex items-stretch border-b border-stone-200 dark:border-stone-850 bg-stone-50 dark:bg-stone-900 rounded-lg p-0.5 mb-3 text-[10px] font-black uppercase tracking-wider newsroom-tabs-header">
+              <div className="flex items-stretch border border-stone-200 dark:border-stone-850 bg-stone-100/80 dark:bg-stone-900 rounded-xl p-1 mb-3 text-[10px] font-black uppercase tracking-wider newsroom-tabs-header shadow-xs">
                 <button
                   onClick={() => setActiveTab("trending")}
-                  className={`newsroom-tab-btn flex-1 text-center py-1.5 rounded-md cursor-pointer transition ${
-                    activeTab === "trending" ? "bg-brand-maroon text-white newsroom-tab-active" : "text-stone-500 hover:text-stone-800 newsroom-tab-inactive"
+                  className={`newsroom-tab-btn flex-1 text-center py-2 rounded-lg cursor-pointer transition font-display ${
+                    activeTab === "trending" 
+                      ? "bg-brand-maroon text-white shadow-sm newsroom-tab-active" 
+                      : "text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white newsroom-tab-inactive"
                   }`}
                 >
                   {language === "ta" ? "பிரபலம்" : "Trending"}
                 </button>
                 <button
                   onClick={() => setActiveTab("most-read")}
-                  className={`newsroom-tab-btn flex-1 text-center py-1.5 rounded-md cursor-pointer transition ${
-                    activeTab === "most-read" ? "bg-brand-maroon text-white newsroom-tab-active" : "text-stone-500 hover:text-stone-800 newsroom-tab-inactive"
+                  className={`newsroom-tab-btn flex-1 text-center py-2 rounded-lg cursor-pointer transition font-display ${
+                    activeTab === "most-read" 
+                      ? "bg-brand-maroon text-white shadow-sm newsroom-tab-active" 
+                      : "text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white newsroom-tab-inactive"
                   }`}
                 >
                   {language === "ta" ? "அதிக வாசிப்பு" : "Most Read"}
                 </button>
                 <button
                   onClick={() => setActiveTab("videos")}
-                  className={`newsroom-tab-btn flex-1 text-center py-1.5 rounded-md cursor-pointer transition ${
-                    activeTab === "videos" ? "bg-brand-maroon text-white newsroom-tab-active" : "text-stone-500 hover:text-stone-800 newsroom-tab-inactive"
+                  className={`newsroom-tab-btn flex-1 text-center py-2 rounded-lg cursor-pointer transition font-display ${
+                    activeTab === "videos" 
+                      ? "bg-brand-maroon text-white shadow-sm newsroom-tab-active" 
+                      : "text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white newsroom-tab-inactive"
                   }`}
                 >
                   {language === "ta" ? "வீடியோக்கள்" : "Videos"}
                 </button>
               </div>
 
-              {/* Tab Contents */}
-              <div className="space-y-3 max-h-[380px] overflow-y-auto" style={{ scrollbarWidth: "none" }}>
-                {activeTab === "trending" && trendingNews.map((item, idx) => {
-                  const title = language === "ta"
-                    ? (item.title_ta || item.title_en || "")
-                    : (item.title_en || item.title_ta || "");
-                  return (
-                    <Link
-                      key={item.id}
-                      href={item.slug ? `/news/${item.slug}` : "#"}
-                      className="flex items-center gap-2.5 group border-b border-stone-100 dark:border-stone-900 pb-2.5 last:border-0 text-left newsroom-sidebar-item"
-                    >
-                      {/* Image Block with Overlay Rank */}
-                      <div className="relative w-16 h-12 shrink-0 rounded bg-stone-100 dark:bg-stone-850 overflow-hidden">
-                        <Image
-                          src={item.image || "/images/police_medal.jpg"}
-                          alt={title}
-                          fill
-                          className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
-                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/images/police_medal.jpg"; }}
-                        />
-                        <div className="absolute top-0.5 left-0.5 w-4.5 h-4.5 bg-brand-maroon/90 dark:bg-brand-gold/90 flex items-center justify-center rounded-sm shadow-md">
-                          <span className="text-[8px] font-black text-white dark:text-stone-950 font-display">
-                            {idx + 1}
-                          </span>
-                        </div>
-                      </div>
+              {/* Auto-scrolling Viewport (Continuous Vertical Marquee, Pauses on Hover) */}
+              <div 
+                className="relative h-[380px] sm:h-[420px] lg:h-[430px] overflow-hidden rounded-xl border border-stone-150 dark:border-stone-850/80 bg-stone-50/50 dark:bg-stone-900/30 p-2.5 group/marquee"
+                title={language === "ta" ? "நிறுத்த மேலே வைக்கவும்" : "Hover to pause scrolling"}
+              >
+                {/* Subtle top & bottom fade masks for seamless infinite feel */}
+                <div className="absolute top-0 inset-x-0 h-4 bg-gradient-to-b from-stone-50 dark:from-stone-900 to-transparent z-10 pointer-events-none opacity-80" />
+                <div className="absolute bottom-0 inset-x-0 h-4 bg-gradient-to-t from-stone-50 dark:from-stone-900 to-transparent z-10 pointer-events-none opacity-80" />
 
-                      <div className="flex-grow min-w-0">
-                        <h4 className="text-xs font-bold text-stone-850 dark:text-stone-200 line-clamp-2 leading-snug group-hover:text-brand-maroon dark:group-hover:text-brand-gold transition-colors">
-                          {title}
-                        </h4>
-                        <div className="flex items-center gap-2 mt-1 text-[9px] text-stone-400 font-semibold">
-                          <span>{formatPublishedTime(item.published_at || item.publishedAt || item.created_at || item.date, language, mounted ? liveNow : undefined)}</span>
-                        </div>
-                      </div>
-                    </Link>
-                  );
-                })}
+                {/* 1. TRENDING TAB (Auto-scrolling) */}
+                {activeTab === "trending" && (
+                  <div className="animate-vertical-marquee space-y-3">
+                    {trendingMarqueeList.map((item, idx) => {
+                      const title = language === "ta"
+                        ? (item.title_ta || item.title_en || "")
+                        : (item.title_en || item.title_ta || "");
+                      const rank = (idx % (trendingNews.length || 1)) + 1;
+                      const category = language === "ta" ? (item.category_ta || item.category_en) : item.category_en;
+                      const displayDate = item.published_at || item.publishedAt || item.created_at || item.date;
 
-                {activeTab === "most-read" && mostReadNews.map((item, idx) => {
-                  const title = language === "ta"
-                    ? (item.title_ta || item.title_en || "")
-                    : (item.title_en || item.title_ta || "");
-                  return (
-                    <Link
-                      key={item.id}
-                      href={item.slug ? `/news/${item.slug}` : "#"}
-                      className="flex items-center gap-2.5 group border-b border-stone-100 dark:border-stone-900 pb-2.5 last:border-0 text-left newsroom-sidebar-item"
-                    >
-                      {/* Image Block with Overlay Rank */}
-                      <div className="relative w-16 h-12 shrink-0 rounded bg-stone-100 dark:bg-stone-850 overflow-hidden">
-                        <Image
-                          src={item.image || "/images/police_medal.jpg"}
-                          alt={title}
-                          fill
-                          className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
-                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/images/police_medal.jpg"; }}
-                        />
-                        <div className="absolute top-0.5 left-0.5 w-4.5 h-4.5 bg-[#c5a059]/90 flex items-center justify-center rounded-sm shadow-md">
-                          <span className="text-[8px] font-black text-black font-display">
-                            {idx + 1}
-                          </span>
-                        </div>
-                      </div>
+                      return (
+                        <Link
+                          key={`trend-${item.id}-${idx}`}
+                          href={item.slug ? `/news/${item.slug}` : "#"}
+                          className="flex items-center gap-3 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-2.5 rounded-xl hover:shadow-md hover:border-brand-maroon/30 dark:hover:border-brand-gold/30 transition-all duration-200 group text-left shrink-0"
+                        >
+                          {/* Image with Rank Badge */}
+                          <div className="relative w-20 h-16 shrink-0 rounded-lg overflow-hidden bg-stone-100 dark:bg-stone-800">
+                            <Image
+                              src={item.image || "/images/police_medal.jpg"}
+                              alt={title}
+                              fill
+                              loading="eager"
+                              className="object-cover object-center group-hover:scale-105 transition-transform duration-300"
+                              sizes="(max-width: 768px) 100vw, 25vw"
+                              onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/images/police_medal.jpg"; }}
+                            />
+                            <div className="absolute top-1 left-1 w-5 h-5 bg-brand-maroon text-white flex items-center justify-center rounded-md shadow-md text-[9px] font-black font-display">
+                              {rank}
+                            </div>
+                          </div>
 
-                      <div className="flex-grow min-w-0">
-                        <h4 className="text-xs font-bold text-stone-850 dark:text-stone-200 line-clamp-2 leading-snug group-hover:text-brand-maroon dark:group-hover:text-brand-gold transition-colors">
-                          {title}
-                        </h4>
-                        <div className="flex items-center gap-2 mt-1 text-[9px] text-stone-400 font-semibold">
-                          <span>{formatPublishedTime(item.published_at || item.publishedAt || item.created_at || item.date, language, mounted ? liveNow : undefined)}</span>
-                        </div>
-                      </div>
-                    </Link>
-                  );
-                })}
-
-                {activeTab === "videos" && sidebarVideos.map((video) => (
-                  <a
-                    key={video.id}
-                    href={`/videos`}
-                    onClick={() => {
-                      // Fire increment trigger asynchronously
-                      fetch(`/api/videos/${video.id}/view`, { method: "POST" }).catch(() => {});
-                    }}
-                    className="flex items-start gap-2.5 group border-b border-stone-100 dark:border-stone-900 pb-2.5 last:border-0 newsroom-sidebar-item"
-                  >
-                    <div className="relative w-16 h-10 rounded overflow-hidden shrink-0 bg-stone-200">
-                      <Image
-                        src={`https://img.youtube.com/vi/${video.youtube_id}/hqdefault.jpg`}
-                        alt={video.title}
-                        fill
-                        unoptimized
-                        className="object-cover"
-                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/35 group-hover:bg-black/50">
-                        <Play className="w-4 h-4 fill-white text-white opacity-95 scale-90 group-hover:scale-100 transition-transform" />
-                      </div>
-                    </div>
-                    <div className="flex-grow min-w-0 text-left">
-                      <h4 className="text-xs font-bold text-stone-850 dark:text-stone-200 line-clamp-2 leading-tight group-hover:text-brand-maroon dark:group-hover:text-brand-gold transition-colors">
-                        {video.title}
-                      </h4>
-                      <div className="flex items-center gap-2 mt-0.5 text-[9px] font-bold text-stone-400 uppercase">
-                        <span>{video.category}</span>
-                      </div>
-                    </div>
-                  </a>
-                ))}
-                {activeTab === "videos" && sidebarVideos.length === 0 && (
-                  <p className="text-xs text-stone-400 text-center py-4">No videos available</p>
+                          <div className="flex-grow min-w-0 flex flex-col justify-between">
+                            <div>
+                              {category && (
+                                <span className="text-[9px] font-black uppercase tracking-wider text-brand-gold block truncate mb-0.5">
+                                  {category}
+                                </span>
+                              )}
+                              <h4 className="text-xs font-bold text-stone-900 dark:text-stone-100 line-clamp-2 leading-snug group-hover:text-brand-maroon dark:group-hover:text-brand-gold transition-colors">
+                                {title}
+                              </h4>
+                            </div>
+                            <div className="flex items-center justify-between mt-1 text-[9px] font-medium text-stone-400">
+                              <span suppressHydrationWarning className="flex items-center gap-1 truncate">
+                                <Clock className="w-3 h-3 text-stone-400 shrink-0" />
+                                {formatPublishedTime(displayDate, language, mounted ? liveNow : undefined)}
+                              </span>
+                            </div>
+                          </div>
+                        </Link>
+                      );
+                    })}
+                  </div>
                 )}
+
+                {/* 2. MOST READ TAB (Auto-scrolling) */}
+                {activeTab === "most-read" && (
+                  <div className="animate-vertical-marquee space-y-3">
+                    {mostReadMarqueeList.map((item, idx) => {
+                      const title = language === "ta"
+                        ? (item.title_ta || item.title_en || "")
+                        : (item.title_en || item.title_ta || "");
+                      const rank = (idx % (mostReadNews.length || 1)) + 1;
+                      const category = language === "ta" ? (item.category_ta || item.category_en) : item.category_en;
+                      const displayDate = item.published_at || item.publishedAt || item.created_at || item.date;
+
+                      return (
+                        <Link
+                          key={`read-${item.id}-${idx}`}
+                          href={item.slug ? `/news/${item.slug}` : "#"}
+                          className="flex items-center gap-3 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-2.5 rounded-xl hover:shadow-md hover:border-brand-maroon/30 dark:hover:border-brand-gold/30 transition-all duration-200 group text-left shrink-0"
+                        >
+                          {/* Image with Rank Badge */}
+                          <div className="relative w-20 h-16 shrink-0 rounded-lg overflow-hidden bg-stone-100 dark:bg-stone-800">
+                            <Image
+                              src={item.image || "/images/police_medal.jpg"}
+                              alt={title}
+                              fill
+                              loading="eager"
+                              className="object-cover object-center group-hover:scale-105 transition-transform duration-300"
+                              sizes="(max-width: 768px) 100vw, 25vw"
+                              onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/images/police_medal.jpg"; }}
+                            />
+                            <div className="absolute top-1 left-1 w-5 h-5 bg-[#c5a059] text-stone-950 flex items-center justify-center rounded-md shadow-md text-[9px] font-black font-display">
+                              {rank}
+                            </div>
+                          </div>
+
+                          <div className="flex-grow min-w-0 flex flex-col justify-between">
+                            <div>
+                              {category && (
+                                <span className="text-[9px] font-black uppercase tracking-wider text-brand-maroon dark:text-brand-gold block truncate mb-0.5">
+                                  {category}
+                                </span>
+                              )}
+                              <h4 className="text-xs font-bold text-stone-900 dark:text-stone-100 line-clamp-2 leading-snug group-hover:text-brand-maroon dark:group-hover:text-brand-gold transition-colors">
+                                {title}
+                              </h4>
+                            </div>
+                            <div className="flex items-center justify-between mt-1 text-[9px] font-medium text-stone-400">
+                              <span suppressHydrationWarning className="flex items-center gap-1 truncate">
+                                <Clock className="w-3 h-3 text-stone-400 shrink-0" />
+                                {formatPublishedTime(displayDate, language, mounted ? liveNow : undefined)}
+                              </span>
+                            </div>
+                          </div>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* 3. VIDEOS TAB (Auto-scrolling) */}
+                {activeTab === "videos" && (
+                  <div className="animate-vertical-marquee space-y-3">
+                    {videosMarqueeList.map((video, idx) => (
+                      <a
+                        key={`vid-${video.id}-${idx}`}
+                        href="/videos"
+                        onClick={() => {
+                          fetch(`/api/videos/${video.id}/view`, { method: "POST" }).catch(() => {});
+                        }}
+                        className="flex items-center gap-3 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-2.5 rounded-xl hover:shadow-md hover:border-brand-maroon/30 dark:hover:border-brand-gold/30 transition-all duration-200 group text-left shrink-0"
+                      >
+                        <div className="relative w-20 h-14 rounded-lg overflow-hidden shrink-0 bg-stone-200">
+                          <Image
+                            src={`https://img.youtube.com/vi/${video.youtube_id}/hqdefault.jpg`}
+                            alt={video.title}
+                            fill
+                            unoptimized
+                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                            sizes="(max-width: 768px) 100vw, 25vw"
+                          />
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/40 group-hover:bg-black/55 transition-colors">
+                            <Play className="w-4 h-4 fill-white text-white opacity-95 scale-90 group-hover:scale-110 transition-transform" />
+                          </div>
+                        </div>
+                        <div className="flex-grow min-w-0">
+                          <span className="text-[9px] font-black uppercase tracking-wider text-brand-maroon dark:text-brand-gold block truncate mb-0.5">
+                            {video.category || "VIDEO"}
+                          </span>
+                          <h4 className="text-xs font-bold text-stone-900 dark:text-stone-100 line-clamp-2 leading-snug group-hover:text-brand-maroon dark:group-hover:text-brand-gold transition-colors">
+                            {video.title}
+                          </h4>
+                          <div className="flex items-center gap-2 mt-1 text-[9px] font-semibold text-stone-400">
+                            <span>{video.date || "Greater Chennai Police"}</span>
+                          </div>
+                        </div>
+                      </a>
+                    ))}
+                    {videosMarqueeList.length === 0 && (
+                      <p className="text-xs text-stone-400 text-center py-8">No videos available</p>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className="mt-2 flex items-center justify-end text-[9px] text-stone-400 font-semibold px-1">
+                <Link href="/news" className="text-brand-maroon dark:text-brand-gold hover:underline font-bold">
+                  {language === "ta" ? "அனைத்து செய்திகள் →" : "View All News →"}
+                </Link>
               </div>
             </div>
           </div>
@@ -598,3 +612,4 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
     </section>
   );
 }
+

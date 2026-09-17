@@ -58,9 +58,25 @@
 /* Base Styles matching screenshot */
 html {
   scroll-behavior: smooth;
-  font-size: 102%;
-  /* Globally boost font size of all rem elements slightly */
+  font-size: 100%;
   overflow-x: hidden;
+}
+
+/* Global Font Size Scaling for Accessibility */
+html[data-font-size="small"] {
+  font-size: 90% !important;
+}
+
+html[data-font-size="normal"] {
+  font-size: 100% !important;
+}
+
+html[data-font-size="large"] {
+  font-size: 115% !important;
+}
+
+html[data-font-size="xlarge"] {
+  font-size: 125% !important;
 }
 
 /* Accessibility overrides: scale up custom inline arbitrary font-sizes */
@@ -168,6 +184,27 @@ body {
   width: max-content;
   animation: marquee 70s linear infinite;
   will-change: transform;
+}
+
+/* Vertical marquee for auto-scrolling sidebar news */
+@keyframes verticalMarquee {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-50%);
+  }
+}
+
+.animate-vertical-marquee {
+  display: flex;
+  flex-direction: column;
+  animation: verticalMarquee 26s linear infinite;
+  will-change: transform;
+}
+
+.animate-vertical-marquee:hover {
+  animation-play-state: paused;
 }
 
 /* Story card ring animation */
@@ -2148,3 +2185,23 @@ html[data-high-contrast="true"] .about-orgchart-container>div {
   background-color: #050505 !important;
   border: 2px solid #ffff00 !important;
 }
+
+/* Vertical Auto-Scrolling Marquee for Trending/News */
+@keyframes verticalMarquee {
+  0% {
+    transform: translateY(0%);
+  }
+  100% {
+    transform: translateY(-50%);
+  }
+}
+
+.animate-vertical-marquee {
+  animation: verticalMarquee 20s linear infinite;
+  display: flex;
+  flex-direction: column;
+}
+
+.animate-vertical-marquee:hover {
+  animation-play-state: paused !important;
+}

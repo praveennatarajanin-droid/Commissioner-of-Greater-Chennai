@@ -21,9 +21,8 @@ const VideoNewsCenter = dynamic(() => import("@/components/sections/VideoNewsCen
   ssr: false,
   loading: () => <div className="h-96 bg-stone-50 dark:bg-stone-900 animate-pulse w-full rounded-2xl" />
 });
-const OfficialAlertsFeed = dynamic(() => import("@/components/sections/OfficialAlertsFeed"), {
-  ssr: false,
-  loading: () => <div className="h-[450px] bg-stone-50 dark:bg-stone-900 animate-pulse w-full rounded-2xl" />
+const LatestNewsDualSection = dynamic(() => import("@/components/sections/LatestNewsDualSection"), {
+  loading: () => <div className="h-72 bg-white dark:bg-stone-900 border border-slate-200 dark:border-stone-800 rounded-2xl animate-pulse w-full" />
 });
 const GcpCommissionerMandate = dynamic(() => import("@/components/sections/GcpCommissionerMandate"), {
   ssr: false,
@@ -34,7 +33,7 @@ import { useSearchParams } from "next/navigation";
 import { useTranslation } from "@/context/LanguageContext";
 import Image from "next/image";
 import Link from "next/link";
-import { Clock, Eye, ChevronRight, TrendingUp, HelpCircle, Film, Newspaper } from "lucide-react";
+import { Clock, Eye, ChevronRight, HelpCircle, Film, Newspaper } from "lucide-react";
 import { formatPublishedTime, getNewsTimestamp } from "@/lib/dateUtils";
 import { useLiveNow } from "@/lib/useLiveNow";
 
@@ -150,20 +149,6 @@ const NEWS_CATEGORIES = [
     title_ta: "சமூக உதவித் திட்டங்கள்",
     color: "#059669",
     keywords: ["community", "outreach", "karangal", "rescue", "welfare", "pledge", "labour", "students", "legal", "social awareness", "community support"]
-  },
-  {
-    id: "traffic",
-    title_en: "Traffic Updates",
-    title_ta: "போக்குவரத்து செய்திகள்",
-    color: "#2e3192",
-    keywords: ["traffic", "diversion", "road closure", "signal", "congestion", "transport", "accident alert", "traffic police"]
-  },
-  {
-    id: "government",
-    title_en: "Government Updates",
-    title_ta: "அரசு அறிவிப்புகள்",
-    color: "#2e3192",
-    keywords: ["government", "police administration", "appointment", "transfer", "ips", "official", "reshuffle", "chief minister"]
   }
 ];
 
@@ -233,6 +218,7 @@ const NewsCard = ({ n, lang, idx, liveNow }: { n: NewsItem; lang: "en" | "ta"; i
           src={n.image || "/images/police_medal.jpg"}
           alt={title}
           fill
+          loading={idx < 4 ? "eager" : "lazy"}
           className="object-cover object-center group-hover:scale-[1.03] transition-transform duration-500"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/images/police_medal.jpg"; }}
         />
@@ -358,17 +344,7 @@ export default function NewsChannelHomepage({
     });
   };
 
-  // 4. Section 7: Top 10 Trending News
-  const top10Trending = [...news]
-    .sort((a, b) => (b.views_count || 0) - (a.views_count || 0))
-    .slice(0, 10);
-
-  // 5. Section 8: Big Stories (Featured news in 2 rows, take 6 cards)
-  const bigStories = sortedNews
-    .filter(n => n.featured === 1 || n.section === "spotlight" || n.section === "big-stories")
-    .slice(0, 6);
-
-  // 6. Section 11: Latest Grid items (20+ cards)
+  // Section: Latest Grid items (20+ cards)
   const latestGridNews = sortedNews.slice(0, visibleCount);
 
   const handleLoadMore = () => {
@@ -472,25 +448,13 @@ export default function NewsChannelHomepage({
                   ))}
                 </div>
                 <div className="flex justify-end mt-4">
-                  {routePath === "traffic" ? (
-                    <a
-                      href="https://gctp.in/chennai-home"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1.5 text-[10px] font-black uppercase text-stone-500 hover:text-brand-maroon dark:hover:text-brand-gold transition-colors tracking-widest"
-                    >
-                      {language === "ta" ? "போக்குவரத்து நேரலை (GCTP)" : "Traffic Portal (GCTP)"}
-                      <ChevronRight className="w-3.5 h-3.5" />
-                    </a>
-                  ) : (
-                    <Link
-                      href={`/category/${routePath}`}
-                      className="flex items-center gap-1.5 text-[10px] font-black uppercase text-stone-500 hover:text-brand-maroon dark:hover:text-brand-gold transition-colors tracking-widest"
-                    >
-                      {language === "ta" ? "மேலும் செய்திகள்" : `More ${cat.title_en} News`}
-                      <ChevronRight className="w-3.5 h-3.5" />
-                    </Link>
-                  )}
+                  <Link
+                    href={`/category/${routePath}`}
+                    className="flex items-center gap-1.5 text-[10px] font-black uppercase text-stone-500 hover:text-brand-maroon dark:hover:text-brand-gold transition-colors tracking-widest"
+                  >
+                    {language === "ta" ? "மேலும் செய்திகள்" : `More ${cat.title_en} News`}
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </Link>
                 </div>
               </section>
             );
@@ -502,94 +466,8 @@ export default function NewsChannelHomepage({
           <VideoNewsCenter customVideos={videos} />
         </div>
 
-        {/* SECTION 7: TOP 10 TRENDING */}
-        <section className="w-full bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-850 p-6 rounded-2xl shadow-sm text-left">
-          <div className="flex items-center gap-2 mb-6 pb-2 border-b border-stone-200 dark:border-stone-850">
-            <TrendingUp className="w-5 h-5 text-[#ed1b24]" />
-            <h2 className="font-display font-black text-sm sm:text-base uppercase tracking-widest text-stone-900 dark:text-white">
-              {language === "ta" ? "சிறந்த 10 செய்திகள்" : "Top 10 Trending News"}
-            </h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-            {top10Trending.map((item, idx) => {
-              const title = language === "ta" ? (item.title_ta || item.title_en) : item.title_en;
-              return (
-                <Link
-                  key={`trending-10-${item.id}`}
-                  href={`/news/${item.slug}`}
-                  className="flex items-start gap-4 group py-2 border-b border-stone-100 dark:border-stone-800 last:border-0 md:last:border-b"
-                >
-                  <span className="font-display font-black text-stone-300 dark:text-stone-700 text-xl sm:text-2xl leading-none w-8 text-center shrink-0">
-                    {idx + 1}
-                  </span>
-                  <div className="min-w-0 flex-grow text-left">
-                    <h4 className="text-xs sm:text-sm font-bold text-stone-800 dark:text-stone-200 leading-snug line-clamp-2 group-hover:text-brand-maroon dark:group-hover:text-brand-gold transition-colors">
-                      {title}
-                    </h4>
-                    <div className="flex items-center gap-3 mt-1.5 text-[9px] text-stone-400 font-black uppercase tracking-wider">
-                      <span>{formatPublishedTime(item.published_at || (item as any).publishedAt || item.date || item.created_at, language, liveNow)}</span>
-                    </div>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* SECTION 8: BIG STORIES (Featured news cards in 2 rows) */}
-        <section className="w-full">
-          <SectionHeader
-            title={language === "ta" ? "முக்கிய செய்திகள்" : "Big Stories"}
-            color="#ed1b24"
-          />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {bigStories.map((n, idx) => {
-              const title = language === "ta" ? (n.title_ta || n.title_en) : n.title_en;
-              const summary = language === "ta" ? (n.summary_ta || n.summary_en) : n.summary_en;
-              const category = language === "ta" ? (n.category_ta || n.category_en) : n.category_en;
-
-              return (
-                <Link
-                  key={`big-story-${n.id}`}
-                  href={`/news/${n.slug}`}
-                  className="group relative rounded-2xl overflow-hidden shadow-md flex flex-col justify-end"
-                  style={{ minHeight: "260px" }}
-                >
-                  <div className="absolute inset-0 z-0">
-                    <Image
-                      src={n.image || "/images/police_medal.jpg"}
-                      alt={title}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
-                  </div>
-
-                  <div className="relative z-10 p-5 space-y-2 text-left">
-                    <span className="inline-block px-2 py-0.5 rounded text-[8px] font-black text-white uppercase tracking-wider bg-brand-maroon">
-                      {category}
-                    </span>
-                    <h3 className="font-display font-black text-white text-sm sm:text-base leading-snug line-clamp-2 group-hover:text-brand-gold transition-colors">
-                      {title}
-                    </h3>
-                    <p className="text-white/70 text-[10px] leading-relaxed line-clamp-2">
-                      {summary}
-                    </p>
-                    <div className="flex items-center gap-3 pt-1 text-[9px] text-white/50 font-bold uppercase tracking-wider">
-                      <span>{formatPublishedTime(n.published_at || (n as any).publishedAt || n.date || n.created_at, language, liveNow)}</span>
-                    </div>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        </section>
-
-
-        {/* SECTION 10: OFFICIAL ALERTS */}
-        <div id="alerts" className="scroll-mt-24">
-          <OfficialAlertsFeed initialAlerts={alerts} language={language} />
-        </div>
+        {/* LATEST NEWS & UPDATES (Two-column: Official Releases & In The News) */}
+        <LatestNewsDualSection officialNews={news} externalAlerts={alerts} language={language} />
 
         {/* SECTION 11: LATEST NEWS GRID (20+ news cards, pagination / Load More) */}
         <section id="latest-grid" className="w-full scroll-mt-24">

@@ -1,14 +1,15 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { Search, Menu, X, ChevronDown } from "lucide-react";
+import { Search, Menu, X, ChevronDown, ChevronRight, Clock, Pause, Play } from "lucide-react";
 import { useTheme } from "@/components/ThemeProvider";
 import { useAccessibility } from "@/context/AccessibilityContext";
 import { useTranslation } from "@/context/LanguageContext";
 import { motion, AnimatePresence } from "framer-motion";
+import { parsePublishedDate } from "@/lib/dateUtils";
 
 const FacebookIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
@@ -49,8 +50,61 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
   const { togglePanel, isPanelOpen, isHighContrast } = useAccessibility();
   const { t, language, changeLanguage } = useTranslation();
   const [news, setNews] = useState<any[]>([]);
+  const [istTime, setIstTime] = useState("");
+  const [mounted, setMounted] = useState(false);
+  const [isTickerPaused, setIsTickerPaused] = useState(false);
+  const [isTickerHovered, setIsTickerHovered] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
+
+  const formatTickerDate = (dateStr?: string, lang: "en" | "ta" = "en") => {
+    if (!dateStr) return "";
+    const d = parsePublishedDate(dateStr);
+    if (!d) return "";
+    const day = d.getDate().toString().padStart(2, "0");
+    const monthEn = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][d.getMonth()];
+    const monthTa = ["ஜன", "பிப்", "மார்", "ஏப்", "மே", "ஜூன்", "ஜூலை", "ஆக", "செப்", "அக்", "நவ", "டிச"][d.getMonth()];
+    return `${day} ${lang === "ta" ? monthTa : monthEn}`;
+  };
+
+  const latestTickerList = useMemo(() => {
+    if (!news || news.length === 0) return [];
+    return [...news]
+      .filter((n) => n && (n.published === undefined || n.published === 1))
+      .sort((a, b) => {
+        const timeA = new Date(a.published_at || a.publishedAt || a.date || a.created_at || 0).getTime();
+        const timeB = new Date(b.published_at || b.publishedAt || b.date || b.created_at || 0).getTime();
+        return timeB - timeA;
+      })
+      .slice(0, 15);
+  }, [news]);
+
+  // ─── Live IST Clock (Asia/Kolkata timezone) ───────────────────────────────
+  useEffect(() => {
+    setMounted(true);
+    const getFormattedIST = () => {
+      try {
+        const formatter = new Intl.DateTimeFormat("en-US", {
+          timeZone: "Asia/Kolkata",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: true,
+        });
+        return formatter.format(new Date());
+      } catch (e) {
+        const d = new Date();
+        return d.toLocaleTimeString("en-US", { hour12: true });
+      }
+    };
+
+    setIstTime(getFormattedIST());
+    const interval = setInterval(() => {
+      setIstTime(getFormattedIST());
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -108,6 +162,7 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
 
   const [dbMenus, setDbMenus] = useState<any[]>([]);
   const [expandedMobileItems, setExpandedMobileItems] = useState<{ [key: number]: boolean }>({});
+  const [expandedMobileSubItems, setExpandedMobileSubItems] = useState<{ [key: string]: boolean }>({});
   const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
 
   useEffect(() => {
@@ -131,9 +186,16 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
     const handleOutsideClick = () => {
       setActiveDropdown(null);
     };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setActiveDropdown(null);
+      }
+    };
     document.addEventListener("click", handleOutsideClick);
+    document.addEventListener("keydown", handleKeyDown);
     return () => {
       document.removeEventListener("click", handleOutsideClick);
+      document.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
 
@@ -141,34 +203,86 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
     setExpandedMobileItems(prev => ({ ...prev, [idx]: !prev[idx] }));
   };
 
-  const categoryLinks = [
-    { label: language === "ta" ? "குற்றம்" : "Crime", href: "/category/crime", id: "crime" },
-    { label: language === "ta" ? "சைபர் பாதுகாப்பு" : "Cyber Safety", href: "/category/cyber-safety", id: "cyber-safety" },
-    { label: language === "ta" ? "பெண்கள் பாதுகாப்பு" : "Women Safety", href: "/category/women-safety", id: "women-safety" },
-    { label: language === "ta" ? "பொது பாதுகாப்பு" : "Public Safety", href: "/category/public-safety", id: "public-safety" },
-    { label: language === "ta" ? "குடிமக்கள் சேவைகள்" : "Citizen Services", href: "/citizen-services", id: "citizen-services" },
-    { label: language === "ta" ? "போக்குவரத்து" : "Traffic", href: "https://gctp.in/chennai-home", id: "traffic", openInNewTab: true },
-    { label: language === "ta" ? "சமூக உதவி" : "Outreach", href: "/category/outreach", id: "outreach" },
-  ].filter(item => {
-    if (item.id === "citizen-services" || item.id === "traffic") return true;
-    if (news.length === 0) return true;
-    return getCount(item.id) > 0;
-  });
-
-  const fallbackNavItems = [
-    { label: language === "ta" ? "முகப்பு" : "Home", href: "/" },
-    { label: language === "ta" ? "அறிமுகம்" : "About Us", href: "/about" },
-    ...categoryLinks,
-    { label: language === "ta" ? "காவல் நிலையங்கள்" : "Stations", href: "/stations" },
-    { label: language === "ta" ? "வீடியோக்கள்" : "Videos", href: "/videos" },
-    { label: language === "ta" ? "ஆணையர்" : "Profile", href: "/commissioner-profile" },
-    { label: language === "ta" ? "தொடர்பு" : "Contact Us", href: "/contact-us" },
-  ];
+  const toggleMobileSubItem = (key: string) => {
+    setExpandedMobileSubItems(prev => ({ ...prev, [key]: !prev[key] }));
+  };
 
   const isTrafficItem = (name: string, url: string) => {
     const n = (name || "").toLowerCase();
     const u = (url || "").toLowerCase();
     return n.includes("traffic") || n.includes("போக்குவரத்து") || u === "/traffic" || u === "/category/traffic" || u.includes("gctp.in");
+  };
+
+  const isItemActive = (item: any, currentPath: string): boolean => {
+    if (!item || !currentPath) return false;
+    if (item.href && item.href === currentPath) return true;
+    if (item.subMenus && item.subMenus.length > 0) {
+      return item.subMenus.some((sub: any) => isItemActive(sub, currentPath));
+    }
+    return false;
+  };
+
+  const fallbackNavItems = [
+    { label: language === "ta" ? "முகப்பு" : "Home", href: "/", subMenus: [] },
+    { label: language === "ta" ? "அறிமுகம்" : "About Us", href: "/about", subMenus: [] },
+    {
+      label: language === "ta" ? "குடிமக்கள் சேவைகள்" : "Citizen Services",
+      href: "/citizen-services",
+      subMenus: [
+        {
+          label: language === "ta" ? "குற்றம்" : "Crime",
+          href: "/category/crime",
+          subMenus: [
+            { label: language === "ta" ? "தேடப்படும் குற்றவாளிகள்" : "Wanted Criminals", href: "/category/wanted-criminals" },
+            { label: language === "ta" ? "காணாமல் போனவர்கள்" : "Missing Persons", href: "/category/missing-persons" },
+          ]
+        },
+        {
+          label: language === "ta" ? "சைபர் பாதுகாப்பு" : "Cyber Safety",
+          href: "/category/cyber-safety",
+          subMenus: [
+            { label: language === "ta" ? "இணைய விழிப்புணர்வு" : "Cyber Awareness", href: "/category/cyber-awareness" },
+            { label: language === "ta" ? "ஆன்லைன் மோசடி" : "Online Fraud", href: "/category/online-fraud" },
+          ]
+        },
+        {
+          label: language === "ta" ? "பெண்கள் பாதுகாப்பு" : "Women Safety",
+          href: "/category/women-safety",
+          subMenus: [
+            { label: language === "ta" ? "பிங்க் பேட்ரோல்" : "Pink Patrol", href: "/category/pink-patrol" },
+            { label: language === "ta" ? "அவள் ஆதரவு பிரிவு" : "AVAL Support Wing", href: "/category/aval-support" },
+            { label: language === "ta" ? "பெண்கள் உதவி எண்" : "Women Helpline", href: "/category/women-helpline" },
+          ]
+        },
+        {
+          label: language === "ta" ? "பொது பாதுகாப்பு" : "Public Safety",
+          href: "/category/public-safety",
+          subMenus: []
+        },
+        {
+          label: language === "ta" ? "சமூக உதவி" : "Outreach",
+          href: "/category/outreach",
+          subMenus: []
+        },
+      ]
+    },
+    { label: language === "ta" ? "போக்குவரத்து" : "Traffic", href: "https://gctp.in/chennai-home", openInNewTab: true, subMenus: [] },
+    { label: language === "ta" ? "காவல் நிலையங்கள்" : "Stations", href: "/stations", subMenus: [] },
+    { label: language === "ta" ? "வீடியோக்கள்" : "Media Service", href: "/videos", subMenus: [] },
+    { label: language === "ta" ? "ஆணையர்" : "Profile", href: "/commissioner-profile", subMenus: [] },
+    { label: language === "ta" ? "தொடர்பு" : "Contact Us", href: "/contact-us", subMenus: [] },
+  ];
+
+  const mapSubMenusRecursive = (subs: any[]): any[] => {
+    return (subs || []).filter(Boolean).map((sub: any) => {
+      const isSubTraffic = isTrafficItem(sub.name_en || sub.name_ta || sub.slug || "", sub.url || "");
+      return {
+        label: language === "ta" ? (sub.name_ta || sub.name_en || "") : (sub.name_en || sub.name_ta || ""),
+        href: isSubTraffic ? "https://gctp.in/chennai-home" : (sub.url || ""),
+        openInNewTab: isSubTraffic ? true : sub.open_in_new_tab === 1,
+        subMenus: mapSubMenusRecursive(sub.subMenus || [])
+      };
+    });
   };
 
   const finalNavItems = dbMenus.length > 0
@@ -180,17 +294,10 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
         label: language === "ta" ? (m.name_ta || m.name_en || "") : (m.name_en || m.name_ta || ""),
         href,
         openInNewTab,
-        subMenus: (m.subMenus || []).filter(Boolean).map((sub: any) => {
-          const isSubTraffic = isTrafficItem(sub.name_en || sub.name_ta || sub.slug || "", sub.url || "");
-          return {
-            label: language === "ta" ? (sub.name_ta || sub.name_en || "") : (sub.name_en || sub.name_ta || ""),
-            href: isSubTraffic ? "https://gctp.in/chennai-home" : (sub.url || ""),
-            openInNewTab: isSubTraffic ? true : sub.open_in_new_tab === 1
-          };
-        })
+        subMenus: mapSubMenusRecursive(m.subMenus || [])
       };
     })
-    : fallbackNavItems.map(item => ({ ...item, subMenus: [] }));
+    : fallbackNavItems;
 
 
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -280,30 +387,7 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
               </a>
             </div>
 
-            {/* Language Switcher (Compact/Hidden on Mobile - inside drawer) */}
-            <div className="hidden md:flex items-center border border-white/20 bg-white/10 rounded-md p-0.5 text-xs font-black tracking-wider text-white navbar-lang-switcher">
-              <button
-                type="button"
-                onClick={() => changeLanguage("en")}
-                className={`px-2 py-0.5 rounded cursor-pointer transition-all font-bold navbar-lang-btn ${language === "en" ? "bg-[#c5a059] text-black navbar-lang-active" : "hover:bg-white/10 text-white navbar-lang-inactive"
-                  }`}
-                title="English"
-                aria-label="English"
-              >
-                A
-              </button>
-              <span className="text-white/30 px-0.5 select-none navbar-lang-divider">|</span>
-              <button
-                type="button"
-                onClick={() => changeLanguage("ta")}
-                className={`px-2 py-0.5 rounded cursor-pointer transition-all font-bold navbar-lang-btn ${language === "ta" ? "bg-[#c5a059] text-black navbar-lang-active" : "hover:bg-white/10 text-white navbar-lang-inactive"
-                  }`}
-                title="தமிழ் (Tamil)"
-                aria-label="தமிழ்"
-              >
-                அ
-              </button>
-            </div>
+
 
             {/* Mobile Search Toggle Icon */}
             <button
@@ -314,52 +398,9 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
               <Search className="w-4.5 h-4.5" />
             </button>
 
-            {/* Accessibility & Display Tools Button */}
-            <button
-              type="button"
-              id="navbar-accessibility-btn"
-              onClick={togglePanel}
-              className={`navbar-accessibility-btn relative flex items-center justify-center cursor-pointer transition-all duration-200 shrink-0 bg-transparent border-0 outline-none group focus:outline-none select-none ${
-                isPanelOpen
-                  ? "scale-110 opacity-100"
-                  : "opacity-95 hover:opacity-100 hover:scale-110 active:scale-95"
-              }`}
-              style={{ WebkitTapHighlightColor: "transparent" }}
-              title={language === "ta" ? "அணுகல்தன்மை கருவிகள்" : "Accessibility Tools"}
-              aria-label={language === "ta" ? "அணுகல்தன்மை கருவிகள்" : "Accessibility Tools"}
-              aria-expanded={isPanelOpen}
-              aria-controls="accessibility-panel"
-            >
-              <div className="w-8 h-8 md:w-9 md:h-9 lg:w-10 lg:h-10 flex items-center justify-center pointer-events-none">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  className={`w-full h-full transition-all duration-200 navbar-accessibility-img text-white ${
-                    isPanelOpen
-                      ? "drop-shadow-[0_0_10px_rgba(255,255,255,0.85)]"
-                      : "drop-shadow-sm group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.7)]"
-                  }`}
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
-                >
-                  {/* Outer circle */}
-                  <circle cx="12" cy="12" r="10" />
-                  {/* Head */}
-                  <circle cx="12" cy="7.5" r="1.5" fill="currentColor" stroke="none" />
-                  {/* Outstretched arms */}
-                  <path d="M 5.8 10.2 Q 12 11.8 18.2 10.2" />
-                  {/* Torso */}
-                  <path d="M 12 11.2 V 15.2" />
-                  {/* Legs */}
-                  <path d="M 12 15.2 L 8.5 19.5" />
-                  <path d="M 12 15.2 L 15.5 19.5" />
-                </svg>
-              </div>
-            </button>
+
+
+
 
             {/* Circular Profile Avatar — matched to logo size */}
             <Link
@@ -412,7 +453,7 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
 
           <nav className="flex items-stretch flex-nowrap flex-grow overflow-visible w-full" style={{ scrollbarWidth: "none" }}>
             {finalNavItems.map((item: any, idx) => {
-              const isActive = pathname === item.href;
+              const isActive = isItemActive(item, pathname);
               const hasSub = item.subMenus && item.subMenus.length > 0;
               const isExternal = item.href && (item.href.startsWith("http://") || item.href.startsWith("https://") || item.href.startsWith("www."));
               const navLinkClass = `flex items-center justify-center w-full uppercase font-black tracking-wider hover:bg-[#1e2060] transition border-r border-white/10 whitespace-nowrap cursor-pointer ${language === "ta"
@@ -445,31 +486,80 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
                   )}
                   {hasSub && (
                     <div
-                      className={`absolute left-0 top-[48px] flex-col bg-brand-blue border-t-2 border-[#c5a059] shadow-xl min-w-[220px] z-50 ${activeDropdown === idx ? "flex" : "hidden group-hover:flex"}`}
+                      className={`absolute left-0 top-[48px] flex-col bg-brand-blue border-t-2 border-[#c5a059] shadow-2xl min-w-[230px] z-50 ${activeDropdown === idx ? "flex" : "hidden group-hover:flex"}`}
                     >
                       {item.subMenus.map((sub: any, sIdx: number) => {
+                        const hasSub2 = sub.subMenus && sub.subMenus.length > 0;
+                        const isSubActive = isItemActive(sub, pathname);
                         const isSubExternal = sub.href && (sub.href.startsWith("http://") || sub.href.startsWith("https://") || sub.href.startsWith("www."));
-                        return isSubExternal ? (
-                          <a
-                            key={sIdx}
-                            href={sub.href}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={() => setActiveDropdown(null)}
-                            className="px-4 py-3 text-[10px] sm:text-xs uppercase font-black tracking-wider text-white hover:bg-[#1e2060] hover:text-[#c5a059] border-b border-white/5 transition whitespace-nowrap text-left block"
-                          >
-                            {sub.label}
-                          </a>
-                        ) : (
-                          <Link
-                            key={sIdx}
-                            href={sub.href}
-                            target={sub.openInNewTab ? "_blank" : undefined}
-                            onClick={() => setActiveDropdown(null)}
-                            className="px-4 py-3 text-[10px] sm:text-xs uppercase font-black tracking-wider text-white hover:bg-[#1e2060] hover:text-[#c5a059] border-b border-white/5 transition whitespace-nowrap text-left block"
-                          >
-                            {sub.label}
-                          </Link>
+
+                        return (
+                          <div key={sIdx} className="relative group/sub flex items-center justify-between w-full border-b border-white/5 last:border-b-0 hover:bg-[#1e2060]">
+                            {isSubExternal ? (
+                              <a
+                                href={sub.href}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={() => setActiveDropdown(null)}
+                                className={`px-4 py-3 text-[10px] sm:text-xs uppercase font-black tracking-wider flex-grow text-left block transition ${
+                                  isSubActive ? "text-[#c5a059] bg-[#1e2060]/50" : "text-white hover:text-[#c5a059]"
+                                }`}
+                              >
+                                {sub.label}
+                              </a>
+                            ) : (
+                              <Link
+                                href={sub.href}
+                                target={sub.openInNewTab ? "_blank" : undefined}
+                                onClick={() => setActiveDropdown(null)}
+                                className={`px-4 py-3 text-[10px] sm:text-xs uppercase font-black tracking-wider flex-grow text-left block transition ${
+                                  isSubActive ? "text-[#c5a059] bg-[#1e2060]/50" : "text-white hover:text-[#c5a059]"
+                                }`}
+                              >
+                                {sub.label}
+                              </Link>
+                            )}
+
+                            {hasSub2 && (
+                              <>
+                                <div className="pr-3 text-white/60 group-hover/sub:text-[#c5a059] pointer-events-none shrink-0">
+                                  <ChevronRight className="w-3.5 h-3.5" />
+                                </div>
+                                <div className="absolute left-full top-0 flex-col bg-brand-blue border-l-2 border-[#c5a059] shadow-2xl min-w-[210px] z-50 hidden group-hover/sub:flex group-focus-within/sub:flex">
+                                  {sub.subMenus.map((child: any, cIdx: number) => {
+                                    const isChildActive = pathname === child.href;
+                                    const isChildExternal = child.href && (child.href.startsWith("http://") || child.href.startsWith("https://") || child.href.startsWith("www."));
+                                    return isChildExternal ? (
+                                      <a
+                                        key={cIdx}
+                                        href={child.href}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        onClick={() => setActiveDropdown(null)}
+                                        className={`px-4 py-3 text-[10px] sm:text-xs uppercase font-black tracking-wider text-white hover:bg-[#1e2060] hover:text-[#c5a059] border-b border-white/5 last:border-b-0 transition whitespace-nowrap text-left block ${
+                                          isChildActive ? "text-[#c5a059] bg-[#1e2060]" : ""
+                                        }`}
+                                      >
+                                        {child.label}
+                                      </a>
+                                    ) : (
+                                      <Link
+                                        key={cIdx}
+                                        href={child.href}
+                                        target={child.openInNewTab ? "_blank" : undefined}
+                                        onClick={() => setActiveDropdown(null)}
+                                        className={`px-4 py-3 text-[10px] sm:text-xs uppercase font-black tracking-wider text-white hover:bg-[#1e2060] hover:text-[#c5a059] border-b border-white/5 last:border-b-0 transition whitespace-nowrap text-left block ${
+                                          isChildActive ? "text-[#c5a059] bg-[#1e2060]" : ""
+                                        }`}
+                                      >
+                                        {child.label}
+                                      </Link>
+                                    );
+                                  })}
+                                </div>
+                              </>
+                            )}
+                          </div>
                         );
                       })}
                     </div>
@@ -479,13 +569,98 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
             })}
           </nav>
 
-          <div className="hidden lg:flex items-center gap-1.5 xl:gap-2 text-[9px] xl:text-xs font-black text-[#c5a059] tracking-wide px-2 xl:px-5 shrink-0 border-l border-white/15">
-            <span className="w-2 xl:w-2.5 h-2 xl:h-2.5 rounded-full bg-[#10b981] animate-pulse" />
-            {language === "ta" ? "உதவி எண்: 112" : "Helpline: 112"}
+          {/* Far Right: Live Digital Clock (Asia/Kolkata IST) */}
+          <div className="hidden lg:flex items-center gap-1.5 xl:gap-2 px-3 xl:px-5 shrink-0 border-l border-white/15">
+            <Clock className="w-3.5 h-3.5 xl:w-4 xl:h-4 text-[#c5a059] shrink-0" aria-hidden="true" />
+            <time
+              dateTime={mounted ? new Date().toISOString() : undefined}
+              className="font-mono font-bold text-[11px] xl:text-xs text-[#c5a059] tracking-wider whitespace-nowrap select-none"
+              aria-label="Current India Standard Time"
+              title="Current India Standard Time (IST)"
+            >
+              {mounted && istTime ? istTime : "--:--:-- --"}
+            </time>
           </div>
 
         </div>
       </div>
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          ROW 5: LATEST NEWS TICKER STRIP (Present on Every Page)
+          ══════════════════════════════════════════════════════════════════════ */}
+      {latestTickerList.length > 0 && (
+        <div
+          role="region"
+          aria-label="Latest News Ticker"
+          className="w-full bg-[#080d1a] text-slate-200 border-t border-b border-white/10 overflow-hidden relative flex items-stretch min-h-[36px] shadow-xs"
+        >
+          {/* Left fixed badge: ● LATEST */}
+          <div className="flex items-center gap-2 px-3.5 sm:px-5 py-1.5 bg-[#060a14] border-r border-white/10 shrink-0 z-10 shadow-sm">
+            <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse shrink-0" aria-hidden="true" />
+            <span className="font-display font-black text-[11px] sm:text-xs text-amber-400 tracking-widest uppercase select-none">
+              {language === "ta" ? "அண்மைச் செய்திகள்" : "LATEST"}
+            </span>
+          </div>
+
+          {/* Center Scrolling Ticker Track */}
+          <div
+            className="flex-grow overflow-hidden flex items-center relative py-1"
+            onMouseEnter={() => setIsTickerHovered(true)}
+            onMouseLeave={() => setIsTickerHovered(false)}
+          >
+            <div
+              className="animate-marquee flex items-center whitespace-nowrap"
+              style={{
+                animationPlayState: (isTickerPaused || isTickerHovered) ? "paused" : "running",
+              }}
+            >
+              {/* Double list for smooth seamless continuous infinite looping */}
+              {[...latestTickerList, ...latestTickerList].map((item, idx) => {
+                const title = language === "ta" ? (item.title_ta || item.title_en) : item.title_en;
+                const dateText = formatTickerDate(item.published_at || item.publishedAt || item.date || item.created_at, language);
+                return (
+                  <div key={idx} className="inline-flex items-center">
+                    <Link
+                      href={item.slug ? `/news/${item.slug}` : "#"}
+                      className="inline-flex items-center gap-2 text-xs sm:text-[13px] text-slate-200 hover:text-amber-300 hover:underline transition-colors px-2 cursor-pointer"
+                    >
+                      <span className="text-amber-400 font-bold select-none">•</span>
+                      <span className="font-medium line-clamp-1">{title}</span>
+                      {dateText && (
+                        <span className="text-slate-400 text-[11px] font-semibold whitespace-nowrap select-none ml-1">
+                          {dateText}
+                        </span>
+                      )}
+                    </Link>
+                    <span className="text-slate-600 mx-3 select-none" aria-hidden="true">|</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Right fixed pause/play toggle */}
+          <button
+            type="button"
+            onClick={() => setIsTickerPaused((prev) => !prev)}
+            className="flex items-center gap-1.5 px-3 sm:px-4 py-1.5 bg-[#060a14] border-l border-white/10 shrink-0 z-10 text-slate-300 hover:text-white transition-colors cursor-pointer text-[10px] sm:text-[11px] font-bold tracking-wider uppercase shadow-sm select-none"
+            aria-label={isTickerPaused ? "Play ticker" : "Pause ticker"}
+            title={isTickerPaused ? "Play news ticker" : "Pause news ticker"}
+          >
+            {isTickerPaused ? (
+              <>
+                <Play className="w-3 h-3 text-amber-400 fill-amber-400 shrink-0" aria-hidden="true" />
+                <span>{language === "ta" ? "இயக்கு" : "PLAY"}</span>
+              </>
+            ) : (
+              <>
+                <Pause className="w-3 h-3 text-amber-400 fill-amber-400 shrink-0" aria-hidden="true" />
+                <span>{language === "ta" ? "இடைநிறுத்து" : "PAUSE"}</span>
+              </>
+            )}
+          </button>
+        </div>
+      )}
 
       {/* Mobile Drawer Menu (Mobile/Tablet Only, Off-canvas layout) */}
       <AnimatePresence>
@@ -498,15 +673,15 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
           >
             <nav className="flex flex-col p-4 space-y-1">
 
-              {/* Helpdesk badge */}
-              <div className="py-2.5 px-4 bg-white/5 rounded-lg text-xs font-bold text-[#c5a059] flex items-center gap-2 mb-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#10b981] animate-pulse" />
-                {language === "ta" ? "உதவி எண்: 112" : "Helpline: 112"}
+              {/* Mobile Live IST Clock */}
+              <div className="py-2.5 px-4 bg-white/5 rounded-lg text-xs font-mono font-bold text-[#c5a059] flex items-center gap-2 mb-2">
+                <Clock className="w-4 h-4 text-[#c5a059]" aria-hidden="true" />
+                <span>IST: {mounted && istTime ? istTime : "--:--:-- --"}</span>
               </div>
 
               {/* Navigation Items (Touch targets optimized to >= 44px) */}
               {finalNavItems.map((item: any, idx) => {
-                const isActive = pathname === item.href;
+                const isActive = isItemActive(item, pathname);
                 const hasSub = item.subMenus && item.subMenus.length > 0;
                 const isExpanded = expandedMobileItems[idx];
                 const isMobileExternal = item.href && (item.href.startsWith("http://") || item.href.startsWith("https://") || item.href.startsWith("www."));
@@ -545,30 +720,86 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
                       )}
                     </div>
                     {hasSub && isExpanded && (
-                      <div className="pl-6 flex flex-col bg-[#0b0c24]/30 rounded-lg mb-2">
+                      <div className="pl-4 pr-1 flex flex-col bg-[#0b0c24]/30 rounded-lg mb-2">
                         {item.subMenus.map((sub: any, sIdx: number) => {
+                          const hasSub2 = sub.subMenus && sub.subMenus.length > 0;
+                          const subKey = `${idx}-${sIdx}`;
+                          const isSubExpanded = expandedMobileSubItems[subKey];
+                          const isSubActive = isItemActive(sub, pathname);
                           const isSubExt = sub.href && (sub.href.startsWith("http://") || sub.href.startsWith("https://") || sub.href.startsWith("www."));
-                          return isSubExt ? (
-                            <a
-                              key={sIdx}
-                              href={sub.href}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              onClick={() => setMobileMenuOpen(false)}
-                              className="py-2.5 px-4 text-[12px] uppercase font-bold text-stone-300 hover:text-[#c5a059] text-left border-b border-white/5 last:border-b-0 min-h-[44px] flex items-center"
-                            >
-                              {sub.label}
-                            </a>
-                          ) : (
-                            <Link
-                              key={sIdx}
-                              href={sub.href}
-                              target={sub.openInNewTab ? "_blank" : undefined}
-                              onClick={() => setMobileMenuOpen(false)}
-                              className="py-2.5 px-4 text-[12px] uppercase font-bold text-stone-300 hover:text-[#c5a059] text-left border-b border-white/5 last:border-b-0 min-h-[44px] flex items-center"
-                            >
-                              {sub.label}
-                            </Link>
+
+                          return (
+                            <div key={sIdx} className="flex flex-col border-b border-white/5 last:border-b-0">
+                              <div className="flex items-center justify-between w-full">
+                                {isSubExt ? (
+                                  <a
+                                    href={sub.href}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className={`flex-grow py-3 px-3 text-[12px] uppercase font-bold hover:text-[#c5a059] text-left min-h-[44px] flex items-center ${
+                                      isSubActive ? "text-[#c5a059]" : "text-stone-300"
+                                    }`}
+                                  >
+                                    {sub.label}
+                                  </a>
+                                ) : (
+                                  <Link
+                                    href={sub.href}
+                                    target={sub.openInNewTab ? "_blank" : undefined}
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className={`flex-grow py-3 px-3 text-[12px] uppercase font-bold hover:text-[#c5a059] text-left min-h-[44px] flex items-center ${
+                                      isSubActive ? "text-[#c5a059]" : "text-stone-300"
+                                    }`}
+                                  >
+                                    {sub.label}
+                                  </Link>
+                                )}
+                                {hasSub2 && (
+                                  <button
+                                    onClick={() => toggleMobileSubItem(subKey)}
+                                    className="px-3 py-3 hover:bg-[#1e2060]/70 text-white rounded-md transition min-h-[44px] cursor-pointer flex items-center justify-center font-bold text-base"
+                                  >
+                                    {isSubExpanded ? "−" : "+"}
+                                  </button>
+                                )}
+                              </div>
+                              {hasSub2 && isSubExpanded && (
+                                <div className="pl-4 pr-1 flex flex-col bg-[#0b0c24]/50 rounded-md my-1">
+                                  {sub.subMenus.map((child: any, cIdx: number) => {
+                                    const isChildActive = pathname === child.href;
+                                    const isChildExt = child.href && (child.href.startsWith("http://") || child.href.startsWith("https://") || child.href.startsWith("www."));
+
+                                    return isChildExt ? (
+                                      <a
+                                        key={cIdx}
+                                        href={child.href}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        onClick={() => setMobileMenuOpen(false)}
+                                        className={`py-2.5 px-3 text-[11px] uppercase font-bold hover:text-[#c5a059] text-left border-b border-white/5 last:border-b-0 min-h-[44px] flex items-center ${
+                                          isChildActive ? "text-[#c5a059]" : "text-stone-300"
+                                        }`}
+                                      >
+                                        {child.label}
+                                      </a>
+                                    ) : (
+                                      <Link
+                                        key={cIdx}
+                                        href={child.href}
+                                        target={child.openInNewTab ? "_blank" : undefined}
+                                        onClick={() => setMobileMenuOpen(false)}
+                                        className={`py-2.5 px-3 text-[11px] uppercase font-bold hover:text-[#c5a059] text-left border-b border-white/5 last:border-b-0 min-h-[44px] flex items-center ${
+                                          isChildActive ? "text-[#c5a059]" : "text-stone-300"
+                                        }`}
+                                      >
+                                        {child.label}
+                                      </Link>
+                                    );
+                                  })}
+                                </div>
+                              )}
+                            </div>
                           );
                         })}
                       </div>
