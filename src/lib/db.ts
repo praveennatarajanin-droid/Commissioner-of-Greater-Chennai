@@ -1380,28 +1380,84 @@ class ChennaiGuardianDatabase {
 
   // Menus
   public async getMenuItems(): Promise<DBMenuItem[]> {
-    return jsonDb.getTable("menu_items") as DBMenuItem[];
+    const publicMenus = await this.getPublicMenus();
+    if (publicMenus && publicMenus.length > 0) {
+      return publicMenus.map((m, idx) => ({
+        id: m.id,
+        label_en: m.name_en,
+        label_ta: m.name_ta,
+        href: m.url,
+        order_num: m.display_order || (idx + 1),
+        position: "header"
+      }));
+    }
+    return (jsonDb.getTable("menu_items") as DBMenuItem[]) || [];
   }
   public async saveMenuItems(menu: DBMenuItem[]) {
     jsonDb.setTable("menu_items", menu);
   }
 
   public async getMenus(): Promise<DBMenu[]> {
-    return jsonDb.getTable("menus") as DBMenu[];
+    const list = jsonDb.getTable("menus") as DBMenu[];
+    return Array.isArray(list) ? list : [];
   }
   public async saveMenus(menus: DBMenu[]) {
     jsonDb.setTable("menus", menus);
   }
   public async getSubMenus(): Promise<DBSubMenu[]> {
-    return jsonDb.getTable("sub_menus") as DBSubMenu[];
+    const list = jsonDb.getTable("sub_menus") as DBSubMenu[];
+    return Array.isArray(list) ? list : [];
   }
   public async saveSubMenus(subMenus: DBSubMenu[]) {
     jsonDb.setTable("sub_menus", subMenus);
   }
 
   public async getPublicMenus(): Promise<DBMenu[]> {
-    const menus = (await this.getMenus()).filter(m => m.status === "active").sort((a, b) => a.display_order - b.display_order);
-    const subMenus = (await this.getSubMenus()).filter(s => s.status === "active").sort((a, b) => a.display_order - b.display_order);
+    const rawMenus = await this.getMenus();
+    const rawSubMenus = await this.getSubMenus();
+    const menus = (rawMenus || []).filter(m => m && m.status === "active").sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+    const subMenus = (rawSubMenus || []).filter(s => s && s.status === "active").sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+
+    if (menus.length === 0) {
+      return [
+        { id: 1, name_en: "Home", name_ta: "முகப்பு", slug: "home", display_order: 1, url: "/", page_type: "static", status: "active", open_in_new_tab: 0, subMenus: [] },
+        { id: 2, name_en: "About Us", name_ta: "எங்களைப் பற்றி", slug: "about", display_order: 2, url: "/about", page_type: "static", status: "active", open_in_new_tab: 0, subMenus: [] },
+        {
+          id: 3, name_en: "Citizen Services", name_ta: "குடிமக்கள் சேவைகள்", slug: "citizen-services", display_order: 3, url: "/citizen-services", page_type: "static", status: "active", open_in_new_tab: 0,
+          subMenus: [
+            {
+              id: 1, parent_menu_id: 3, name_en: "Crime", name_ta: "குற்றம்", slug: "crime", url: "/category/crime", display_order: 1, status: "active",
+              subMenus: [
+                { id: 6, parent_menu_id: 3, parent_sub_id: 1, name_en: "Wanted Criminals", name_ta: "தேடப்படும் குற்றவாளிகள்", slug: "wanted-criminals", url: "/category/wanted-criminals", display_order: 1, status: "active" },
+                { id: 7, parent_menu_id: 3, parent_sub_id: 1, name_en: "Missing Persons", name_ta: "காணாமல் போனவர்கள்", slug: "missing-persons", url: "/category/missing-persons", display_order: 2, status: "active" },
+              ] as any
+            },
+            {
+              id: 2, parent_menu_id: 3, name_en: "Cyber Safety", name_ta: "இணைய பாதுகாப்பு", slug: "cyber-safety", url: "/category/cyber-safety", display_order: 2, status: "active",
+              subMenus: [
+                { id: 8, parent_menu_id: 3, parent_sub_id: 2, name_en: "Cyber Awareness", name_ta: "இணைய விழிப்புணர்வு", slug: "cyber-awareness", url: "/category/cyber-awareness", display_order: 1, status: "active" },
+                { id: 9, parent_menu_id: 3, parent_sub_id: 2, name_en: "Online Fraud", name_ta: "ஆன்லைன் மோசடி", slug: "online-fraud", url: "/category/online-fraud", display_order: 2, status: "active" },
+              ] as any
+            },
+            {
+              id: 3, parent_menu_id: 3, name_en: "Women Safety", name_ta: "பெண்கள் பாதுகாப்பு", slug: "women-safety", url: "/category/women-safety", display_order: 3, status: "active",
+              subMenus: [
+                { id: 10, parent_menu_id: 3, parent_sub_id: 3, name_en: "Pink Patrol", name_ta: "பிங்க் பேட்ரோல்", slug: "pink-patrol", url: "/category/pink-patrol", display_order: 1, status: "active" },
+                { id: 11, parent_menu_id: 3, parent_sub_id: 3, name_en: "AVAL Support Wing", name_ta: "அவள் ஆதரவு பிரிவு", slug: "aval-support", url: "/category/aval-support", display_order: 2, status: "active" },
+                { id: 12, parent_menu_id: 3, parent_sub_id: 3, name_en: "Women Helpline", name_ta: "பெண்கள் உதவி எண்", slug: "women-helpline", url: "/category/women-helpline", display_order: 3, status: "active" },
+              ] as any
+            },
+            { id: 4, parent_menu_id: 3, name_en: "Public Safety", name_ta: "பொது பாதுகாப்பு", slug: "public-safety", url: "/category/public-safety", display_order: 4, status: "active", subMenus: [] },
+            { id: 5, parent_menu_id: 3, name_en: "Outreach", name_ta: "சமூக உதவி", slug: "outreach", url: "/category/outreach", display_order: 5, status: "active", subMenus: [] },
+          ] as any
+        },
+        { id: 4, name_en: "Traffic", name_ta: "போக்குவரத்து", slug: "traffic", display_order: 4, url: "https://gctp.in/chennai-home", page_type: "external", status: "active", open_in_new_tab: 1, subMenus: [] },
+        { id: 5, name_en: "Stations", name_ta: "காவல் நிலையங்கள்", slug: "stations", display_order: 5, url: "/stations", page_type: "static", status: "active", open_in_new_tab: 0, subMenus: [] },
+        { id: 6, name_en: "Media Service", name_ta: "வீடியோக்கள்", slug: "videos", display_order: 6, url: "/videos", page_type: "static", status: "active", open_in_new_tab: 0, subMenus: [] },
+        { id: 7, name_en: "Profile", name_ta: "ஆணையர்", slug: "commissioner-profile", display_order: 7, url: "/commissioner-profile", page_type: "static", status: "active", open_in_new_tab: 0, subMenus: [] },
+        { id: 8, name_en: "Contact Us", name_ta: "தொடர்பு", slug: "contact-us", display_order: 8, url: "/contact-us", page_type: "static", status: "active", open_in_new_tab: 0, subMenus: [] }
+      ];
+    }
 
     return menus.map(m => {
       // Find direct level 1 submenus (parent_menu_id matches and parent_sub_id is null/undefined)

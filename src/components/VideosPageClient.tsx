@@ -9,6 +9,8 @@ import Footer from "@/components/layout/Footer";
 import { useTranslation } from "@/context/LanguageContext";
 import { Tv, Play, Calendar, Film, ArrowLeft } from "lucide-react";
 
+import { DBMenu } from "@/lib/db";
+
 interface DBVideoItem {
   id: number;
   youtube_id: string;
@@ -19,15 +21,6 @@ interface DBVideoItem {
   active: number;
   section: "main" | "bottom";
   views_count?: number;
-}
-
-interface DBMenuItem {
-  id: number;
-  label_en: string;
-  label_ta: string;
-  href: string;
-  order_num: number;
-  position: string;
 }
 
 interface DBCommissionerProfile {
@@ -50,7 +43,7 @@ interface TickerItem {
 
 interface VideosPageClientProps {
   videos: DBVideoItem[];
-  menuItems: DBMenuItem[];
+  menuItems: DBMenu[] | any[];
   ticker: TickerItem[];
   profile: DBCommissionerProfile;
 }

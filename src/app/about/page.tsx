@@ -28,7 +28,7 @@ export default async function AboutPage({ searchParams }: AboutPageProps) {
   const { tab } = await searchParams;
   
   const [menuItems, rawTicker, profile, dynamicContent, schemaJson] = await Promise.all([
-    db.getMenuItems(),
+    db.getPublicMenus(),
     db.getTicker(),
     db.getCommissionerProfile(),
     db.getPageContent("about"),

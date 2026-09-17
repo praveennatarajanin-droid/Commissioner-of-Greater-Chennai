@@ -19,7 +19,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function StoriesPage() {
   const [menuItems, rawTicker, allStories, profile, allNews, schemaJson] = await Promise.all([
-    db.getMenuItems(),
+    db.getPublicMenus(),
     db.getTicker(),
     db.getWebStories(),
     db.getCommissionerProfile(),

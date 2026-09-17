@@ -24,7 +24,7 @@ export default async function Home() {
   db.syncAlerts(false).catch((e) => console.error("Background syncAlerts error:", e));
 
   const [menuItems, rawTicker, news, allVideos, allAlerts, profile, allSlider, dynamicContent, rawStories] = await Promise.all([
-    db.getMenuItems(),
+    db.getPublicMenus(),
     db.getTicker(),
     db.getNews(),
     db.getVideos(),

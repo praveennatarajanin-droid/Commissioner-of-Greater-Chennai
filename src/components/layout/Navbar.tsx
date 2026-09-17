@@ -38,11 +38,12 @@ const YoutubeIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 interface NavbarProps {
-  customMenuItems?: { label_en: string; label_ta: string; href: string }[];
+  customMenuItems?: any[];
+  initialMenus?: any[];
   stickyOffset?: string;
 }
 
-export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = {}) {
+export default function Navbar({ customMenuItems, initialMenus, stickyOffset }: NavbarProps = {}) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [searchVal, setSearchVal] = useState("");
@@ -160,7 +161,33 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
     }).length;
   };
 
-  const [dbMenus, setDbMenus] = useState<any[]>([]);
+  const initialData = useMemo(() => {
+    const passed = (initialMenus && initialMenus.length > 0) ? initialMenus : (customMenuItems && customMenuItems.length > 0 ? customMenuItems : null);
+    if (passed && passed.length > 0) {
+      return passed.map((item: any) => {
+        if (item.name_en || item.name_ta || item.url) return item;
+        return {
+          id: item.id || 0,
+          name_en: item.label_en || item.label || "",
+          name_ta: item.label_ta || item.label || "",
+          url: item.href || item.url || "",
+          slug: item.slug || "",
+          open_in_new_tab: item.open_in_new_tab || item.openInNewTab ? 1 : 0,
+          subMenus: item.subMenus || []
+        };
+      });
+    }
+    return [];
+  }, [initialMenus, customMenuItems]);
+
+  const [dbMenus, setDbMenus] = useState<any[]>(initialData);
+
+  useEffect(() => {
+    if (initialData && initialData.length > 0) {
+      setDbMenus(initialData);
+    }
+  }, [initialData]);
+
   const [expandedMobileItems, setExpandedMobileItems] = useState<{ [key: number]: boolean }>({});
   const [expandedMobileSubItems, setExpandedMobileSubItems] = useState<{ [key: string]: boolean }>({});
   const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
@@ -175,7 +202,7 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
         return res.json();
       })
       .then((data) => {
-        if (Array.isArray(data)) {
+        if (Array.isArray(data) && data.length > 0) {
           setDbMenus(data);
         }
       })
@@ -275,11 +302,14 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
 
   const mapSubMenusRecursive = (subs: any[]): any[] => {
     return (subs || []).filter(Boolean).map((sub: any) => {
-      const isSubTraffic = isTrafficItem(sub.name_en || sub.name_ta || sub.slug || "", sub.url || "");
+      const isSubTraffic = isTrafficItem(sub.name_en || sub.name_ta || sub.label_en || sub.slug || "", sub.url || sub.href || "");
+      const rawHref = sub.url || sub.href || "";
       return {
-        label: language === "ta" ? (sub.name_ta || sub.name_en || "") : (sub.name_en || sub.name_ta || ""),
-        href: isSubTraffic ? "https://gctp.in/chennai-home" : (sub.url || ""),
-        openInNewTab: isSubTraffic ? true : sub.open_in_new_tab === 1,
+        label: language === "ta" 
+          ? (sub.name_ta || sub.label_ta || sub.name_en || sub.label_en || "") 
+          : (sub.name_en || sub.label_en || sub.name_ta || sub.label_ta || ""),
+        href: isSubTraffic ? "https://gctp.in/chennai-home" : rawHref,
+        openInNewTab: isSubTraffic ? true : (sub.open_in_new_tab === 1 || sub.openInNewTab === true),
         subMenus: mapSubMenusRecursive(sub.subMenus || [])
       };
     });
@@ -287,11 +317,15 @@ export default function Navbar({ customMenuItems, stickyOffset }: NavbarProps = 
 
   const finalNavItems = dbMenus.length > 0
     ? dbMenus.filter(Boolean).map((m: any) => {
-      const isTraffic = isTrafficItem(m.name_en || m.name_ta || m.slug || "", m.url || "");
-      const href = isTraffic ? "https://gctp.in/chennai-home" : (m.url || "");
-      const openInNewTab = isTraffic ? true : m.open_in_new_tab === 1;
+      const isTraffic = isTrafficItem(m.name_en || m.name_ta || m.label_en || m.slug || "", m.url || m.href || "");
+      const rawHref = m.url || m.href || "/";
+      const href = isTraffic ? "https://gctp.in/chennai-home" : rawHref;
+      const openInNewTab = isTraffic ? true : (m.open_in_new_tab === 1 || m.openInNewTab === true);
+      const label = language === "ta" 
+        ? (m.name_ta || m.label_ta || m.name_en || m.label_en || "") 
+        : (m.name_en || m.label_en || m.name_ta || m.label_ta || "");
       return {
-        label: language === "ta" ? (m.name_ta || m.name_en || "") : (m.name_en || m.name_ta || ""),
+        label,
         href,
         openInNewTab,
         subMenus: mapSubMenusRecursive(m.subMenus || [])

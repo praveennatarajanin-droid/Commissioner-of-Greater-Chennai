@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Clock, Eye, Flame, ChevronRight, ChevronLeft, Zap, Play, PlayCircle, Calendar, FileText } from "lucide-react";
+import { Clock, Eye, ChevronRight, ChevronLeft, Zap, Play, PlayCircle, Calendar, FileText } from "lucide-react";
 
 interface NewsItem {
   id: number;
@@ -387,15 +387,6 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
           {/* ══ COLUMN 2 (RIGHT): Auto-scrolling Tabbed Feed (4 cols) ══ */}
           <div className="lg:col-span-4 p-4 md:p-5 flex flex-col justify-between">
             <div>
-              {/* Header with Title */}
-              <div className="flex items-center justify-between gap-2 mb-3 pb-2 border-b border-stone-200 dark:border-stone-850">
-                <div className="flex items-center gap-2">
-                  <Flame className="w-4 h-4 text-brand-maroon shrink-0" />
-                  <span className="font-display font-black text-xs uppercase tracking-wider text-stone-900 dark:text-white">
-                    {language === "ta" ? "நேரலை டிரெண்டிங் செய்திகள்" : "Trending News Feed"}
-                  </span>
-                </div>
-              </div>
 
               {/* Tabs header */}
               <div className="flex items-stretch border border-stone-200 dark:border-stone-850 bg-stone-100/80 dark:bg-stone-900 rounded-xl p-1 mb-3 text-[10px] font-black uppercase tracking-wider newsroom-tabs-header shadow-xs">

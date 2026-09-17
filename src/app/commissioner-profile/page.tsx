@@ -22,7 +22,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function CommissionerProfilePage() {
   const [menuItems, rawTicker, profile, dynamicContent, schemaJson] = await Promise.all([
-    db.getMenuItems(),
+    db.getPublicMenus(),
     db.getTicker(),
     db.getCommissionerProfile(),
     db.getPageContent("commissioner-profile"),

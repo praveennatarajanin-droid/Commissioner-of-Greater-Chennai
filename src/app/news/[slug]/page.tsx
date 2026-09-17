@@ -168,6 +168,8 @@ export default async function Page({
     ]
   };
 
+  const publicMenus = await db.getPublicMenus();
+
   return (
     <div className="flex flex-col min-h-screen bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100">
       {/* JSON-LD Structured Data */}
@@ -182,7 +184,7 @@ export default async function Page({
 
       {/* Header Navigation */}
       <NewsTicker />
-      <Navbar stickyOffset="38px" />
+      <Navbar customMenuItems={publicMenus} stickyOffset="38px" />
 
       {/* Main Content Area */}
       <main id="main-content" tabIndex={-1} className="flex-grow bg-white dark:bg-stone-950 focus:outline-none">

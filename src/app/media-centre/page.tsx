@@ -1,28 +1,30 @@
 import React from "react";
 import { db } from "@/lib/db";
-import VideosPageClient from "@/components/VideosPageClient";
+import MediaCentrePageClient from "@/components/MediaCentrePageClient";
 import type { Metadata } from "next";
 import { getMetadataForPage, getSchemaJsonForPage } from "@/lib/seoHelper";
 
 export const revalidate = 0; // force dynamic fetching
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata(): Promise<Metadata> {
   return getMetadataForPage(
-    "video_gallery_page",
+    "media_centre_page",
     0,
-    "Videos & Media Gallery | Greater Chennai Police",
-    "Watch latest press briefings, official statements, and community campaigns from Greater Chennai Police.",
-    "/videos"
+    "Media Centre & News Coverage | Greater Chennai Police",
+    "Real-time media reports, press coverage, and official departmental press releases from Greater Chennai Police.",
+    "/media-centre"
   );
 }
 
-export default async function VideosPage() {
-  const [menuItems, rawTicker, allVideos, profile, schemaJson] = await Promise.all([
+export default async function MediaCentrePage() {
+  const [menuItems, rawTicker, allAlerts, allNews, profile, schemaJson] = await Promise.all([
     db.getPublicMenus(),
     db.getTicker(),
-    db.getVideos(),
+    db.getAlerts(),
+    db.getNews(),
     db.getCommissionerProfile(),
-    getSchemaJsonForPage("video_gallery_page", 0)
+    getSchemaJsonForPage("media_centre_page", 0),
   ]);
 
   const tickerItems = rawTicker
@@ -33,7 +35,8 @@ export default async function VideosPage() {
       text_ta: i.text_ta,
     }));
 
-  const activeVideos = allVideos.filter((v) => v.active === 1);
+  const approvedAlerts = allAlerts.filter((a) => a.approved === 1 && a.removed === 0);
+  const publishedNews = allNews.filter((n) => n.published === 1);
 
   return (
     <>
@@ -43,8 +46,9 @@ export default async function VideosPage() {
           dangerouslySetInnerHTML={{ __html: schemaJson }}
         />
       )}
-      <VideosPageClient
-        videos={activeVideos}
+      <MediaCentrePageClient
+        alerts={approvedAlerts}
+        news={publishedNews}
         menuItems={menuItems}
         ticker={tickerItems}
         profile={profile}

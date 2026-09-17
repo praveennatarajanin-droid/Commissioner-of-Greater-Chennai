@@ -42,7 +42,7 @@ export default async function CategoryPage({
   }
   
   const [menuItems, rawTicker, allNews, profile] = await Promise.all([
-    db.getMenuItems(),
+    db.getPublicMenus(),
     db.getTicker(),
     db.getNews(),
     db.getCommissionerProfile(),

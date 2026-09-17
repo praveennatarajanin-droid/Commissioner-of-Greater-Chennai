@@ -73,7 +73,7 @@ export default async function StationDetailPage({ params }: PageProps) {
   }
 
   // Fetch layout elements
-  const menuItems = await db.getMenuItems();
+  const menuItems = await db.getPublicMenus();
   const rawTicker = await db.getTicker();
   const tickerItems = rawTicker
     .filter((i) => i.active === 1)

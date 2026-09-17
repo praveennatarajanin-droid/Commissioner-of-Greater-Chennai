@@ -23,7 +23,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function StationsPage() {
   // Fetch SSR Data for SEO and initialization
   const [menuItems, rawTicker, profile, stations, helplines, links, dynamicContent, schemaJson] = await Promise.all([
-    db.getMenuItems(),
+    db.getPublicMenus(),
     db.getTicker(),
     db.getCommissionerProfile(),
     db.getPoliceStations(),

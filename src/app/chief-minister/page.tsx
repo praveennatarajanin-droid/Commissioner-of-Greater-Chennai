@@ -84,7 +84,7 @@ export default function ChiefMinisterPage() {
 
   useEffect(() => {
     // Fetch layout configs
-    fetch("/api/admin/crud/menu-items").then(res => res.ok ? res.json() : null).then(data => Array.isArray(data) && setMenuItems(data)).catch(() => {});
+    fetch("/api/menus").then(res => res.ok ? res.json() : null).then(data => Array.isArray(data) && setMenuItems(data)).catch(() => {});
     fetch("/api/ticker").then(res => res.ok ? res.json() : null).then(data => Array.isArray(data) && setTicker(data)).catch(() => {});
     
     // Load commissioner profile details

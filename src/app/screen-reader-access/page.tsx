@@ -21,7 +21,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function ScreenReaderAccessPage() {
   const [menuItems, rawTicker, profile, schemaJson] = await Promise.all([
-    db.getMenuItems(),
+    db.getPublicMenus(),
     db.getTicker(),
     db.getCommissionerProfile(),
     getSchemaJsonForPage("screen_reader_access_page", 0)

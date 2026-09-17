@@ -106,7 +106,7 @@ interface NewsChannelHomepageProps {
   videos: VideoItem[];
   alerts: AlertItem[];
   ticker: TickerItem[];
-  menuItems: { label_en: string; label_ta: string; href: string }[];
+  menuItems?: any[];
   slider: SliderItem[];
   stories?: any[];
 }

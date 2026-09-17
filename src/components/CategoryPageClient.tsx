@@ -32,14 +32,7 @@ interface NewsItem {
   published?: number;
 }
 
-interface DBMenuItem {
-  id: number;
-  label_en: string;
-  label_ta: string;
-  href: string;
-  order_num: number;
-  position: string;
-}
+import { DBMenu } from "@/lib/db";
 
 interface DBCommissionerProfile {
   id: number;
@@ -62,7 +55,7 @@ interface TickerItem {
 interface CategoryPageClientProps {
   id: string;
   news: NewsItem[];
-  menuItems: DBMenuItem[];
+  menuItems: DBMenu[] | any[];
   ticker: TickerItem[];
   profile: DBCommissionerProfile;
 }

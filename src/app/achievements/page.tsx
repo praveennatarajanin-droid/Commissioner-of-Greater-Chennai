@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 };
 
 export default async function AchievementsPage() {
-  const menuItems = await db.getMenuItems();
+  const menuItems = await db.getPublicMenus();
   const rawTicker = await db.getTicker();
   const tickerItems = rawTicker
     .filter((i) => i.active === 1)
