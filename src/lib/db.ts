@@ -1007,23 +1007,13 @@ class JSONDatabaseManager {
       if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
       }
-      const tmpPath = `${JSON_DB_PATH}.${Date.now()}.${Math.random().toString(36).slice(2)}.tmp`;
       const serialized = JSON.stringify(this.data, null, 2);
-      fs.writeFileSync(tmpPath, serialized, "utf8");
-      fs.renameSync(tmpPath, JSON_DB_PATH);
+      fs.writeFileSync(JSON_DB_PATH, serialized, "utf8");
       this.lastMtime = fs.statSync(JSON_DB_PATH).mtimeMs;
       this.lastChecked = Date.now();
       this.isLoaded = true;
     } catch (err) {
-      console.error("Failed to save JSON Database atomically, attempting direct fallback:", err);
-      try {
-        fs.writeFileSync(JSON_DB_PATH, JSON.stringify(this.data, null, 2), "utf8");
-        this.lastMtime = fs.statSync(JSON_DB_PATH).mtimeMs;
-        this.lastChecked = Date.now();
-        this.isLoaded = true;
-      } catch (fallbackErr) {
-        console.error("Critical database save failure:", fallbackErr);
-      }
+      console.error("Critical database save failure:", err);
     }
   }
 
