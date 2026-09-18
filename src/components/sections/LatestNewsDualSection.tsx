@@ -268,11 +268,11 @@ export default function LatestNewsDualSection({
         {/* ══ Top Section Header ══ */}
         <div className="flex items-center justify-between pb-3.5 border-b border-slate-200 dark:border-stone-800">
           <div className="flex items-center gap-2.5">
-            <div className="w-1.5 h-6 rounded-full bg-[#081325] dark:bg-[#c5a059]" aria-hidden="true" />
-            <Newspaper className="w-5 h-5 text-[#081325] dark:text-[#c5a059] shrink-0" aria-hidden="true" />
+            <div className="w-1.5 h-6 rounded-full bg-brand-maroon dark:bg-brand-gold" aria-hidden="true" />
+            <Newspaper className="w-5 h-5 text-brand-maroon dark:text-brand-gold shrink-0" aria-hidden="true" />
             <h2
               id="latest-news-heading"
-              className="font-display font-black text-sm sm:text-base md:text-lg uppercase tracking-wider text-[#081325] dark:text-white"
+              className="font-display font-black text-sm sm:text-base md:text-lg uppercase tracking-wider text-stone-900 dark:text-white"
             >
               {language === "ta" ? "சமீபத்திய செய்திகள் & அறிவிப்புகள்" : "LATEST NEWS & UPDATES"}
             </h2>
@@ -306,15 +306,16 @@ export default function LatestNewsDualSection({
             {/* Column Header & Badge */}
             <div className="space-y-1">
               <div className="flex items-center justify-between gap-2">
-                <h3 className="font-display font-black text-sm sm:text-base uppercase tracking-wider text-[#081325] dark:text-white">
+                <h3 className="font-display font-black text-sm sm:text-base uppercase tracking-wider text-blue-900 dark:text-blue-400 flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400 shrink-0" aria-hidden="true" />
                   {language === "ta" ? "அதிகாரப்பூர்வ வெளியீடுகள்" : "OFFICIAL RELEASES"}
                 </h3>
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[9px] sm:text-[10px] font-black uppercase tracking-wider bg-[#081325] text-amber-300 dark:bg-amber-400/10 dark:text-amber-300 border border-amber-400/30 shrink-0">
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-wider bg-[#081325] text-amber-300 dark:bg-amber-400/10 dark:text-amber-300 border border-amber-400/40 shadow-xs shrink-0">
                   <ShieldCheck className="w-3 h-3 text-amber-400" aria-hidden="true" />
                   {language === "ta" ? "உள் வெளியீடு" : "INTERNAL"}
                 </span>
               </div>
-              <p className="text-xs text-slate-500 dark:text-stone-400 font-medium leading-relaxed">
+              <p className="text-xs text-slate-600 dark:text-slate-300 font-medium leading-relaxed pl-4 border-l-2 border-blue-500/30 dark:border-blue-400/30 my-1">
                 {language === "ta"
                   ? "சென்னை பெருநகர காவல் துறையால் வெளியிடப்பட்ட அதிகாரப்பூர்வ அறிவிப்புகள் மற்றும் அறிக்கைகள்."
                   : "Official announcements, releases and updates issued by Greater Chennai Police."}
@@ -400,14 +401,15 @@ export default function LatestNewsDualSection({
             {/* Column Header & Badge */}
             <div className="space-y-1">
               <div className="flex items-center justify-between gap-2">
-                <h3 className="font-display font-black text-sm sm:text-base uppercase tracking-wider text-slate-800 dark:text-white">
+                <h3 className="font-display font-black text-sm sm:text-base uppercase tracking-wider text-teal-800 dark:text-teal-400 flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-teal-600 dark:bg-teal-400 shrink-0" aria-hidden="true" />
                   {language === "ta" ? "செய்திகளில்" : "IN THE NEWS"}
                 </h3>
-                <span className="inline-flex items-center px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-black uppercase tracking-wider bg-slate-100 text-slate-600 dark:bg-stone-800 dark:text-stone-300 border border-slate-300 dark:border-stone-700 shrink-0">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-wider bg-teal-50 text-teal-800 dark:bg-teal-950/40 dark:text-teal-300 border border-teal-200 dark:border-teal-800/60 shadow-xs shrink-0">
                   {language === "ta" ? "வெளிப்புற ஊடகம்" : "EXTERNAL"}
                 </span>
               </div>
-              <p className="text-xs text-slate-500 dark:text-stone-400 font-medium leading-relaxed">
+              <p className="text-xs text-slate-600 dark:text-slate-300 font-medium leading-relaxed pl-4 border-l-2 border-teal-500/30 dark:border-teal-400/30 my-1">
                 {language === "ta"
                   ? "வெளிப்புற ஊடகங்களால் வெளியிடப்பட்ட சென்னை காவல்துறை பற்றிய செய்திகள் மற்றும் அறிக்கைகள்."
                   : "Media coverage and reports about Greater Chennai Police published by external news organisations."}

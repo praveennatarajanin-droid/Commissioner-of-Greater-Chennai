@@ -645,6 +645,7 @@ export default function Navbar({ customMenuItems, initialMenus, stickyOffset }: 
             <div
               className="animate-marquee flex items-center whitespace-nowrap"
               style={{
+                animationDuration: `${Math.max(140, latestTickerList.length * 28)}s`,
                 animationPlayState: (isTickerPaused || isTickerHovered) ? "paused" : "running",
               }}
             >

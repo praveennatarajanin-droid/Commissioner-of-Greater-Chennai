@@ -85,7 +85,7 @@ export default function Footer({ customProfile }: FooterProps = {}) {
 
   // Fallback / Config Quick Links
   const rawQuickLinks = config?.quick_links && config.quick_links.length > 0
-    ? config.quick_links.filter((l: any) => l.active !== false)
+    ? config.quick_links.filter((l: any) => l.active !== false && l.url !== "/screen-reader-access" && !(l.label_en || "").toLowerCase().includes("screen reader"))
     : [
         { id: "ql1", label_en: "Home", label_ta: "முகப்பு", url: "/" },
         { id: "ql2", label_en: "Citizen Services", label_ta: "குடிமக்கள் சேவைகள்", url: "/citizen-services" },
@@ -94,14 +94,9 @@ export default function Footer({ customProfile }: FooterProps = {}) {
       ];
 
   const hasContactUs = rawQuickLinks.some((l: any) => l.url === "/contact-us" || (l.label_en || "").toLowerCase().includes("contact"));
-  const withContact = hasContactUs
+  const finalQuickLinks = hasContactUs
     ? rawQuickLinks
     : [...rawQuickLinks, { id: "ql-contact-us", label_en: "Contact Us", label_ta: "தொடர்பு கொள்ள", url: "/contact-us" }];
-
-  const hasScreenReaderLink = withContact.some((l: any) => l.url === "/screen-reader-access");
-  const finalQuickLinks = hasScreenReaderLink
-    ? withContact
-    : [...withContact, { id: "ql-screen-reader", label_en: "Screen Reader Access", label_ta: "திரை வாசிப்பான் அணுகல்", url: "/screen-reader-access" }];
 
   // Fallback Gov Links
   const finalGovLinks = config?.government_links && config.government_links.length > 0

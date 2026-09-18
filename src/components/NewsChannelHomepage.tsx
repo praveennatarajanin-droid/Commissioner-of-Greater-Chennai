@@ -33,7 +33,7 @@ import { useSearchParams } from "next/navigation";
 import { useTranslation } from "@/context/LanguageContext";
 import Image from "next/image";
 import Link from "next/link";
-import { Clock, Eye, ChevronRight, HelpCircle, Film, Newspaper } from "lucide-react";
+import { Clock, Eye, ChevronRight, HelpCircle, Film } from "lucide-react";
 import { formatPublishedTime, getNewsTimestamp } from "@/lib/dateUtils";
 import { useLiveNow } from "@/lib/useLiveNow";
 
@@ -263,7 +263,6 @@ export default function NewsChannelHomepage({
 }: NewsChannelHomepageProps) {
   const { language } = useTranslation();
   const [mounted, setMounted] = useState(false);
-  const [visibleCount, setVisibleCount] = useState(20);
   const liveNow = useLiveNow(30000);
   const searchParams = useSearchParams();
   const searchQ = searchParams?.get("search") || "";
@@ -344,12 +343,7 @@ export default function NewsChannelHomepage({
     });
   };
 
-  // Section: Latest Grid items (20+ cards)
-  const latestGridNews = sortedNews.slice(0, visibleCount);
 
-  const handleLoadMore = () => {
-    setVisibleCount(prev => Math.min(prev + 12, sortedNews.length));
-  };
 
 
 
@@ -469,39 +463,7 @@ export default function NewsChannelHomepage({
         {/* LATEST NEWS & UPDATES (Two-column: Official Releases & In The News) */}
         <LatestNewsDualSection officialNews={news} externalAlerts={alerts} language={language} />
 
-        {/* SECTION 11: LATEST NEWS GRID (20+ news cards, pagination / Load More) */}
-        <section id="latest-grid" className="w-full scroll-mt-24">
-          <SectionHeader
-            title={language === "ta" ? "அனைத்து செய்திகள்" : "Latest News Grid"}
-            color="#ed1b24"
-            live
-          />
 
-          {latestGridNews.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {latestGridNews.map((n, idx) => (
-                <NewsCard key={`latest-grid-${n.id}`} n={n} lang={language} idx={idx} liveNow={liveNow} />
-              ))}
-            </div>
-          ) : (
-            <div className="py-12 text-center text-stone-400 text-xs font-bold uppercase tracking-wider border border-dashed border-stone-200 dark:border-stone-800 rounded-xl">
-              {language === "ta" ? "செய்திகள் எதுவும் இல்லை" : "No news stories available"}
-            </div>
-          )}
-
-          {/* Load More Button */}
-          {visibleCount < sortedNews.length && (
-            <div className="flex items-center justify-center mt-8">
-              <button
-                onClick={handleLoadMore}
-                className="px-6 py-3 rounded-full text-xs font-black uppercase tracking-widest bg-brand-maroon hover:bg-brand-maroon-dark text-white cursor-pointer active:scale-95 transition-all shadow-md flex items-center gap-2"
-              >
-                <Newspaper className="w-4 h-4" />
-                {language === "ta" ? "மேலும் செய்திகளை ஏற்றுக" : "Load More Articles"}
-              </button>
-            </div>
-          )}
-        </section>
 
       </main>
     </div>

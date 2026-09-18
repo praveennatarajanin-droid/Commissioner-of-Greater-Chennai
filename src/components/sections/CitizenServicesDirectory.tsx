@@ -27,6 +27,8 @@ import {
   Shield,
   HeartHandshake,
   PhoneCall,
+  Phone,
+  Building2,
   MapPin,
   Compass,
   Megaphone,
@@ -109,6 +111,9 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   shield: Shield,
   hearthandshake: HeartHandshake,
   phonecall: PhoneCall,
+  phone: Phone,
+  building2: Building2,
+  building: Building2,
   mappin: MapPin,
   compass: Compass,
   megaphone: Megaphone,
@@ -119,38 +124,66 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   search: Search
 };
 
-const CATEGORY_STYLES: Record<string, { bg: string; text: string; ring: string }> = {
+const CATEGORY_STYLES: Record<
+  string,
+  {
+    iconBg: string;
+    iconText: string;
+    iconBorder: string;
+    badgeBg: string;
+    badgeText: string;
+    badgeBorder: string;
+  }
+> = {
   "report-complaints": {
-    bg: "bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400",
-    text: "text-rose-800 dark:text-rose-300",
-    ring: "border-rose-200 dark:border-rose-900/50"
+    iconBg: "bg-rose-50 dark:bg-rose-950/40",
+    iconText: "text-rose-600 dark:text-rose-400",
+    iconBorder: "border-rose-100 dark:border-rose-900/40",
+    badgeBg: "bg-rose-50 dark:bg-rose-950/40",
+    badgeText: "text-rose-700 dark:text-rose-300",
+    badgeBorder: "border-rose-200/80 dark:border-rose-900/40"
   },
   "verification-services": {
-    bg: "bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400",
-    text: "text-blue-800 dark:text-blue-300",
-    ring: "border-blue-200 dark:border-blue-900/50"
+    iconBg: "bg-blue-50 dark:bg-blue-950/40",
+    iconText: "text-blue-600 dark:text-blue-400",
+    iconBorder: "border-blue-100 dark:border-blue-900/40",
+    badgeBg: "bg-blue-50 dark:bg-blue-950/40",
+    badgeText: "text-blue-700 dark:text-blue-300",
+    badgeBorder: "border-blue-200/80 dark:border-blue-900/40"
   },
   "traffic-services": {
-    bg: "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400",
-    text: "text-amber-800 dark:text-amber-300",
-    ring: "border-amber-200 dark:border-amber-900/50"
+    iconBg: "bg-amber-50 dark:bg-amber-950/40",
+    iconText: "text-amber-600 dark:text-amber-400",
+    iconBorder: "border-amber-100 dark:border-amber-900/40",
+    badgeBg: "bg-amber-50 dark:bg-amber-950/40",
+    badgeText: "text-amber-700 dark:text-amber-300",
+    badgeBorder: "border-amber-200/80 dark:border-amber-900/40"
   },
   "citizen-public-safety": {
-    bg: "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400",
-    text: "text-emerald-800 dark:text-emerald-300",
-    ring: "border-emerald-200 dark:border-emerald-900/50"
+    iconBg: "bg-emerald-50 dark:bg-emerald-950/40",
+    iconText: "text-emerald-600 dark:text-emerald-400",
+    iconBorder: "border-emerald-100 dark:border-emerald-900/40",
+    badgeBg: "bg-emerald-50 dark:bg-emerald-950/40",
+    badgeText: "text-emerald-700 dark:text-emerald-400",
+    badgeBorder: "border-emerald-200/80 dark:border-emerald-900/40"
   },
   "permissions-special-services": {
-    bg: "bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-400",
-    text: "text-purple-800 dark:text-purple-300",
-    ring: "border-purple-200 dark:border-purple-900/50"
+    iconBg: "bg-purple-50 dark:bg-purple-950/40",
+    iconText: "text-purple-600 dark:text-purple-400",
+    iconBorder: "border-purple-100 dark:border-purple-900/40",
+    badgeBg: "bg-purple-50 dark:bg-purple-950/40",
+    badgeText: "text-purple-700 dark:text-purple-300",
+    badgeBorder: "border-purple-200/80 dark:border-purple-900/40"
   }
 };
 
 const DEFAULT_CATEGORY_STYLE = {
-  bg: "bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400",
-  text: "text-blue-800 dark:text-blue-300",
-  ring: "border-blue-200 dark:border-blue-900/50"
+  iconBg: "bg-blue-50 dark:bg-blue-950/40",
+  iconText: "text-blue-600 dark:text-blue-400",
+  iconBorder: "border-blue-100 dark:border-blue-900/40",
+  badgeBg: "bg-blue-50 dark:bg-blue-950/40",
+  badgeText: "text-blue-700 dark:text-blue-300",
+  badgeBorder: "border-blue-200/80 dark:border-blue-900/40"
 };
 
 function sanitizeUrl(rawUrl?: string): string | null {
@@ -268,14 +301,10 @@ export default function CitizenServicesDirectory({
     const catSlug = matchedCat?.slug || "";
     const style = CATEGORY_STYLES[catSlug] || DEFAULT_CATEGORY_STYLE;
 
-    // Service Title & Description
+    // Service Title
     const titleEn = service.service_name_en || service.service_name || service.name_en || service.name || "";
     const titleTa = service.service_name_ta || service.name_ta || titleEn;
     const title = isTa && titleTa ? titleTa : titleEn;
-
-    const descEn = service.description_en || service.description || "";
-    const descTa = service.description_ta || descEn;
-    const desc = isTa && descTa ? descTa : descEn;
 
     // Category Name
     const catNameEn = matchedCat?.name_en || matchedCat?.name || service.category_name_en || "Police Services";
@@ -285,61 +314,67 @@ export default function CitizenServicesDirectory({
     const validUrl = sanitizeUrl(service.external_url);
     const hasUrl = Boolean(validUrl);
 
+    const cardContent = (
+      <>
+        {/* 1. LEFT: 48px x 48px Service Icon */}
+        <div
+          className={`w-12 h-12 min-w-[48px] rounded-[12px] border ${style.iconBg} ${style.iconBorder} ${style.iconText} flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-105`}
+        >
+          <IconComponent className="w-5 h-5" />
+        </div>
+
+        {/* 2. & 3. MIDDLE: Category Badge (above) + Service Title (below) */}
+        <div className="flex-grow min-w-0 flex flex-col justify-center gap-1 text-left">
+          {catName && (
+            <span
+              className={`inline-block w-fit max-w-full text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-md border ${style.badgeBg} ${style.badgeText} ${style.badgeBorder} truncate leading-tight`}
+            >
+              {catName}
+            </span>
+          )}
+          <h3
+            className="text-[14px] sm:text-[15px] md:text-[16px] font-semibold text-[#0B1F44] dark:text-stone-100 group-hover:text-[#032B69] dark:group-hover:text-blue-400 transition-colors leading-tight truncate"
+            title={title}
+          >
+            {title}
+          </h3>
+        </div>
+
+        {/* 4. RIGHT: 32px x 32px Circular Arrow Button */}
+        <div
+          className="w-8 h-8 min-w-[32px] rounded-full flex items-center justify-center shrink-0 bg-blue-50/90 dark:bg-stone-800 text-[#032B69] dark:text-blue-300 border border-blue-100 dark:border-stone-700/80 group-hover:bg-[#032B69] group-hover:text-white dark:group-hover:bg-blue-600 dark:group-hover:text-white transition-all duration-200"
+          aria-hidden="true"
+        >
+          <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+        </div>
+      </>
+    );
+
+    const cardClasses =
+      "group relative w-full h-[96px] sm:h-[100px] bg-white dark:bg-stone-900 rounded-[14px] border border-[#DCE5F2] dark:border-stone-800 px-3.5 sm:px-4 py-3 shadow-xs hover:shadow-md hover:border-blue-300 dark:hover:border-stone-700 hover:-translate-y-0.5 transition-all duration-200 flex items-center gap-3 sm:gap-3.5 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[#032B69] dark:focus-visible:ring-blue-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-950";
+
+    if (hasUrl) {
+      return (
+        <a
+          key={service.id}
+          href={validUrl!}
+          target={service.open_in_new_tab === 0 ? undefined : "_blank"}
+          rel={service.open_in_new_tab === 0 ? undefined : "noopener noreferrer"}
+          className={cardClasses}
+          aria-label={`${title} — ${catName}`}
+        >
+          {cardContent}
+        </a>
+      );
+    }
+
     return (
       <div
         key={service.id}
-        className="group relative bg-white dark:bg-stone-900 rounded-xl border border-slate-200 dark:border-stone-800 p-6 shadow-xs hover:shadow-lg hover:border-blue-900/40 dark:hover:border-blue-500/50 transition-all duration-200 flex flex-col justify-between news-card-white service-card-white app-card-white"
+        className={`${cardClasses} opacity-80 cursor-default`}
+        aria-label={`${title} — ${catName} (${isTa ? "இணைப்பு விரைவில்" : "Link pending"})`}
       >
-        <div>
-          {/* Top Row: Icon and Category Tag */}
-          <div className="flex items-center justify-between gap-3 mb-4">
-            <div className={`p-3 rounded-xl border ${style.bg} ${style.ring} shrink-0 transition-transform group-hover:scale-105 duration-200`}>
-              <IconComponent className="w-5 h-5" />
-            </div>
-
-            {catName && (
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-700 dark:text-stone-300 bg-slate-100 dark:bg-stone-800 px-2.5 py-1 rounded-md border border-slate-200 dark:border-stone-700 line-clamp-1 max-w-[200px]">
-                {catName}
-              </span>
-            )}
-          </div>
-
-          {/* Service Title */}
-          <h3 className="text-lg sm:text-[19px] font-bold text-[#0B1F44] dark:text-stone-100 group-hover:text-blue-900 dark:group-hover:text-blue-400 transition-colors leading-snug line-clamp-2">
-            {title}
-          </h3>
-
-          {/* Short Description */}
-          <p className="text-sm text-[#334155] dark:text-stone-300 mt-2.5 line-clamp-3 leading-relaxed font-normal">
-            {desc}
-          </p>
-        </div>
-
-        {/* Bottom CTA Button */}
-        <div className="pt-4 mt-5 border-t border-slate-100 dark:border-stone-800">
-          {hasUrl ? (
-            <a
-              href={validUrl!}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-between w-full text-xs font-bold text-[#032B69] dark:text-[#d4af37] hover:text-[#0B1F44] dark:hover:text-amber-300 py-1 transition-colors group/btn"
-            >
-              <span className="flex items-center gap-1.5 tracking-wider uppercase">
-                {isTa ? "சேவையைப் பெறுக" : "ACCESS SERVICE"}
-              </span>
-              <span className="p-1 rounded-md bg-blue-50 dark:bg-stone-800 text-[#032B69] dark:text-[#d4af37] group-hover/btn:translate-x-1 transition-transform border border-blue-100 dark:border-stone-700">
-                <ArrowRight className="w-4 h-4" />
-              </span>
-            </a>
-          ) : (
-            <div className="inline-flex items-center justify-between w-full text-xs font-semibold text-slate-400 dark:text-stone-500 py-1 cursor-not-allowed">
-              <span className="tracking-wider uppercase text-[11px] flex items-center gap-1.5">
-                <AlertCircle className="w-3.5 h-3.5 text-amber-500" />
-                {isTa ? "இணைப்பு விரைவில்" : "Service Link Not Available"}
-              </span>
-            </div>
-          )}
-        </div>
+        {cardContent}
       </div>
     );
   };
@@ -464,24 +499,24 @@ export default function CitizenServicesDirectory({
 
       {/* 3. Services Grid Display */}
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
           {Array.from({ length: 6 }).map((_, i) => (
             <div
               key={i}
-              className="h-52 bg-white dark:bg-stone-900 rounded-xl border border-slate-200 dark:border-stone-800 p-6 animate-pulse flex flex-col justify-between"
+              className="h-[96px] sm:h-[100px] bg-white dark:bg-stone-900 rounded-[14px] border border-[#DCE5F2] dark:border-stone-800 p-3.5 sm:p-4 animate-pulse flex items-center gap-3.5"
             >
-              <div className="space-y-3">
-                <div className="w-10 h-10 bg-slate-100 dark:bg-stone-800 rounded-lg" />
-                <div className="w-3/4 h-5 bg-slate-100 dark:bg-stone-800 rounded" />
-                <div className="w-full h-3 bg-slate-100 dark:bg-stone-800 rounded" />
+              <div className="w-12 h-12 rounded-[12px] bg-slate-100 dark:bg-stone-800 shrink-0" />
+              <div className="flex-grow space-y-2">
+                <div className="w-20 h-3 bg-slate-100 dark:bg-stone-800 rounded" />
+                <div className="w-3/4 h-4 bg-slate-100 dark:bg-stone-800 rounded" />
               </div>
-              <div className="w-1/3 h-4 bg-slate-100 dark:bg-stone-800 rounded" />
+              <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-stone-800 shrink-0" />
             </div>
           ))}
         </div>
       ) : groupedCategories ? (
         // Render Grouped by Categories with proper section headings
-        <div className="space-y-12">
+        <div className="space-y-10">
           {groupedCategories.map(({ category, services: catServices }) => {
             const catNameEn = category.name_en || category.name || "";
             const catNameTa = category.name_ta || catNameEn;
@@ -492,27 +527,27 @@ export default function CitizenServicesDirectory({
             const catDesc = isTa ? catDescTa : catDescEn;
 
             return (
-              <section key={category.id} className="space-y-5">
+              <section key={category.id} className="space-y-4">
                 {/* Category Section Header */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b-2 border-slate-200 dark:border-stone-800 pb-3 gap-2">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-200 dark:border-stone-800 pb-2.5 gap-2">
                   <div>
-                    <h2 className="text-xl md:text-2xl font-extrabold text-[#0B1F44] dark:text-stone-100 uppercase tracking-wider flex items-center gap-2.5">
-                      <span className="w-3 h-3 rounded-full bg-[#032B69] dark:bg-blue-500 shrink-0" />
+                    <h2 className="text-lg md:text-xl font-extrabold text-[#0B1F44] dark:text-stone-100 uppercase tracking-wider flex items-center gap-2.5">
+                      <span className="w-2.5 h-2.5 rounded-full bg-[#032B69] dark:bg-blue-500 shrink-0" />
                       {catName}
                     </h2>
                     {catDesc && (
-                      <p className="text-xs sm:text-sm text-slate-600 dark:text-stone-400 mt-1">
+                      <p className="text-xs sm:text-sm text-slate-500 dark:text-stone-400 mt-0.5 font-normal">
                         {catDesc}
                       </p>
                     )}
                   </div>
-                  <span className="text-xs font-bold text-slate-700 dark:text-stone-300 bg-slate-100 dark:bg-stone-800 px-3 py-1 rounded-full border border-slate-200 dark:border-stone-700 self-start sm:self-center">
+                  <span className="text-xs font-semibold text-slate-600 dark:text-stone-300 bg-slate-100 dark:bg-stone-800 px-2.5 py-0.5 rounded-full border border-slate-200 dark:border-stone-700 self-start sm:self-center">
                     {catServices.length} {isTa ? "சேவைகள்" : "Services"}
                   </span>
                 </div>
 
                 {/* Cards Grid: 3 columns desktop, 2 tablet, 1 mobile */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
                   {catServices.map((service) => renderCard(service))}
                 </div>
               </section>
@@ -546,12 +581,12 @@ export default function CitizenServicesDirectory({
               </button>
             </div>
           ) : (
-            <div className="space-y-5">
+            <div className="space-y-4">
               <div className="text-xs font-bold text-slate-600 dark:text-stone-400 uppercase tracking-wider">
                 {isTa ? "காட்டப்படும் சேவைகள்" : "Showing"} {filteredServices.length}{" "}
                 {isTa ? "முடிவுகள்" : "services"}
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
                 {filteredServices.map((service) => renderCard(service))}
               </div>
             </div>
