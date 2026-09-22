@@ -103,7 +103,6 @@ export default function Footer({ customProfile }: FooterProps = {}) {
     ? config.government_links.filter((l: any) => l.active)
     : [
         { id: "gl1", label_en: "Tamil Nadu Government", label_ta: "தமிழ்நாடு அரசு", url: "https://www.tn.gov.in", target_blank: true },
-        { id: "gl2", label_en: "GCP Official Site", label_ta: "சென்னை காவல்துறை", url: "https://www.chennaipolice.gov.in", target_blank: true },
         { id: "gl3", label_en: "Cyber Portal", label_ta: "இணைய குற்றவியல் போர்டல்", url: "https://www.cybercrime.gov.in", target_blank: true }
       ];
 
@@ -264,22 +263,49 @@ export default function Footer({ customProfile }: FooterProps = {}) {
 
       </div>
 
-      {/* ── State Gateways: centered single row ── */}
+      {/* ── State Gateways & Utility Links: centered single row ── */}
       <div className="max-w-[1700px] mx-auto px-6 py-5 border-t border-white/10 print:hidden">
-        <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 text-white/70 text-xs uppercase font-black tracking-widest">
-          {finalGovLinks.map((link: any, idx: number) => (
-            <React.Fragment key={idx}>
-              {idx > 0 && <span className="text-white/25 select-none hidden sm:inline">|</span>}
-              <a
-                href={link.url}
-                target={link.target_blank ? "_blank" : undefined}
-                className="hover:text-brand-gold transition-colors duration-200 flex items-center gap-1.5"
-              >
-                {language === "ta" ? (link.label_ta || link.label_en) : (link.label_en || link.label_ta)}{" "}
-                <ExternalLink className="w-3 h-3 opacity-70" />
-              </a>
-            </React.Fragment>
-          ))}
+        <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-8 text-white/75 text-xs uppercase font-bold tracking-wider sm:tracking-widest">
+          {/* 1. Tamil Nadu Government */}
+          <a
+            href="https://www.tn.gov.in"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-brand-gold transition-colors duration-200 inline-flex items-center gap-1.5"
+          >
+            <span>{language === "ta" ? "தமிழ்நாடு அரசு" : "Tamil Nadu Government"}</span>
+            <ExternalLink className="w-3 h-3 opacity-70" />
+          </a>
+
+          <span className="text-white/25 select-none hidden sm:inline">|</span>
+
+          {/* 2. FAQ's */}
+          <Link
+            href="/faq"
+            className="hover:text-brand-gold transition-colors duration-200 inline-flex items-center gap-1.5"
+          >
+            <span>{language === "ta" ? "அடிக்கடி கேட்கப்படும் கேள்விகள்" : "FAQ's"}</span>
+          </Link>
+
+          <span className="text-white/25 select-none hidden sm:inline">|</span>
+
+          {/* 3. Privacy Policy */}
+          <Link
+            href="/privacy-policy"
+            className="hover:text-brand-gold transition-colors duration-200 inline-flex items-center gap-1.5"
+          >
+            <span>{language === "ta" ? "தனியுரிமைக் கொள்கை" : "Privacy Policy"}</span>
+          </Link>
+
+          <span className="text-white/25 select-none hidden sm:inline">|</span>
+
+          {/* 4. Site Map */}
+          <Link
+            href="/site-map"
+            className="hover:text-brand-gold transition-colors duration-200 inline-flex items-center gap-1.5"
+          >
+            <span>{language === "ta" ? "தள வரைபடம்" : "Site Map"}</span>
+          </Link>
         </div>
       </div>
 

@@ -15,6 +15,7 @@ export default function VisitorTracker() {
       pathname.startsWith("/admin") ||
       pathname.startsWith("/superadmin") ||
       pathname.startsWith("/control-center") ||
+      pathname.startsWith("/controller") ||
       pathname.startsWith("/api")
     ) {
       return;

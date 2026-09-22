@@ -45,7 +45,8 @@ import {
   Layout,
   BookOpen,
   ChevronDown,
-  ShieldCheck
+  ShieldCheck,
+  HelpCircle
 } from "lucide-react";
 import { DBUser, DBNewsItem, DBTickerItem, DBSliderItem, DBCommissionerProfile, DBThemeSettings, DBMenuItem, DBContact, DBTtsSettings, DBVideoItem, DBAlertItem, DBAlertSettings } from "@/lib/db";
 import dynamic from "next/dynamic";
@@ -57,6 +58,7 @@ import WebStoriesManagement from "./WebStoriesManagement";
 import SeoManager from "./SeoManager";
 import PoliceStationsManagement from "./PoliceStationsManagement";
 import CitizenServicesManagement from "./CitizenServicesManagement";
+import FaqManagement from "./FaqManagement";
 import SecurityStatusIndicator from "./SecurityStatusIndicator";
 
 const RichTextEditor = dynamic(() => import("./RichTextEditor"), {
@@ -558,6 +560,7 @@ const getTabTitle = (tab: string): string => {
     "police-stations": "Police Stations",
     "emergency-contacts": "Helplines Registry",
     "department-links": "Portal Links",
+    faqs: "FAQ Management",
     profile: "Profile Settings",
     theme: "Branding Theme",
     footer: "Footer Management",
@@ -575,7 +578,7 @@ interface AdminDashboardProps {
   onTabChange?: (tab: any) => void;
 }
 
-type TabType = "dashboard" | "news" | "ticker" | "slider" | "profile" | "theme" | "footer" | "settings" | "videos" | "alerts" | "media" | "citizen-services" | "police-stations" | "emergency-contacts" | "department-links" | "menu-management" | "page-editor" | "superadmin" | "web-stories" | "seo";
+type TabType = "dashboard" | "news" | "ticker" | "slider" | "profile" | "theme" | "footer" | "settings" | "videos" | "alerts" | "media" | "citizen-services" | "police-stations" | "emergency-contacts" | "department-links" | "menu-management" | "page-editor" | "superadmin" | "web-stories" | "seo" | "faqs";
 
 export default function AdminDashboard({ user, onLogout, activeTab: propActiveTab, subPage, onTabChange }: AdminDashboardProps) {
   const displayName = user.role === "superadmin" ? "Super Admin" : user.role === "admin" ? "Admin" : user.username;
@@ -963,6 +966,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
       "police-stations",
       "emergency-contacts",
       "department-links",
+      "faqs",
       "profile"
     ];
 
@@ -1842,6 +1846,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                 section: "Public Registry",
                 items: [
                   { tab: "citizen-services", icon: <ShieldCheck className="w-5 h-5" />, label: "Citizen Services" },
+                  { tab: "faqs", icon: <HelpCircle className="w-5 h-5" />, label: "FAQ Management" },
                   { tab: "alerts", icon: <AlertTriangle className="w-5 h-5" />, label: "Official Alerts" },
                   { tab: "police-stations", icon: <MapPin className="w-5 h-5" />, label: "Police Stations" },
                   { tab: "emergency-contacts", icon: <Phone className="w-5 h-5" />, label: "Helplines Registry" },
@@ -6155,6 +6160,14 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
           {activeTab === "citizen-services" && (
             <div className="space-y-6 w-full">
               <CitizenServicesManagement user={user} onTabChange={(t: string) => setActiveTab(t as TabType)} />
+              {renderSeoCard()}
+            </div>
+          )}
+
+          {/* ==================== TAB: FAQ MANAGEMENT ==================== */}
+          {activeTab === "faqs" && (
+            <div className="space-y-6 w-full">
+              <FaqManagement user={user} onTabChange={(t: string) => setActiveTab(t as TabType)} />
               {renderSeoCard()}
             </div>
           )}

@@ -167,8 +167,7 @@ async function runMigration() {
         ['Traffic', 'போக்குவரத்து', 'traffic', 'Car', 4, 'https://gctp.in/chennai-home', 'external', 'active', 1],
         ['Stations', 'காவல் நிலையங்கள்', 'stations', 'MapPin', 5, '/stations', 'static', 'active', 0],
         ['Media Service', 'வீடியோக்கள்', 'videos', 'Video', 6, '/videos', 'static', 'active', 0],
-        ['Profile', 'ஆணையர் சுயவிவரம்', 'commissioner-profile', 'User', 7, '/commissioner-profile', 'static', 'active', 0],
-        ['Contact Us', 'தொடர்பு கொள்ளுங்கள்', 'contact-us', 'Phone', 8, '/contact-us', 'static', 'active', 0]
+        ['Contact Us', 'தொடர்பு கொள்ளுங்கள்', 'contact-us', 'Phone', 7, '/contact-us', 'static', 'active', 0]
       ];
 
       for (const menu of defaultMenus) {

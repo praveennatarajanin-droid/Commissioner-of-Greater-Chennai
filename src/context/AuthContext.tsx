@@ -61,9 +61,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       setSessionStatus("verifying");
       const res = await fetch("/api/admin/auth");
-      const data = await res.json();
+      
+      if (!res.ok) {
+        setUser(null);
+        setAuthenticated(false);
+        setSessionStatus("unauthenticated");
+        setShowExpiringModal(false);
+        if (typeof window !== "undefined") {
+          window.sessionStorage.removeItem("admin_authenticated");
+        }
+        return;
+      }
 
-      if (res.ok && data.authenticated && data.user) {
+      const data = await res.json().catch(() => null);
+
+      if (data && data.authenticated && data.user) {
         setUser(data.user);
         setAuthenticated(true);
         setSessionStatus("authenticated");

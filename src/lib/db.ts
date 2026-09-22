@@ -206,6 +206,19 @@ export interface DBNewsItem {
   language?: string;
 }
 
+export interface DBFaq {
+  id: number;
+  question: string;
+  question_ta?: string;
+  answer: string;
+  answer_ta?: string;
+  category: string;
+  display_order: number;
+  status: "ACTIVE" | "INACTIVE";
+  created_at: string;
+  updated_at: string;
+}
+
 export interface DBTickerItem {
   id: number;
   text_en: string;
@@ -800,8 +813,7 @@ class JSONDatabaseManager {
             { id: 4, name_en: "Traffic", name_ta: "போக்குவரத்து", slug: "traffic", icon: "Car", display_order: 4, url: "https://gctp.in/chennai-home", page_type: "external", status: "active", open_in_new_tab: 1 },
             { id: 5, name_en: "Stations", name_ta: "காவல் நிலையங்கள்", slug: "stations", icon: "MapPin", display_order: 5, url: "/stations", page_type: "static", status: "active", open_in_new_tab: 0 },
             { id: 6, name_en: "Media Service", name_ta: "வீடியோக்கள்", slug: "videos", icon: "Video", display_order: 6, url: "/videos", page_type: "static", status: "active", open_in_new_tab: 0 },
-            { id: 7, name_en: "Profile", name_ta: "ஆணையர் சுயவிவரம்", slug: "commissioner-profile", icon: "User", display_order: 7, url: "/commissioner-profile", page_type: "static", status: "active", open_in_new_tab: 0 },
-            { id: 8, name_en: "Contact Us", name_ta: "தொடர்பு கொள்ளுங்கள்", slug: "contact-us", icon: "Phone", display_order: 8, url: "/contact-us", page_type: "static", status: "active", open_in_new_tab: 0 }
+            { id: 7, name_en: "Contact Us", name_ta: "தொடர்பு கொள்ளுங்கள்", slug: "contact-us", icon: "Phone", display_order: 7, url: "/contact-us", page_type: "static", status: "active", open_in_new_tab: 0 }
           ];
           modified = true;
         }
@@ -1112,9 +1124,9 @@ class JSONDatabaseManager {
     this.data.theme_settings = [
       {
         id: 1,
-        primary_color: "#1e3a8a",
-        secondary_color: "#b91c1c",
-        accent_color: "#f59e0b",
+        primary_color: "#ed1b24",
+        secondary_color: "#2e3192",
+        accent_color: "#c5a059",
         logo_path: "/images/gcp_logo.png",
         footer_logo_path: "/images/gcp_logo.png",
         favicon_path: "/favicon.ico",
@@ -1129,8 +1141,7 @@ class JSONDatabaseManager {
       { id: 4, name_en: "Traffic", name_ta: "போக்குவரத்து", slug: "traffic", icon: "Car", display_order: 4, url: "https://gctp.in/chennai-home", page_type: "external", status: "active", open_in_new_tab: 1 },
       { id: 5, name_en: "Stations", name_ta: "காவல் நிலையங்கள்", slug: "stations", icon: "MapPin", display_order: 5, url: "/stations", page_type: "static", status: "active", open_in_new_tab: 0 },
       { id: 6, name_en: "Media Service", name_ta: "வீடியோக்கள்", slug: "videos", icon: "Video", display_order: 6, url: "/videos", page_type: "static", status: "active", open_in_new_tab: 0 },
-      { id: 7, name_en: "Profile", name_ta: "ஆணையர் சுயவிவரம்", slug: "commissioner-profile", icon: "User", display_order: 7, url: "/commissioner-profile", page_type: "static", status: "active", open_in_new_tab: 0 },
-      { id: 8, name_en: "Contact Us", name_ta: "தொடர்பு கொள்ளுங்கள்", slug: "contact-us", icon: "Phone", display_order: 8, url: "/contact-us", page_type: "static", status: "active", open_in_new_tab: 0 }
+      { id: 7, name_en: "Contact Us", name_ta: "தொடர்பு கொள்ளுங்கள்", slug: "contact-us", icon: "Phone", display_order: 7, url: "/contact-us", page_type: "static", status: "active", open_in_new_tab: 0 }
     ];
 
     this.data.sub_menus = [
@@ -1366,9 +1377,9 @@ class ChennaiGuardianDatabase {
     if (list && list.length > 0) return list[0];
     return {
       id: 1,
-      primary_color: "#1e3a8a",
-      secondary_color: "#b91c1c",
-      accent_color: "#f59e0b",
+      primary_color: "#ed1b24",
+      secondary_color: "#2e3192",
+      accent_color: "#c5a059",
       logo_path: "/images/gcp_logo.png",
       footer_logo_path: "/images/gcp_logo.png",
       favicon_path: "/favicon.ico"
@@ -1454,8 +1465,7 @@ class ChennaiGuardianDatabase {
         { id: 4, name_en: "Traffic", name_ta: "போக்குவரத்து", slug: "traffic", display_order: 4, url: "https://gctp.in/chennai-home", page_type: "external", status: "active", open_in_new_tab: 1, subMenus: [] },
         { id: 5, name_en: "Stations", name_ta: "காவல் நிலையங்கள்", slug: "stations", display_order: 5, url: "/stations", page_type: "static", status: "active", open_in_new_tab: 0, subMenus: [] },
         { id: 6, name_en: "Media Service", name_ta: "வீடியோக்கள்", slug: "videos", display_order: 6, url: "/videos", page_type: "static", status: "active", open_in_new_tab: 0, subMenus: [] },
-        { id: 7, name_en: "Profile", name_ta: "ஆணையர்", slug: "commissioner-profile", display_order: 7, url: "/commissioner-profile", page_type: "static", status: "active", open_in_new_tab: 0, subMenus: [] },
-        { id: 8, name_en: "Contact Us", name_ta: "தொடர்பு", slug: "contact-us", display_order: 8, url: "/contact-us", page_type: "static", status: "active", open_in_new_tab: 0, subMenus: [] }
+        { id: 7, name_en: "Contact Us", name_ta: "தொடர்பு", slug: "contact-us", display_order: 7, url: "/contact-us", page_type: "static", status: "active", open_in_new_tab: 0, subMenus: [] }
       ];
     }
 
@@ -2075,8 +2085,7 @@ class ChennaiGuardianDatabase {
           { id: "ql3", label_en: "Police Stations", label_ta: "காவல் நிலையங்கள்", url: "/stations", target_blank: false, active: true, order_index: 3 }
         ],
         government_links: [
-          { id: "gl1", label_en: "Tamil Nadu Government", label_ta: "தமிழ்நாடு அரசு", url: "https://www.tn.gov.in", target_blank: true, active: true, order_index: 1 },
-          { id: "gl2", label_en: "GCP Official Site", label_ta: "சென்னை காவல்துறை", url: "https://www.chennaipolice.gov.in", target_blank: true, active: true, order_index: 2 }
+          { id: "gl1", label_en: "Tamil Nadu Government", label_ta: "தமிழ்நாடு அரசு", url: "https://www.tn.gov.in", target_blank: true, active: true, order_index: 1 }
         ]
       };
       jsonDb.setTable("superadmin_config", raw);
@@ -2731,6 +2740,95 @@ class ChennaiGuardianDatabase {
 
     return { totalVisitors, todayVisitors };
   }
+
+  // ── FAQ Management Operations ──
+  async getFaqs(status?: string): Promise<DBFaq[]> {
+    try {
+      let faqs: DBFaq[] = jsonDb.getTable("faqs") || [];
+      if (status) {
+        faqs = faqs.filter((f) => f.status === status);
+      }
+      return faqs.sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+    } catch (err) {
+      console.error("Error fetching FAQs:", err);
+      return [];
+    }
+  }
+
+  async getFaqById(id: number): Promise<DBFaq | null> {
+    try {
+      const faqs: DBFaq[] = jsonDb.getTable("faqs") || [];
+      return faqs.find((f) => f.id === id) || null;
+    } catch (err) {
+      console.error("Error fetching FAQ by ID:", err);
+      return null;
+    }
+  }
+
+  async createFaq(data: Partial<DBFaq>): Promise<DBFaq> {
+    const faqs: DBFaq[] = jsonDb.getTable("faqs") || [];
+    const maxId = faqs.length > 0 ? Math.max(...faqs.map((f) => f.id || 0)) : 0;
+    const maxOrder = faqs.length > 0 ? Math.max(...faqs.map((f) => f.display_order || 0)) : 0;
+    const now = new Date().toISOString();
+
+    const newFaq: DBFaq = {
+      id: maxId + 1,
+      question: data.question?.trim() || "",
+      question_ta: data.question_ta?.trim() || "",
+      answer: data.answer?.trim() || "",
+      answer_ta: data.answer_ta?.trim() || "",
+      category: data.category?.trim() || "General",
+      display_order: typeof data.display_order === "number" ? data.display_order : maxOrder + 1,
+      status: data.status === "INACTIVE" ? "INACTIVE" : "ACTIVE",
+      created_at: now,
+      updated_at: now,
+    };
+
+    faqs.push(newFaq);
+    jsonDb.setTable("faqs", faqs);
+    return newFaq;
+  }
+
+  async updateFaq(id: number, data: Partial<DBFaq>): Promise<DBFaq | null> {
+    const faqs: DBFaq[] = jsonDb.getTable("faqs") || [];
+    const index = faqs.findIndex((f) => f.id === id);
+    if (index === -1) return null;
+
+    const existing = faqs[index];
+    const updated: DBFaq = {
+      ...existing,
+      ...data,
+      id: existing.id,
+      updated_at: new Date().toISOString(),
+    };
+
+    faqs[index] = updated;
+    jsonDb.setTable("faqs", faqs);
+    return updated;
+  }
+
+  async deleteFaq(id: number): Promise<boolean> {
+    const faqs: DBFaq[] = jsonDb.getTable("faqs") || [];
+    const filtered = faqs.filter((f) => f.id !== id);
+    if (filtered.length === faqs.length) return false;
+    jsonDb.setTable("faqs", filtered);
+    return true;
+  }
+
+  async reorderFaqs(items: { id: number; display_order: number }[]): Promise<boolean> {
+    const faqs: DBFaq[] = jsonDb.getTable("faqs") || [];
+    const orderMap = new Map<number, number>(items.map((item) => [item.id, item.display_order]));
+
+    faqs.forEach((faq) => {
+      if (orderMap.has(faq.id)) {
+        faq.display_order = orderMap.get(faq.id)!;
+        faq.updated_at = new Date().toISOString();
+      }
+    });
+
+    jsonDb.setTable("faqs", faqs);
+    return true;
+  }
 }
 
 export const DEFAULT_ROLE_PERMISSIONS: Record<string, Record<string, string[]>> = {
@@ -2744,6 +2842,7 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<string, Record<string, string[]>> 
     "police-stations": ["view", "create", "edit", "delete", "publish"],
     "emergency-contacts": ["view", "create", "edit", "delete", "publish"],
     "department-links": ["view", "create", "edit", "delete", "publish"],
+    "faqs": ["view", "create", "edit", "delete", "publish"],
     "profile": ["view", "edit"]
   },
 
@@ -2754,6 +2853,7 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<string, Record<string, string[]>> 
     "police-stations": ["view", "create", "edit", "delete", "publish"],
     "emergency-contacts": ["view", "create", "edit", "delete", "publish"],
     "department-links": ["view", "create", "edit", "delete", "publish"],
+    "faqs": ["view", "create", "edit", "delete", "publish"],
     "profile": ["view", "edit"]
   },
   "EDITOR": {

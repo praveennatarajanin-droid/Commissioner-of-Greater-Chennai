@@ -33,7 +33,7 @@ import { useSearchParams } from "next/navigation";
 import { useTranslation } from "@/context/LanguageContext";
 import Image from "next/image";
 import Link from "next/link";
-import { Clock, Eye, ChevronRight, HelpCircle, Film } from "lucide-react";
+import { Clock, Eye, ChevronRight, HelpCircle, Film, Newspaper } from "lucide-react";
 import { formatPublishedTime, getNewsTimestamp } from "@/lib/dateUtils";
 import { useLiveNow } from "@/lib/useLiveNow";
 
@@ -113,62 +113,7 @@ interface NewsChannelHomepageProps {
 
 
 
-// ─── Category Settings ──────────────────────────────────────────────────────
-const NEWS_CATEGORIES = [
-  {
-    id: "crime",
-    title_en: "Crime",
-    title_ta: "குற்றச் செய்திகள்",
-    color: "#7c3aed",
-    keywords: ["crime", "arrest", "painkiller", "dvac", "bribery", "cheat", "theft", "seizure", "corruption", "law and order"]
-  },
-  {
-    id: "cyber",
-    title_en: "Cyber Safety",
-    title_ta: "இணைய பாதுகாப்பு",
-    color: "#0284c7",
-    keywords: ["cyber", "online", "scam", "phishing", "hacker", "fraud", "password"]
-  },
-  {
-    id: "women",
-    title_en: "Women Safety",
-    title_ta: "பெண்கள் பாதுகாப்பு",
-    color: "#db2777",
-    keywords: ["women", "harassment", "singappen", "gender", "ssf", "girls", "harass"]
-  },
-  {
-    id: "public",
-    title_en: "Public Safety",
-    title_ta: "பொது பாதுகாப்பு",
-    color: "#475569",
-    keywords: ["safety", "patrol", "beach", "audit", "cctv", "third eye", "surveillance", "clean campus"]
-  },
-  {
-    id: "outreach",
-    title_en: "Community Outreach",
-    title_ta: "சமூக உதவித் திட்டங்கள்",
-    color: "#059669",
-    keywords: ["community", "outreach", "karangal", "rescue", "welfare", "pledge", "labour", "students", "legal", "social awareness", "community support"]
-  }
-];
 
-// ─── Sub-helpers ─────────────────────────────────────────────────────────────
-const SectionHeader = ({ title, color, live, id }: { title: string; color?: string; live?: boolean; id?: string }) => (
-  <div id={id} className="flex items-center justify-between mb-4 border-b border-stone-200 dark:border-stone-850 pb-2.5 scroll-mt-24">
-    <div className="flex items-center gap-2.5">
-      <div className="w-1.5 h-6 rounded-full" style={{ background: color || "#ed1b24" }} />
-      <h2 className="font-display font-black text-sm uppercase tracking-widest text-stone-900 dark:text-white">
-        {title}
-      </h2>
-      {live && (
-        <span className="flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] font-black text-white uppercase tracking-widest bg-[#ed1b24] shadow-sm animate-pulse">
-          <span className="w-1 h-1 rounded-full bg-white" />
-          LIVE
-        </span>
-      )}
-    </div>
-  </div>
-);
 
 // Custom Badges Renderer
 const NewsBadge = ({ n, idx }: { n: NewsItem; idx: number }) => {
@@ -308,40 +253,7 @@ export default function NewsChannelHomepage({
     });
   }, [sortedNews, searchQ]);
 
-  // 3. Category matching logic
-  const getCategoryNews = (catId: string, keywords: string[]) => {
-    return sortedNews.filter(n => {
-      const cat = (n.category_en || "").toLowerCase();
-      const title = (n.title_en || "").toLowerCase();
 
-      // Determine if this article matches the target category exactly (including its subcategories)
-      const matchesTargetExactly =
-        (catId === "crime" && (cat === "crime" || cat === "crime prevention" || cat === "wanted criminals" || cat === "missing persons")) ||
-        (catId === "cyber" && (cat === "cyber safety" || cat === "cyber awareness" || cat === "online fraud")) ||
-        (catId === "women" && (cat === "women safety" || cat === "women's safety" || cat === "pink patrol" || cat === "pink patrol (women safety)" || cat === "aval support wing" || cat === "aval support" || cat === "women helpline")) ||
-        (catId === "public" && (cat === "public safety" || cat === "clean campus" || cat === "security audit")) ||
-        (catId === "traffic" && (cat === "traffic" || cat === "traffic updates" || cat === "traffic news" || cat === "traffic advisory")) ||
-        (catId === "outreach" && (cat === "outreach" || cat === "community outreach" || cat === "social awareness" || cat === "legal outreach" || cat === "community support")) ||
-        (catId === "government" && (cat === "government updates" || cat === "government" || cat === "government update"));
-
-      if (matchesTargetExactly) return true;
-
-      // Check if this article belongs to ANY OTHER main category exactly.
-      // If it does, we do NOT want it to leak into this category via keywords.
-      const matchesOtherExactly =
-        (catId !== "crime" && (cat === "crime" || cat === "crime prevention" || cat === "wanted criminals" || cat === "missing persons")) ||
-        (catId !== "cyber" && (cat === "cyber safety" || cat === "cyber awareness" || cat === "online fraud")) ||
-        (catId !== "women" && (cat === "women safety" || cat === "women's safety" || cat === "pink patrol" || cat === "pink patrol (women safety)" || cat === "aval support wing" || cat === "aval support" || cat === "women helpline")) ||
-        (catId !== "public" && (cat === "public safety" || cat === "clean campus" || cat === "security audit")) ||
-        (catId !== "traffic" && (cat === "traffic" || cat === "traffic updates" || cat === "traffic news" || cat === "traffic advisory")) ||
-        (catId !== "outreach" && (cat === "outreach" || cat === "community outreach" || cat === "social awareness" || cat === "legal outreach" || cat === "community support")) ||
-        (catId !== "government" && (cat === "government updates" || cat === "government" || cat === "government update"));
-
-      if (matchesOtherExactly) return false;
-
-      return keywords.some(k => cat.includes(k) || title.includes(k));
-    });
-  };
 
 
 
@@ -414,46 +326,7 @@ export default function NewsChannelHomepage({
         <GcpCommissionerMandate />
 
 
-        {/* SECTION 5: CATEGORY NEWS (Rows of Crime, Cyber, Women, etc.) */}
-        <div className="space-y-12">
-          {NEWS_CATEGORIES.map((cat) => {
-            const catNews = getCategoryNews(cat.id, cat.keywords);
-            if (catNews.length === 0) return null; // Hide the section if no news available
 
-            const displayCards = catNews.slice(0, 4);
-            const sectionTitle = language === "ta" ? cat.title_ta : cat.title_en;
-
-            // Map category id to route path
-            const routePath = cat.id === "cyber" ? "cyber-safety" :
-              cat.id === "women" ? "women-safety" :
-                cat.id === "public" ? "public-safety" :
-                  cat.id;
-
-            return (
-              <section key={cat.id} className="w-full">
-                <SectionHeader
-                  id={cat.id}
-                  title={sectionTitle}
-                  color={cat.color}
-                />
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {displayCards.map((n, idx) => (
-                    <NewsCard key={`${cat.id}-${n.id}`} n={n} lang={language} idx={idx} />
-                  ))}
-                </div>
-                <div className="flex justify-end mt-4">
-                  <Link
-                    href={`/category/${routePath}`}
-                    className="flex items-center gap-1.5 text-[10px] font-black uppercase text-stone-500 hover:text-brand-maroon dark:hover:text-brand-gold transition-colors tracking-widest"
-                  >
-                    {language === "ta" ? "மேலும் செய்திகள்" : `More ${cat.title_en} News`}
-                    <ChevronRight className="w-3.5 h-3.5" />
-                  </Link>
-                </div>
-              </section>
-            );
-          })}
-        </div>
 
         {/* SECTION 6: VIDEO NEWS CENTER */}
         <div id="videos" className="scroll-mt-24">

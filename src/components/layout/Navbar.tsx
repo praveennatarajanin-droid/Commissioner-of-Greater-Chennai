@@ -296,7 +296,6 @@ export default function Navbar({ customMenuItems, initialMenus, stickyOffset }: 
     { label: language === "ta" ? "போக்குவரத்து" : "Traffic", href: "https://gctp.in/chennai-home", openInNewTab: true, subMenus: [] },
     { label: language === "ta" ? "காவல் நிலையங்கள்" : "Stations", href: "/stations", subMenus: [] },
     { label: language === "ta" ? "வீடியோக்கள்" : "Media Service", href: "/videos", subMenus: [] },
-    { label: language === "ta" ? "ஆணையர்" : "Profile", href: "/commissioner-profile", subMenus: [] },
     { label: language === "ta" ? "தொடர்பு" : "Contact Us", href: "/contact-us", subMenus: [] },
   ];
 
