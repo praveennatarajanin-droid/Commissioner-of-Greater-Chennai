@@ -12,7 +12,8 @@ import {
   ExternalLink,
   MessageSquare,
   Sparkles,
-  Info
+  Info,
+  X
 } from "lucide-react";
 import { useTranslation } from "@/context/LanguageContext";
 
@@ -63,8 +64,8 @@ export default function FaqPageClient({ initialFaqs = [], initialCategories = []
   // Filter FAQs based on search and category
   const filteredFaqs = useMemo(() => {
     return faqs.filter((faq) => {
-      const q = language === "ta" ? (faq.question_ta || faq.question) : (faq.question || faq.question_ta);
-      const a = language === "ta" ? (faq.answer_ta || faq.answer) : (faq.answer || faq.answer_ta);
+      const q = (language === "ta" ? (faq.question_ta || faq.question) : (faq.question || faq.question_ta)) || "";
+      const a = (language === "ta" ? (faq.answer_ta || faq.answer) : (faq.answer || faq.answer_ta)) || "";
       const cat = faq.category || "";
 
       const matchesSearch =
@@ -137,7 +138,7 @@ export default function FaqPageClient({ initialFaqs = [], initialCategories = []
           {/* Search Bar inside Hero */}
           <div className="pt-4 max-w-2xl">
             <div className="relative">
-              <Search className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-white/50" />
+              <Search className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-white/50 pointer-events-none" />
               <input
                 type="text"
                 id="faq-search-input"
@@ -149,8 +150,18 @@ export default function FaqPageClient({ initialFaqs = [], initialCategories = []
                 }
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-12 pr-4 py-3.5 bg-white/15 backdrop-blur-md border border-white/20 rounded-2xl text-sm font-medium text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-brand-gold focus:bg-white/20 transition"
+                className="w-full pl-12 pr-10 py-3.5 bg-white/15 backdrop-blur-md border border-white/20 rounded-2xl text-sm font-medium text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-brand-gold focus:bg-white/20 transition"
               />
+              {searchTerm && (
+                <button
+                  type="button"
+                  onClick={() => setSearchTerm("")}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/70 hover:text-white p-1 rounded-full hover:bg-white/10 transition cursor-pointer"
+                  title={isTamil ? "தேடலை அழிக்கவும்" : "Clear search"}
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -162,13 +173,13 @@ export default function FaqPageClient({ initialFaqs = [], initialCategories = []
         <div
           role="tablist"
           aria-label="FAQ Categories"
-          className="flex flex-wrap items-center gap-2"
+          className="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0 w-full sm:w-auto max-w-full no-scrollbar sm:flex-wrap"
         >
           <button
             role="tab"
             aria-selected={activeCategory === "all"}
             onClick={() => setActiveCategory("all")}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer ${
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer whitespace-nowrap shrink-0 ${
               activeCategory === "all"
                 ? "bg-[#1e40af] text-white shadow-md"
                 : "bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700"
@@ -182,7 +193,7 @@ export default function FaqPageClient({ initialFaqs = [], initialCategories = []
               role="tab"
               aria-selected={activeCategory.toLowerCase() === cat.toLowerCase()}
               onClick={() => setActiveCategory(cat)}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer ${
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer whitespace-nowrap shrink-0 ${
                 activeCategory.toLowerCase() === cat.toLowerCase()
                   ? "bg-[#1e40af] text-white shadow-md"
                   : "bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700"
