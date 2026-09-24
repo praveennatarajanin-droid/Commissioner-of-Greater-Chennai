@@ -12,7 +12,7 @@ import fs from "fs";
 import path from "path";
 import crypto from "crypto";
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3000;
 const BASE_URL = `http://127.0.0.1:${PORT}`;
 
 let passedCount = 0;

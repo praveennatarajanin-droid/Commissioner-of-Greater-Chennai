@@ -1,0 +1,38 @@
+{
+  "description": "Cloudflare / Edge CDN TLS Security Policy for chennaiguardian.mccmrfip.in",
+  "zone_settings": {
+    "min_tls_version": {
+      "id": "min_tls_version",
+      "value": "1.2",
+      "status": "active",
+      "notes": "POC-07: Deprecated TLS 1.0 and TLS 1.1 strictly blocked at Cloudflare edge. Only TLS 1.2 and TLS 1.3 permitted."
+    },
+    "tls_1_3": {
+      "id": "tls_1_3",
+      "value": "on",
+      "status": "active"
+    },
+    "always_use_https": {
+      "id": "always_use_https",
+      "value": "on",
+      "status": "active"
+    },
+    "security_header": {
+      "strict_transport_security": {
+        "enabled": true,
+        "max_age": 63072000,
+        "include_subdomains": true,
+        "preload": true,
+        "nosniff": true
+      }
+    },
+    "ciphers": [
+      "ECDHE-ECDSA-AES128-GCM-SHA256",
+      "ECDHE-RSA-AES128-GCM-SHA256",
+      "ECDHE-ECDSA-AES256-GCM-SHA384",
+      "ECDHE-RSA-AES256-GCM-SHA384",
+      "ECDHE-ECDSA-CHACHA20-POLY1305",
+      "ECDHE-RSA-CHACHA20-POLY1305"
+    ]
+  }
+}

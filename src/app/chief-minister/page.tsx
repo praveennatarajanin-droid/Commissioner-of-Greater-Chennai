@@ -97,15 +97,15 @@ export default function ChiefMinisterPage() {
       .catch(() => {});
 
     // Fetch news matching Chief Minister keywords
-    fetch("/api/admin/crud/news")
-      .then(res => {
+    fetch("/api/news")
+      .then((res) => {
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         return res.json();
       })
-      .then(data => {
-        if (Array.isArray(data)) {
-          const cmArticles = data.filter(n => 
-            n.published === 1 && 
+      .then((data) => {
+        const items = Array.isArray(data) ? data : data?.news || data?.data || [];
+        if (Array.isArray(items)) {
+          const cmArticles = items.filter((n: any) => 
             ((n.title_en || "").toLowerCase().includes("vijay") || 
              (n.title_en || "").toLowerCase().includes("chief minister") ||
              (n.summary_en || "").toLowerCase().includes("vijay") ||

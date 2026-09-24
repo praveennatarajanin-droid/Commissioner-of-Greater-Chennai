@@ -1,17 +1,26 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { AccessibilityProvider } from "@/context/AccessibilityContext";
 import GlobalAccessibilityTool from "@/components/accessibility/GlobalAccessibilityTool";
 import ContentProtection from "@/components/security/ContentProtection";
 import VisitorTracker from "@/components/analytics/VisitorTracker";
+import WebVitalsTracker from "@/components/analytics/WebVitalsTracker";
 import { db } from "@/lib/db";
 import { cookies, headers } from "next/headers";
 import "./globals.css";
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: "#7A1C1C",
+  colorScheme: "light dark",
+};
+
 export async function generateMetadata(): Promise<Metadata> {
   const seoSettings = await db.getSeoSettings();
-  const baseUrl = seoSettings.site_url || "https://chennaiguardian.in";
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || seoSettings.site_url || "https://chennaiguardian.mccmrfip.in";
 
   return {
     title: seoSettings.site_title || "Chennai Guardian | Greater Chennai Police",
@@ -55,7 +64,7 @@ export default async function RootLayout({
   const initialLanguage = (cookieStore.get("preferred-language")?.value || "en") as "en" | "ta";
   const themeSettings = await db.getThemeSettings();
   const seoSettings = await db.getSeoSettings();
-  const baseUrl = seoSettings.site_url || "https://chennaiguardian.in";
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || seoSettings.site_url || "https://chennaiguardian.mccmrfip.in";
 
   const inlineStyles = `
     :root {
@@ -139,6 +148,14 @@ export default async function RootLayout({
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png?v=2" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2" />
 
+        {/* Enterprise Resource Hints & Optimization for Lighthouse, GTmetrix & PageSpeed */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="format-detection" content="telephone=no" />
+
         {/* JSON-LD Structured Data */}
         <script
           type="application/ld+json"
@@ -183,6 +200,7 @@ export default async function RootLayout({
             <AccessibilityProvider>
               <ContentProtection />
               <VisitorTracker />
+              <WebVitalsTracker />
               {children}
               <GlobalAccessibilityTool />
             </AccessibilityProvider>

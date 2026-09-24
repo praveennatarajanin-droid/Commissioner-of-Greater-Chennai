@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   const seoSettings = await db.getSeoSettings();
-  const baseUrl = seoSettings.site_url || "https://chennaiguardian.in";
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || seoSettings.site_url || "https://chennaiguardian.mccmrfip.in";
   const videos = await db.getVideos();
   const activeVideos = videos.filter(v => v.active === 1);
   const articleSeoList = await db.getArticleSeo();

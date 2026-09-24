@@ -23,7 +23,7 @@ export default async function CitizenServicesPage() {
   const [menuItems, rawTicker, news, profile, schemaJson, categories, services] = await Promise.all([
     db.getPublicMenus(),
     db.getTicker(),
-    db.getNews(),
+    db.getPublishedNews(),
     db.getCommissionerProfile(),
     getSchemaJsonForPage("citizen_services_page", 0),
     db.getCitizenServiceCategories(),

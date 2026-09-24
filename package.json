@@ -4,10 +4,14 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:webpack": "next dev --webpack",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "migrate:mysql": "node src/scripts/migrate.js"
+    "migrate:mysql": "node src/scripts/migrate.js",
+    "security:audit": "node scripts/security_audit_suite.mjs",
+    "security:vapt": "node scripts/security_regression_suite.mjs",
+    "snyk:test": "node scripts/snyk_audit.mjs"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",

@@ -69,15 +69,15 @@ export default function NewsDetailClient({ article }: { article: NewsItem }) {
     if (article && article.id) {
       fetch(`/api/news/${article.id}/view`, { method: "POST" }).catch(() => {});
     }
-    fetch("/api/admin/crud/news")
-      .then(res => {
+    fetch("/api/news")
+      .then((res) => {
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         return res.json();
       })
-      .then(data => {
-        if (Array.isArray(data)) {
-          // Only show published articles in related/sidebar sections
-          setLiveNews(data.filter((n: any) => n.published === 1));
+      .then((data) => {
+        const items = Array.isArray(data) ? data : data?.news || data?.data || [];
+        if (Array.isArray(items)) {
+          setLiveNews(items);
         }
       })
       .catch(() => {}); // Silent fail — widgets simply stay empty

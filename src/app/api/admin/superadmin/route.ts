@@ -91,6 +91,15 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Username already exists" }, { status: 400 });
       }
 
+      // Have I Been Pwned (HIBP) Breach Check (k-Anonymity)
+      const { checkPasswordPwned } = await import("@/lib/hibp");
+      const hibp = await checkPasswordPwned(password);
+      if (hibp.pwned) {
+        return NextResponse.json({
+          error: `Security Violation: This password has appeared in known public data breaches (${hibp.count} times). Please choose a stronger, unique password.`
+        }, { status: 400 });
+      }
+
       const newUser = {
         id: usersList.length > 0 ? Math.max(...usersList.map((u) => u.id)) + 1 : 1,
         username: username.trim(),
@@ -238,6 +247,14 @@ export async function PUT(req: Request) {
         (targetUser as any).permissions_json = typeof permissions_json === "object" ? JSON.stringify(permissions_json) : (permissions_json || "");
       }
       if (password) {
+        // Have I Been Pwned (HIBP) Breach Check (k-Anonymity)
+        const { checkPasswordPwned } = await import("@/lib/hibp");
+        const hibp = await checkPasswordPwned(password);
+        if (hibp.pwned) {
+          return NextResponse.json({
+            error: `Security Violation: This password has appeared in known public data breaches (${hibp.count} times). Please choose a stronger, unique password.`
+          }, { status: 400 });
+        }
         targetUser.passwordHash = hashPassword(password);
       }
 

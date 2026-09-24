@@ -198,17 +198,34 @@ export function formatPublishedTime(
 
 
 /**
- * Helper to check if an article is currently published and not in draft or future schedule.
+ * Helper to check if an article is currently published and not in draft, unpublished, archived, or future schedule.
+ * Deny-by-default access control for public requests.
  */
 export function isArticlePubliclyVisible(item: any): boolean {
   if (!item) return false;
+
+  // 1. Explicit status string verification (case-insensitive)
+  if (item.status !== undefined && item.status !== null) {
+    const statusUpper = String(item.status).trim().toUpperCase();
+    if (statusUpper === "DRAFT" || statusUpper === "UNPUBLISHED" || statusUpper === "ARCHIVED") {
+      return false;
+    }
+    if (statusUpper !== "PUBLISHED" && statusUpper !== "ACTIVE") {
+      return false;
+    }
+  }
+
+  // 2. Numeric published flag check (must be explicitly 1)
   if (item.published !== undefined && Number(item.published) !== 1) {
     return false;
   }
+
+  // 3. Check for scheduled publication time against current server time
   const pubDate = getNewsTimestamp(item);
   if (pubDate && pubDate.getTime() > Date.now()) {
-    // Scheduled for future
+    // Scheduled for future release
     return false;
   }
+
   return true;
 }

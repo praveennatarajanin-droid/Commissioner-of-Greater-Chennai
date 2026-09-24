@@ -4,6 +4,7 @@ import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import { newsData } from "@/data/newsData";
 import { query as mysqlQuery } from "@/lib/mysql";
+import { isArticlePubliclyVisible } from "@/lib/dateUtils";
 
 // Username normalization policy
 export function normalizeUsername(username: string | null | undefined): string {
@@ -11,12 +12,16 @@ export function normalizeUsername(username: string | null | undefined): string {
   return username.trim().toLowerCase();
 }
 
-// Cryptographic hashing helper
+// Cryptographic hashing helper (enforcing salted bcrypt with work factor 12)
 export function hashPassword(password: string): string {
+  return bcrypt.hashSync(password, 12);
+}
+
+export function legacyHashPassword(password: string): string {
   return crypto.createHash("sha256").update(password).digest("hex");
 }
 
-// Password verification helper (supports SHA-256 and bcrypt hashes with constant-time equality check)
+// Password verification helper (supports salted bcrypt hashes and constant-time legacy checks)
 export function verifyPassword(password: string, storedHash: string): boolean {
   if (!password || !storedHash) return false;
   if (storedHash.startsWith("$2a$") || storedHash.startsWith("$2b$") || storedHash.startsWith("$2y$")) {
@@ -26,7 +31,7 @@ export function verifyPassword(password: string, storedHash: string): boolean {
       return false;
     }
   }
-  const computed = hashPassword(password);
+  const computed = legacyHashPassword(password);
   if (computed.length !== storedHash.length) return false;
   try {
     return crypto.timingSafeEqual(Buffer.from(computed), Buffer.from(storedHash));
@@ -187,6 +192,7 @@ export interface DBNewsItem {
   tags_ta: string[];
   section: string;
   published: number; // 0 or 1
+  status?: "PUBLISHED" | "DRAFT" | "UNPUBLISHED" | "ARCHIVED" | string;
   highlights_en?: string[];
   highlights_ta?: string[];
   quote?: { text_en: string; text_ta: string; author_en: string; author_ta: string };
@@ -204,6 +210,52 @@ export interface DBNewsItem {
   updated_at?: string;
   created_at?: string;
   language?: string;
+}
+
+/**
+ * Public Response Serializer / DTO Sanitizer.
+ * Ensures internal editorial, administrative, or draft metadata is never leaked to public consumers.
+ */
+export function sanitizePublicNewsItem(item: DBNewsItem): DBNewsItem {
+  return {
+    id: item.id,
+    slug: item.slug,
+    category_en: item.category_en,
+    category_ta: item.category_ta,
+    title_en: item.title_en,
+    title_ta: item.title_ta,
+    summary_en: item.summary_en,
+    summary_ta: item.summary_ta,
+    content_en: item.content_en || [],
+    content_ta: item.content_ta || [],
+    image: item.image,
+    gallery: item.gallery,
+    date: item.date,
+    author_en: item.author_en,
+    author_ta: item.author_ta,
+    tags_en: item.tags_en || [],
+    tags_ta: item.tags_ta || [],
+    section: item.section,
+    published: 1,
+    status: "PUBLISHED",
+    highlights_en: item.highlights_en,
+    highlights_ta: item.highlights_ta,
+    quote: item.quote,
+    timeline: item.timeline,
+    sourceName: item.sourceName,
+    sourceUrl: item.sourceUrl,
+    views_count: item.views_count || 0,
+    featured: item.featured,
+    breaking: item.breaking,
+    latest: item.latest,
+    homepage_visible: item.homepage_visible,
+    image_locked: item.image_locked,
+    published_at: item.published_at || item.publishedAt,
+    publishedAt: item.published_at || item.publishedAt,
+    updated_at: item.updated_at,
+    created_at: item.created_at,
+    language: item.language,
+  };
 }
 
 export interface DBFaq {
@@ -1321,6 +1373,64 @@ class ChennaiGuardianDatabase {
   public async saveNews(news: DBNewsItem[]) {
     jsonDb.setTable("news", news);
   }
+
+  /**
+   * Authoritative Public Query: Returns ONLY published articles where schedule time <= current time.
+   * Eliminates draft/unpublished data leaks at the data access layer.
+   */
+  public async getPublishedNews(): Promise<DBNewsItem[]> {
+    const all = await this.getNews();
+    return all.filter(isArticlePubliclyVisible);
+  }
+
+  /**
+   * Retrieve a single public news article by ID. Returns undefined if non-existent or unpublished.
+   */
+  public async getPublishedNewsById(id: number | string): Promise<DBNewsItem | undefined> {
+    const numId = typeof id === "string" ? parseInt(id, 10) : id;
+    if (isNaN(numId)) return undefined;
+    const all = await this.getPublishedNews();
+    return all.find((n) => n.id === numId);
+  }
+
+  /**
+   * Retrieve a single public news article by slug. Returns undefined if non-existent or unpublished.
+   */
+  public async getPublishedNewsBySlug(slug: string): Promise<DBNewsItem | undefined> {
+    if (!slug) return undefined;
+    const all = await this.getPublishedNews();
+    return all.find((n) => n.slug === slug);
+  }
+
+  /**
+   * Server-authoritative editorial query: Returns articles filtered by role permissions.
+   * Super Admin & Admin view all articles; Editors and Reporters view published items plus their own drafts.
+   */
+  public async getAuthorizedEditorialNews(role?: string, username?: string): Promise<DBNewsItem[]> {
+    const all = await this.getNews();
+    const normalizedRole = (role || "").toUpperCase().trim().replace(/[_\s]+/g, "");
+    if (
+      normalizedRole === "SUPERADMIN" ||
+      normalizedRole === "SUPER_ADMIN" ||
+      normalizedRole === "ADMIN" ||
+      normalizedRole === "ADMINISTRATOR"
+    ) {
+      return all;
+    }
+    if (
+      normalizedRole === "EDITOR" ||
+      normalizedRole === "REPORTER" ||
+      normalizedRole === "CONTENTADMIN" ||
+      normalizedRole === "CONTENT_MANAGER"
+    ) {
+      return all.filter(
+        (n) => isArticlePubliclyVisible(n) || (username && n.author_en?.toLowerCase() === username.toLowerCase())
+      );
+    }
+    // Deny-by-default for non-editorial or unauthenticated callers
+    return all.filter(isArticlePubliclyVisible);
+  }
+
   public async getNewsBySlug(slug: string): Promise<DBNewsItem | undefined> {
     const news = await this.getNews();
     return news.find((n) => n.slug === slug);
@@ -1801,17 +1911,24 @@ class ChennaiGuardianDatabase {
   // SEO
   public async getSeoSettings(): Promise<DBSeoSettings> {
     const list = jsonDb.getTable("seo_settings") as DBSeoSettings[];
-    if (list && list.length > 0) return list[0];
+    const liveSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://chennaiguardian.mccmrfip.in";
+    if (list && list.length > 0) {
+      const item = { ...list[0] };
+      if (!item.site_url || item.site_url === "https://chennaiguardian.in") {
+        item.site_url = liveSiteUrl;
+      }
+      return item;
+    }
     return {
       id: 1,
       site_title: "Chennai Guardian | Greater Chennai Police",
       site_description: "Official portal of Greater Chennai Police",
-      default_keywords: "Chennai Police, Public Safety",
+      default_keywords: "Chennai Police, Public Safety, Citizen Services, Emergency Contacts",
       organization_name: "Greater Chennai Police",
       organization_logo: "/images/gcp_logo.png",
       contact_number: "044-23452300",
       address: "Commissioner Office, Vepery, Chennai",
-      site_url: "https://chennaiguardian.in",
+      site_url: liveSiteUrl,
       social_facebook: "",
       social_twitter: "",
       social_instagram: "",

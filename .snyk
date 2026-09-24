@@ -1,0 +1,24 @@
+# Snyk (https://snyk.io) policy file
+version: v1.25.0
+# Greater Chennai Police Commissioner Portal Security Policy
+schema-version: 1.2.0
+
+ignore: {}
+patch: {}
+
+# Snyk Code (SAST) and Open Source (SCA) Rules
+rules:
+  # Enforce Zero High/Critical CVE Vulnerabilities in Dependencies
+  dependency-vulnerabilities:
+    severity-threshold: "high"
+    fail-on-issue: true
+  
+  # Static Application Security Testing (SAST) Rules
+  sast:
+    prevent-hardcoded-secrets: true
+    prevent-sql-injection: true
+    prevent-cross-site-scripting: true
+    prevent-insecure-deserialization: true
+    prevent-server-side-request-forgery: true
+    enforce-secure-cookie-flags: true
+    enforce-strict-transport-security: true

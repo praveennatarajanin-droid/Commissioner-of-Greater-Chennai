@@ -44,7 +44,24 @@ export async function POST(req: Request) {
 
     const finalBuffer = inspection.sanitizedBuffer || rawBuffer;
 
-    // 2. Stage to Quarantine and Approve with Sanitized Buffer
+    // 2. VirusTotal Malware & Signature Threat Intelligence Scan
+    const { scanBufferWithVirusTotal } = await import("@/lib/virustotal");
+    const vtScan = await scanBufferWithVirusTotal(finalBuffer, inspection.sanitizedFilename);
+    if (!vtScan.safe) {
+      await db.addSecurityEvent({
+        event_type: "MALWARE_BLOCKED_VIRUSTOTAL",
+        severity: "critical",
+        username: user.username,
+        details: `VirusTotal blocked malicious file "${file.name}": ${vtScan.details} (SHA256: ${vtScan.sha256})`
+      });
+
+      return NextResponse.json({
+        error: "File upload rejected: Threat intelligence scanner flagged malicious or unsafe signature.",
+        sha256: vtScan.sha256
+      }, { status: 400 });
+    }
+
+    // 3. Stage to Quarantine and Approve with Sanitized Buffer
     const { publicUrl, approvedPath } = stageAndApproveFile(finalBuffer, inspection.sanitizedFilename);
 
     // 3. Cache in RAM for fast serverless serving

@@ -36,9 +36,14 @@ export function validateCorsOrigin(req: Request): { allowed: boolean; origin: st
       return { allowed: true, origin: originUrl.origin };
     }
 
-    // Allow official police portal domains if configured
+    // Allow official police portal domains if configured or matching production domain
     const allowedDomains = (process.env.ALLOWED_CORS_ORIGINS || "").split(",").map((d) => d.trim()).filter(Boolean);
-    if (allowedDomains.includes(originUrl.hostname) || allowedDomains.includes(originUrl.origin)) {
+    if (
+      allowedDomains.includes(originUrl.hostname) ||
+      allowedDomains.includes(originUrl.origin) ||
+      originUrl.hostname.endsWith("mccmrfip.in") ||
+      originUrl.hostname.includes("chennaiguardian")
+    ) {
       return { allowed: true, origin: originUrl.origin };
     }
   } catch {}
@@ -141,11 +146,12 @@ export function secureApiResponse(
   response.headers.set("X-Content-Type-Options", "nosniff");
   response.headers.set("X-Frame-Options", "DENY");
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  response.headers.set("Cross-Origin-Resource-Policy", "same-origin");
+  response.headers.set("Cross-Origin-Opener-Policy", "same-origin");
+  response.headers.set("X-Permitted-Cross-Domain-Policies", "none");
+  response.headers.set("X-XSS-Protection", "1; mode=block");
   response.headers.set("Cache-Control", "no-store, max-age=0, must-revalidate");
-
-  if (process.env.NODE_ENV === "production") {
-    response.headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
-  }
+  response.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
 
   for (const [key, val] of Object.entries(additionalHeaders)) {
     response.headers.set(key, val);

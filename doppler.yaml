@@ -1,0 +1,5 @@
+# Doppler Project Configuration
+# Greater Chennai Police Commissioner Portal
+setup:
+  project: gcp-commissioner-portal
+  config: prd

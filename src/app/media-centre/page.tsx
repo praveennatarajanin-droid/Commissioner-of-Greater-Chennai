@@ -18,11 +18,11 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function MediaCentrePage() {
-  const [menuItems, rawTicker, allAlerts, allNews, profile, schemaJson] = await Promise.all([
+  const [menuItems, rawTicker, allAlerts, publishedNews, profile, schemaJson] = await Promise.all([
     db.getPublicMenus(),
     db.getTicker(),
     db.getAlerts(),
-    db.getNews(),
+    db.getPublishedNews(),
     db.getCommissionerProfile(),
     getSchemaJsonForPage("media_centre_page", 0),
   ]);
@@ -36,7 +36,6 @@ export default async function MediaCentrePage() {
     }));
 
   const approvedAlerts = allAlerts.filter((a) => a.approved === 1 && a.removed === 0);
-  const publishedNews = allNews.filter((n) => n.published === 1);
 
   return (
     <>

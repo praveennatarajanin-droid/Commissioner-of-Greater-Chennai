@@ -18,12 +18,12 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function StoriesPage() {
-  const [menuItems, rawTicker, allStories, profile, allNews, schemaJson] = await Promise.all([
+  const [menuItems, rawTicker, allStories, profile, publishedNews, schemaJson] = await Promise.all([
     db.getPublicMenus(),
     db.getTicker(),
     db.getWebStories(),
     db.getCommissionerProfile(),
-    db.getNews(),
+    db.getPublishedNews(),
     getSchemaJsonForPage("web_stories_page", 0)
   ]);
 
@@ -36,7 +36,6 @@ export default async function StoriesPage() {
     }));
 
   const activeStories = allStories.filter((s) => s.active === 1 || s.active === undefined);
-  const publishedNews = allNews.filter((n) => n.published === 1);
 
   return (
     <>

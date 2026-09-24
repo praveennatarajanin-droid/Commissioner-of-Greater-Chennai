@@ -23,10 +23,10 @@ export default async function Home() {
   // Sync alerts in background (non-blocking)
   db.syncAlerts(false).catch((e) => console.error("Background syncAlerts error:", e));
 
-  const [menuItems, rawTicker, news, allVideos, allAlerts, profile, allSlider, dynamicContent, rawStories] = await Promise.all([
+  const [menuItems, rawTicker, publishedNews, allVideos, allAlerts, profile, allSlider, dynamicContent, rawStories] = await Promise.all([
     db.getPublicMenus(),
     db.getTicker(),
-    db.getNews(),
+    db.getPublishedNews(),
     db.getVideos(),
     db.getAlerts(),
     db.getCommissionerProfile(),
@@ -38,8 +38,6 @@ export default async function Home() {
   const ticker = rawTicker.filter(i => i.active === 1).map(i => ({
     id: i.id, text_en: i.text_en, text_ta: i.text_ta, title_en: i.text_en, title_ta: i.text_ta
   }));
-
-  const publishedNews = news.filter(n => n.published === 1);
   const activeVideos = allVideos.filter(v => v.active === 1);
   const activeAlerts = allAlerts.filter(a => a.approved === 1 && a.removed === 0);
   const activeSlider = allSlider.filter(s => s.active === 1).sort((a, b) => a.order_num - b.order_num);

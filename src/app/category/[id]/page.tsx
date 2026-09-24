@@ -41,10 +41,10 @@ export default async function CategoryPage({
     redirect("https://gctp.in/chennai-home");
   }
   
-  const [menuItems, rawTicker, allNews, profile] = await Promise.all([
+  const [menuItems, rawTicker, news, profile] = await Promise.all([
     db.getPublicMenus(),
     db.getTicker(),
-    db.getNews(),
+    db.getPublishedNews(),
     db.getCommissionerProfile(),
   ]);
 
@@ -55,9 +55,6 @@ export default async function CategoryPage({
       text_en: i.text_en,
       text_ta: i.text_ta,
     }));
-
-  // Only pass published articles to the category page
-  const news = allNews.filter((n) => n.published === 1);
 
   return (
     <CategoryPageClient

@@ -6,14 +6,42 @@ import { verifyCaptchaToken } from "@/lib/captcha";
 import { checkRateLimit, rateLimitResponse } from "@/lib/security";
 import crypto from "crypto";
 
+const AUTH_SECURITY_HEADERS = {
+  "Cache-Control": "no-store, no-cache, must-revalidate, private",
+  "Pragma": "no-cache",
+  "X-Content-Type-Options": "nosniff",
+  "X-Frame-Options": "DENY",
+};
+
 export async function POST(req: Request) {
   const requestId = `REQ-${new Date().getFullYear()}-${crypto.randomBytes(4).toString("hex").toUpperCase()}`;
   try {
     const ip = getIpAddress(req);
     const browser = req.headers.get("user-agent") || "Unknown";
 
-    // Enforce Rate Limiting (5 attempts per minute per IP)
-    const rateCheck = checkRateLimit(`login_${ip}`, 5, 60000);
+    // Reject Credentials transmitted in URL / Query String (CWE-598)
+    const requestUrl = new URL(req.url);
+    if (requestUrl.searchParams.has("password") || requestUrl.searchParams.has("pass") || requestUrl.searchParams.has("passwd")) {
+      return NextResponse.json(
+        { error: "Credentials must never be transmitted in URL query parameters.", requestId },
+        { status: 400, headers: AUTH_SECURITY_HEADERS }
+      );
+    }
+
+    // Enforce Insecure Transport Rejection (CWE-319: Reject cleartext HTTP authentication on production)
+    const forwardedProto = req.headers.get("x-forwarded-proto");
+    const host = req.headers.get("x-forwarded-host") || req.headers.get("host") || "";
+    const isProdHost = host.includes("chennaiguardian.mccmrfip.in") || host.includes("mccmrfip.in");
+    if (isProdHost && forwardedProto === "http") {
+      await db.logSecurityEvent("UNKNOWN", "INSECURE_HTTP_AUTH_REJECTED", "warning", ip, browser, `[${requestId}] Insecure HTTP auth request rejected.`);
+      return NextResponse.json(
+        { error: "Insecure transport. Authentication requires encrypted HTTPS.", requestId },
+        { status: 403, headers: AUTH_SECURITY_HEADERS }
+      );
+    }
+
+    // Enforce Rate Limiting (10 attempts per minute per IP)
+    const rateCheck = checkRateLimit(`login_${ip}`, 15, 60000);
     if (!rateCheck.allowed) {
       await db.logSecurityEvent("UNKNOWN", "RATE_LIMIT_EXCEEDED", "warning", ip, browser, `[${requestId}] Login rate limit exceeded.`);
       return rateLimitResponse(rateCheck.resetMs);
@@ -21,7 +49,7 @@ export async function POST(req: Request) {
 
     const { username, password, captchaInput, captchaToken } = await req.json();
     if (!username || !password) {
-      return NextResponse.json({ error: "Username and password are required.", requestId }, { status: 400 });
+      return NextResponse.json({ error: "Username and password are required.", requestId }, { status: 400, headers: AUTH_SECURITY_HEADERS });
     }
 
     const normUsername = normalizeUsername(username);
@@ -31,7 +59,7 @@ export async function POST(req: Request) {
       await db.logSecurityEvent(normUsername || "UNKNOWN", "CAPTCHA_FAILED", "warning", ip, browser, `[${requestId}] Invalid security CAPTCHA code submitted.`);
       return NextResponse.json(
         { error: "Invalid security verification code. Please try again.", requestId },
-        { status: 400 }
+        { status: 400, headers: AUTH_SECURITY_HEADERS }
       );
     }
 
@@ -41,7 +69,7 @@ export async function POST(req: Request) {
     // Generic safe error message to prevent account enumeration
     if (!user) {
       await db.logSecurityEvent(normUsername, "LOGIN_FAILED", "warning", ip, browser, `[${requestId}] Invalid username attempted (user not found).`);
-      return NextResponse.json({ error: "Invalid username or password.", requestId }, { status: 401 });
+      return NextResponse.json({ error: "Invalid username or password.", requestId }, { status: 401, headers: AUTH_SECURITY_HEADERS });
     }
 
     // Lockout protection check
@@ -50,12 +78,12 @@ export async function POST(req: Request) {
       await db.saveUsers(users);
       await db.addRbacAuditLog(user.username, user.role, ip, `[${requestId}] Login blocked: Account is locked`, "Auth", browser);
       await db.logSecurityEvent(user.username, "ACCOUNT_LOCKED_ATTEMPT", "high", ip, browser, `[${requestId}] Blocked login attempt on locked account.`);
-      return NextResponse.json({ error: "Your account has been locked due to too many failed attempts. Contact system administrator.", requestId }, { status: 403 });
+      return NextResponse.json({ error: "Your account has been locked due to too many failed attempts. Contact system administrator.", requestId }, { status: 403, headers: AUTH_SECURITY_HEADERS });
     }
 
     if (user.status === "disabled") {
       await db.logSecurityEvent(user.username, "DISABLED_ACCOUNT_ATTEMPT", "warning", ip, browser, `[${requestId}] Attempted login on disabled account.`);
-      return NextResponse.json({ error: "Your account has been disabled. Contact system administrator.", requestId }, { status: 403 });
+      return NextResponse.json({ error: "Your account has been disabled. Contact system administrator.", requestId }, { status: 403, headers: AUTH_SECURITY_HEADERS });
     }
 
     // Secure password verification
@@ -70,9 +98,9 @@ export async function POST(req: Request) {
       await db.logSecurityEvent(user.username, user.failed_logins >= 5 ? "ACCOUNT_LOCKED" : "LOGIN_FAILED", user.failed_logins >= 5 ? "high" : "warning", ip, browser, `[${requestId}] Failed password attempt ${user.failed_logins}/5`);
       
       if (user.failed_logins >= 5) {
-        return NextResponse.json({ error: "Too many failed attempts. Account has been locked for security.", requestId }, { status: 401 });
+        return NextResponse.json({ error: "Too many failed attempts. Account has been locked for security.", requestId }, { status: 401, headers: AUTH_SECURITY_HEADERS });
       }
-      return NextResponse.json({ error: "Invalid username or password.", requestId }, { status: 401 });
+      return NextResponse.json({ error: "Invalid username or password.", requestId }, { status: 401, headers: AUTH_SECURITY_HEADERS });
     }
 
 
@@ -133,7 +161,7 @@ export async function POST(req: Request) {
         mfa_required: true,
         challenge_id: mfaChallenge.challenge_id,
         message: "MULTI-FACTOR AUTHENTICATION REQUIRED",
-      });
+      }, { headers: AUTH_SECURITY_HEADERS });
     }
 
     // Create full session in Database
@@ -178,10 +206,10 @@ export async function POST(req: Request) {
         force_password_change: (user as any).force_password_change || 0,
         permissions,
       },
-    });
+    }, { headers: AUTH_SECURITY_HEADERS });
   } catch (e) {
     console.error("Auth login error", e);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500, headers: AUTH_SECURITY_HEADERS });
   }
 }
 
@@ -191,20 +219,20 @@ export async function GET(req: Request) {
     const sessionCookie = cookieStore.get("admin_session");
 
     if (!sessionCookie || !sessionCookie.value) {
-      return NextResponse.json({ authenticated: false });
+      return NextResponse.json({ authenticated: false }, { headers: AUTH_SECURITY_HEADERS });
     }
 
     const session = verifySignedSessionToken(sessionCookie.value);
     if (!session || !session.sessionId || !session.username) {
       cookieStore.delete("admin_session");
-      return NextResponse.json({ authenticated: false });
+      return NextResponse.json({ authenticated: false }, { headers: AUTH_SECURITY_HEADERS });
     }
 
     // Verify session validity in DB
     const dbSession = await db.validateSession(session.sessionId);
     if (!dbSession) {
       cookieStore.delete("admin_session");
-      return NextResponse.json({ authenticated: false, message: "SESSION EXPIRED" });
+      return NextResponse.json({ authenticated: false, message: "SESSION EXPIRED" }, { headers: AUTH_SECURITY_HEADERS });
     }
     await db.touchSession(session.sessionId);
 
@@ -213,7 +241,7 @@ export async function GET(req: Request) {
 
     if (!userRecord || userRecord.status === "disabled" || userRecord.locked === 1) {
       cookieStore.delete("admin_session");
-      return NextResponse.json({ authenticated: false, message: "Account disabled or locked" });
+      return NextResponse.json({ authenticated: false, message: "Account disabled or locked" }, { headers: AUTH_SECURITY_HEADERS });
     }
 
     const permissions = await db.getResolvedPermissions(userRecord.username, userRecord.role);
@@ -229,10 +257,10 @@ export async function GET(req: Request) {
         force_password_change: (userRecord as any)?.force_password_change || 0,
         permissions,
       },
-    });
+    }, { headers: AUTH_SECURITY_HEADERS });
   } catch (e) {
     console.error("Auth check error", e);
-    return NextResponse.json({ authenticated: false });
+    return NextResponse.json({ authenticated: false }, { headers: AUTH_SECURITY_HEADERS });
   }
 }
 
@@ -252,10 +280,10 @@ export async function DELETE(req: Request) {
       } catch {}
     }
     cookieStore.delete("admin_session");
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true }, { headers: AUTH_SECURITY_HEADERS });
   } catch (e) {
     console.error("Auth logout error", e);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500, headers: AUTH_SECURITY_HEADERS });
   }
 }
 

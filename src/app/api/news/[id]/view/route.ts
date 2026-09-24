@@ -15,6 +15,12 @@ export async function POST(
       return NextResponse.json({ error: "Invalid article ID" }, { status: 400 });
     }
 
+    // Ensure the article exists and is publicly published
+    const article = await db.getPublishedNewsById(articleId);
+    if (!article) {
+      return NextResponse.json({ error: "Article not found" }, { status: 404 });
+    }
+
     const cookieStore = await cookies();
     const cookieName = `viewed_news_${articleId}`;
     const alreadyViewedCookie = cookieStore.get(cookieName);

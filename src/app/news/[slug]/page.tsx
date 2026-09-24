@@ -23,17 +23,19 @@ export async function generateMetadata({
     };
   }
 
-  if (!isArticlePubliclyVisible(article)) {
+  const isPublic = isArticlePubliclyVisible(article);
+  if (!isPublic) {
     const authUser = await getSessionUser();
     if (!authUser || !isAdmin(authUser.role)) {
       return {
         title: "Article Not Found | Chennai Guardian",
+        robots: "noindex, nofollow, noarchive",
       };
     }
   }
 
   const seoSettings = await db.getSeoSettings();
-  const baseUrl = seoSettings.site_url || "https://chennaiguardian.in";
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || seoSettings.site_url || "https://chennaiguardian.mccmrfip.in";
 
   // Check for custom SEO overrides
   const articleSeoList = await db.getArticleSeo();
@@ -44,7 +46,9 @@ export async function generateMetadata({
   const ogImage = customSeo?.og_image || article.image || seoSettings.default_og_image || "/images/gcp_logo.png";
   const ogImageUrl = ogImage.startsWith("http") ? ogImage : `${baseUrl}${ogImage}`;
   const canonicalUrl = customSeo?.canonical_url || `${baseUrl}/news/${article.slug}`;
-  const robots = customSeo?.robots || seoSettings.default_robots || "index, follow";
+  
+  // Never index drafts even when viewed by authenticated admins
+  const robots = !isPublic ? "noindex, nofollow, noarchive" : (customSeo?.robots || seoSettings.default_robots || "index, follow");
   const safeTags = Array.isArray(article.tags_en)
     ? article.tags_en
     : typeof article.tags_en === "string"
@@ -124,7 +128,7 @@ export default async function Page({
   }
 
   const seoSettings = await db.getSeoSettings();
-  const baseUrl = seoSettings.site_url || "https://chennaiguardian.in";
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || seoSettings.site_url || "https://chennaiguardian.mccmrfip.in";
   const articleSeoList = await db.getArticleSeo();
   const customSeo = articleSeoList.find(s => s.article_id === article.id && s.content_type === "news");
 

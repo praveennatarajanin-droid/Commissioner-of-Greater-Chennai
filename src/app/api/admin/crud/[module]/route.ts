@@ -18,6 +18,8 @@ function validateExternalUrl(url: string | null | undefined): string | null {
 }
 
 import { verifySignedSessionToken } from "@/lib/auth";
+import { invalidateTrendingNewsCache } from "@/app/api/news/trending/route";
+import { invalidateMostReadNewsCache } from "@/app/api/news/most-read/route";
 
 // Authentication Helper
 async function checkAuth(requiredRoles?: string[]) {
@@ -98,8 +100,21 @@ export async function GET(req: Request, { params }: { params: Promise<{ module: 
   switch (module) {
     case "config":
       return NextResponse.json(await db.getSuperadminConfig());
-    case "news":
-      return NextResponse.json(await db.getNews());
+    case "news": {
+      const auth = await checkAuth();
+      if (!auth) {
+        return NextResponse.json({ error: "Unauthorized: Authentication required" }, { status: 401 });
+      }
+      if (!(await hasPermission(auth.username, auth.role, "news", "view"))) {
+        return NextResponse.json({ error: "Forbidden: Insufficient privileges" }, { status: 403 });
+      }
+      const authorizedNews = await db.getAuthorizedEditorialNews(auth.role, auth.username);
+      return NextResponse.json(authorizedNews, {
+        headers: {
+          "Cache-Control": "private, no-cache, no-store, must-revalidate",
+        },
+      });
+    }
     case "ticker":
       return NextResponse.json(await db.getTicker());
     case "slider":
@@ -245,6 +260,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ module:
         };
         items.unshift(newItem); // Add to top
         await db.saveNews(items);
+        invalidateTrendingNewsCache();
+        invalidateMostReadNewsCache();
         await db.addActivityLog(auth.username, `Created news article: ${newItem.title_en}`);
         return NextResponse.json({ success: true, item: newItem });
       }
@@ -585,6 +602,8 @@ export async function PUT(req: Request, { params }: { params: Promise<{ module: 
             updated_at: new Date().toISOString() 
           } : i));
           await db.saveNews(items);
+          invalidateTrendingNewsCache();
+          invalidateMostReadNewsCache();
 
           if (data.published === 1 && existing.published === 0) {
             await db.addActivityLog(auth.username, `Published news article: ${data.title_en || existing.title_en}`);
@@ -903,6 +922,8 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ modul
 
         items = items.filter((i) => i.id !== id);
         await db.saveNews(items);
+        invalidateTrendingNewsCache();
+        invalidateMostReadNewsCache();
         await db.addActivityLog(auth.username, `Deleted news article: ${target.title_en}`);
         return NextResponse.json({ success: true });
       }
