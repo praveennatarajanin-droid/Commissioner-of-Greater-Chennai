@@ -1724,10 +1724,9 @@ class ChennaiGuardianDatabase {
 
       try {
         const feedEndpoints = [
-          // The Hindu Feeds
-          { url: "https://www.thehindu.com/news/cities/chennai/feeder/default.rss", defaultSource: "THE HINDU" },
-          { url: "https://www.thehindu.com/news/national/tamil-nadu/feeder/default.rss", defaultSource: "THE HINDU" },
+          // The Hindu Feeds (Via Google News RSS for high reliability & zero Cloudflare timeouts)
           { url: "https://news.google.com/rss/search?q=site:thehindu.com+(Chennai+OR+%22Greater+Chennai%22+OR+%22Tamil+Nadu%22)+(Police+OR+Crime+OR+Traffic+OR+Safety+OR+Accident+OR+Arrest+OR+Court+OR+Cyber)&hl=en-IN&gl=IN&ceid=IN:en", defaultSource: "THE HINDU" },
+          { url: "https://news.google.com/rss/search?q=site:thehindu.com+(Chennai+OR+%22Greater+Chennai+Police%22+OR+%22Commissioner+Amalraj%22)&hl=en-IN&gl=IN&ceid=IN:en", defaultSource: "THE HINDU" },
           
           // The New Indian Express Feeds
           { url: "https://news.google.com/rss/search?q=site:newindianexpress.com+(Chennai+OR+%22Greater+Chennai%22+OR+%22Tamil+Nadu%22)+(Police+OR+Crime+OR+Traffic+OR+Safety+OR+Accident+OR+Arrest+OR+Court+OR+Cyber)&hl=en-IN&gl=IN&ceid=IN:en", defaultSource: "THE NEW INDIAN EXPRESS" },
@@ -1751,7 +1750,8 @@ class ChennaiGuardianDatabase {
         for (const feed of feedEndpoints) {
           try {
             const res = await fetch(feed.url, {
-              headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" },
+              headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" },
+              signal: AbortSignal.timeout(5000),
               next: { revalidate: 0 }
             });
 

@@ -121,10 +121,9 @@ export async function POST(req: Request) {
     const secConfig = await db.getSecurityPolicyConfig();
     const cookieStore = await cookies();
 
-    // Check MFA Policy Requirements
+    // Check MFA Policy Requirements: Enforce ONLY for SuperAdmin accounts
     const isSuperAdmin = user.role.toUpperCase() === "SUPER_ADMIN" || user.role.toUpperCase() === "SUPERADMIN";
-    const userMfa = await db.getUserMfa(user.username);
-    const isMfaEnabled = !!userMfa || isSuperAdmin;
+    const isMfaEnabled = isSuperAdmin;
 
     // Check Trusted Device Cookie
     const trustedCookie = cookieStore.get("gcp_trusted_device");
