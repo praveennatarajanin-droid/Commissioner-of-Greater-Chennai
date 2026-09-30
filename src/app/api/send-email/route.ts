@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import nodemailer from "nodemailer";
 import { checkRateLimit, RateLimitPolicies, getClientIp, rateLimitExceededResponse } from "@/lib/rateLimit";
 import { escapeHtml } from "@/lib/sanitizer";
 import { isValidEmail } from "@/lib/security";
+import { sendSmtpEmail } from "@/lib/emailService";
 
 /**
  * Strips Carriage Return and Line Feed characters to prevent SMTP / HTTP Header Injection.
@@ -140,46 +140,36 @@ export async function POST(request: Request) {
       </div>
     `;
 
-    // Dispatch email asynchronously so client response is not delayed by SMTP handshakes
-    const pass = process.env.GMAIL_APP_PASSWORD;
-    if (pass) {
-      const transporter = nodemailer.createTransport({
-        service: "gmail",
-        connectionTimeout: 2000,
-        greetingTimeout: 2000,
-        socketTimeout: 2000,
-        auth: {
-          user: "gcp.itdepartment@gmail.com",
-          pass: pass,
-        },
-      });
+    // 5. Authoritative SMTP Email Dispatch with Synchronous Delivery Acknowledgment
+    const deliveryResult = await sendSmtpEmail({
+      to: "gcp.itdepartment@gmail.com",
+      replyTo: safeHeaderEmail,
+      subject: `New Grievance Registration - ${safeHeaderName}`,
+      html: emailHtml,
+      text: `GCP Executive Desk - New Grievance Registration\n\nName: ${safeHeaderName}\nEmail: ${safeHeaderEmail}\nMobile: ${safeHeaderMobile}\n\nMessage:\n${rawGrievance}`,
+    });
 
-      transporter.sendMail({
-        from: '"Chennai Guardian Portal" <gcp.itdepartment@gmail.com>',
-        to: "gcp.itdepartment@gmail.com",
-        replyTo: safeHeaderEmail,
-        subject: `New Grievance Registration - ${safeHeaderName}`,
-        html: emailHtml,
-      }).then(() => {
-        console.log("Real email dispatched via SMTP to gcp.itdepartment@gmail.com");
-      }).catch((smtpErr) => {
-        console.warn("SMTP delivery failed or timed out:", smtpErr?.message || smtpErr);
-      });
-    } else {
-      // Development fallback log
-      console.log("\n==================== GCP EMAIL OUTBOX TRANSCRIPT ====================");
-      console.log("NOTE: Real SMTP is disabled because GMAIL_APP_PASSWORD is not set in .env.local");
-      console.log(`TO: gcp.itdepartment@gmail.com`);
-      console.log(`SUBJECT: New Grievance Registration - ${safeHeaderName}`);
-      console.log("=====================================================================");
+    if (!deliveryResult.success) {
+      return NextResponse.json(
+        {
+          success: false,
+          status: deliveryResult.status,
+          error: "Unable to complete SMTP delivery to executive desk. Please try again later.",
+        },
+        { status: deliveryResult.status === "SMTP_CONNECTION_TIMEOUT" ? 504 : 502 }
+      );
     }
 
     return NextResponse.json({
       success: true,
-      message: "Grievance registered and processed successfully."
+      status: deliveryResult.status,
+      message: deliveryResult.devMode
+        ? "Grievance registered in local outbox (development mode)."
+        : "Grievance registered and email accepted by SMTP server.",
+      messageId: deliveryResult.messageId,
     });
   } catch (err: any) {
-    console.error("Nodemailer error:", err);
+    console.error("API /api/send-email error:", err);
     return NextResponse.json({ success: false, error: "Failed to process grievance." }, { status: 500 });
   }
 }

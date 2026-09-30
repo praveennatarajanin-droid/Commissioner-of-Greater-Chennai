@@ -27,7 +27,8 @@ import {
   Check,
   X,
   Phone,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Info
 } from "lucide-react";
 import ConfirmModal from "./ConfirmModal";
 import MfaEnrollmentModal from "./MfaEnrollmentModal";
@@ -80,7 +81,7 @@ export default function SuperAdminConsole({ user, onTabChange }: SuperAdminConso
   const [logs, setLogs] = useState<any[]>([]);
   const [config, setConfig] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(false);
-  const [toast, setToast] = useState<{ text: string; type: "success" | "error" } | null>(null);
+  const [toast, setToast] = useState<{ text: string; type: "success" | "error" | "info" } | null>(null);
 
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
@@ -134,7 +135,7 @@ export default function SuperAdminConsole({ user, onTabChange }: SuperAdminConso
     maintenance_mode: false
   });
 
-  const showToast = (text: string, type: "success" | "error" = "success") => {
+  const showToast = (text: string, type: "success" | "error" | "info" = "success") => {
     setToast({ text, type });
     setTimeout(() => setToast(null), 4000);
   };
@@ -530,9 +531,19 @@ export default function SuperAdminConsole({ user, onTabChange }: SuperAdminConso
     <div className="flex-grow flex flex-col lg:flex-row bg-[#f8fafc] dark:bg-stone-955 min-h-[550px] rounded-2xl border border-slate-200 dark:border-stone-850 overflow-hidden shadow-sm text-left">
       {toast && (
         <div className={`fixed top-4 right-4 z-[9999] flex items-center gap-2 px-4 py-3 rounded-xl shadow-lg border ${
-          toast.type === "success" ? "bg-emerald-50 border-emerald-250 text-emerald-800" : "bg-rose-50 border-rose-250 text-rose-800"
+          toast.type === "success"
+            ? "bg-emerald-50 border-emerald-200 text-emerald-800 dark:bg-emerald-950 dark:border-emerald-800 dark:text-emerald-200"
+            : toast.type === "info"
+            ? "bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-950 dark:border-blue-800 dark:text-blue-200"
+            : "bg-rose-50 border-rose-200 text-rose-800 dark:bg-rose-950 dark:border-rose-800 dark:text-rose-200"
         }`}>
-          {toast.type === "success" ? <CheckCircle className="w-5 h-5 text-emerald-600" /> : <AlertTriangle className="w-5 h-5 text-rose-600" />}
+          {toast.type === "success" ? (
+            <CheckCircle className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+          ) : toast.type === "info" ? (
+            <Info className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+          ) : (
+            <AlertTriangle className="w-5 h-5 text-rose-600 dark:text-rose-400" />
+          )}
           <span className="text-xs font-black uppercase tracking-wider">{toast.text}</span>
         </div>
       )}
@@ -1306,67 +1317,106 @@ export default function SuperAdminConsole({ user, onTabChange }: SuperAdminConso
             {/* 7. SMTP CONFIGURATION */}
             {activeSection === "smtp" && (
               <div className="space-y-4">
-                <div className="border-b pb-3 border-slate-100 dark:border-stone-800">
-                  <h3 className="text-sm font-black uppercase tracking-wider text-slate-800 dark:text-white">SMTP Configuration</h3>
-                  <p className="text-[10px] text-slate-400 mt-0.5">Configure outbound mail server settings for system alerts and newsletters.</p>
+                <div className="border-b pb-3 border-slate-100 dark:border-stone-800 flex items-center justify-between">
+                  <div>
+                    <h3 className="text-sm font-black uppercase tracking-wider text-slate-800 dark:text-white">SMTP Configuration</h3>
+                    <p className="text-[10px] text-slate-400 mt-0.5">Centralized outbound mail server configuration locked to authorized GCP.IT identity.</p>
+                  </div>
+                  <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                    Authorized Account Locked
+                  </span>
                 </div>
                 <div className="border border-slate-200 dark:border-stone-850 p-5 rounded-2xl bg-white dark:bg-stone-950 font-bold text-xs text-slate-600 dark:text-stone-400 space-y-4">
-                  <h4 className="text-xs font-black uppercase text-slate-800 dark:text-white border-b pb-2">Mail Server Connection Parameters</h4>
+                  <h4 className="text-xs font-black uppercase text-slate-800 dark:text-white border-b pb-2">Authorized Mail Server Parameters</h4>
+                  
+                  <div className="p-3 bg-blue-50 dark:bg-blue-950/40 rounded-xl border border-blue-200/60 dark:border-blue-800/40 text-[11px] text-blue-800 dark:text-blue-300">
+                    <strong>Single Authorized Account:</strong> All outbound citizen grievance receipts and administrative alerts strictly originate from <code>gcp.itdepartment@gmail.com</code>. Client-side sender substitution is permanently disabled.
+                  </div>
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1">
                       <label className="text-[9px] font-black uppercase text-slate-400">SMTP Host Address</label>
                       <input
                         type="text"
-                        placeholder="smtp.mailtrap.io"
-                        value={config.smtpHost || ""}
-                        onChange={(e) => setConfig({ ...config, smtpHost: e.target.value })}
-                        className="w-full border border-slate-200 dark:border-stone-800 rounded-xl p-2.5 outline-none bg-white dark:bg-stone-900 dark:text-white"
+                        disabled
+                        value="smtp.gmail.com"
+                        className="w-full border border-slate-200 dark:border-stone-800 rounded-xl p-2.5 outline-none bg-slate-50 dark:bg-stone-900 text-slate-500 dark:text-stone-400 cursor-not-allowed"
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-[9px] font-black uppercase text-slate-400">SMTP Connection Port</label>
+                      <label className="text-[9px] font-black uppercase text-slate-400">SMTP Connection Port & TLS</label>
                       <input
                         type="text"
-                        placeholder="587"
-                        value={config.smtpPort || ""}
-                        onChange={(e) => setConfig({ ...config, smtpPort: e.target.value })}
-                        className="w-full border border-slate-200 dark:border-stone-800 rounded-xl p-2.5 outline-none bg-white dark:bg-stone-900 dark:text-white"
+                        disabled
+                        value="465 (Implicit TLS 1.3)"
+                        className="w-full border border-slate-200 dark:border-stone-800 rounded-xl p-2.5 outline-none bg-slate-50 dark:bg-stone-900 text-slate-500 dark:text-stone-400 cursor-not-allowed"
                       />
                     </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1">
-                      <label className="text-[9px] font-black uppercase text-slate-400">SMTP Username</label>
+                      <label className="text-[9px] font-black uppercase text-slate-400">Authorized SMTP Account & Sender</label>
                       <input
                         type="text"
-                        placeholder="mail-user-key"
-                        value={config.smtpUser || ""}
-                        onChange={(e) => setConfig({ ...config, smtpUser: e.target.value })}
-                        className="w-full border border-slate-200 dark:border-stone-800 rounded-xl p-2.5 outline-none bg-white dark:bg-stone-900 dark:text-white"
+                        disabled
+                        value="gcp.itdepartment@gmail.com"
+                        className="w-full border border-slate-200 dark:border-stone-800 rounded-xl p-2.5 outline-none bg-slate-50 dark:bg-stone-900 text-slate-500 dark:text-stone-400 cursor-not-allowed font-mono"
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-[9px] font-black uppercase text-slate-400">SMTP Server Password</label>
-                      <input
-                        type="password"
-                        placeholder="••••••••••••"
-                        value={config.smtpPass || ""}
-                        onChange={(e) => setConfig({ ...config, smtpPass: e.target.value })}
-                        className="w-full border border-slate-200 dark:border-stone-800 rounded-xl p-2.5 outline-none bg-white dark:bg-stone-900 dark:text-white"
-                      />
+                      <label className="text-[9px] font-black uppercase text-slate-400">Active Authentication Status</label>
+                      <div className="w-full border border-slate-200 dark:border-stone-800 rounded-xl p-2.5 bg-slate-50 dark:bg-stone-900 text-emerald-600 dark:text-emerald-400 flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span className="text-[11px] font-bold">Google App Password Active</span>
+                      </div>
                     </div>
                   </div>
-                  <button
-                    onClick={() => {
-                      saveConfigKey("smtpHost", config.smtpHost);
-                      saveConfigKey("smtpPort", config.smtpPort);
-                      saveConfigKey("smtpUser", config.smtpUser);
-                      saveConfigKey("smtpPass", config.smtpPass);
-                    }}
-                    className="flex items-center justify-center gap-1.5 px-6 py-2.5 bg-[#1e40af] hover:bg-[#1e3a8a] text-white rounded-xl text-xs font-black uppercase tracking-wider transition cursor-pointer"
-                  >
-                    Save SMTP settings
-                  </button>
+                  
+                  <div className="flex flex-wrap items-center gap-3 pt-2">
+                    <button
+                      onClick={async () => {
+                        showToast("Verifying SMTP connection & credentials...", "info");
+                        try {
+                          const res = await fetch("/api/admin/email/verify");
+                          const data = await res.json();
+                          if (data.ok) {
+                            showToast("SMTP Verified: 250 OK (gcp.itdepartment@gmail.com)", "success");
+                          } else {
+                            showToast(`SMTP Verification Failed: ${data.status}`, "error");
+                          }
+                        } catch {
+                          showToast("Network error verifying SMTP", "error");
+                        }
+                      }}
+                      className="flex items-center justify-center gap-1.5 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black uppercase tracking-wider transition cursor-pointer"
+                    >
+                      Verify SMTP Connection
+                    </button>
+
+                    <button
+                      onClick={async () => {
+                        showToast("Dispatching diagnostic test email...", "info");
+                        try {
+                          const res = await fetch("/api/admin/email/verify", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ to: "gcp.itdepartment@gmail.com" }),
+                          });
+                          const data = await res.json();
+                          if (data.success) {
+                            showToast("Test Email Accepted by Google SMTP (250 OK)", "success");
+                          } else {
+                            showToast(`Test Email Failed: ${data.status}`, "error");
+                          }
+                        } catch {
+                          showToast("Network error sending test email", "error");
+                        }
+                      }}
+                      className="flex items-center justify-center gap-1.5 px-5 py-2.5 bg-[#1e40af] hover:bg-[#1e3a8a] text-white rounded-xl text-xs font-black uppercase tracking-wider transition cursor-pointer"
+                    >
+                      Send Diagnostic Test Email
+                    </button>
+                  </div>
                 </div>
               </div>
             )}

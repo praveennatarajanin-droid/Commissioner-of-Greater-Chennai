@@ -229,8 +229,34 @@ async function runTests() {
     ]);
     const sitemapText = await resSitemap.text();
     const newsSitemapText = await resNewsSitemap.text();
-    assert(!sitemapText.includes("confidential-internal-draft"), "sitemap.xml does not contain draft slug");
-    assert(!newsSitemapText.includes("confidential-internal-draft"), "news-sitemap.xml does not contain draft slug");
+    assert(!sitemapText.includes("confidential-internal-draft") && !sitemapText.includes("/news/kannan"), "sitemap.xml does not contain draft slug");
+    assert(!newsSitemapText.includes("confidential-internal-draft") && !newsSitemapText.includes("/news/kannan"), "news-sitemap.xml does not contain draft slug");
+
+    // -------------------------------------------------------------------------
+    // TEST 13: Direct Unauthenticated Request to Real Draft 'kannan' (slug = 'kannan', published = 0)
+    // -------------------------------------------------------------------------
+    console.log("\nTEST 13: Direct unauthenticated request to production draft 'kannan' via GET /api/news/kannan");
+    const resKannanSlug = await fetch(`${BASE_URL}/api/news/kannan`);
+    assert(resKannanSlug.status === 404, `Expected HTTP 404 Not Found for kannan slug, received HTTP ${resKannanSlug.status}`);
+    const dataKannanSlug = await resKannanSlug.json();
+    assert(!dataKannanSlug.article && !dataKannanSlug.title_en && !dataKannanSlug.data, "No draft data leaked in /api/news/kannan response");
+
+    console.log("\nTEST 14: Direct unauthenticated request to production draft 'kannan' by ID via GET /api/news/53");
+    const resKannanId = await fetch(`${BASE_URL}/api/news/53`);
+    assert(resKannanId.status === 404, `Expected HTTP 404 Not Found for kannan ID 53, received HTTP ${resKannanId.status}`);
+    const dataKannanId = await resKannanId.json();
+    assert(!dataKannanId.article && !dataKannanId.title_en, "No draft data leaked in /api/news/53 response");
+
+    // -------------------------------------------------------------------------
+    // TEST 15: Public Search for draft 'kannan'
+    // -------------------------------------------------------------------------
+    console.log("\nTEST 15: Public search query for draft term 'kannan' via GET /api/news?search=kannan");
+    const resSearchKannan = await fetch(`${BASE_URL}/api/news?search=kannan`);
+    assert(resSearchKannan.status === 200, `Expected HTTP 200 for search endpoint, received HTTP ${resSearchKannan.status}`);
+    const dataSearchKannan = await resSearchKannan.json();
+    const searchArticles = dataSearchKannan.news || dataSearchKannan.data || [];
+    const leakedKannan = searchArticles.some(a => a.slug === "kannan" || a.id === 53);
+    assert(!leakedKannan, `Public search for 'kannan' returned 0 draft records (found: ${leakedKannan})`);
 
     // Clean up test fixtures
     dbData = JSON.parse(fs.readFileSync(dbJsonPath, "utf-8"));

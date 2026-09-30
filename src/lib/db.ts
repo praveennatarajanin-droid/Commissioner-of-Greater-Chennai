@@ -1751,7 +1751,7 @@ class ChennaiGuardianDatabase {
           try {
             const res = await fetch(feed.url, {
               headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" },
-              signal: AbortSignal.timeout(5000),
+              signal: AbortSignal.timeout(10000),
               next: { revalidate: 0 }
             });
 
@@ -1827,8 +1827,13 @@ class ChennaiGuardianDatabase {
                 }
               }
             }
-          } catch (feedErr) {
-            console.warn(`Feed fetch failed for ${feed.url}:`, feedErr);
+          } catch (feedErr: any) {
+            const isTimeout = feedErr?.name === "TimeoutError" || feedErr?.code === 23 || feedErr?.message?.includes("timeout") || feedErr?.name === "AbortError";
+            if (isTimeout) {
+              console.warn(`[RSS Feed Sync] Network timeout fetching ${feed.url} (skipped gracefully)`);
+            } else {
+              console.warn(`[RSS Feed Sync] Feed fetch error for ${feed.url}:`, feedErr?.message || feedErr);
+            }
           }
         }
 

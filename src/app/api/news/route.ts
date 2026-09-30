@@ -9,9 +9,24 @@ export async function GET(req: Request) {
     const search = searchParams.get("search") || searchParams.get("q");
     const limit = searchParams.get("limit") ? parseInt(searchParams.get("limit")!) : null;
     
-    // Check if client is attempting to request draft/all articles
+    // Check if client is attempting to request draft/unpublished/all articles via query parameters
     const rawStatus = searchParams.get("status");
-    const requestedAll = searchParams.get("all") === "true" || (rawStatus && rawStatus.toLowerCase() !== "published");
+    const rawAll = searchParams.get("all");
+    const includeDraft = searchParams.get("includeDraft") || searchParams.get("include_draft") || searchParams.get("draft") || searchParams.get("drafts");
+    const preview = searchParams.get("preview") || searchParams.get("preview_mode");
+    const visibility = searchParams.get("visibility");
+    const rawPublished = searchParams.get("published");
+
+    const requestedAll =
+      rawAll === "true" ||
+      rawAll === "1" ||
+      includeDraft === "true" ||
+      includeDraft === "1" ||
+      preview === "true" ||
+      preview === "1" ||
+      (visibility && visibility.toLowerCase() !== "public") ||
+      (rawPublished && (rawPublished === "0" || rawPublished === "false" || rawPublished.toLowerCase() === "all")) ||
+      (rawStatus && rawStatus.toLowerCase() !== "published" && rawStatus.toLowerCase() !== "active");
 
     let allowDrafts = false;
     let authUser = null;
@@ -26,7 +41,7 @@ export async function GET(req: Request) {
           event_type: "UNAUTHORIZED_DRAFT_QUERY_ATTEMPT",
           severity: "warning",
           username: authUser?.username || "anonymous",
-          details: `Client attempted to query non-published news with status='${rawStatus}' or all=true without authorized admin session.`
+          details: `Client attempted to query non-published news with status='${rawStatus || ""}', all='${rawAll || ""}', includeDraft='${includeDraft || ""}', preview='${preview || ""}' without authorized admin session.`
         }).catch(() => {});
       }
     }

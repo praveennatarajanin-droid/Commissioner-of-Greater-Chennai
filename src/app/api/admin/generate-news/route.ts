@@ -285,9 +285,16 @@ JSON Schema:
   }
 }
 
+import { getSessionUser, isAdmin } from "@/lib/auth";
+
 // ─── Route Handler ───────────────────────────────────────────────────────────
 export async function POST(req: NextRequest) {
   try {
+    const authUser = await getSessionUser();
+    if (!authUser || !isAdmin(authUser.role)) {
+      return NextResponse.json({ error: "Unauthorized: Administrative privileges required" }, { status: 401 });
+    }
+
     const body = await req.json();
     let { content_en, image } = body;
 

@@ -48,7 +48,11 @@ export function proxy(request: NextRequest) {
 
   // API routes response headers
   if (pathname.startsWith("/api/")) {
-    const response = NextResponse.next();
+    const response = NextResponse.next({
+      request: {
+        headers: requestHeaders,
+      },
+    });
     response.headers.set("Content-Security-Policy", contentSecurityPolicyHeaderValue);
     response.headers.set("X-Content-Type-Options", "nosniff");
     response.headers.set("X-Frame-Options", "DENY");

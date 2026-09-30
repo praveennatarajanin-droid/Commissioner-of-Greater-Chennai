@@ -199,15 +199,73 @@ export function formatPublishedTime(
 
 /**
  * Helper to check if an article is currently published and not in draft, unpublished, archived, or future schedule.
- * Deny-by-default access control for public requests.
+ * Authoritative deny-by-default access control for public requests (OWASP A01 / POC-02 remediation).
  */
 export function isArticlePubliclyVisible(item: any): boolean {
-  if (!item) return false;
+  if (!item || typeof item !== "object") return false;
 
-  // 1. Explicit status string verification (case-insensitive)
+  // 1. Soft deletion / removed / trashed flags
+  if (
+    item.deleted === true ||
+    item.deleted === 1 ||
+    item.deleted === "1" ||
+    item.is_deleted === true ||
+    item.is_deleted === 1 ||
+    item.is_deleted === "1" ||
+    item.removed === 1 ||
+    item.removed === true ||
+    item.trashed === true ||
+    item.trashed === 1
+  ) {
+    return false;
+  }
+
+  // 2. Internal / preview-only / private visibility flags
+  if (
+    item.internal === true ||
+    item.internal === 1 ||
+    item.is_internal === true ||
+    item.is_internal === 1 ||
+    item.preview_only === true ||
+    item.preview_only === 1
+  ) {
+    return false;
+  }
+
+  if (item.visibility !== undefined && item.visibility !== null) {
+    const vis = String(item.visibility).trim().toLowerCase();
+    if (
+      vis === "internal" ||
+      vis === "private" ||
+      vis === "draft" ||
+      vis === "restricted" ||
+      vis === "admin" ||
+      vis === "hidden"
+    ) {
+      return false;
+    }
+  }
+
+  // 3. Explicit status string verification (case-insensitive)
   if (item.status !== undefined && item.status !== null) {
     const statusUpper = String(item.status).trim().toUpperCase();
-    if (statusUpper === "DRAFT" || statusUpper === "UNPUBLISHED" || statusUpper === "ARCHIVED") {
+    if (
+      statusUpper === "DRAFT" ||
+      statusUpper === "UNPUBLISHED" ||
+      statusUpper === "ARCHIVED" ||
+      statusUpper === "REJECTED" ||
+      statusUpper === "SCHEDULED" ||
+      statusUpper === "INTERNAL" ||
+      statusUpper === "PREVIEW" ||
+      statusUpper === "PENDING" ||
+      statusUpper === "PENDING_APPROVAL" ||
+      statusUpper === "IN_REVIEW" ||
+      statusUpper === "TRASHED" ||
+      statusUpper === "INACTIVE" ||
+      statusUpper === "SUSPENDED" ||
+      statusUpper === "HIDDEN" ||
+      statusUpper === "DELETED"
+    ) {
       return false;
     }
     if (statusUpper !== "PUBLISHED" && statusUpper !== "ACTIVE") {
@@ -215,15 +273,51 @@ export function isArticlePubliclyVisible(item: any): boolean {
     }
   }
 
-  // 2. Numeric published flag check (must be explicitly 1)
-  if (item.published !== undefined && Number(item.published) !== 1) {
+  // 4. Numeric published flag check (must be explicitly 1 or true if provided)
+  if (item.published !== undefined && item.published !== null) {
+    if (Number(item.published) !== 1 && item.published !== true && item.published !== "1") {
+      return false;
+    }
+  }
+
+  // 5. Positive publication requirement (Deny-by-default):
+  // Must have published === 1/true, status === "PUBLISHED"/"ACTIVE", or a valid date/published_at when status & published are omitted
+  const hasPublishedFlag = item.published === 1 || item.published === true || item.published === "1";
+  const hasPublishedStatus =
+    item.status !== undefined &&
+    item.status !== null &&
+    (String(item.status).trim().toUpperCase() === "PUBLISHED" ||
+      String(item.status).trim().toUpperCase() === "ACTIVE");
+
+  if (!hasPublishedFlag && !hasPublishedStatus) {
+    // If neither status nor published flag is explicitly set, ensure it's not an unpublished object
+    if (item.status !== undefined || item.published !== undefined) {
+      return false;
+    }
+  }
+
+  // 6. Check for scheduled publication time against current server time
+  const now = Date.now();
+  const pubDate = getNewsTimestamp(item);
+  if (pubDate && pubDate.getTime() > now) {
+    // Scheduled for future release
     return false;
   }
 
-  // 3. Check for scheduled publication time against current server time
-  const pubDate = getNewsTimestamp(item);
-  if (pubDate && pubDate.getTime() > Date.now()) {
-    // Scheduled for future release
+  // 7. Check specific scheduling/embargo/expiry fields if present
+  if (item.scheduled_at && parsePublishedDate(item.scheduled_at) && parsePublishedDate(item.scheduled_at)!.getTime() > now) {
+    return false;
+  }
+  if (item.scheduled_for && parsePublishedDate(item.scheduled_for) && parsePublishedDate(item.scheduled_for)!.getTime() > now) {
+    return false;
+  }
+  if (item.publish_at && parsePublishedDate(item.publish_at) && parsePublishedDate(item.publish_at)!.getTime() > now) {
+    return false;
+  }
+  if (item.embargo_until && parsePublishedDate(item.embargo_until) && parsePublishedDate(item.embargo_until)!.getTime() > now) {
+    return false;
+  }
+  if (item.expires_at && parsePublishedDate(item.expires_at) && parsePublishedDate(item.expires_at)!.getTime() <= now) {
     return false;
   }
 
