@@ -1062,22 +1062,7 @@ class JSONDatabaseManager {
         }
         return;
       } catch (e) {
-        // Concurrency retry on partial read
-        for (let retry = 0; retry < 3; retry++) {
-          try {
-            const end = Date.now() + 15;
-            while (Date.now() < end) {}
-            const retryRaw = fs.readFileSync(JSON_DB_PATH, "utf8");
-            if (retryRaw && retryRaw.trim()) {
-              const retryParsed = JSON.parse(retryRaw);
-              this.data = { ...this.data, ...retryParsed };
-              this.lastMtime = fs.statSync(JSON_DB_PATH).mtimeMs;
-              this.isLoaded = true;
-              return;
-            }
-          } catch {}
-        }
-        // If in-memory data exists, silently preserve it
+        // Safe fallback - keep existing in-memory data
         return;
       }
     } else {
@@ -1094,27 +1079,19 @@ class JSONDatabaseManager {
       const serialized = JSON.stringify(this.data, null, 2);
       const tempPath = `${JSON_DB_PATH}.${process.pid}.${Date.now()}.${Math.random().toString(36).substring(2, 8)}.tmp`;
       fs.writeFileSync(tempPath, serialized, "utf8");
-      
-      let renamed = false;
-      for (let attempt = 0; attempt < 5; attempt++) {
-        try {
-          fs.renameSync(tempPath, JSON_DB_PATH);
-          renamed = true;
-          break;
-        } catch {
-          const end = Date.now() + 10;
-          while (Date.now() < end) {}
-        }
-      }
-      if (!renamed) {
+      try {
+        fs.renameSync(tempPath, JSON_DB_PATH);
+      } catch {
         fs.writeFileSync(JSON_DB_PATH, serialized, "utf8");
         try { fs.unlinkSync(tempPath); } catch {}
       }
-      this.lastMtime = fs.statSync(JSON_DB_PATH).mtimeMs;
+      try {
+        this.lastMtime = fs.statSync(JSON_DB_PATH).mtimeMs;
+      } catch {}
       this.lastChecked = Date.now();
       this.isLoaded = true;
     } catch (err) {
-      console.error("Critical database save failure:", err);
+      console.error("Database save warning:", err);
     }
   }
 
@@ -1278,17 +1255,31 @@ class JSONDatabaseManager {
   public setTable(name: string, items: any) {
     (this.data as any)[name] = items;
     this.save();
-    try {
-      const { revalidatePath } = require("next/cache");
-      revalidatePath("/", "layout");
-    } catch (e) {
-      // Ignore when running outside Next server context
+    const layoutTables = ["menus", "sub_menus", "theme_settings", "ticker", "slider", "page_contents"];
+    if (layoutTables.includes(name)) {
+      try {
+        const { revalidatePath } = require("next/cache");
+        revalidatePath("/", "layout");
+      } catch (e) {
+        // Ignore when running outside Next server context
+      }
     }
   }
 
 }
 
-const jsonDb = new JSONDatabaseManager();
+const globalWithDb = globalThis as typeof globalThis & {
+  _chennaiGuardianJsonDb?: JSONDatabaseManager;
+  _chennaiGuardianDb?: ChennaiGuardianDatabase;
+};
+
+let jsonDb: JSONDatabaseManager;
+if (globalWithDb._chennaiGuardianJsonDb) {
+  jsonDb = globalWithDb._chennaiGuardianJsonDb;
+} else {
+  jsonDb = new JSONDatabaseManager();
+  globalWithDb._chennaiGuardianJsonDb = jsonDb;
+}
 
 // Dynamic Database Interface
 class ChennaiGuardianDatabase {
@@ -3048,4 +3039,12 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<string, Record<string, string[]>> 
   }
 };
 
-export const db = new ChennaiGuardianDatabase();
+let dbInstance: ChennaiGuardianDatabase;
+if (globalWithDb._chennaiGuardianDb) {
+  dbInstance = globalWithDb._chennaiGuardianDb;
+} else {
+  dbInstance = new ChennaiGuardianDatabase();
+  globalWithDb._chennaiGuardianDb = dbInstance;
+}
+
+export const db = dbInstance;

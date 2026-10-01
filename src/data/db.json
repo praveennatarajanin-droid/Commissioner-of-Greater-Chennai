@@ -8,7 +8,7 @@
       "email": "superadmin@chennaiguardian.in",
       "status": "active",
       "createdAt": "2026-07-23T15:01:05.171Z",
-      "lastLogin": "2026-10-01T05:12:51.887Z",
+      "lastLogin": "2026-10-01T05:45:11.410Z",
       "failed_logins": 0
     },
     {
@@ -76,6 +76,16 @@
     }
   ],
   "activity_logs": [
+    {
+      "id": 570,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "::1",
+      "action": "User logged in successfully",
+      "module": "Auth",
+      "timestamp": "2026-10-01T05:45:11.757Z",
+      "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36 Edg/153.0.0.0"
+    },
     {
       "id": 569,
       "username": "Digital_TN_GovMaster",
@@ -3571,12 +3581,6 @@
       "username": "Digital_TN_GovMaster",
       "action": "Created news article: Greater Chennai Police and the Tamil Nadu Cyber Crime Wing...",
       "timestamp": "2026-07-30T11:24:32.481Z"
-    },
-    {
-      "id": 69,
-      "username": "Digital_TN_GovMaster",
-      "action": "Created news article: Greater Chennai Police and the Tamil Nadu Cyber Crime Wing...",
-      "timestamp": "2026-07-30T11:23:07.117Z"
     }
   ],
   "custom_roles": [],
@@ -6684,7 +6688,7 @@
       "order_num": 1,
       "active": 1,
       "section": "main",
-      "views_count": 17
+      "views_count": 20
     },
     {
       "id": 2,
@@ -6764,6 +6768,186 @@
     }
   ],
   "alerts": [
+    {
+      "id": 3724,
+      "title": "2008 Ahmedabad bomb blasts: SC stays execution of death penalty of Indian Mujahideen operative",
+      "summary": "2008 Ahmedabad bomb blasts: SC stays execution of death penalty of Indian Mujahideen operative&nbsp;&nbsp;newindianexpress.com",
+      "category": "LAW & ORDER",
+      "source": "THE NEW INDIAN EXPRESS",
+      "source_name": "THE NEW INDIAN EXPRESS",
+      "source_url": "https://www.newindianexpress.com/",
+      "url": "https://news.google.com/rss/articles/CBMi3AFBVV95cUxPSUdaMHlNR0FZdWtobWptUkVVUlFvTlExRThfaTlYcndsQ0Q0RUdNNGxVVkhnNXlIR0poaDd0bjlNd0N2dkJIY25JUUNLTklpRGVkVlZVMHd6MjR4cVBQYnNZR2czb1ZVZGlHVGIyMkNtMGxmUGJNNEEzX3VUN1d5QWxFSTlYVFMwQ21Kb25PQWJFVF9TUllQdjkxZXpWS2FPQ0hSanBkOGVpNUJUb09fVTdnWDhtSXdCOVdMa2NwemR0TnZBLTBjcXJOelNDVUJKakJjZXp2bFFSUnZ50gHqAUFVX3lxTFBrV09SRXIwM2trTDVMbUwtRW9NNlJHQTNBWTJGSjBLaVdJRGtZMVpFNXZPX3dCd3UzTUFsN0NWRlVXU1pBeHF3STZIbVVyLTdUbEZneXNmS19jcGRLTk91LVRPZGI3c1VHUFhZZFZRdnlqcGVVNThvYThUOEhGb25uMVd2RnRHYlhIWFRKZk8zSkdCS05OYmQ0eFVWQTc3MmdldV9Nb3B4cFVfQTV0UGZaOW5uSXFyMGY2MGpzaUYwMkhKTWVVNnZPaEQzNlprSXlJQkdOVzhId2hwQ3IzRzQ4cEtKVlg2Qk5mQQ?oc=5",
+      "article_url": "https://news.google.com/rss/articles/CBMi3AFBVV95cUxPSUdaMHlNR0FZdWtobWptUkVVUlFvTlExRThfaTlYcndsQ0Q0RUdNNGxVVkhnNXlIR0poaDd0bjlNd0N2dkJIY25JUUNLTklpRGVkVlZVMHd6MjR4cVBQYnNZR2czb1ZVZGlHVGIyMkNtMGxmUGJNNEEzX3VUN1d5QWxFSTlYVFMwQ21Kb25PQWJFVF9TUllQdjkxZXpWS2FPQ0hSanBkOGVpNUJUb09fVTdnWDhtSXdCOVdMa2NwemR0TnZBLTBjcXJOelNDVUJKakJjZXp2bFFSUnZ50gHqAUFVX3lxTFBrV09SRXIwM2trTDVMbUwtRW9NNlJHQTNBWTJGSjBLaVdJRGtZMVpFNXZPX3dCd3UzTUFsN0NWRlVXU1pBeHF3STZIbVVyLTdUbEZneXNmS19jcGRLTk91LVRPZGI3c1VHUFhZZFZRdnlqcGVVNThvYThUOEhGb25uMVd2RnRHYlhIWFRKZk8zSkdCS05OYmQ0eFVWQTc3MmdldV9Nb3B4cFVfQTV0UGZaOW5uSXFyMGY2MGpzaUYwMkhKTWVVNnZPaEQzNlprSXlJQkdOVzhId2hwQ3IzRzQ4cEtKVlg2Qk5mQQ?oc=5",
+      "published_at": "2026-10-01T06:48:49.000Z",
+      "fetched_at": "2026-10-01T07:02:25.665Z",
+      "external_id": "https://news.google.com/rss/articles/CBMi3AFBVV95cUxPSUdaMHlNR0FZdWtobWptUkVVUlFvTlExRThfaTlYcndsQ0Q0RUdNNGxVVkhnNXlIR0poaDd0bjlNd0N2dkJIY25JUUNLTklpRGVkVlZVMHd6MjR4cVBQYnNZR2czb1ZVZGlHVGIyMkNtMGxmUGJNNEEzX3VUN1d5QWxFSTlYVFMwQ21Kb25PQWJFVF9TUllQdjkxZXpWS2FPQ0hSanBkOGVpNUJUb09fVTdnWDhtSXdCOVdMa2NwemR0TnZBLTBjcXJOelNDVUJKakJjZXp2bFFSUnZ50gHqAUFVX3lxTFBrV09SRXIwM2trTDVMbUwtRW9NNlJHQTNBWTJGSjBLaVdJRGtZMVpFNXZPX3dCd3UzTUFsN0NWRlVXU1pBeHF3STZIbVVyLTdUbEZneXNmS19jcGRLTk91LVRPZGI3c1VHUFhZZFZRdnlqcGVVNThvYThUOEhGb25uMVd2RnRHYlhIWFRKZk8zSkdCS05OYmQ0eFVWQTc3MmdldV9Nb3B4cFVfQTV0UGZaOW5uSXFyMGY2MGpzaUYwMkhKTWVVNnZPaEQzNlprSXlJQkdOVzhId2hwQ3IzRzQ4cEtKVlg2Qk5mQQ?oc=5",
+      "language": "en",
+      "status": "active",
+      "approved": 1,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-10-01T07:02:41.704Z"
+    },
+    {
+      "id": 3722,
+      "title": "Gen-2 joined green crackers | Explained",
+      "summary": "Gen-2 joined green crackers | Explained&nbsp;&nbsp;The Hindu",
+      "category": "LAW & ORDER",
+      "source": "THE HINDU",
+      "source_name": "THE HINDU",
+      "source_url": "https://www.thehindu.com/",
+      "url": "https://news.google.com/rss/articles/CBMi6wFBVV95cUxNSjRxZU1RUWdHVDZ0VHN5eWdvbnk3ZkpkZGdXRlJTRHFqN2Q4ckJpeGZBLWw0T081N2RTcXE3S0g3azhyakVLX3NqWXNmYk5KYlYwZlQxM0h6bl9xYWZrVG9OX3RYYXdXUGRxVE1kM09NRjlxUnBwQWpLWkNkTEdiVnR0LUZjV3B6dE1qenBPZ2RkbnpRTTBKWFZmaFhFbW9QcTk0bzY0eHZBV2pjWGxWTEMtNnVROHFtdzhhS1BYaG5YMWlyMkVfZEgtMVBWR0kxdGdaUXpjZmxsMzF6dk1oa0NLVG5KNy1FSm1n0gHyAUFVX3lxTE5QNDQ1U3pVbmkyR1QzRHpYNkh1N280S2I2dGVSOU83SW9VNzhZVnlrcEtNUE1GNjdfYzdqNnJtUFFfQ1pvTHpjYXB3MkhVX2YxME5jZTY3elVyU3N3cnJGelY2NER6VXo1b0VZVFhJaENDTTdNS1lZaTVldEF5YVBWNkJKNGlBSnlBQlpEaF9pMHZYbk5FTExBclFUYWVCTjltNTRlVzRnNFZwbDZ3UHkzYlMtMFVkenVvTlhEejFwbFkxN00wZlZ1LXpIY1Q1NGgyWW9qMUtkUVEzS0EtOENWMTJYNDAxNENoVk9UYklZdkJ3?oc=5",
+      "article_url": "https://news.google.com/rss/articles/CBMi6wFBVV95cUxNSjRxZU1RUWdHVDZ0VHN5eWdvbnk3ZkpkZGdXRlJTRHFqN2Q4ckJpeGZBLWw0T081N2RTcXE3S0g3azhyakVLX3NqWXNmYk5KYlYwZlQxM0h6bl9xYWZrVG9OX3RYYXdXUGRxVE1kM09NRjlxUnBwQWpLWkNkTEdiVnR0LUZjV3B6dE1qenBPZ2RkbnpRTTBKWFZmaFhFbW9QcTk0bzY0eHZBV2pjWGxWTEMtNnVROHFtdzhhS1BYaG5YMWlyMkVfZEgtMVBWR0kxdGdaUXpjZmxsMzF6dk1oa0NLVG5KNy1FSm1n0gHyAUFVX3lxTE5QNDQ1U3pVbmkyR1QzRHpYNkh1N280S2I2dGVSOU83SW9VNzhZVnlrcEtNUE1GNjdfYzdqNnJtUFFfQ1pvTHpjYXB3MkhVX2YxME5jZTY3elVyU3N3cnJGelY2NER6VXo1b0VZVFhJaENDTTdNS1lZaTVldEF5YVBWNkJKNGlBSnlBQlpEaF9pMHZYbk5FTExBclFUYWVCTjltNTRlVzRnNFZwbDZ3UHkzYlMtMFVkenVvTlhEejFwbFkxN00wZlZ1LXpIY1Q1NGgyWW9qMUtkUVEzS0EtOENWMTJYNDAxNENoVk9UYklZdkJ3?oc=5",
+      "published_at": "2026-10-01T06:46:49.000Z",
+      "fetched_at": "2026-10-01T07:02:25.665Z",
+      "external_id": "https://news.google.com/rss/articles/CBMi6wFBVV95cUxNSjRxZU1RUWdHVDZ0VHN5eWdvbnk3ZkpkZGdXRlJTRHFqN2Q4ckJpeGZBLWw0T081N2RTcXE3S0g3azhyakVLX3NqWXNmYk5KYlYwZlQxM0h6bl9xYWZrVG9OX3RYYXdXUGRxVE1kM09NRjlxUnBwQWpLWkNkTEdiVnR0LUZjV3B6dE1qenBPZ2RkbnpRTTBKWFZmaFhFbW9QcTk0bzY0eHZBV2pjWGxWTEMtNnVROHFtdzhhS1BYaG5YMWlyMkVfZEgtMVBWR0kxdGdaUXpjZmxsMzF6dk1oa0NLVG5KNy1FSm1n0gHyAUFVX3lxTE5QNDQ1U3pVbmkyR1QzRHpYNkh1N280S2I2dGVSOU83SW9VNzhZVnlrcEtNUE1GNjdfYzdqNnJtUFFfQ1pvTHpjYXB3MkhVX2YxME5jZTY3elVyU3N3cnJGelY2NER6VXo1b0VZVFhJaENDTTdNS1lZaTVldEF5YVBWNkJKNGlBSnlBQlpEaF9pMHZYbk5FTExBclFUYWVCTjltNTRlVzRnNFZwbDZ3UHkzYlMtMFVkenVvTlhEejFwbFkxN00wZlZ1LXpIY1Q1NGgyWW9qMUtkUVEzS0EtOENWMTJYNDAxNENoVk9UYklZdkJ3?oc=5",
+      "language": "en",
+      "status": "active",
+      "approved": 1,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-10-01T07:02:41.229Z"
+    },
+    {
+      "id": 3727,
+      "title": "S. Ishaan, 13, becomes youngest S14 para swimmer to complete Palk Strait double crossing",
+      "summary": "S. Ishaan, 13, becomes youngest S14 para swimmer to complete Palk Strait double crossing&nbsp;&nbsp;Sportstar",
+      "category": "LAW & ORDER",
+      "source": "THE HINDU",
+      "source_name": "THE HINDU",
+      "source_url": "https://www.thehindu.com/",
+      "url": "https://news.google.com/rss/articles/CBMivwFBVV95cUxPbmZDVmMzMmJZTk5VQ1QxUTNwdnRIcUkzWlFfRzNCVWtxYlREaVhpTW9ZdGZzY2VzRmhDZENBNFJMaE14bHF3eDlOd0dXTVNDUUp5VzVxbVFOX29yQkIwZTFMVzNiSk9rVDlPQ3Jnemo2d2JIYVVGUlBvY3lzUm50bHZCR0JsQ0owT19vVGJSZjhzSmxialFRRnpZcjdnQnhHeGxBRlBpN0FwQktudGZhN3NUMTZmck5jZnJtWnpyUdIBxgFBVV95cUxOa3FqMU9TbENTOWQtUlJNZThmY1EtNW4yeWo1bS1fa2cwSmZrdlUwU2pmYlBIODJIdnJURXJQeFlSU0R1V0Z6TVZzTVI4ZzdQRUVuRkprRHhtUTM5X3gtSVlHWHU4ZWU4TlhlRGI5LVdUSHgwWjNEM2VMSWxsOTVVYmhtbk5TMS0zeDdqZUdpMk9hZWI2ekpLTWFGZlkwaWIwbGh2Q01Vd3ZEWGRYOXp4eDdRSXhWX0o3THZhT1N1M1hEcDVWRlE?oc=5",
+      "article_url": "https://news.google.com/rss/articles/CBMivwFBVV95cUxPbmZDVmMzMmJZTk5VQ1QxUTNwdnRIcUkzWlFfRzNCVWtxYlREaVhpTW9ZdGZzY2VzRmhDZENBNFJMaE14bHF3eDlOd0dXTVNDUUp5VzVxbVFOX29yQkIwZTFMVzNiSk9rVDlPQ3Jnemo2d2JIYVVGUlBvY3lzUm50bHZCR0JsQ0owT19vVGJSZjhzSmxialFRRnpZcjdnQnhHeGxBRlBpN0FwQktudGZhN3NUMTZmck5jZnJtWnpyUdIBxgFBVV95cUxOa3FqMU9TbENTOWQtUlJNZThmY1EtNW4yeWo1bS1fa2cwSmZrdlUwU2pmYlBIODJIdnJURXJQeFlSU0R1V0Z6TVZzTVI4ZzdQRUVuRkprRHhtUTM5X3gtSVlHWHU4ZWU4TlhlRGI5LVdUSHgwWjNEM2VMSWxsOTVVYmhtbk5TMS0zeDdqZUdpMk9hZWI2ekpLTWFGZlkwaWIwbGh2Q01Vd3ZEWGRYOXp4eDdRSXhWX0o3THZhT1N1M1hEcDVWRlE?oc=5",
+      "published_at": "2026-10-01T06:41:28.000Z",
+      "fetched_at": "2026-10-01T07:19:32.271Z",
+      "external_id": "https://news.google.com/rss/articles/CBMivwFBVV95cUxPbmZDVmMzMmJZTk5VQ1QxUTNwdnRIcUkzWlFfRzNCVWtxYlREaVhpTW9ZdGZzY2VzRmhDZENBNFJMaE14bHF3eDlOd0dXTVNDUUp5VzVxbVFOX29yQkIwZTFMVzNiSk9rVDlPQ3Jnemo2d2JIYVVGUlBvY3lzUm50bHZCR0JsQ0owT19vVGJSZjhzSmxialFRRnpZcjdnQnhHeGxBRlBpN0FwQktudGZhN3NUMTZmck5jZnJtWnpyUdIBxgFBVV95cUxOa3FqMU9TbENTOWQtUlJNZThmY1EtNW4yeWo1bS1fa2cwSmZrdlUwU2pmYlBIODJIdnJURXJQeFlSU0R1V0Z6TVZzTVI4ZzdQRUVuRkprRHhtUTM5X3gtSVlHWHU4ZWU4TlhlRGI5LVdUSHgwWjNEM2VMSWxsOTVVYmhtbk5TMS0zeDdqZUdpMk9hZWI2ekpLTWFGZlkwaWIwbGh2Q01Vd3ZEWGRYOXp4eDdRSXhWX0o3THZhT1N1M1hEcDVWRlE?oc=5",
+      "language": "en",
+      "status": "active",
+      "approved": 1,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-10-01T07:19:42.340Z"
+    },
+    {
+      "id": 3720,
+      "title": "Madras High Court takes up suo motu PIL for removal of caste appellations from names of streets, roads, and localities in Tamil Nadu",
+      "summary": "Madras High Court takes up suo motu PIL for removal of caste appellations from names of streets, roads, and localities in Tamil Nadu&nbsp;&nbsp;The Hindu",
+      "category": "TRAFFIC UPDATE",
+      "source": "THE HINDU",
+      "source_name": "THE HINDU",
+      "source_url": "https://www.thehindu.com/",
+      "url": "https://news.google.com/rss/articles/CBMipwJBVV95cUxQN0dJVTdJR1NlNGJxajBiSjlrXzktNW9lSFdJbzQtcjREQU51TjNydDlHNllQRG54N1lkRkJsbzI1Wjd3VnhKWjFVc0todG1GM3R2UVVIRWlHS3B5NjJLcWl2ME1LMDR6Ymd4eHdxYnVjVFpSY3ZhQlZ5dWFVc2pyNHdYeVhBZ0VvU2JVOUd3UTNOa1FWVFI0RTZUYnhINWZ4elpydWtUS1MzQktGZGlrcUR5VUozVUxVNklLMV90cDN2eWRaYi1EUFFDSXB0dnZqeWtTd3NyU25XY0FtMGhzREZwTk1yLUlsQWpmbnJWeGFEb0s5a1pySkQ5amlIMG1FbGJRQ29FMkxSMkhuY2tseWxlYTBQS3ZaSlhWMy1KS3VpcUdZaXdr0gGuAkFVX3lxTE0wZHE1QnpURVhSYzkzd2l0QkJOa0tNR2lRRUszaThjTlBOYjh0RXpubUphcTZtZVRYcE91T3R5aFRPZTdaOHBPYmlkSFMtMll0OExIWDdxVkpRTTNaVU8zUFhjUERLNVRKV0p1YmpQeFlob0F1NmN0STdrMzllSlJBd1NIZ0xVVFlPazVUSVV4QmtmNngwNExWbFdYeWJBdDJydWE4Tk5jeWJMNUd2aW14NkR3eVk1UlEyY0ktNkhFcmVreWlva1pQV2N1RlRzYXMtYnpyNGdLRHp5VUg0TExpZk5QN28wNzlheWtmOFR3QlJwbWVwSzhzejk1TzRLcW9BMFlBRXFMblI0elJGMU1NTWxBSE9Bb0U0QnJYd2dfdEh0QlRZRUM4dVJhYlBB?oc=5",
+      "article_url": "https://news.google.com/rss/articles/CBMipwJBVV95cUxQN0dJVTdJR1NlNGJxajBiSjlrXzktNW9lSFdJbzQtcjREQU51TjNydDlHNllQRG54N1lkRkJsbzI1Wjd3VnhKWjFVc0todG1GM3R2UVVIRWlHS3B5NjJLcWl2ME1LMDR6Ymd4eHdxYnVjVFpSY3ZhQlZ5dWFVc2pyNHdYeVhBZ0VvU2JVOUd3UTNOa1FWVFI0RTZUYnhINWZ4elpydWtUS1MzQktGZGlrcUR5VUozVUxVNklLMV90cDN2eWRaYi1EUFFDSXB0dnZqeWtTd3NyU25XY0FtMGhzREZwTk1yLUlsQWpmbnJWeGFEb0s5a1pySkQ5amlIMG1FbGJRQ29FMkxSMkhuY2tseWxlYTBQS3ZaSlhWMy1KS3VpcUdZaXdr0gGuAkFVX3lxTE0wZHE1QnpURVhSYzkzd2l0QkJOa0tNR2lRRUszaThjTlBOYjh0RXpubUphcTZtZVRYcE91T3R5aFRPZTdaOHBPYmlkSFMtMll0OExIWDdxVkpRTTNaVU8zUFhjUERLNVRKV0p1YmpQeFlob0F1NmN0STdrMzllSlJBd1NIZ0xVVFlPazVUSVV4QmtmNngwNExWbFdYeWJBdDJydWE4Tk5jeWJMNUd2aW14NkR3eVk1UlEyY0ktNkhFcmVreWlva1pQV2N1RlRzYXMtYnpyNGdLRHp5VUg0TExpZk5QN28wNzlheWtmOFR3QlJwbWVwSzhzejk1TzRLcW9BMFlBRXFMblI0elJGMU1NTWxBSE9Bb0U0QnJYd2dfdEh0QlRZRUM4dVJhYlBB?oc=5",
+      "published_at": "2026-10-01T06:40:10.000Z",
+      "fetched_at": "2026-10-01T07:02:25.665Z",
+      "external_id": "https://news.google.com/rss/articles/CBMipwJBVV95cUxQN0dJVTdJR1NlNGJxajBiSjlrXzktNW9lSFdJbzQtcjREQU51TjNydDlHNllQRG54N1lkRkJsbzI1Wjd3VnhKWjFVc0todG1GM3R2UVVIRWlHS3B5NjJLcWl2ME1LMDR6Ymd4eHdxYnVjVFpSY3ZhQlZ5dWFVc2pyNHdYeVhBZ0VvU2JVOUd3UTNOa1FWVFI0RTZUYnhINWZ4elpydWtUS1MzQktGZGlrcUR5VUozVUxVNklLMV90cDN2eWRaYi1EUFFDSXB0dnZqeWtTd3NyU25XY0FtMGhzREZwTk1yLUlsQWpmbnJWeGFEb0s5a1pySkQ5amlIMG1FbGJRQ29FMkxSMkhuY2tseWxlYTBQS3ZaSlhWMy1KS3VpcUdZaXdr0gGuAkFVX3lxTE0wZHE1QnpURVhSYzkzd2l0QkJOa0tNR2lRRUszaThjTlBOYjh0RXpubUphcTZtZVRYcE91T3R5aFRPZTdaOHBPYmlkSFMtMll0OExIWDdxVkpRTTNaVU8zUFhjUERLNVRKV0p1YmpQeFlob0F1NmN0STdrMzllSlJBd1NIZ0xVVFlPazVUSVV4QmtmNngwNExWbFdYeWJBdDJydWE4Tk5jeWJMNUd2aW14NkR3eVk1UlEyY0ktNkhFcmVreWlva1pQV2N1RlRzYXMtYnpyNGdLRHp5VUg0TExpZk5QN28wNzlheWtmOFR3QlJwbWVwSzhzejk1TzRLcW9BMFlBRXFMblI0elJGMU1NTWxBSE9Bb0U0QnJYd2dfdEh0QlRZRUM4dVJhYlBB?oc=5",
+      "language": "en",
+      "status": "active",
+      "approved": 1,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-10-01T07:02:40.792Z"
+    },
+    {
+      "id": 3725,
+      "title": "Tennessee governor halts executions after Christa Gail Pike survives lethal injection attempt",
+      "summary": "Tennessee governor halts executions after Christa Gail Pike survives lethal injection attempt&nbsp;&nbsp;newindianexpress.com",
+      "category": "LAW & ORDER",
+      "source": "THE NEW INDIAN EXPRESS",
+      "source_name": "THE NEW INDIAN EXPRESS",
+      "source_url": "https://www.newindianexpress.com/",
+      "url": "https://news.google.com/rss/articles/CBMi3AFBVV95cUxOQnBKRF9VU0tTaDlJa19mcTQyVkZBdC1BZ1RNbkp2aFBhRTV2TjVEMGdBMTdMajdiNnllY2xuVVJnUTgtU21ZMnRtRFZqT1d5MHFubE1ETTB0YlcwcWxSWW5JZ0M1UHZadTV0aS01TU9rZHFobndpZ2hwQXpKMXljZi05bU1EYTBDSVBHWDEwRVNVSjFHak9hR0d5czRXTVNyYTJ6MFd4NktFRHVWY3B0X3BaM1hiWHNoTFREX3doTFRSRnA2SW11OXVmcFp4cDZVUUw1VnlaSmZYQmZ30gHqAUFVX3lxTFBqNTFKTEM5emVvX041aWR4ZEdHUDhFTG55bFNtOUF4bUx0SWNrSE9VcHFRbEl0emhkRTlFa2Nuc3NVMkY2aTVFWDVPR3ZnRGVJd05IdXlCeFh4S0I0dEVCMy05U0FQelJKcUdmc1VleGs3blF4SWY3bXF2b3IyTjVwRUR0dFpBbGd5TmRmSVZBZEwzczZpZXR3SVdiUVBkM3B2WncxMDA5VXg3SGgzRDFPaTY2dDBXdU5CX0NhYml1MUdtMTFLYjFvSHNkZ0UyTlRfSUNiOUNIVnNpcVRxYmNaeE92a2lsbC1ZUQ?oc=5",
+      "article_url": "https://news.google.com/rss/articles/CBMi3AFBVV95cUxOQnBKRF9VU0tTaDlJa19mcTQyVkZBdC1BZ1RNbkp2aFBhRTV2TjVEMGdBMTdMajdiNnllY2xuVVJnUTgtU21ZMnRtRFZqT1d5MHFubE1ETTB0YlcwcWxSWW5JZ0M1UHZadTV0aS01TU9rZHFobndpZ2hwQXpKMXljZi05bU1EYTBDSVBHWDEwRVNVSjFHak9hR0d5czRXTVNyYTJ6MFd4NktFRHVWY3B0X3BaM1hiWHNoTFREX3doTFRSRnA2SW11OXVmcFp4cDZVUUw1VnlaSmZYQmZ30gHqAUFVX3lxTFBqNTFKTEM5emVvX041aWR4ZEdHUDhFTG55bFNtOUF4bUx0SWNrSE9VcHFRbEl0emhkRTlFa2Nuc3NVMkY2aTVFWDVPR3ZnRGVJd05IdXlCeFh4S0I0dEVCMy05U0FQelJKcUdmc1VleGs3blF4SWY3bXF2b3IyTjVwRUR0dFpBbGd5TmRmSVZBZEwzczZpZXR3SVdiUVBkM3B2WncxMDA5VXg3SGgzRDFPaTY2dDBXdU5CX0NhYml1MUdtMTFLYjFvSHNkZ0UyTlRfSUNiOUNIVnNpcVRxYmNaeE92a2lsbC1ZUQ?oc=5",
+      "published_at": "2026-10-01T06:19:46.000Z",
+      "fetched_at": "2026-10-01T07:02:25.665Z",
+      "external_id": "https://news.google.com/rss/articles/CBMi3AFBVV95cUxOQnBKRF9VU0tTaDlJa19mcTQyVkZBdC1BZ1RNbkp2aFBhRTV2TjVEMGdBMTdMajdiNnllY2xuVVJnUTgtU21ZMnRtRFZqT1d5MHFubE1ETTB0YlcwcWxSWW5JZ0M1UHZadTV0aS01TU9rZHFobndpZ2hwQXpKMXljZi05bU1EYTBDSVBHWDEwRVNVSjFHak9hR0d5czRXTVNyYTJ6MFd4NktFRHVWY3B0X3BaM1hiWHNoTFREX3doTFRSRnA2SW11OXVmcFp4cDZVUUw1VnlaSmZYQmZ30gHqAUFVX3lxTFBqNTFKTEM5emVvX041aWR4ZEdHUDhFTG55bFNtOUF4bUx0SWNrSE9VcHFRbEl0emhkRTlFa2Nuc3NVMkY2aTVFWDVPR3ZnRGVJd05IdXlCeFh4S0I0dEVCMy05U0FQelJKcUdmc1VleGs3blF4SWY3bXF2b3IyTjVwRUR0dFpBbGd5TmRmSVZBZEwzczZpZXR3SVdiUVBkM3B2WncxMDA5VXg3SGgzRDFPaTY2dDBXdU5CX0NhYml1MUdtMTFLYjFvSHNkZ0UyTlRfSUNiOUNIVnNpcVRxYmNaeE92a2lsbC1ZUQ?oc=5",
+      "language": "en",
+      "status": "active",
+      "approved": 1,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-10-01T07:02:41.931Z"
+    },
+    {
+      "id": 3721,
+      "title": "Madras High Court refuses to reject election petition filed against Esakki Subaya’s Ambasamudram win",
+      "summary": "Madras High Court refuses to reject election petition filed against Esakki Subaya’s Ambasamudram win&nbsp;&nbsp;The Hindu",
+      "category": "POLICE & LAW",
+      "source": "THE HINDU",
+      "source_name": "THE HINDU",
+      "source_url": "https://www.thehindu.com/",
+      "url": "https://news.google.com/rss/articles/CBMi_gFBVV95cUxNMXVkTzBwTVR4WmdtM3FvNVJiNU1BTTRVYVR6bkQ4cFlHVy1vUXp5dTgwUHBFbXctVnJwUWtQNjRLZDJXVDJWUmRxaWR6OFhFNm9WRWNzWXdUZ05mWWx4WXNDd19RbFN5dWx4WGpvM0d6X2xfakdQLUk4UVp4c0luaVR5bnRqZTJsQ21Kd3lVdWo0QnlLNnpOVU9ZZ3hza01zWXJUTWJ4RmJGckQwLVg5ZnVqUk5xY2E4Q2R1ckhNN1lWWHVaLW0wZVBsYXpSRDI0cW9SZnMtMlhfcUJNUEwxTGVnTVNXcWpJbTJwX3ZTZHJIYUp5eXdyNE52aUNOQdIBhAJBVV95cUxOSl95NTc0UjZpQ0tjMjVtRENPdHVZWmRVQlRFbzNXbElEeHdjQ3k0V2xLT1ZuNmhjXzZwUTFhb0syWTVpSnFPbmZIa3hXRGdPakVpYWdacFdQSVZEQVZES0dtbGlvMWJHYUF1cEExenlpZXFQUFo0aGQxV1RLM3h2djNJYlJfUV9tbFBHVExtUWl1Zkxydk5HMUJsRDJLamExbWhtQVYyOC12QUtZblBTbklhRlg2Q180R3FYdkFOMFhDNzVqTEhwSWN1WHJreTFZdVBRX3dyVmw5TXduMmVfa0VrdkcwUU1IMi1tNjZ5VU9vVkEzYkdCTXNQczFlMGZxX0RuNQ?oc=5",
+      "article_url": "https://news.google.com/rss/articles/CBMi_gFBVV95cUxNMXVkTzBwTVR4WmdtM3FvNVJiNU1BTTRVYVR6bkQ4cFlHVy1vUXp5dTgwUHBFbXctVnJwUWtQNjRLZDJXVDJWUmRxaWR6OFhFNm9WRWNzWXdUZ05mWWx4WXNDd19RbFN5dWx4WGpvM0d6X2xfakdQLUk4UVp4c0luaVR5bnRqZTJsQ21Kd3lVdWo0QnlLNnpOVU9ZZ3hza01zWXJUTWJ4RmJGckQwLVg5ZnVqUk5xY2E4Q2R1ckhNN1lWWHVaLW0wZVBsYXpSRDI0cW9SZnMtMlhfcUJNUEwxTGVnTVNXcWpJbTJwX3ZTZHJIYUp5eXdyNE52aUNOQdIBhAJBVV95cUxOSl95NTc0UjZpQ0tjMjVtRENPdHVZWmRVQlRFbzNXbElEeHdjQ3k0V2xLT1ZuNmhjXzZwUTFhb0syWTVpSnFPbmZIa3hXRGdPakVpYWdacFdQSVZEQVZES0dtbGlvMWJHYUF1cEExenlpZXFQUFo0aGQxV1RLM3h2djNJYlJfUV9tbFBHVExtUWl1Zkxydk5HMUJsRDJLamExbWhtQVYyOC12QUtZblBTbklhRlg2Q180R3FYdkFOMFhDNzVqTEhwSWN1WHJreTFZdVBRX3dyVmw5TXduMmVfa0VrdkcwUU1IMi1tNjZ5VU9vVkEzYkdCTXNQczFlMGZxX0RuNQ?oc=5",
+      "published_at": "2026-10-01T06:11:40.000Z",
+      "fetched_at": "2026-10-01T07:02:25.665Z",
+      "external_id": "https://news.google.com/rss/articles/CBMi_gFBVV95cUxNMXVkTzBwTVR4WmdtM3FvNVJiNU1BTTRVYVR6bkQ4cFlHVy1vUXp5dTgwUHBFbXctVnJwUWtQNjRLZDJXVDJWUmRxaWR6OFhFNm9WRWNzWXdUZ05mWWx4WXNDd19RbFN5dWx4WGpvM0d6X2xfakdQLUk4UVp4c0luaVR5bnRqZTJsQ21Kd3lVdWo0QnlLNnpOVU9ZZ3hza01zWXJUTWJ4RmJGckQwLVg5ZnVqUk5xY2E4Q2R1ckhNN1lWWHVaLW0wZVBsYXpSRDI0cW9SZnMtMlhfcUJNUEwxTGVnTVNXcWpJbTJwX3ZTZHJIYUp5eXdyNE52aUNOQdIBhAJBVV95cUxOSl95NTc0UjZpQ0tjMjVtRENPdHVZWmRVQlRFbzNXbElEeHdjQ3k0V2xLT1ZuNmhjXzZwUTFhb0syWTVpSnFPbmZIa3hXRGdPakVpYWdacFdQSVZEQVZES0dtbGlvMWJHYUF1cEExenlpZXFQUFo0aGQxV1RLM3h2djNJYlJfUV9tbFBHVExtUWl1Zkxydk5HMUJsRDJLamExbWhtQVYyOC12QUtZblBTbklhRlg2Q180R3FYdkFOMFhDNzVqTEhwSWN1WHJreTFZdVBRX3dyVmw5TXduMmVfa0VrdkcwUU1IMi1tNjZ5VU9vVkEzYkdCTXNQczFlMGZxX0RuNQ?oc=5",
+      "language": "en",
+      "status": "active",
+      "approved": 1,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-10-01T07:02:41.084Z"
+    },
+    {
+      "id": 3726,
+      "title": "CAQM directs States to focus on vehicular pollution, stubble burning",
+      "summary": "CAQM directs States to focus on vehicular pollution, stubble burning&nbsp;&nbsp;The Hindu",
+      "category": "LAW & ORDER",
+      "source": "THE HINDU",
+      "source_name": "THE HINDU",
+      "source_url": "https://www.thehindu.com/",
+      "url": "https://news.google.com/rss/articles/CBMi5AFBVV95cUxNRFg3WVZtaE1lNUZPUzh4bnVqTDY4MGtacS0zdUlTUVJaWDZvUzI4SkIyNHdJbFRjSXFwcDltMHI3dG1LUVRVYUljYjhTOGVpajhHMjQzM1dyeUFfS0tfSzE0V1p0ZVFlQ3BWbGhKcW05S1dzYjhNei0xNVUyNG8xaENBaGdQQzdzQzNLS0U0ODM0dUdoWEhuTVUwWnllRDFtc0V4Z20wRHhTR1JteHc0bFBYemZ4ZTV3RC1fek1XbzBqc0VsdnNGRVl3aTZqUGs5UEE4Z1JVU2o0a09ZZVFWQkxXa0rSAesBQVVfeXFMTUt2ODdHYUhCXzlYN0JkYlV2c09iX2FkbGpweW43V2k2aUdNTzhISlBMUEZXMzQ2NUhJd1Zrc2F3a3E4YUNKU1dRRTFqWmlQYTFuMkZ6dkwtbWJfS1ktaExJOUREWTJXRjNhNHNpVUJTM1hGTEE2NEtJdUpBMVhjUTFWTTdpcU5qYnY5Y1ZsNEpoVlJRbmMzSTNhYTlIenVkMjJUa2pfWWoyYTRKMW1NRkF5Y0FKa3lnNVhXdDA5R3J4SWhqaGY0a1h5X2FfU0xzano1MkxmMjRNQUZZTWhoMzd1Nmx5ZDZveFJRQQ?oc=5",
+      "article_url": "https://news.google.com/rss/articles/CBMi5AFBVV95cUxNRFg3WVZtaE1lNUZPUzh4bnVqTDY4MGtacS0zdUlTUVJaWDZvUzI4SkIyNHdJbFRjSXFwcDltMHI3dG1LUVRVYUljYjhTOGVpajhHMjQzM1dyeUFfS0tfSzE0V1p0ZVFlQ3BWbGhKcW05S1dzYjhNei0xNVUyNG8xaENBaGdQQzdzQzNLS0U0ODM0dUdoWEhuTVUwWnllRDFtc0V4Z20wRHhTR1JteHc0bFBYemZ4ZTV3RC1fek1XbzBqc0VsdnNGRVl3aTZqUGs5UEE4Z1JVU2o0a09ZZVFWQkxXa0rSAesBQVVfeXFMTUt2ODdHYUhCXzlYN0JkYlV2c09iX2FkbGpweW43V2k2aUdNTzhISlBMUEZXMzQ2NUhJd1Zrc2F3a3E4YUNKU1dRRTFqWmlQYTFuMkZ6dkwtbWJfS1ktaExJOUREWTJXRjNhNHNpVUJTM1hGTEE2NEtJdUpBMVhjUTFWTTdpcU5qYnY5Y1ZsNEpoVlJRbmMzSTNhYTlIenVkMjJUa2pfWWoyYTRKMW1NRkF5Y0FKa3lnNVhXdDA5R3J4SWhqaGY0a1h5X2FfU0xzano1MkxmMjRNQUZZTWhoMzd1Nmx5ZDZveFJRQQ?oc=5",
+      "published_at": "2026-10-01T04:57:17.000Z",
+      "fetched_at": "2026-10-01T07:19:32.271Z",
+      "external_id": "https://news.google.com/rss/articles/CBMi5AFBVV95cUxNRFg3WVZtaE1lNUZPUzh4bnVqTDY4MGtacS0zdUlTUVJaWDZvUzI4SkIyNHdJbFRjSXFwcDltMHI3dG1LUVRVYUljYjhTOGVpajhHMjQzM1dyeUFfS0tfSzE0V1p0ZVFlQ3BWbGhKcW05S1dzYjhNei0xNVUyNG8xaENBaGdQQzdzQzNLS0U0ODM0dUdoWEhuTVUwWnllRDFtc0V4Z20wRHhTR1JteHc0bFBYemZ4ZTV3RC1fek1XbzBqc0VsdnNGRVl3aTZqUGs5UEE4Z1JVU2o0a09ZZVFWQkxXa0rSAesBQVVfeXFMTUt2ODdHYUhCXzlYN0JkYlV2c09iX2FkbGpweW43V2k2aUdNTzhISlBMUEZXMzQ2NUhJd1Zrc2F3a3E4YUNKU1dRRTFqWmlQYTFuMkZ6dkwtbWJfS1ktaExJOUREWTJXRjNhNHNpVUJTM1hGTEE2NEtJdUpBMVhjUTFWTTdpcU5qYnY5Y1ZsNEpoVlJRbmMzSTNhYTlIenVkMjJUa2pfWWoyYTRKMW1NRkF5Y0FKa3lnNVhXdDA5R3J4SWhqaGY0a1h5X2FfU0xzano1MkxmMjRNQUZZTWhoMzd1Nmx5ZDZveFJRQQ?oc=5",
+      "language": "en",
+      "status": "active",
+      "approved": 1,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-10-01T07:19:42.315Z"
+    },
+    {
+      "id": 3711,
+      "title": "Youth Congress-SFI clashes: Police register non-bailable case; SFI calls State-wide protests in Keralam",
+      "summary": "Youth Congress-SFI clashes: Police register non-bailable case; SFI calls State-wide protests in Keralam&nbsp;&nbsp;The Hindu",
+      "category": "POLICE & LAW",
+      "source": "THE HINDU",
+      "source_name": "THE HINDU",
+      "source_url": "https://www.thehindu.com/",
+      "url": "https://news.google.com/rss/articles/CBMi-wFBVV95cUxObEZpTlYzUnUtWjR2QzJKTmhkSFZqZUVYVlJGT0NHYTR6RWlBVjBSdk9CeERUaVRlYVZhN1B3ZWNxa1B6WlFlcEo4eFlTc0xSbWphQUxOWjJoNFNMREpyd29tRGtuYUdzUjVac3RPRkRaWGZhWENFMXFjSmxPS3lfMWlyMU5wZUR2QzYwWkxIRXotOXBOMFA0amFHbm9UTkVXbXdoajQ5WE92NW5XcEg0STM5SVhhWmZ6akcxYU12cnV5NnVuc0wxUWJvbVVRaWMtd0Z0dWNoSU11eGF4RkFsWXZTQV9rYjFwd0ZDTEh3OVlZRXUxN29td1plNNIBggJBVV95cUxQdnRtcjJlQl9BODVIU2pmWjByNWt2eWVsTVNCSGstQ1pZOE5XempFZ0xJcjZsdkI0dmtUOU1LQ0lwX2ZiS3FLaUFZNzRlWlJPNDJBWkw2S29vVVg4Z1BHcks2SEIwU2FRNzdSMzU3RDVsQnZXemo4OHR2U2g4NzVkQ1gwOUwySkl6NVp3OHBmMUZMY1M3R0swZTJjVHJFWGtycjk5SlVrbmF0a0dRcXROeGxUQVdXbnlyclRWVGczRm9wakFqSWVMcVktQjRyTzRJaUE1ZE5tV1UwenJwWURJbExCMjNMdk8zS0V4THBjQm5idndWS3A3NmxXTGVBcW9LcFE?oc=5",
+      "article_url": "https://news.google.com/rss/articles/CBMi-wFBVV95cUxObEZpTlYzUnUtWjR2QzJKTmhkSFZqZUVYVlJGT0NHYTR6RWlBVjBSdk9CeERUaVRlYVZhN1B3ZWNxa1B6WlFlcEo4eFlTc0xSbWphQUxOWjJoNFNMREpyd29tRGtuYUdzUjVac3RPRkRaWGZhWENFMXFjSmxPS3lfMWlyMU5wZUR2QzYwWkxIRXotOXBOMFA0amFHbm9UTkVXbXdoajQ5WE92NW5XcEg0STM5SVhhWmZ6akcxYU12cnV5NnVuc0wxUWJvbVVRaWMtd0Z0dWNoSU11eGF4RkFsWXZTQV9rYjFwd0ZDTEh3OVlZRXUxN29td1plNNIBggJBVV95cUxQdnRtcjJlQl9BODVIU2pmWjByNWt2eWVsTVNCSGstQ1pZOE5XempFZ0xJcjZsdkI0dmtUOU1LQ0lwX2ZiS3FLaUFZNzRlWlJPNDJBWkw2S29vVVg4Z1BHcks2SEIwU2FRNzdSMzU3RDVsQnZXemo4OHR2U2g4NzVkQ1gwOUwySkl6NVp3OHBmMUZMY1M3R0swZTJjVHJFWGtycjk5SlVrbmF0a0dRcXROeGxUQVdXbnlyclRWVGczRm9wakFqSWVMcVktQjRyTzRJaUE1ZE5tV1UwenJwWURJbExCMjNMdk8zS0V4THBjQm5idndWS3A3NmxXTGVBcW9LcFE?oc=5",
+      "published_at": "2026-10-01T04:51:35.000Z",
+      "fetched_at": "2026-10-01T05:44:40.571Z",
+      "external_id": "https://news.google.com/rss/articles/CBMi-wFBVV95cUxObEZpTlYzUnUtWjR2QzJKTmhkSFZqZUVYVlJGT0NHYTR6RWlBVjBSdk9CeERUaVRlYVZhN1B3ZWNxa1B6WlFlcEo4eFlTc0xSbWphQUxOWjJoNFNMREpyd29tRGtuYUdzUjVac3RPRkRaWGZhWENFMXFjSmxPS3lfMWlyMU5wZUR2QzYwWkxIRXotOXBOMFA0amFHbm9UTkVXbXdoajQ5WE92NW5XcEg0STM5SVhhWmZ6akcxYU12cnV5NnVuc0wxUWJvbVVRaWMtd0Z0dWNoSU11eGF4RkFsWXZTQV9rYjFwd0ZDTEh3OVlZRXUxN29td1plNNIBggJBVV95cUxQdnRtcjJlQl9BODVIU2pmWjByNWt2eWVsTVNCSGstQ1pZOE5XempFZ0xJcjZsdkI0dmtUOU1LQ0lwX2ZiS3FLaUFZNzRlWlJPNDJBWkw2S29vVVg4Z1BHcks2SEIwU2FRNzdSMzU3RDVsQnZXemo4OHR2U2g4NzVkQ1gwOUwySkl6NVp3OHBmMUZMY1M3R0swZTJjVHJFWGtycjk5SlVrbmF0a0dRcXROeGxUQVdXbnlyclRWVGczRm9wakFqSWVMcVktQjRyTzRJaUE1ZE5tV1UwenJwWURJbExCMjNMdk8zS0V4THBjQm5idndWS3A3NmxXTGVBcW9LcFE?oc=5",
+      "language": "en",
+      "status": "active",
+      "approved": 1,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-10-01T05:44:53.900Z"
+    },
+    {
+      "id": 3717,
+      "title": "Why are Maharashtra’s forensic labs hiring 220 recruits in the cyber/TASI department? | Explained",
+      "summary": "Why are Maharashtra’s forensic labs hiring 220 recruits in the cyber/TASI department? | Explained&nbsp;&nbsp;The Hindu",
+      "category": "TRAFFIC UPDATE",
+      "source": "THE HINDU",
+      "source_name": "THE HINDU",
+      "source_url": "https://www.thehindu.com/",
+      "url": "https://news.google.com/rss/articles/CBMi6AFBVV95cUxPM3NZTlMwcXdMWC1QeTVTazJ0cGthYmdJX0lZTUxlRW5UYXk5aE9idUtXcHJoN1IxZU91Mk93ZHdHN25ETldEeXhwSDNDeE02OWhCUWxIU1FWVmF5M3RwVHBaZmI2dG5RbWliUDA0VGkwQWVQNFptWjF6Yno5ZlpqMEY3MU9rTkhzRkF2YzhRZVJReTVBMVp2SmpnaDBCbW41b2JPQzVHTmtzWHkzdEk4bktJVEpRUDdydTdCaDhIblFqbW1od2ROck50RDhrcHl5ZTJlRjk3czdnUk5jSFZCTlcyWlJ0WXUx0gHvAUFVX3lxTFBaUFh0YnltR2pUOXB2dUhKVHB5bkEycHZRb2c4UVZ0RWFVZ2JkeE51Q25KOUdER3pJYWxuMmVteDJ6MVczbmR3RWtDdV9iZy1rdmNxT1ZnWGF3Nm51SnVKVlJXNjhteGY1RlhndFNyYUhYT3o4WUtncHA3emFLVmJQQldaNTJFQmdmUVoyZlAyV2ZXb01mWlZObjV6UUNtNlZjWXlEVlN0ODJGLWZMYlhzb0RrdXZsVnVfc2RmU29VSHNmNXAxWmY5bGtGbWJ2QU05c0toQ1JHYnVuUnZWTGZ3bkUzQXZ3YUJQbzVUMXRR?oc=5",
+      "article_url": "https://news.google.com/rss/articles/CBMi6AFBVV95cUxPM3NZTlMwcXdMWC1QeTVTazJ0cGthYmdJX0lZTUxlRW5UYXk5aE9idUtXcHJoN1IxZU91Mk93ZHdHN25ETldEeXhwSDNDeE02OWhCUWxIU1FWVmF5M3RwVHBaZmI2dG5RbWliUDA0VGkwQWVQNFptWjF6Yno5ZlpqMEY3MU9rTkhzRkF2YzhRZVJReTVBMVp2SmpnaDBCbW41b2JPQzVHTmtzWHkzdEk4bktJVEpRUDdydTdCaDhIblFqbW1od2ROck50RDhrcHl5ZTJlRjk3czdnUk5jSFZCTlcyWlJ0WXUx0gHvAUFVX3lxTFBaUFh0YnltR2pUOXB2dUhKVHB5bkEycHZRb2c4UVZ0RWFVZ2JkeE51Q25KOUdER3pJYWxuMmVteDJ6MVczbmR3RWtDdV9iZy1rdmNxT1ZnWGF3Nm51SnVKVlJXNjhteGY1RlhndFNyYUhYT3o4WUtncHA3emFLVmJQQldaNTJFQmdmUVoyZlAyV2ZXb01mWlZObjV6UUNtNlZjWXlEVlN0ODJGLWZMYlhzb0RrdXZsVnVfc2RmU29VSHNmNXAxWmY5bGtGbWJ2QU05c0toQ1JHYnVuUnZWTGZ3bkUzQXZ3YUJQbzVUMXRR?oc=5",
+      "published_at": "2026-10-01T04:33:46.000Z",
+      "fetched_at": "2026-10-01T06:09:27.481Z",
+      "external_id": "https://news.google.com/rss/articles/CBMi6AFBVV95cUxPM3NZTlMwcXdMWC1QeTVTazJ0cGthYmdJX0lZTUxlRW5UYXk5aE9idUtXcHJoN1IxZU91Mk93ZHdHN25ETldEeXhwSDNDeE02OWhCUWxIU1FWVmF5M3RwVHBaZmI2dG5RbWliUDA0VGkwQWVQNFptWjF6Yno5ZlpqMEY3MU9rTkhzRkF2YzhRZVJReTVBMVp2SmpnaDBCbW41b2JPQzVHTmtzWHkzdEk4bktJVEpRUDdydTdCaDhIblFqbW1od2ROck50RDhrcHl5ZTJlRjk3czdnUk5jSFZCTlcyWlJ0WXUx0gHvAUFVX3lxTFBaUFh0YnltR2pUOXB2dUhKVHB5bkEycHZRb2c4UVZ0RWFVZ2JkeE51Q25KOUdER3pJYWxuMmVteDJ6MVczbmR3RWtDdV9iZy1rdmNxT1ZnWGF3Nm51SnVKVlJXNjhteGY1RlhndFNyYUhYT3o4WUtncHA3emFLVmJQQldaNTJFQmdmUVoyZlAyV2ZXb01mWlZObjV6UUNtNlZjWXlEVlN0ODJGLWZMYlhzb0RrdXZsVnVfc2RmU29VSHNmNXAxWmY5bGtGbWJ2QU05c0toQ1JHYnVuUnZWTGZ3bkUzQXZ3YUJQbzVUMXRR?oc=5",
+      "language": "en",
+      "status": "active",
+      "approved": 1,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-10-01T06:09:36.345Z"
+    },
     {
       "id": 3612,
       "title": "Commissioner of Railway Safety conducts high-level safety review meeting for South Coast Railway",
@@ -7105,6 +7289,26 @@
       "created_at": "2026-10-01T05:13:09.179Z"
     },
     {
+      "id": 3715,
+      "title": "It’s the end of line as Mangaluru bids Southern Railway farewell today",
+      "summary": "It’s the end of line as Mangaluru bids Southern Railway farewell today&nbsp;&nbsp;newindianexpress.com",
+      "category": "LAW & ORDER",
+      "source": "THE NEW INDIAN EXPRESS",
+      "source_name": "THE NEW INDIAN EXPRESS",
+      "source_url": "https://www.newindianexpress.com/",
+      "url": "https://news.google.com/rss/articles/CBMixwFBVV95cUxOUmhkcWlHX0RERnZTWDY2LXFXVUhINTFfeWh5VVNibllLcjZqUmNMUEJEWE9tZkoydGtDWnFmMHVXbV85YUh3ZkxSMmVRUXFYdlEzU3o2UzFqZTJGbVVMZXFnWGV6bG1UT3p5SGhHaUk2TXRkQnhRVzB0RGNraTVsQm5QcUF0R0VNd0kzd2ZTU0hLWlMtRlhqb1k1ZlpjOFFCeEE2NUh6djV4d3pYbl91RUIya3YzYWhoRWNNcU1lWllGRVc5NjUw0gHUAUFVX3lxTE1Pd0dnWTVsTWJKZWRGd0hPRTRWMUh4MGFYeXRxNnNxSndXSzBYaUZQclpJRlhFckxZUkVwQ3N2ckZTckRkWmRBcWhKVWQ0ZjVOZ0t5UzZUSXVMTHFBdHFFWVdzQkJMWTJLMUhRZGJrWVZsQURWaTRtUGxZb19LTFltellObllidmhzQWNTSzF0dGRvd3hMbUY1bEhXM015MkQ0VnlPUXphbndyWm92cnE5NzRVVUtRcHdEMDBKVHJmVnFOQnRiTXdVM2RtZlprcWZaVkMt?oc=5",
+      "article_url": "https://news.google.com/rss/articles/CBMixwFBVV95cUxOUmhkcWlHX0RERnZTWDY2LXFXVUhINTFfeWh5VVNibllLcjZqUmNMUEJEWE9tZkoydGtDWnFmMHVXbV85YUh3ZkxSMmVRUXFYdlEzU3o2UzFqZTJGbVVMZXFnWGV6bG1UT3p5SGhHaUk2TXRkQnhRVzB0RGNraTVsQm5QcUF0R0VNd0kzd2ZTU0hLWlMtRlhqb1k1ZlpjOFFCeEE2NUh6djV4d3pYbl91RUIya3YzYWhoRWNNcU1lWllGRVc5NjUw0gHUAUFVX3lxTE1Pd0dnWTVsTWJKZWRGd0hPRTRWMUh4MGFYeXRxNnNxSndXSzBYaUZQclpJRlhFckxZUkVwQ3N2ckZTckRkWmRBcWhKVWQ0ZjVOZ0t5UzZUSXVMTHFBdHFFWVdzQkJMWTJLMUhRZGJrWVZsQURWaTRtUGxZb19LTFltellObllidmhzQWNTSzF0dGRvd3hMbUY1bEhXM015MkQ0VnlPUXphbndyWm92cnE5NzRVVUtRcHdEMDBKVHJmVnFOQnRiTXdVM2RtZlprcWZaVkMt?oc=5",
+      "published_at": "2026-10-01T02:06:21.000Z",
+      "fetched_at": "2026-10-01T05:44:40.571Z",
+      "external_id": "https://news.google.com/rss/articles/CBMixwFBVV95cUxOUmhkcWlHX0RERnZTWDY2LXFXVUhINTFfeWh5VVNibllLcjZqUmNMUEJEWE9tZkoydGtDWnFmMHVXbV85YUh3ZkxSMmVRUXFYdlEzU3o2UzFqZTJGbVVMZXFnWGV6bG1UT3p5SGhHaUk2TXRkQnhRVzB0RGNraTVsQm5QcUF0R0VNd0kzd2ZTU0hLWlMtRlhqb1k1ZlpjOFFCeEE2NUh6djV4d3pYbl91RUIya3YzYWhoRWNNcU1lWllGRVc5NjUw0gHUAUFVX3lxTE1Pd0dnWTVsTWJKZWRGd0hPRTRWMUh4MGFYeXRxNnNxSndXSzBYaUZQclpJRlhFckxZUkVwQ3N2ckZTckRkWmRBcWhKVWQ0ZjVOZ0t5UzZUSXVMTHFBdHFFWVdzQkJMWTJLMUhRZGJrWVZsQURWaTRtUGxZb19LTFltellObllidmhzQWNTSzF0dGRvd3hMbUY1bEhXM015MkQ0VnlPUXphbndyWm92cnE5NzRVVUtRcHdEMDBKVHJmVnFOQnRiTXdVM2RtZlprcWZaVkMt?oc=5",
+      "language": "en",
+      "status": "active",
+      "approved": 1,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-10-01T05:44:54.473Z"
+    },
+    {
       "id": 3629,
       "title": "Bengaluru’s Naturally Dyed Handmade Festival Showcases Khadi and Natural Fabrics",
       "summary": "Bengaluru’s Naturally Dyed Handmade Festival Showcases Khadi and Natural Fabrics&nbsp;&nbsp;The Hindu",
@@ -7203,6 +7407,26 @@
       "pinned": 0,
       "removed": 0,
       "created_at": "2026-10-01T05:13:09.691Z"
+    },
+    {
+      "id": 3712,
+      "title": "Kerala HC directs State to decide on appointment of expert panel to probe alleged irregularities in digital re-survey",
+      "summary": "Kerala HC directs State to decide on appointment of expert panel to probe alleged irregularities in digital re-survey&nbsp;&nbsp;The Hindu",
+      "category": "LAW & ORDER",
+      "source": "THE HINDU",
+      "source_name": "THE HINDU",
+      "source_url": "https://www.thehindu.com/",
+      "url": "https://news.google.com/rss/articles/CBMikAJBVV95cUxPd3Ytck1mSmtkQzJFWkxLQTNXbi1mWE5DWUdrQmtpNlZTYUJZRkx0ZFhocEI3cTJqX21VV2lQUUhDZTFVaFVWN3N4aGREOEdmNHFFb3NBMG4zTFlQbGJZc1BZc1lXeUNKSFBBaHlXczhvcjdHbDgwQ1JCa3VMWEdwTkV1RVBlNFI2RHN3MWJaVTBnamZBYlBIYnNqWVpvWGlTVFlJMTRJX3hwUENvMXFkVFp2SU83djBpX2VPYjRWNF9ueEJqekU4QzktcmdPbGFEVGlxUzJuVGdOMS0yblFBTHhIM0ZSTzFZazlhdHJOQzhucEJXQkZiNW40V3VYQ3Z4RTRxbVIxX2QtSXlsVldONdIBlwJBVV95cUxQSXAzdFlqa09zZXNlcHBnVkZmUEJGZnBOVmtscGtuTUp2WDBSOV9uQVpBRHJlcE02VzNEUG1MWElBRktrZW1XTUg4eTNuRk1ZVkpTMGV2c0dDQmd1Q0lXVGpyNXBEZi1HMjQ2TlU0UXphMDIxS1czUDk5V2pod2V4d3JHdXpiZWNESWE1eTZlUjRZQldzNGQ4XzJUakdNZEFuQXlkbk1wTmozVlc5NHllLW9DZTltY2hZWUVqWVlOajA5aTMwRjcyS3ZEdWFaNG9idHJaYkpRYXEtTzhhcWRmRW9PTm1ONlpRNTlDcGxjUFI4clo4NTFiajBXRGtxUFZ0bEcwOFV2a25LdmZNMGdEcy16TnQ3WjQ?oc=5",
+      "article_url": "https://news.google.com/rss/articles/CBMikAJBVV95cUxPd3Ytck1mSmtkQzJFWkxLQTNXbi1mWE5DWUdrQmtpNlZTYUJZRkx0ZFhocEI3cTJqX21VV2lQUUhDZTFVaFVWN3N4aGREOEdmNHFFb3NBMG4zTFlQbGJZc1BZc1lXeUNKSFBBaHlXczhvcjdHbDgwQ1JCa3VMWEdwTkV1RVBlNFI2RHN3MWJaVTBnamZBYlBIYnNqWVpvWGlTVFlJMTRJX3hwUENvMXFkVFp2SU83djBpX2VPYjRWNF9ueEJqekU4QzktcmdPbGFEVGlxUzJuVGdOMS0yblFBTHhIM0ZSTzFZazlhdHJOQzhucEJXQkZiNW40V3VYQ3Z4RTRxbVIxX2QtSXlsVldONdIBlwJBVV95cUxQSXAzdFlqa09zZXNlcHBnVkZmUEJGZnBOVmtscGtuTUp2WDBSOV9uQVpBRHJlcE02VzNEUG1MWElBRktrZW1XTUg4eTNuRk1ZVkpTMGV2c0dDQmd1Q0lXVGpyNXBEZi1HMjQ2TlU0UXphMDIxS1czUDk5V2pod2V4d3JHdXpiZWNESWE1eTZlUjRZQldzNGQ4XzJUakdNZEFuQXlkbk1wTmozVlc5NHllLW9DZTltY2hZWUVqWVlOajA5aTMwRjcyS3ZEdWFaNG9idHJaYkpRYXEtTzhhcWRmRW9PTm1ONlpRNTlDcGxjUFI4clo4NTFiajBXRGtxUFZ0bEcwOFV2a25LdmZNMGdEcy16TnQ3WjQ?oc=5",
+      "published_at": "2026-10-01T01:10:00.000Z",
+      "fetched_at": "2026-10-01T05:44:40.571Z",
+      "external_id": "https://news.google.com/rss/articles/CBMikAJBVV95cUxPd3Ytck1mSmtkQzJFWkxLQTNXbi1mWE5DWUdrQmtpNlZTYUJZRkx0ZFhocEI3cTJqX21VV2lQUUhDZTFVaFVWN3N4aGREOEdmNHFFb3NBMG4zTFlQbGJZc1BZc1lXeUNKSFBBaHlXczhvcjdHbDgwQ1JCa3VMWEdwTkV1RVBlNFI2RHN3MWJaVTBnamZBYlBIYnNqWVpvWGlTVFlJMTRJX3hwUENvMXFkVFp2SU83djBpX2VPYjRWNF9ueEJqekU4QzktcmdPbGFEVGlxUzJuVGdOMS0yblFBTHhIM0ZSTzFZazlhdHJOQzhucEJXQkZiNW40V3VYQ3Z4RTRxbVIxX2QtSXlsVldONdIBlwJBVV95cUxQSXAzdFlqa09zZXNlcHBnVkZmUEJGZnBOVmtscGtuTUp2WDBSOV9uQVpBRHJlcE02VzNEUG1MWElBRktrZW1XTUg4eTNuRk1ZVkpTMGV2c0dDQmd1Q0lXVGpyNXBEZi1HMjQ2TlU0UXphMDIxS1czUDk5V2pod2V4d3JHdXpiZWNESWE1eTZlUjRZQldzNGQ4XzJUakdNZEFuQXlkbk1wTmozVlc5NHllLW9DZTltY2hZWUVqWVlOajA5aTMwRjcyS3ZEdWFaNG9idHJaYkpRYXEtTzhhcWRmRW9PTm1ONlpRNTlDcGxjUFI4clo4NTFiajBXRGtxUFZ0bEcwOFV2a25LdmZNMGdEcy16TnQ3WjQ?oc=5",
+      "language": "en",
+      "status": "active",
+      "approved": 1,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-10-01T05:44:54.005Z"
     },
     {
       "id": 3614,
@@ -7605,6 +7829,26 @@
       "created_at": "2026-10-01T05:13:08.397Z"
     },
     {
+      "id": 3719,
+      "title": "‘Stealing’ of candidates by ‘clean’ force caused byelection, alleges Kanimozhi",
+      "summary": "‘Stealing’ of candidates by ‘clean’ force caused byelection, alleges Kanimozhi&nbsp;&nbsp;The Hindu",
+      "category": "LAW & ORDER",
+      "source": "THE HINDU",
+      "source_name": "THE HINDU",
+      "source_url": "https://www.thehindu.com/",
+      "url": "https://news.google.com/rss/articles/CBMi2wFBVV95cUxQaHdDNW5fbU5ROU9iU1g5Rm1qdUJpdngzUkpFMzBwZzhPRkNNWUFtZzZUTjN6c2lHSWROU0lBX3F0VXBTUkhiLW9TSWZZSHN6Vm9TNzRwOF9rQXRaUVNyUm1iYkNDS0tIeFNkTnZXdlQzMDVVOHg0VWhVVTBRSV9DdHZEZno3Qm1KUVlRcWJWVGlrRWtWT2JNZG9lVXF6OEVsZXlRQlpicGxJc2FsaDJ0UFd3OEk5VDQ0aE5yNUlPcTNlUzQ1NzBVU0ZlUkRQdVlZem41VVRuTDJDdTTSAeIBQVVfeXFMT1hCQUIzZTZqZklvNzFmY1plb1IxYV9Yb253WDRjTEhPSGhOT0pLUGYyNWlpb1pfRWw1a3V0UkhaVUVLWWs0ZS1oS254cmVld3ZDMm5SdkVIR0dNbTlTRnNnc3F1LXZtcG5qcUZDNGRnb0FNQU5pUFJiSkpHT0lFWHBjZTlRZEdTV0d0QXFOR3R6Y2tmMUdfeW1iQjlNU0FGX2h3dlBYWGJteUhUeWtzOGVHaWMzeS1qaTRoS1Q3ODlvNG1PUFQ0bmZBdVdwdllnenlrVmV6QzVKZE9sd0FjUXpvZw?oc=5",
+      "article_url": "https://news.google.com/rss/articles/CBMi2wFBVV95cUxQaHdDNW5fbU5ROU9iU1g5Rm1qdUJpdngzUkpFMzBwZzhPRkNNWUFtZzZUTjN6c2lHSWROU0lBX3F0VXBTUkhiLW9TSWZZSHN6Vm9TNzRwOF9rQXRaUVNyUm1iYkNDS0tIeFNkTnZXdlQzMDVVOHg0VWhVVTBRSV9DdHZEZno3Qm1KUVlRcWJWVGlrRWtWT2JNZG9lVXF6OEVsZXlRQlpicGxJc2FsaDJ0UFd3OEk5VDQ0aE5yNUlPcTNlUzQ1NzBVU0ZlUkRQdVlZem41VVRuTDJDdTTSAeIBQVVfeXFMT1hCQUIzZTZqZklvNzFmY1plb1IxYV9Yb253WDRjTEhPSGhOT0pLUGYyNWlpb1pfRWw1a3V0UkhaVUVLWWs0ZS1oS254cmVld3ZDMm5SdkVIR0dNbTlTRnNnc3F1LXZtcG5qcUZDNGRnb0FNQU5pUFJiSkpHT0lFWHBjZTlRZEdTV0d0QXFOR3R6Y2tmMUdfeW1iQjlNU0FGX2h3dlBYWGJteUhUeWtzOGVHaWMzeS1qaTRoS1Q3ODlvNG1PUFQ0bmZBdVdwdllnenlrVmV6QzVKZE9sd0FjUXpvZw?oc=5",
+      "published_at": "2026-09-30T16:38:33.000Z",
+      "fetched_at": "2026-10-01T06:09:27.481Z",
+      "external_id": "https://news.google.com/rss/articles/CBMi2wFBVV95cUxQaHdDNW5fbU5ROU9iU1g5Rm1qdUJpdngzUkpFMzBwZzhPRkNNWUFtZzZUTjN6c2lHSWROU0lBX3F0VXBTUkhiLW9TSWZZSHN6Vm9TNzRwOF9rQXRaUVNyUm1iYkNDS0tIeFNkTnZXdlQzMDVVOHg0VWhVVTBRSV9DdHZEZno3Qm1KUVlRcWJWVGlrRWtWT2JNZG9lVXF6OEVsZXlRQlpicGxJc2FsaDJ0UFd3OEk5VDQ0aE5yNUlPcTNlUzQ1NzBVU0ZlUkRQdVlZem41VVRuTDJDdTTSAeIBQVVfeXFMT1hCQUIzZTZqZklvNzFmY1plb1IxYV9Yb253WDRjTEhPSGhOT0pLUGYyNWlpb1pfRWw1a3V0UkhaVUVLWWs0ZS1oS254cmVld3ZDMm5SdkVIR0dNbTlTRnNnc3F1LXZtcG5qcUZDNGRnb0FNQU5pUFJiSkpHT0lFWHBjZTlRZEdTV0d0QXFOR3R6Y2tmMUdfeW1iQjlNU0FGX2h3dlBYWGJteUhUeWtzOGVHaWMzeS1qaTRoS1Q3ODlvNG1PUFQ0bmZBdVdwdllnenlrVmV6QzVKZE9sd0FjUXpvZw?oc=5",
+      "language": "en",
+      "status": "active",
+      "approved": 1,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-10-01T06:09:36.467Z"
+    },
+    {
       "id": 3618,
       "title": "Madras HC directs DVAC to file report on inspections/raids conducted in last five years",
       "summary": "Madras HC directs DVAC to file report on inspections/raids conducted in last five years&nbsp;&nbsp;The Hindu",
@@ -7785,6 +8029,26 @@
       "created_at": "2026-10-01T05:13:08.958Z"
     },
     {
+      "id": 3728,
+      "title": "Two new AC executive semi-sleeper bus services to connect Kalaburagi, Bengaluru",
+      "summary": "Two new AC executive semi-sleeper bus services to connect Kalaburagi, Bengaluru&nbsp;&nbsp;The Hindu",
+      "category": "LAW & ORDER",
+      "source": "THE HINDU",
+      "source_name": "THE HINDU",
+      "source_url": "https://www.thehindu.com/",
+      "url": "https://news.google.com/rss/articles/CBMi4AFBVV95cUxQN1dEOWpHSGt6VFUtaHQtTTlaT2VDVTA0MWVmTllNMVFXdjh1LVZJd2JjZlJMNUFrclRaT1NxRGtuQkdkSFJXY1JOQ0lZVVZmczFsbnZ3eU8zSmNFRlU0ZGlVOXhNOFk3dW43QW1pTGZjX0Q1bTdqazlubHlkOU11Q0JZSHcyLUJVc0JmODNxY0cyM2swODBtN05CTlplVkxkSTNFR2hjMm9NdzBvdU9henBoTU9yWW9OdkxIQnBMTEV4azdVVVRjcmh3OTBidE5HR2V6aHhtR2tTOW5PbjhHT9IB5wFBVV95cUxNWUctaXNoSzcwVEFkcnBjNUJ4Ykdpdkd0Wjl4c1JSZFRPUGp5VkVKZDZDN1Z1UU1qMTdVbmFwSXpPd3hhUzU3RUItd1RENURLVjVIZHRMNV9RTlZRU3dOYUlURlNUaTRLS1FLQkl6YmpWV2FrWXY4VHFuTDdqRHFZY3pJUU81OWZvMTFqNHlQd05sQmM4QmdsOFhYcV9SMFZCWFZpb25kb2RaT25iRndwV0xrekEzeHdydlVGM3ppRmFCQjNOX3VqdFdMdkNJQkZCVG1FbVRic1hqdlk3cHlzalZzVkxBQTQ?oc=5",
+      "article_url": "https://news.google.com/rss/articles/CBMi4AFBVV95cUxQN1dEOWpHSGt6VFUtaHQtTTlaT2VDVTA0MWVmTllNMVFXdjh1LVZJd2JjZlJMNUFrclRaT1NxRGtuQkdkSFJXY1JOQ0lZVVZmczFsbnZ3eU8zSmNFRlU0ZGlVOXhNOFk3dW43QW1pTGZjX0Q1bTdqazlubHlkOU11Q0JZSHcyLUJVc0JmODNxY0cyM2swODBtN05CTlplVkxkSTNFR2hjMm9NdzBvdU9henBoTU9yWW9OdkxIQnBMTEV4azdVVVRjcmh3OTBidE5HR2V6aHhtR2tTOW5PbjhHT9IB5wFBVV95cUxNWUctaXNoSzcwVEFkcnBjNUJ4Ykdpdkd0Wjl4c1JSZFRPUGp5VkVKZDZDN1Z1UU1qMTdVbmFwSXpPd3hhUzU3RUItd1RENURLVjVIZHRMNV9RTlZRU3dOYUlURlNUaTRLS1FLQkl6YmpWV2FrWXY4VHFuTDdqRHFZY3pJUU81OWZvMTFqNHlQd05sQmM4QmdsOFhYcV9SMFZCWFZpb25kb2RaT25iRndwV0xrekEzeHdydlVGM3ppRmFCQjNOX3VqdFdMdkNJQkZCVG1FbVRic1hqdlk3cHlzalZzVkxBQTQ?oc=5",
+      "published_at": "2026-09-30T14:46:51.000Z",
+      "fetched_at": "2026-10-01T07:19:32.271Z",
+      "external_id": "https://news.google.com/rss/articles/CBMi4AFBVV95cUxQN1dEOWpHSGt6VFUtaHQtTTlaT2VDVTA0MWVmTllNMVFXdjh1LVZJd2JjZlJMNUFrclRaT1NxRGtuQkdkSFJXY1JOQ0lZVVZmczFsbnZ3eU8zSmNFRlU0ZGlVOXhNOFk3dW43QW1pTGZjX0Q1bTdqazlubHlkOU11Q0JZSHcyLUJVc0JmODNxY0cyM2swODBtN05CTlplVkxkSTNFR2hjMm9NdzBvdU9henBoTU9yWW9OdkxIQnBMTEV4azdVVVRjcmh3OTBidE5HR2V6aHhtR2tTOW5PbjhHT9IB5wFBVV95cUxNWUctaXNoSzcwVEFkcnBjNUJ4Ykdpdkd0Wjl4c1JSZFRPUGp5VkVKZDZDN1Z1UU1qMTdVbmFwSXpPd3hhUzU3RUItd1RENURLVjVIZHRMNV9RTlZRU3dOYUlURlNUaTRLS1FLQkl6YmpWV2FrWXY4VHFuTDdqRHFZY3pJUU81OWZvMTFqNHlQd05sQmM4QmdsOFhYcV9SMFZCWFZpb25kb2RaT25iRndwV0xrekEzeHdydlVGM3ppRmFCQjNOX3VqdFdMdkNJQkZCVG1FbVRic1hqdlk3cHlzalZzVkxBQTQ?oc=5",
+      "language": "en",
+      "status": "active",
+      "approved": 1,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-10-01T07:19:42.354Z"
+    },
+    {
       "id": 3649,
       "title": "Civil rights forum to stage dharna against SIR on October 2",
       "summary": "Civil rights forum to stage dharna against SIR on October 2&nbsp;&nbsp;The Hindu",
@@ -7803,6 +8067,26 @@
       "pinned": 0,
       "removed": 0,
       "created_at": "2026-10-01T05:13:08.971Z"
+    },
+    {
+      "id": 3718,
+      "title": "Watch: Putin says Russian economy is stable, in address to newly-elected parliament",
+      "summary": "Watch: Putin says Russian economy is stable, in address to newly-elected parliament&nbsp;&nbsp;The Hindu",
+      "category": "LAW & ORDER",
+      "source": "THE HINDU",
+      "source_name": "THE HINDU",
+      "source_url": "https://www.thehindu.com/",
+      "url": "https://news.google.com/rss/articles/CBMi1wFBVV95cUxNN3NoSnVQNkZXQ1NvcG14dVYtUTNVeGQ1bXVFQzA5TkMyandxVkxNRVduNGg1X3dtanlyOFVRS0V1SzU4anBUX1BQWVd2QUR4SHR5NktjdEFleDhXWUpER25zeDhGSU1qWFlISkVSTkdkcWh0NFRUR3hkUUpGNzlfM3FpR0Vjdko0R2ZpQm5LY1M1aXozeDRtajFYOU53dWM2RWlac0NDcTd5SE1ncDcweDhvLWVoNTk3c0ZyRUlkRlROZktibm90YkxHdFlqZWdoMVMyR0ZqVQ?oc=5",
+      "article_url": "https://news.google.com/rss/articles/CBMi1wFBVV95cUxNN3NoSnVQNkZXQ1NvcG14dVYtUTNVeGQ1bXVFQzA5TkMyandxVkxNRVduNGg1X3dtanlyOFVRS0V1SzU4anBUX1BQWVd2QUR4SHR5NktjdEFleDhXWUpER25zeDhGSU1qWFlISkVSTkdkcWh0NFRUR3hkUUpGNzlfM3FpR0Vjdko0R2ZpQm5LY1M1aXozeDRtajFYOU53dWM2RWlac0NDcTd5SE1ncDcweDhvLWVoNTk3c0ZyRUlkRlROZktibm90YkxHdFlqZWdoMVMyR0ZqVQ?oc=5",
+      "published_at": "2026-09-30T14:19:50.000Z",
+      "fetched_at": "2026-10-01T06:09:27.481Z",
+      "external_id": "https://news.google.com/rss/articles/CBMi1wFBVV95cUxNN3NoSnVQNkZXQ1NvcG14dVYtUTNVeGQ1bXVFQzA5TkMyandxVkxNRVduNGg1X3dtanlyOFVRS0V1SzU4anBUX1BQWVd2QUR4SHR5NktjdEFleDhXWUpER25zeDhGSU1qWFlISkVSTkdkcWh0NFRUR3hkUUpGNzlfM3FpR0Vjdko0R2ZpQm5LY1M1aXozeDRtajFYOU53dWM2RWlac0NDcTd5SE1ncDcweDhvLWVoNTk3c0ZyRUlkRlROZktibm90YkxHdFlqZWdoMVMyR0ZqVQ?oc=5",
+      "language": "en",
+      "status": "active",
+      "approved": 1,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-10-01T06:09:36.388Z"
     },
     {
       "id": 3652,
@@ -7923,6 +8207,26 @@
       "pinned": 0,
       "removed": 0,
       "created_at": "2026-10-01T05:13:08.225Z"
+    },
+    {
+      "id": 3710,
+      "title": "Delhi’s Barapullah Phase-III flyover leaves commuters in 3.5-km traffic jam a day after inauguration, morning peak stretches into afternoon",
+      "summary": "Delhi’s Barapullah Phase-III flyover leaves commuters in 3.5-km traffic jam a day after inauguration, morning peak stretches into afternoon&nbsp;&nbsp;The Hindu",
+      "category": "TRAFFIC UPDATE",
+      "source": "THE HINDU",
+      "source_name": "THE HINDU",
+      "source_url": "https://www.thehindu.com/",
+      "url": "https://news.google.com/rss/articles/CBMinAJBVV95cUxQVzlvNV83Q3hXSjJPNFVYZTlOVTluc0g3dUpyS3JyUlVuaUh1TUNMeDhQZXNJS1hvTjJqM0czYkp5cWdTM1ppQzhNNlpFQmhna2ZGc1JFakhiaTYyQXdpRzJBLTFjeEk2dHhTMHZFWElySnYzdlpOMnEyamtUSTd0a0lQOVRhNkhoNF9JanRkNkRJYzB2eVgydTZHdXluWUV2VFloUmdfVUhsdUlTTXFNMVpYSGNzMWk2czVsMW44Q3pNd2NxVWNkcUFrUjI3ZFBKWGtTTVlXNUpBcngzQTZRcGh5UnFGNGxqYXdNeGVZdHBWQUhrcm1jaGJEb0F5QzZlT0EzOXR0WWFnLTh1c3Zlb1RUdHlUYkd1d3ZiNtIBowJBVV95cUxPNWhSdEMwOF9PeHp4SFZNTUE3Qi1wNUtoSWlVMXlfZURWRGtDMG9DbC1MNG9aWWRxUmtaTFNRNHNTMUd2U2l0Qkl6bWRvSkVrTFdTU3JMeVNPYXpQWnFfMDZ3dENrUlh6NVN3bV91Y0NIMTVfaEx6LVNxaW9fV0xUTUdNems3VVFzdVJ4MnpIN1RBNmJRZmdQcXVXSDhnTE1uMzN1OWRJQTVGSGJCdnd0RG5OMGc3MG54VDBLcEFYM2NfWVdIQk1GU2FNcDZMOG5nYUUwTmNCR3BqdnRySUlGSjVvdGlhUkh5bG1Wa2gxM0pUSXJUdUp5R0o5Q1RqTmF3eFA1VlVlN1ZndFFZdk5fSUlRUjlkVVg2bHA4V3lpRV82aHc?oc=5",
+      "article_url": "https://news.google.com/rss/articles/CBMinAJBVV95cUxQVzlvNV83Q3hXSjJPNFVYZTlOVTluc0g3dUpyS3JyUlVuaUh1TUNMeDhQZXNJS1hvTjJqM0czYkp5cWdTM1ppQzhNNlpFQmhna2ZGc1JFakhiaTYyQXdpRzJBLTFjeEk2dHhTMHZFWElySnYzdlpOMnEyamtUSTd0a0lQOVRhNkhoNF9JanRkNkRJYzB2eVgydTZHdXluWUV2VFloUmdfVUhsdUlTTXFNMVpYSGNzMWk2czVsMW44Q3pNd2NxVWNkcUFrUjI3ZFBKWGtTTVlXNUpBcngzQTZRcGh5UnFGNGxqYXdNeGVZdHBWQUhrcm1jaGJEb0F5QzZlT0EzOXR0WWFnLTh1c3Zlb1RUdHlUYkd1d3ZiNtIBowJBVV95cUxPNWhSdEMwOF9PeHp4SFZNTUE3Qi1wNUtoSWlVMXlfZURWRGtDMG9DbC1MNG9aWWRxUmtaTFNRNHNTMUd2U2l0Qkl6bWRvSkVrTFdTU3JMeVNPYXpQWnFfMDZ3dENrUlh6NVN3bV91Y0NIMTVfaEx6LVNxaW9fV0xUTUdNems3VVFzdVJ4MnpIN1RBNmJRZmdQcXVXSDhnTE1uMzN1OWRJQTVGSGJCdnd0RG5OMGc3MG54VDBLcEFYM2NfWVdIQk1GU2FNcDZMOG5nYUUwTmNCR3BqdnRySUlGSjVvdGlhUkh5bG1Wa2gxM0pUSXJUdUp5R0o5Q1RqTmF3eFA1VlVlN1ZndFFZdk5fSUlRUjlkVVg2bHA4V3lpRV82aHc?oc=5",
+      "published_at": "2026-09-30T13:04:05.000Z",
+      "fetched_at": "2026-10-01T05:44:40.571Z",
+      "external_id": "https://news.google.com/rss/articles/CBMinAJBVV95cUxQVzlvNV83Q3hXSjJPNFVYZTlOVTluc0g3dUpyS3JyUlVuaUh1TUNMeDhQZXNJS1hvTjJqM0czYkp5cWdTM1ppQzhNNlpFQmhna2ZGc1JFakhiaTYyQXdpRzJBLTFjeEk2dHhTMHZFWElySnYzdlpOMnEyamtUSTd0a0lQOVRhNkhoNF9JanRkNkRJYzB2eVgydTZHdXluWUV2VFloUmdfVUhsdUlTTXFNMVpYSGNzMWk2czVsMW44Q3pNd2NxVWNkcUFrUjI3ZFBKWGtTTVlXNUpBcngzQTZRcGh5UnFGNGxqYXdNeGVZdHBWQUhrcm1jaGJEb0F5QzZlT0EzOXR0WWFnLTh1c3Zlb1RUdHlUYkd1d3ZiNtIBowJBVV95cUxPNWhSdEMwOF9PeHp4SFZNTUE3Qi1wNUtoSWlVMXlfZURWRGtDMG9DbC1MNG9aWWRxUmtaTFNRNHNTMUd2U2l0Qkl6bWRvSkVrTFdTU3JMeVNPYXpQWnFfMDZ3dENrUlh6NVN3bV91Y0NIMTVfaEx6LVNxaW9fV0xUTUdNems3VVFzdVJ4MnpIN1RBNmJRZmdQcXVXSDhnTE1uMzN1OWRJQTVGSGJCdnd0RG5OMGc3MG54VDBLcEFYM2NfWVdIQk1GU2FNcDZMOG5nYUUwTmNCR3BqdnRySUlGSjVvdGlhUkh5bG1Wa2gxM0pUSXJUdUp5R0o5Q1RqTmF3eFA1VlVlN1ZndFFZdk5fSUlRUjlkVVg2bHA4V3lpRV82aHc?oc=5",
+      "language": "en",
+      "status": "active",
+      "approved": 1,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-10-01T05:44:53.794Z"
     },
     {
       "id": 3641,
@@ -10005,6 +10309,26 @@
       "created_at": "2026-09-30T11:27:42.302Z"
     },
     {
+      "id": 3716,
+      "title": "Local Sena (UBT) leader dies in Thane after firing by unidentified assailants",
+      "summary": "Local Sena (UBT) leader dies in Thane after firing by unidentified assailants&nbsp;&nbsp;The Hindu",
+      "category": "LAW & ORDER",
+      "source": "THE HINDU",
+      "source_name": "THE HINDU",
+      "source_url": "https://www.thehindu.com/",
+      "url": "https://news.google.com/rss/articles/CBMi3wFBVV95cUxOTEhVSmRMSlJWTjZjYWVQNHRpNWUyTDd5V1VvVHZjbWl5cHJJZVJuVWtrSU11ZXRSY0RncWJBcEluQVM0dll0dUkxU2pRSFM1U00wZVRPX3Yxd2wzSnV3VHk0X19hSUJhNEJTUHdka0tpQ0pvU1hUekRvU012SGdlWjdaVk9WZVZoVVdYckJOaHduTjlOVE5ZSnhMS3dNMkNVQjVhM1oxa3pldnRPN2I3NTMxcU5qQmlmVVpfeWw2Tm9JT3ByMFYzeEIwTzJwYUVBUWlNQWhEcndBSUI0eHFV0gHmAUFVX3lxTE5fR2ZVc0VQNm9wQmlUR1NleUFQSGxUdlJjRm9qblJ5Q3ZiNXNwZFVVYzFtdW9pWDdBdXlzWUxHU3lEM1dGZ0VMemEyYnB2TGU4WnA1RzRYZjZOYUZFUUFvSzN4d0owQTRFRjZvV25JZjRxMTdpT0Z5Y1RPN2R1em5uY3BVSzcxamg0UVFzMzZ3YW1sQWNrNzZwNnNmWkNRT1dRMWJGSW0wTVBfd3JhU2pRZ1lVOE1QY3ZpOURXaFJfc3BYM0w2NkpOdWRMYnlJaUdCMlZ1a016dHBya3d6V3ZMcDhYVlFR?oc=5",
+      "article_url": "https://news.google.com/rss/articles/CBMi3wFBVV95cUxOTEhVSmRMSlJWTjZjYWVQNHRpNWUyTDd5V1VvVHZjbWl5cHJJZVJuVWtrSU11ZXRSY0RncWJBcEluQVM0dll0dUkxU2pRSFM1U00wZVRPX3Yxd2wzSnV3VHk0X19hSUJhNEJTUHdka0tpQ0pvU1hUekRvU012SGdlWjdaVk9WZVZoVVdYckJOaHduTjlOVE5ZSnhMS3dNMkNVQjVhM1oxa3pldnRPN2I3NTMxcU5qQmlmVVpfeWw2Tm9JT3ByMFYzeEIwTzJwYUVBUWlNQWhEcndBSUI0eHFV0gHmAUFVX3lxTE5fR2ZVc0VQNm9wQmlUR1NleUFQSGxUdlJjRm9qblJ5Q3ZiNXNwZFVVYzFtdW9pWDdBdXlzWUxHU3lEM1dGZ0VMemEyYnB2TGU4WnA1RzRYZjZOYUZFUUFvSzN4d0owQTRFRjZvV25JZjRxMTdpT0Z5Y1RPN2R1em5uY3BVSzcxamg0UVFzMzZ3YW1sQWNrNzZwNnNmWkNRT1dRMWJGSW0wTVBfd3JhU2pRZ1lVOE1QY3ZpOURXaFJfc3BYM0w2NkpOdWRMYnlJaUdCMlZ1a016dHBya3d6V3ZMcDhYVlFR?oc=5",
+      "published_at": "2026-09-29T18:48:23.000Z",
+      "fetched_at": "2026-10-01T06:09:27.481Z",
+      "external_id": "https://news.google.com/rss/articles/CBMi3wFBVV95cUxOTEhVSmRMSlJWTjZjYWVQNHRpNWUyTDd5V1VvVHZjbWl5cHJJZVJuVWtrSU11ZXRSY0RncWJBcEluQVM0dll0dUkxU2pRSFM1U00wZVRPX3Yxd2wzSnV3VHk0X19hSUJhNEJTUHdka0tpQ0pvU1hUekRvU012SGdlWjdaVk9WZVZoVVdYckJOaHduTjlOVE5ZSnhMS3dNMkNVQjVhM1oxa3pldnRPN2I3NTMxcU5qQmlmVVpfeWw2Tm9JT3ByMFYzeEIwTzJwYUVBUWlNQWhEcndBSUI0eHFV0gHmAUFVX3lxTE5fR2ZVc0VQNm9wQmlUR1NleUFQSGxUdlJjRm9qblJ5Q3ZiNXNwZFVVYzFtdW9pWDdBdXlzWUxHU3lEM1dGZ0VMemEyYnB2TGU4WnA1RzRYZjZOYUZFUUFvSzN4d0owQTRFRjZvV25JZjRxMTdpT0Z5Y1RPN2R1em5uY3BVSzcxamg0UVFzMzZ3YW1sQWNrNzZwNnNmWkNRT1dRMWJGSW0wTVBfd3JhU2pRZ1lVOE1QY3ZpOURXaFJfc3BYM0w2NkpOdWRMYnlJaUdCMlZ1a016dHBya3d6V3ZMcDhYVlFR?oc=5",
+      "language": "en",
+      "status": "active",
+      "approved": 1,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-10-01T06:09:35.968Z"
+    },
+    {
       "id": 3445,
       "title": "Ministers Aadhav Arjuna, C.T.R. Nirmal Kumar urge Madras High Court to dismiss DMK’s defamation case",
       "summary": "Ministers Aadhav Arjuna, C.T.R. Nirmal Kumar urge Madras High Court to dismiss DMK’s defamation case&nbsp;&nbsp;The Hindu",
@@ -10063,6 +10387,26 @@
       "pinned": 0,
       "removed": 0,
       "created_at": "2026-09-30T11:27:41.085Z"
+    },
+    {
+      "id": 3713,
+      "title": "School bus operators flag financial burden of mandatory EV adoption",
+      "summary": "School bus operators flag financial burden of mandatory EV adoption&nbsp;&nbsp;The Hindu",
+      "category": "LAW & ORDER",
+      "source": "THE HINDU",
+      "source_name": "THE HINDU",
+      "source_url": "https://www.thehindu.com/",
+      "url": "https://news.google.com/rss/articles/CBMiygFBVV95cUxPa0hySGJEVDJ5MHV3YzNTS25kbEt0czM2NDRQdURNQjgxVHRXcHRWa0FZOUxJU1VpclpwZTMwUHAtOWFVd3R0cTlFRGRDbExrX0wxa21GN2k3QkVBYXZ1bnVwVFBRMVV5VW5jN3drTWZ3M1dBaU9rSFM3dVliaURwUUZ4bHNsN3JxakgtUkFfQ3dKR3FRTEMzaTAtajk1WUVmb1pnTmlBeE0tTVFQNkVycmp2dF93UldLamVndDdTRlp0WGJuNWd0cWVB0gHQAUFVX3lxTFBSNkhKS2RUdy1JU0ZLVVFVUk9obGZleV93Qklvb2F5elRUcmZvdE9STnlIWGtzakVGX2s1ZkdrMDlzMktLbFR4aUhsSDNtT04ySnp2OWFzazRZNXI4RjMxWW1LOVhjM2c1SExhWHZacmlGWVM3UG5TQ2QwWU1mcHo2NHpCdzRydnhfTjFOeElUMFZPNnFmUFZpd3ZGRGVRN1RSbTJtU2R1U04yclItY3VDemk3YmluRXVMRjBsdVZhbWN6aGR4V2N6dVZnTGtIS0g?oc=5",
+      "article_url": "https://news.google.com/rss/articles/CBMiygFBVV95cUxPa0hySGJEVDJ5MHV3YzNTS25kbEt0czM2NDRQdURNQjgxVHRXcHRWa0FZOUxJU1VpclpwZTMwUHAtOWFVd3R0cTlFRGRDbExrX0wxa21GN2k3QkVBYXZ1bnVwVFBRMVV5VW5jN3drTWZ3M1dBaU9rSFM3dVliaURwUUZ4bHNsN3JxakgtUkFfQ3dKR3FRTEMzaTAtajk1WUVmb1pnTmlBeE0tTVFQNkVycmp2dF93UldLamVndDdTRlp0WGJuNWd0cWVB0gHQAUFVX3lxTFBSNkhKS2RUdy1JU0ZLVVFVUk9obGZleV93Qklvb2F5elRUcmZvdE9STnlIWGtzakVGX2s1ZkdrMDlzMktLbFR4aUhsSDNtT04ySnp2OWFzazRZNXI4RjMxWW1LOVhjM2c1SExhWHZacmlGWVM3UG5TQ2QwWU1mcHo2NHpCdzRydnhfTjFOeElUMFZPNnFmUFZpd3ZGRGVRN1RSbTJtU2R1U04yclItY3VDemk3YmluRXVMRjBsdVZhbWN6aGR4V2N6dVZnTGtIS0g?oc=5",
+      "published_at": "2026-09-29T17:18:56.000Z",
+      "fetched_at": "2026-10-01T05:44:40.571Z",
+      "external_id": "https://news.google.com/rss/articles/CBMiygFBVV95cUxPa0hySGJEVDJ5MHV3YzNTS25kbEt0czM2NDRQdURNQjgxVHRXcHRWa0FZOUxJU1VpclpwZTMwUHAtOWFVd3R0cTlFRGRDbExrX0wxa21GN2k3QkVBYXZ1bnVwVFBRMVV5VW5jN3drTWZ3M1dBaU9rSFM3dVliaURwUUZ4bHNsN3JxakgtUkFfQ3dKR3FRTEMzaTAtajk1WUVmb1pnTmlBeE0tTVFQNkVycmp2dF93UldLamVndDdTRlp0WGJuNWd0cWVB0gHQAUFVX3lxTFBSNkhKS2RUdy1JU0ZLVVFVUk9obGZleV93Qklvb2F5elRUcmZvdE9STnlIWGtzakVGX2s1ZkdrMDlzMktLbFR4aUhsSDNtT04ySnp2OWFzazRZNXI4RjMxWW1LOVhjM2c1SExhWHZacmlGWVM3UG5TQ2QwWU1mcHo2NHpCdzRydnhfTjFOeElUMFZPNnFmUFZpd3ZGRGVRN1RSbTJtU2R1U04yclItY3VDemk3YmluRXVMRjBsdVZhbWN6aGR4V2N6dVZnTGtIS0g?oc=5",
+      "language": "en",
+      "status": "active",
+      "approved": 1,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-10-01T05:44:54.016Z"
     },
     {
       "id": 3686,
@@ -10163,6 +10507,26 @@
       "pinned": 0,
       "removed": 0,
       "created_at": "2026-09-30T11:27:44.354Z"
+    },
+    {
+      "id": 3723,
+      "title": "Petitioner challenging CEC, ECI appointments law moves curative plea in Supreme Court",
+      "summary": "Petitioner challenging CEC, ECI appointments law moves curative plea in Supreme Court&nbsp;&nbsp;The Hindu",
+      "category": "POLICE & LAW",
+      "source": "THE HINDU",
+      "source_name": "THE HINDU",
+      "source_url": "https://www.thehindu.com/",
+      "url": "https://news.google.com/rss/articles/CBMi2wFBVV95cUxPXzl1MU9fbVJqZnkxRlEtTW41ZUdjRXd3NlRKZnJXY2dzQzh0MndVUU9iRDk1UEl3N2hRMEw2UE53b3JCZm5zbTFGel9rVzg0MWotV1lPQW9ENmUyMTR4QlFQeHhpcFRTOE51OUNHaWpwcmRGNWgwMnJqUWZ6dDVfWFg5S1FMYURrU0hHN0h0dl9WVklzM1ByNHBfUUxwNDVPS0dqOW02emc2UmJLMjVKTzZYV3oySl90amEwYlNFNlFYaEROUmpnTjJWTjF3dXFVUXZZNi1SNFp5V2fSAeIBQVVfeXFMUHRmVGdaTV9IZ251aVVQck9VUC1nVU5DbHhxVFlyMmpKYnowTWt6VkpyM2FFUlZEZzA1VUhTOEtHYjRYNHVCTmMyanNFSDRoMUhOTl9UbFptSFRIZVFQZm02WnV2dE5vS1ZGSi1GU1lIc1RhZEczZVVkM0FrMGdzaWh3aXp5cFN0aXBRTUlTTnozMnU3bjVRaGQyVW5xUGZLeEhNZndVdnE2WmM2aFl6b1NxRkJ1cHgyM0xMN3Fpa2JLRWtWczFDM1dEMVVlUEhPN1FheTVUdHlXNEg4UTZBcmg4UQ?oc=5",
+      "article_url": "https://news.google.com/rss/articles/CBMi2wFBVV95cUxPXzl1MU9fbVJqZnkxRlEtTW41ZUdjRXd3NlRKZnJXY2dzQzh0MndVUU9iRDk1UEl3N2hRMEw2UE53b3JCZm5zbTFGel9rVzg0MWotV1lPQW9ENmUyMTR4QlFQeHhpcFRTOE51OUNHaWpwcmRGNWgwMnJqUWZ6dDVfWFg5S1FMYURrU0hHN0h0dl9WVklzM1ByNHBfUUxwNDVPS0dqOW02emc2UmJLMjVKTzZYV3oySl90amEwYlNFNlFYaEROUmpnTjJWTjF3dXFVUXZZNi1SNFp5V2fSAeIBQVVfeXFMUHRmVGdaTV9IZ251aVVQck9VUC1nVU5DbHhxVFlyMmpKYnowTWt6VkpyM2FFUlZEZzA1VUhTOEtHYjRYNHVCTmMyanNFSDRoMUhOTl9UbFptSFRIZVFQZm02WnV2dE5vS1ZGSi1GU1lIc1RhZEczZVVkM0FrMGdzaWh3aXp5cFN0aXBRTUlTTnozMnU3bjVRaGQyVW5xUGZLeEhNZndVdnE2WmM2aFl6b1NxRkJ1cHgyM0xMN3Fpa2JLRWtWczFDM1dEMVVlUEhPN1FheTVUdHlXNEg4UTZBcmg4UQ?oc=5",
+      "published_at": "2026-09-29T16:51:17.000Z",
+      "fetched_at": "2026-10-01T07:02:25.665Z",
+      "external_id": "https://news.google.com/rss/articles/CBMi2wFBVV95cUxPXzl1MU9fbVJqZnkxRlEtTW41ZUdjRXd3NlRKZnJXY2dzQzh0MndVUU9iRDk1UEl3N2hRMEw2UE53b3JCZm5zbTFGel9rVzg0MWotV1lPQW9ENmUyMTR4QlFQeHhpcFRTOE51OUNHaWpwcmRGNWgwMnJqUWZ6dDVfWFg5S1FMYURrU0hHN0h0dl9WVklzM1ByNHBfUUxwNDVPS0dqOW02emc2UmJLMjVKTzZYV3oySl90amEwYlNFNlFYaEROUmpnTjJWTjF3dXFVUXZZNi1SNFp5V2fSAeIBQVVfeXFMUHRmVGdaTV9IZ251aVVQck9VUC1nVU5DbHhxVFlyMmpKYnowTWt6VkpyM2FFUlZEZzA1VUhTOEtHYjRYNHVCTmMyanNFSDRoMUhOTl9UbFptSFRIZVFQZm02WnV2dE5vS1ZGSi1GU1lIc1RhZEczZVVkM0FrMGdzaWh3aXp5cFN0aXBRTUlTTnozMnU3bjVRaGQyVW5xUGZLeEhNZndVdnE2WmM2aFl6b1NxRkJ1cHgyM0xMN3Fpa2JLRWtWczFDM1dEMVVlUEhPN1FheTVUdHlXNEg4UTZBcmg4UQ?oc=5",
+      "language": "en",
+      "status": "active",
+      "approved": 1,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-10-01T07:02:41.282Z"
     },
     {
       "id": 3514,
@@ -10763,6 +11127,26 @@
       "pinned": 0,
       "removed": 0,
       "created_at": "2026-09-30T11:27:44.253Z"
+    },
+    {
+      "id": 3714,
+      "title": "Classes remain suspended for second day at Satyajit Ray Film and Television Institute after campus violence",
+      "summary": "Classes remain suspended for second day at Satyajit Ray Film and Television Institute after campus violence&nbsp;&nbsp;newindianexpress.com",
+      "category": "LAW & ORDER",
+      "source": "THE NEW INDIAN EXPRESS",
+      "source_name": "THE NEW INDIAN EXPRESS",
+      "source_url": "https://www.newindianexpress.com/",
+      "url": "https://news.google.com/rss/articles/CBMigAJBVV95cUxQbktlVFFOa2Mzb3dfNGJENWt4TFNQcDhzZUtscmxHSmRvRDVBOVMxZ3NaMV9FRXE4WnBUQ21kWVJvLU5RTTJCTFVXTEQ1XzIwNWRadXNCZHZjbmFiX0JfdldlTDlYTWttR2pjbnNVN1RjMGlmNXdYUUF2UXhJeDVNZ3h3bG1SZjVEVlZuTDdCUWM0SGNVemdRXzV5XzlFbU5UUXlHV0dsOGRYYVo4dm16Uk9lX2tLaEYtZDdpLS1DcGRGbXpreldyTDUzREtjX0tNUDhNUFNza1VJQUJ4RGw0RDl5OGh6WVppTWk5ZWpRLUJGdG51NFY2ODNyeUdyT2Jm0gGOAkFVX3lxTFBMXzFWTzBRR2hSdUFjRThiZFJLdVphdUozQ0k1a0RBM1lqckNURzR0UmFmSlJfdWJSWVBKdE80bG1ySWpwN1Y5QU9ydnJfdmRRS2w1R3d6N0NLbUJ2ckhzeFhhYUVqRU1PQjY3Zk91REhIUkw2SUV3OHo0N0RjRHRyVDhyTU1pb0tiQ2puX2I3MHd6dm5PaFVjUXNWNDZfZVFRcDVqZGhOU3l6ZFJTMlkyX2NnYXBTT3dTSjQtYV9pNUpxTGRHUUlwaEdWTjVuSXp3V2h4c1AzQ2NPWF9WcjZoOXNqcFdpM2lFcmpkVWFKbDRtazRPMGo5S25wZVlYck1fTkh5Uzk1WktRNGhFZw?oc=5",
+      "article_url": "https://news.google.com/rss/articles/CBMigAJBVV95cUxQbktlVFFOa2Mzb3dfNGJENWt4TFNQcDhzZUtscmxHSmRvRDVBOVMxZ3NaMV9FRXE4WnBUQ21kWVJvLU5RTTJCTFVXTEQ1XzIwNWRadXNCZHZjbmFiX0JfdldlTDlYTWttR2pjbnNVN1RjMGlmNXdYUUF2UXhJeDVNZ3h3bG1SZjVEVlZuTDdCUWM0SGNVemdRXzV5XzlFbU5UUXlHV0dsOGRYYVo4dm16Uk9lX2tLaEYtZDdpLS1DcGRGbXpreldyTDUzREtjX0tNUDhNUFNza1VJQUJ4RGw0RDl5OGh6WVppTWk5ZWpRLUJGdG51NFY2ODNyeUdyT2Jm0gGOAkFVX3lxTFBMXzFWTzBRR2hSdUFjRThiZFJLdVphdUozQ0k1a0RBM1lqckNURzR0UmFmSlJfdWJSWVBKdE80bG1ySWpwN1Y5QU9ydnJfdmRRS2w1R3d6N0NLbUJ2ckhzeFhhYUVqRU1PQjY3Zk91REhIUkw2SUV3OHo0N0RjRHRyVDhyTU1pb0tiQ2puX2I3MHd6dm5PaFVjUXNWNDZfZVFRcDVqZGhOU3l6ZFJTMlkyX2NnYXBTT3dTSjQtYV9pNUpxTGRHUUlwaEdWTjVuSXp3V2h4c1AzQ2NPWF9WcjZoOXNqcFdpM2lFcmpkVWFKbDRtazRPMGo5S25wZVlYck1fTkh5Uzk1WktRNGhFZw?oc=5",
+      "published_at": "2026-09-29T12:52:24.000Z",
+      "fetched_at": "2026-10-01T05:44:40.571Z",
+      "external_id": "https://news.google.com/rss/articles/CBMigAJBVV95cUxQbktlVFFOa2Mzb3dfNGJENWt4TFNQcDhzZUtscmxHSmRvRDVBOVMxZ3NaMV9FRXE4WnBUQ21kWVJvLU5RTTJCTFVXTEQ1XzIwNWRadXNCZHZjbmFiX0JfdldlTDlYTWttR2pjbnNVN1RjMGlmNXdYUUF2UXhJeDVNZ3h3bG1SZjVEVlZuTDdCUWM0SGNVemdRXzV5XzlFbU5UUXlHV0dsOGRYYVo4dm16Uk9lX2tLaEYtZDdpLS1DcGRGbXpreldyTDUzREtjX0tNUDhNUFNza1VJQUJ4RGw0RDl5OGh6WVppTWk5ZWpRLUJGdG51NFY2ODNyeUdyT2Jm0gGOAkFVX3lxTFBMXzFWTzBRR2hSdUFjRThiZFJLdVphdUozQ0k1a0RBM1lqckNURzR0UmFmSlJfdWJSWVBKdE80bG1ySWpwN1Y5QU9ydnJfdmRRS2w1R3d6N0NLbUJ2ckhzeFhhYUVqRU1PQjY3Zk91REhIUkw2SUV3OHo0N0RjRHRyVDhyTU1pb0tiQ2puX2I3MHd6dm5PaFVjUXNWNDZfZVFRcDVqZGhOU3l6ZFJTMlkyX2NnYXBTT3dTSjQtYV9pNUpxTGRHUUlwaEdWTjVuSXp3V2h4c1AzQ2NPWF9WcjZoOXNqcFdpM2lFcmpkVWFKbDRtazRPMGo5S25wZVlYck1fTkh5Uzk1WktRNGhFZw?oc=5",
+      "language": "en",
+      "status": "active",
+      "approved": 1,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-10-01T05:44:54.200Z"
     },
     {
       "id": 3498,
@@ -77626,7 +78010,7 @@
       "id": 1,
       "auto_fetch": 1,
       "require_approval": 1,
-      "last_fetched_at": "2026-10-01T05:29:18.732Z",
+      "last_fetched_at": "2026-10-01T07:19:32.271Z",
       "live_feed_enabled": 1,
       "approved_sources": "tnpolice.gov.in, gcp.tn.gov.in, greaterchennaipolice.in, tn.gov.in, pib.gov.in",
       "refresh_interval": 15
@@ -88501,9 +88885,9 @@
   "portal_visitor_stats": [
     {
       "id": 1,
-      "total_page_views": 433,
+      "total_page_views": 445,
       "created_at": "2026-09-08T05:38:30.468Z",
-      "updated_at": "2026-10-01T05:39:29.062Z"
+      "updated_at": "2026-10-01T07:19:40.350Z"
     }
   ],
   "portal_daily_visits": [
@@ -88594,9 +88978,9 @@
     {
       "id": 13,
       "visit_date": "2026-10-01",
-      "page_views": 6,
+      "page_views": 18,
       "created_at": "2026-10-01T05:34:47.486Z",
-      "updated_at": "2026-10-01T05:39:29.062Z"
+      "updated_at": "2026-10-01T07:19:40.350Z"
     }
   ],
   "superadmin_config": {
@@ -90195,6 +90579,16 @@
       "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36 Edg/153.0.0.0",
       "details": "User authenticated successfully.",
       "created_at": "2026-10-01T05:12:52.133Z"
+    },
+    {
+      "id": 154,
+      "username": "Digital_TN_GovMaster",
+      "event_type": "LOGIN_SUCCESS",
+      "severity": "info",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36 Edg/153.0.0.0",
+      "details": "User authenticated successfully.",
+      "created_at": "2026-10-01T05:45:11.835Z"
     }
   ],
   "security_config": {
@@ -90783,6 +91177,18 @@
       "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36 Edg/153.0.0.0",
       "revoked_at": null,
       "status": "active"
+    },
+    {
+      "id": 49,
+      "username": "Digital_TN_GovMaster",
+      "session_id": "6ad580a46e6320a15bf156475562bb0fb279489c34b78e35",
+      "created_at": "2026-10-01T05:45:11.611Z",
+      "last_activity": "2026-10-01T05:45:13.473Z",
+      "expires_at": "2026-10-01T06:15:13.473Z",
+      "ip_address": "::1",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36 Edg/153.0.0.0",
+      "revoked_at": null,
+      "status": "active"
     }
   ],
   "mfa_challenges": [
@@ -90869,7 +91275,7 @@
       "device_name": "Mozilla on ::1",
       "user_agent_summary": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Sa",
       "created_at": "2026-09-30T11:27:26.830Z",
-      "last_used_at": "2026-10-01T05:12:51.985Z",
+      "last_used_at": "2026-10-01T05:45:11.540Z",
       "expires_at": "2026-10-30T11:27:26.830Z",
       "revoked_at": null
     }
