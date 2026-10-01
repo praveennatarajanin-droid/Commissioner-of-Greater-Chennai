@@ -750,7 +750,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
     const map = TAB_SEO_MAP[activeTab];
     if (map) {
       fetch("/api/admin/crud/article_seo")
-        .then(res => res.json())
+        .then(res => (res.ok ? res.json() : []))
         .then(data => {
           if (Array.isArray(data)) {
             const record = data.find((x: any) => x.content_type === map.contentType);
@@ -2736,19 +2736,9 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                           <option value="WOMEN HELPLINE">↳ WOMEN HELPLINE</option>
                         </optgroup>
 
-                        <optgroup label="👁️ PUBLIC SAFETY & TRAFFIC & OUTREACH">
+                        <optgroup label="👁️ PUBLIC SAFETY & OUTREACH">
                           <option value="PUBLIC SAFETY">PUBLIC SAFETY</option>
-                          <option value="TRAFFIC NEWS">TRAFFIC NEWS</option>
                           <option value="COMMUNITY OUTREACH">COMMUNITY OUTREACH</option>
-                        </optgroup>
-
-                        <optgroup label="📰 POLICE & GOVERNMENT UPDATES">
-                          <option value="GENERAL NEWS">GENERAL NEWS</option>
-                          <option value="POLICE ADMINISTRATION">POLICE ADMINISTRATION</option>
-                          <option value="AWARDS & RECOGNITION">AWARDS & RECOGNITION</option>
-                          <option value="GOVERNMENT UPDATE">GOVERNMENT UPDATE</option>
-                          <option value="TRENDING NEWS">TRENDING NEWS</option>
-                          <option value="COMPLAINT PORTAL">COMPLAINT PORTAL</option>
                         </optgroup>
                       </select>
                     </div>
@@ -2968,9 +2958,13 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                     <div className="space-y-1.5 xl:col-span-2">
                       <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Category & Submenu (English)</label>
                       <select
-                        value={editingItem.category_en || "GENERAL NEWS"}
+                        value={editingItem.category_en || ""}
                         onChange={(e) => {
                           const val = e.target.value;
+                          if (!val) {
+                            setEditingItem({ ...editingItem, category_en: "", category_ta: "" });
+                            return;
+                          }
                           const defaults = [
                             { en: "CRIME", ta: "குற்றம்" },
                             { en: "WANTED CRIMINALS", ta: "தேடப்படும் குற்றவாளிகள்" },
@@ -2984,20 +2978,14 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                             { en: "AVAL SUPPORT WING", ta: "அவள் ஆதரவு பிரிவு" },
                             { en: "WOMEN HELPLINE", ta: "பெண்கள் உதவி எண்" },
                             { en: "PUBLIC SAFETY", ta: "பொது பாதுகாப்பு" },
-                            { en: "TRAFFIC NEWS", ta: "போக்குவரத்து தகவல்கள்" },
-                            { en: "COMMUNITY OUTREACH", ta: "சமூக உதவி" },
-                            { en: "AWARDS & RECOGNITION", ta: "விருதுகள் & அங்கீகாரம்" },
-                            { en: "POLICE ADMINISTRATION", ta: "காவல் நிர்வாகம்" },
-                            { en: "GOVERNMENT UPDATE", ta: "அரசு அறிவிப்புகள்" },
-                            { en: "TRENDING NEWS", ta: "பிரபலமான செய்திகள்" },
-                            { en: "GENERAL NEWS", ta: "பொதுச் செய்திகள்" },
-                            { en: "COMPLAINT PORTAL", ta: "புகார் மையம்" }
+                            { en: "COMMUNITY OUTREACH", ta: "சமூக உதவி" }
                           ];
                           const found = defaults.find(c => c.en === val) || { en: val, ta: val };
                           setEditingItem({ ...editingItem, category_en: found.en, category_ta: found.ta });
                         }}
                         className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-855 outline-none text-xs text-slate-855 dark:text-white p-3 rounded-xl focus:border-brand-gold/50 cursor-pointer font-bold"
                       >
+                        <option value="">-- Select Category & Submenu --</option>
                         <optgroup label="🚨 CRIME CATEGORY & SUBMENUS">
                           <option value="CRIME">CRIME (Main Category)</option>
                           <option value="WANTED CRIMINALS">↳ WANTED CRIMINALS</option>
@@ -3017,19 +3005,9 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                           <option value="WOMEN HELPLINE">↳ WOMEN HELPLINE</option>
                         </optgroup>
 
-                        <optgroup label="👁️ PUBLIC SAFETY & TRAFFIC & OUTREACH">
+                        <optgroup label="👁️ PUBLIC SAFETY & OUTREACH">
                           <option value="PUBLIC SAFETY">PUBLIC SAFETY</option>
-                          <option value="TRAFFIC NEWS">TRAFFIC NEWS</option>
                           <option value="COMMUNITY OUTREACH">COMMUNITY OUTREACH</option>
-                        </optgroup>
-
-                        <optgroup label="📰 POLICE & GOVERNMENT UPDATES">
-                          <option value="GENERAL NEWS">GENERAL NEWS</option>
-                          <option value="POLICE ADMINISTRATION">POLICE ADMINISTRATION</option>
-                          <option value="AWARDS & RECOGNITION">AWARDS & RECOGNITION</option>
-                          <option value="GOVERNMENT UPDATE">GOVERNMENT UPDATE</option>
-                          <option value="TRENDING NEWS">TRENDING NEWS</option>
-                          <option value="COMPLAINT PORTAL">COMPLAINT PORTAL</option>
                         </optgroup>
                       </select>
                     </div>
@@ -3040,7 +3018,8 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                       <input
                         type="text"
                         disabled
-                        value={editingItem.category_ta || "பொதுச் செய்திகள்"}
+                        placeholder="பிரிவை தேர்ந்தெடுக்கவும் (தானியங்கி)"
+                        value={editingItem.category_ta || ""}
                         className="w-full bg-stone-100 dark:bg-stone-905 border border-stone-250 dark:border-stone-800 outline-none text-xs text-stone-500 p-3 rounded-xl cursor-not-allowed"
                       />
                     </div>

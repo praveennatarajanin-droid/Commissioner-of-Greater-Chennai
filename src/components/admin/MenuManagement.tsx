@@ -969,36 +969,43 @@ function CMSPageEditor({
                   <div className="space-y-1">
                     <label>Category (English)</label>
                     <select
-                      value={localArticle.category_en || "GENERAL NEWS"}
+                      value={localArticle.category_en || ""}
                       onChange={(e) => {
                         const val = e.target.value;
+                        if (!val) {
+                          setLocalArticle({ ...localArticle, category_en: "", category_ta: "" });
+                          return;
+                        }
                         const defaults = [
-                          { en: "AWARDS & RECOGNITION", ta: "விருதுகள் & அங்கீகாரம்" },
-                          { en: "POLICE ADMINISTRATION", ta: "காவல் நிர்வாகம்" },
-                          { en: "GOVERNMENT UPDATE", ta: "அரசு அறிவிப்புகள்" },
-                          { en: "TRENDING NEWS", ta: "பிரபலமான செய்திகள்" },
-                          { en: "GENERAL NEWS", ta: "பொதுச் செய்திகள்" },
-                          { en: "TRAFFIC NEWS", ta: "போக்குவரத்து தகவல்கள்" },
                           { en: "CRIME", ta: "குற்றம்" },
+                          { en: "WANTED CRIMINALS", ta: "தேடப்படும் குற்றவாளிகள்" },
+                          { en: "MISSING PERSONS", ta: "காணாமல் போனவர்கள்" },
                           { en: "CYBER SAFETY", ta: "இணைய பாதுகாப்பு" },
+                          { en: "CYBER AWARENESS", ta: "சைபர் விழிப்புணர்வு" },
+                          { en: "ONLINE FRAUD", ta: "ஆன்லைன் மோசடி" },
                           { en: "WOMEN SAFETY", ta: "பெண்கள் பாதுகாப்பு" },
+                          { en: "PINK PATROL", ta: "பிங்க் ரோந்து" },
+                          { en: "AVAL SUPPORT WING", ta: "அவள் ஆதரவு பிரிவு" },
+                          { en: "WOMEN HELPLINE", ta: "பெண்கள் உதவி எண்" },
                           { en: "PUBLIC SAFETY", ta: "பொது பாதுகாப்பு" },
-                          { en: "COMMUNITY OUTREACH", ta: "சமூக அவுட்ரீச்" }
+                          { en: "COMMUNITY OUTREACH", ta: "சமூக உதவி" }
                         ];
-                        const found = defaults.find(d => d.en === val) || { en: "GENERAL NEWS", ta: "பொதுச் செய்திகள்" };
+                        const found = defaults.find(d => d.en === val) || { en: val, ta: val };
                         setLocalArticle({ ...localArticle, category_en: found.en, category_ta: found.ta });
                       }}
                       className="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:border-[#1e40af] focus:ring-2 focus:ring-[#1e40af]/10 bg-white cursor-pointer"
                     >
-                      <option value="AWARDS & RECOGNITION">AWARDS & RECOGNITION</option>
-                      <option value="POLICE ADMINISTRATION">POLICE ADMINISTRATION</option>
-                      <option value="GOVERNMENT UPDATE">GOVERNMENT UPDATE</option>
-                      <option value="TRENDING NEWS">TRENDING NEWS</option>
-                      <option value="GENERAL NEWS">GENERAL NEWS</option>
-                      <option value="TRAFFIC NEWS">TRAFFIC NEWS</option>
+                      <option value="">-- Select Category --</option>
                       <option value="CRIME">CRIME</option>
+                      <option value="WANTED CRIMINALS">WANTED CRIMINALS</option>
+                      <option value="MISSING PERSONS">MISSING PERSONS</option>
                       <option value="CYBER SAFETY">CYBER SAFETY</option>
+                      <option value="CYBER AWARENESS">CYBER AWARENESS</option>
+                      <option value="ONLINE FRAUD">ONLINE FRAUD</option>
                       <option value="WOMEN SAFETY">WOMEN SAFETY</option>
+                      <option value="PINK PATROL">PINK PATROL</option>
+                      <option value="AVAL SUPPORT WING">AVAL SUPPORT WING</option>
+                      <option value="WOMEN HELPLINE">WOMEN HELPLINE</option>
                       <option value="PUBLIC SAFETY">PUBLIC SAFETY</option>
                       <option value="COMMUNITY OUTREACH">COMMUNITY OUTREACH</option>
                     </select>

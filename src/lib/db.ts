@@ -850,6 +850,9 @@ class JSONDatabaseManager {
           return;
         }
         const raw = fs.readFileSync(JSON_DB_PATH, "utf8");
+        if (!raw || !raw.trim()) {
+          return;
+        }
         const parsed = JSON.parse(raw);
         this.data = { ...this.data, ...parsed };
         this.lastMtime = stat.mtimeMs;
@@ -1059,10 +1062,27 @@ class JSONDatabaseManager {
         }
         return;
       } catch (e) {
-        console.error("Error reading JSON database file, re-seeding...", e);
+        // Concurrency retry on partial read
+        for (let retry = 0; retry < 3; retry++) {
+          try {
+            const end = Date.now() + 15;
+            while (Date.now() < end) {}
+            const retryRaw = fs.readFileSync(JSON_DB_PATH, "utf8");
+            if (retryRaw && retryRaw.trim()) {
+              const retryParsed = JSON.parse(retryRaw);
+              this.data = { ...this.data, ...retryParsed };
+              this.lastMtime = fs.statSync(JSON_DB_PATH).mtimeMs;
+              this.isLoaded = true;
+              return;
+            }
+          } catch {}
+        }
+        // If in-memory data exists, silently preserve it
+        return;
       }
+    } else {
+      this.seed();
     }
-    this.seed();
   }
 
   private save() {
@@ -1072,7 +1092,24 @@ class JSONDatabaseManager {
         fs.mkdirSync(dir, { recursive: true });
       }
       const serialized = JSON.stringify(this.data, null, 2);
-      fs.writeFileSync(JSON_DB_PATH, serialized, "utf8");
+      const tempPath = `${JSON_DB_PATH}.${process.pid}.${Date.now()}.${Math.random().toString(36).substring(2, 8)}.tmp`;
+      fs.writeFileSync(tempPath, serialized, "utf8");
+      
+      let renamed = false;
+      for (let attempt = 0; attempt < 5; attempt++) {
+        try {
+          fs.renameSync(tempPath, JSON_DB_PATH);
+          renamed = true;
+          break;
+        } catch {
+          const end = Date.now() + 10;
+          while (Date.now() < end) {}
+        }
+      }
+      if (!renamed) {
+        fs.writeFileSync(JSON_DB_PATH, serialized, "utf8");
+        try { fs.unlinkSync(tempPath); } catch {}
+      }
       this.lastMtime = fs.statSync(JSON_DB_PATH).mtimeMs;
       this.lastChecked = Date.now();
       this.isLoaded = true;
@@ -1082,6 +1119,17 @@ class JSONDatabaseManager {
   }
 
   private seed() {
+    // Permanent Data Protection Guard: NEVER overwrite if db.json already exists with content
+    if (fs.existsSync(JSON_DB_PATH)) {
+      try {
+        const stat = fs.statSync(JSON_DB_PATH);
+        if (stat.size > 100) {
+          console.warn("Safety Guard: db.json exists on disk with active data. Aborting destructive re-seed.");
+          return;
+        }
+      } catch {}
+    }
+
     this.data.users = [
       { id: 1, username: "Digital_TN_GovMaster", passwordHash: hashPassword("govmaster100"), role: "superadmin", email: "superadmin@chennaiguardian.in", status: "active", createdAt: new Date().toISOString(), lastLogin: null },
       { id: 2, username: "newseditormanager", passwordHash: hashPassword("editor00100"), role: "admin", email: "admin@chennaiguardian.in", status: "active", createdAt: new Date().toISOString(), lastLogin: null },
