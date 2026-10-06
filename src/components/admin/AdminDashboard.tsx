@@ -46,7 +46,8 @@ import {
   BookOpen,
   ChevronDown,
   ShieldCheck,
-  HelpCircle
+  HelpCircle,
+  BarChart3
 } from "lucide-react";
 import { DBUser, DBNewsItem, DBTickerItem, DBSliderItem, DBCommissionerProfile, DBThemeSettings, DBMenuItem, DBContact, DBTtsSettings, DBVideoItem, DBAlertItem, DBAlertSettings } from "@/lib/db";
 import dynamic from "next/dynamic";
@@ -60,6 +61,7 @@ import PoliceStationsManagement from "./PoliceStationsManagement";
 import CitizenServicesManagement from "./CitizenServicesManagement";
 import FaqManagement from "./FaqManagement";
 import SecurityStatusIndicator from "./SecurityStatusIndicator";
+import MonthlyReportManagement from "./MonthlyReportManagement";
 
 const RichTextEditor = dynamic(() => import("./RichTextEditor"), {
   loading: () => <div className="h-64 bg-stone-50 dark:bg-stone-900 animate-pulse rounded-2xl w-full" />,
@@ -565,7 +567,9 @@ const getTabTitle = (tab: string): string => {
     theme: "Branding Theme",
     footer: "Footer Management",
     settings: "Console Config",
-    "page-editor": "Page Editor"
+    "page-editor": "Page Editor",
+    "monthly-report": "Monthly Report",
+    reports: "Monthly Report"
   };
   return titles[tab] || tab.split("-").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
 };
@@ -578,7 +582,7 @@ interface AdminDashboardProps {
   onTabChange?: (tab: any) => void;
 }
 
-type TabType = "dashboard" | "news" | "ticker" | "slider" | "profile" | "theme" | "footer" | "settings" | "videos" | "alerts" | "media" | "citizen-services" | "police-stations" | "emergency-contacts" | "department-links" | "menu-management" | "page-editor" | "superadmin" | "web-stories" | "seo" | "faqs";
+type TabType = "dashboard" | "news" | "ticker" | "slider" | "profile" | "theme" | "footer" | "settings" | "videos" | "alerts" | "media" | "citizen-services" | "police-stations" | "emergency-contacts" | "department-links" | "menu-management" | "page-editor" | "superadmin" | "web-stories" | "seo" | "faqs" | "monthly-report" | "reports";
 
 export default function AdminDashboard({ user, onLogout, activeTab: propActiveTab, subPage, onTabChange }: AdminDashboardProps) {
   const displayName = user.role === "superadmin" ? "Super Admin" : user.role === "admin" ? "Admin" : user.username;
@@ -743,6 +747,18 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
       label: "User Management",
       defaultTitle: "User Roles | Greater Chennai Police",
       defaultDesc: "Administrative user management system."
+    },
+    "monthly-report": {
+      contentType: "monthly_reports",
+      label: "Monthly Report",
+      defaultTitle: "Monthly Report | Greater Chennai Police",
+      defaultDesc: "Official crime and administrative monthly report dashboard."
+    },
+    reports: {
+      contentType: "monthly_reports",
+      label: "Monthly Report",
+      defaultTitle: "Monthly Report | Greater Chennai Police",
+      defaultDesc: "Official crime and administrative monthly report dashboard."
     }
   };
 
@@ -967,7 +983,9 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
       "emergency-contacts",
       "department-links",
       "faqs",
-      "profile"
+      "profile",
+      "monthly-report",
+      "reports"
     ];
 
     if (r === "ADMIN" || r === "ADMINISTRATOR") {
@@ -1843,6 +1861,12 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                 ]
               },
               {
+                section: "Reports & Analytics",
+                items: [
+                  { tab: "monthly-report", icon: <BarChart3 className="w-5 h-5" />, label: "Monthly Report" }
+                ]
+              },
+              {
                 section: "Public Registry",
                 items: [
                   { tab: "citizen-services", icon: <ShieldCheck className="w-5 h-5" />, label: "Citizen Services" },
@@ -1890,10 +1914,10 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                             setIsSidebarOpen(false);
                           }}
                           className={`w-full flex items-center justify-between px-4 py-3 rounded-[12px] text-[15px] font-semibold transition-all duration-200 relative group ${isAllowed
-                              ? isActive
-                                ? "bg-[#1E40AF] text-white shadow-md cursor-pointer"
-                                : "hover:bg-[#E8F0FE] hover:text-[#1E40AF] text-[#64748B] cursor-pointer"
-                              : "text-slate-400 hover:bg-slate-100/60 cursor-pointer opacity-70"
+                            ? isActive
+                              ? "bg-[#1E40AF] text-white shadow-md cursor-pointer"
+                              : "hover:bg-[#E8F0FE] hover:text-[#1E40AF] text-[#64748B] cursor-pointer"
+                            : "text-slate-400 hover:bg-slate-100/60 cursor-pointer opacity-70"
                             }`}
                         >
                           <div className="flex items-center gap-3">
@@ -1977,10 +2001,10 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
               disabled={clearingCache}
               title="Clear Next.js page cache — forces all frontend pages to re-fetch fresh data"
               className={`hidden sm:flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold border transition-all duration-200 shadow-sm cursor-pointer ${cacheCleared
-                  ? "bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100"
-                  : clearingCache
-                    ? "bg-amber-50 border-amber-200 text-amber-700 cursor-wait"
-                    : "bg-white border-[#E5E7EB] text-[#64748B] hover:bg-orange-50 hover:border-orange-300 hover:text-orange-700"
+                ? "bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100"
+                : clearingCache
+                  ? "bg-amber-50 border-amber-200 text-amber-700 cursor-wait"
+                  : "bg-white border-[#E5E7EB] text-[#64748B] hover:bg-orange-50 hover:border-orange-300 hover:text-orange-700"
                 }`}
             >
               {clearingCache ? (
@@ -2838,8 +2862,8 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                                 <button
                                   onClick={() => togglePublish(item)}
                                   className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wider transition cursor-pointer ${item.published === 1
-                                      ? "bg-emerald-550/10 border border-emerald-550/25 text-emerald-605 dark:text-emerald-400 hover:bg-emerald-500/20"
-                                      : "bg-amber-550/10 border border-amber-550/25 text-amber-605 dark:text-amber-400 hover:bg-amber-500/20"
+                                    ? "bg-emerald-550/10 border border-emerald-550/25 text-emerald-605 dark:text-emerald-400 hover:bg-emerald-500/20"
+                                    : "bg-amber-550/10 border border-amber-550/25 text-amber-605 dark:text-amber-400 hover:bg-amber-500/20"
                                     }`}
                                 >
                                   {item.published === 1 ? "Published" : "Draft"}
@@ -3561,8 +3585,8 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                                 onMouseEnter={() => setHoveredAiField(fieldKey)}
                                 onFocus={() => setHoveredAiField(fieldKey)}
                                 className={`p-3 border rounded-xl transition ${hoveredAiField === fieldKey
-                                    ? "bg-stone-50 dark:bg-stone-955/40 border-brand-gold/40 shadow-sm"
-                                    : "border-slate-100 dark:border-stone-850 bg-white dark:bg-stone-900"
+                                  ? "bg-stone-50 dark:bg-stone-955/40 border-brand-gold/40 shadow-sm"
+                                  : "border-slate-100 dark:border-stone-850 bg-white dark:bg-stone-900"
                                   }`}
                               >
                                 <div className="flex items-center justify-between gap-3 mb-1.5">
@@ -5706,8 +5730,8 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                     >
                       <span className="capitalize">{filter === "removed" ? "History" : filter}</span>
                       <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-black ${alertsFilter === filter
-                          ? "bg-brand-gold/20 text-brand-gold border border-brand-gold/30"
-                          : "bg-stone-800 text-stone-500"
+                        ? "bg-brand-gold/20 text-brand-gold border border-brand-gold/30"
+                        : "bg-stone-800 text-stone-500"
                         }`}>
                         {count}
                       </span>
@@ -5733,8 +5757,8 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                       <div
                         key={item.id}
                         className={`p-4 rounded-xl border bg-stone-900 flex flex-col md:flex-row md:items-center justify-between gap-4 transition text-left ${item.pinned
-                            ? "border-brand-gold bg-brand-gold/5"
-                            : "border-stone-850 hover:bg-stone-850/40"
+                          ? "border-brand-gold bg-brand-gold/5"
+                          : "border-stone-850 hover:bg-stone-850/40"
                           }`}
                       >
                         <div className="space-y-1.5 flex-grow min-w-0">
@@ -5771,8 +5795,8 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                             <button
                               onClick={() => updateAlert(item, { approved: item.approved ? 0 : 1 })}
                               className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition cursor-pointer border ${item.approved
-                                  ? "bg-stone-950 border-stone-800 text-stone-400 hover:text-white"
-                                  : "bg-emerald-500/10 border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20"
+                                ? "bg-stone-950 border-stone-800 text-stone-400 hover:text-white"
+                                : "bg-emerald-500/10 border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20"
                                 }`}
                             >
                               {item.approved ? "Revoke Approval" : "Approve & Publish"}
@@ -5784,8 +5808,8 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                             <button
                               onClick={() => updateAlert(item, { pinned: item.pinned ? 0 : 1 })}
                               className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition cursor-pointer border ${item.pinned
-                                  ? "bg-brand-gold text-stone-955 border-brand-gold-dark hover:bg-brand-gold-dark"
-                                  : "bg-stone-950 border-stone-800 text-stone-400 hover:text-white"
+                                ? "bg-brand-gold text-stone-955 border-brand-gold-dark hover:bg-brand-gold-dark"
+                                : "bg-stone-950 border-stone-800 text-stone-400 hover:text-white"
                                 }`}
                             >
                               {item.pinned ? "Pinned ★" : "Pin Alert"}
@@ -5796,8 +5820,8 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                           <button
                             onClick={() => updateAlert(item, { removed: item.removed ? 0 : 1 })}
                             className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition cursor-pointer border ${item.removed
-                                ? "bg-stone-950 border-stone-800 text-stone-400 hover:text-white"
-                                : "bg-stone-950 border-stone-800 text-stone-400 hover:text-rose-400"
+                              ? "bg-stone-950 border-stone-800 text-stone-400 hover:text-white"
+                              : "bg-stone-950 border-stone-800 text-stone-400 hover:text-rose-400"
                               }`}
                           >
                             {item.removed ? "Restore to Inbox" : "Remove Alert"}
@@ -6139,6 +6163,14 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
           {activeTab === "citizen-services" && (
             <div className="space-y-6 w-full">
               <CitizenServicesManagement user={user} onTabChange={(t: string) => setActiveTab(t as TabType)} />
+              {renderSeoCard()}
+            </div>
+          )}
+
+          {/* ==================== TAB: MONTHLY REPORT ==================== */}
+          {(activeTab === "monthly-report" || activeTab === "reports") && (
+            <div className="space-y-6 w-full">
+              <MonthlyReportManagement user={user} />
               {renderSeoCard()}
             </div>
           )}
@@ -6661,8 +6693,8 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                           }
                         }}
                         className={`group relative rounded-xl border overflow-hidden cursor-pointer transition-all duration-200 p-1 ${editingItem?.image === file.url
-                            ? "border-brand-gold bg-brand-gold/5 shadow"
-                            : "border-stone-200 dark:border-stone-805 hover:border-brand-gold/50"
+                          ? "border-brand-gold bg-brand-gold/5 shadow"
+                          : "border-stone-200 dark:border-stone-805 hover:border-brand-gold/50"
                           }`}
                       >
                         <div className="relative aspect-video w-full rounded-lg overflow-hidden bg-stone-100 dark:bg-stone-955 border border-stone-100 dark:border-stone-900">

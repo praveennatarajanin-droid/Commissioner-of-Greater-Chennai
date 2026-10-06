@@ -18,7 +18,7 @@ function getAllowedTabs(role: string): string[] {
     "theme", "settings", "videos", "alerts", "media", "seo", "users", 
     "logs", "police-stations", "emergency-contacts", "department-links", 
     "menu-management", "page-editor", "footer", "web-stories", "citizen-services",
-    "faqs"
+    "faqs", "monthly-report", "reports"
   ];
 }
 
