@@ -13,12 +13,50 @@ interface PageProps {
 }
 
 function getAllowedTabs(role: string): string[] {
+  const r = (role || "").toUpperCase().trim().replace(" ", "_");
+  if (r === "SUPER_ADMIN" || r === "SUPERADMIN") {
+    return [
+      "dashboard", "superadmin", "news", "ticker", "slider", "profile", 
+      "theme", "settings", "videos", "alerts", "media", "seo", "users", 
+      "logs", "police-stations", "emergency-contacts", "department-links", 
+      "menu-management", "page-editor", "footer", "web-stories", "citizen-services",
+      "faqs", "monthly-report", "reports"
+    ];
+  }
+  if (r === "ADMIN" || r === "ADMINISTRATOR") {
+    return [
+      "dashboard",
+      "news",
+      "citizen-services",
+      "police-stations",
+      "emergency-contacts",
+      "department-links",
+      "faqs",
+      "profile",
+      "monthly-report",
+      "reports"
+    ];
+  }
+  if (r === "CONTENT_MANAGER" || r === "NEWS_EDITOR" || r === "EDITOR") {
+    return ["dashboard", "news", "media", "web-stories", "profile"];
+  }
+  if (r === "STATION_MANAGER") {
+    return ["dashboard", "police-stations", "citizen-services", "emergency-contacts", "profile"];
+  }
+  if (r === "MEDIA_MANAGER") {
+    return ["dashboard", "media", "videos", "slider", "profile"];
+  }
   return [
-    "dashboard", "superadmin", "news", "ticker", "slider", "profile", 
-    "theme", "settings", "videos", "alerts", "media", "seo", "users", 
-    "logs", "police-stations", "emergency-contacts", "department-links", 
-    "menu-management", "page-editor", "footer", "web-stories", "citizen-services",
-    "faqs", "monthly-report", "reports"
+    "dashboard",
+    "news",
+    "citizen-services",
+    "police-stations",
+    "emergency-contacts",
+    "department-links",
+    "faqs",
+    "profile",
+    "monthly-report",
+    "reports"
   ];
 }
 
@@ -131,7 +169,5 @@ export default function ControllerPage({ params }: PageProps) {
     </AuthProvider>
   );
 }
-
-export const dynamic = "force-dynamic";
 
 

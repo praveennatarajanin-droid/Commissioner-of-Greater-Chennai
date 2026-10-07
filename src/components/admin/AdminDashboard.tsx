@@ -1889,39 +1889,34 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                 ]
               }
             ] as { section: string; items: { tab: TabType; icon: React.ReactNode; label: string }[] }[]).map(({ section, items }) => {
+              const visibleItems = items.filter(it => hasModulePermission(it.tab, "view"));
+              if (visibleItems.length === 0) return null;
               return (
                 <div key={section} className="space-y-1">
                   <h4 className="px-4 text-[13px] font-bold text-[#64748B] uppercase tracking-wider select-none mb-2">
                     {section}
                   </h4>
                   <div className="space-y-1">
-                    {items.map(({ tab, icon, label }) => {
-                      const isAllowed = hasModulePermission(tab, "view");
+                    {visibleItems.map(({ tab, icon, label }) => {
                       const isActive = activeTab === tab;
                       return (
                         <button
                           key={tab}
                           data-active={isActive}
-                          title={isAllowed ? label : `${label} (Super Admin Access Only)`}
+                          title={label}
                           onClick={() => {
-                            if (!isAllowed) {
-                              triggerAlert("error", `Access Restricted: "${label}" module is reserved exclusively for Super Admin.`);
-                              return;
-                            }
                             setActiveTab(tab);
                             setEditingItem(null);
                             setIsAdding(false);
                             setIsSidebarOpen(false);
                           }}
-                          className={`w-full flex items-center justify-between px-4 py-3 rounded-[12px] text-[15px] font-semibold transition-all duration-200 relative group ${isAllowed
-                            ? isActive
-                              ? "bg-[#1E40AF] text-white shadow-md cursor-pointer"
-                              : "hover:bg-[#E8F0FE] hover:text-[#1E40AF] text-[#64748B] cursor-pointer"
-                            : "text-slate-400 hover:bg-slate-100/60 cursor-pointer opacity-70"
+                          className={`w-full flex items-center justify-between px-4 py-3 rounded-[12px] text-[15px] font-semibold transition-all duration-200 relative group cursor-pointer ${isActive
+                            ? "bg-[#1E40AF] text-white shadow-md"
+                            : "hover:bg-[#E8F0FE] hover:text-[#1E40AF] text-[#64748B]"
                             }`}
                         >
                           <div className="flex items-center gap-3">
-                            <span className={isActive ? "!text-white" : isAllowed ? "text-[#64748B] group-hover:text-[#1E40AF] transition-colors" : "text-slate-400"}>
+                            <span className={isActive ? "!text-white" : "text-[#64748B] group-hover:text-[#1E40AF] transition-colors"}>
                               {icon}
                             </span>
                             <span className={`leading-none ${isActive ? "!text-white font-bold" : ""}`}>{label}</span>
@@ -2023,25 +2018,29 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
             </button>
 
             {/* Notification Alerts Icon */}
-            <button
-              onClick={() => setActiveTab("alerts")}
-              className="p-2 text-[#64748B] hover:text-[#1E40AF] hover:bg-[#E8F0FE] rounded-xl cursor-pointer transition relative animate-fadeIn"
-              title="Official Alerts"
-              aria-label="Official Alerts"
-            >
-              <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white animate-pulse" />
-              <Radio className="w-4 h-4 sm:w-5 sm:h-5" />
-            </button>
+            {hasModulePermission("alerts", "view") && (
+              <button
+                onClick={() => setActiveTab("alerts")}
+                className="p-2 text-[#64748B] hover:text-[#1E40AF] hover:bg-[#E8F0FE] rounded-xl cursor-pointer transition relative animate-fadeIn"
+                title="Official Alerts"
+                aria-label="Official Alerts"
+              >
+                <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white animate-pulse" />
+                <Radio className="w-4 h-4 sm:w-5 sm:h-5" />
+              </button>
+            )}
 
             {/* Settings Icon - Visible on tablet/desktop */}
-            <button
-              onClick={() => setActiveTab("settings")}
-              className="hidden sm:flex p-2 text-[#64748B] hover:text-[#1E40AF] hover:bg-[#E8F0FE] rounded-xl cursor-pointer transition"
-              title="Console Config"
-              aria-label="Console Config"
-            >
-              <Settings className="w-4 h-4 sm:w-5 sm:h-5" />
-            </button>
+            {hasModulePermission("settings", "view") && (
+              <button
+                onClick={() => setActiveTab("settings")}
+                className="hidden sm:flex p-2 text-[#64748B] hover:text-[#1E40AF] hover:bg-[#E8F0FE] rounded-xl cursor-pointer transition"
+                title="Console Config"
+                aria-label="Console Config"
+              >
+                <Settings className="w-4 h-4 sm:w-5 sm:h-5" />
+              </button>
+            )}
 
             {/* Responsive User Profile & Account Menu */}
             <div className="relative" ref={profileMenuRef}>
@@ -2097,27 +2096,31 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                       <span>Overview Dashboard</span>
                     </button>
 
-                    <button
-                      onClick={() => {
-                        setActiveTab("profile");
-                        setIsProfileMenuOpen(false);
-                      }}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-slate-700 hover:text-[#1E40AF] hover:bg-blue-50 rounded-lg transition text-left cursor-pointer"
-                    >
-                      <User className="w-3.5 h-3.5 text-[#1E40AF]" />
-                      <span>Profile Settings</span>
-                    </button>
+                    {hasModulePermission("profile", "view") && (
+                      <button
+                        onClick={() => {
+                          setActiveTab("profile");
+                          setIsProfileMenuOpen(false);
+                        }}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-slate-700 hover:text-[#1E40AF] hover:bg-blue-50 rounded-lg transition text-left cursor-pointer"
+                      >
+                        <User className="w-3.5 h-3.5 text-[#1E40AF]" />
+                        <span>Profile Settings</span>
+                      </button>
+                    )}
 
-                    <button
-                      onClick={() => {
-                        setActiveTab("settings");
-                        setIsProfileMenuOpen(false);
-                      }}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-slate-700 hover:text-[#1E40AF] hover:bg-blue-50 rounded-lg transition text-left cursor-pointer"
-                    >
-                      <Settings className="w-3.5 h-3.5 text-[#1E40AF]" />
-                      <span>Console Config</span>
-                    </button>
+                    {hasModulePermission("settings", "view") && (
+                      <button
+                        onClick={() => {
+                          setActiveTab("settings");
+                          setIsProfileMenuOpen(false);
+                        }}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-slate-700 hover:text-[#1E40AF] hover:bg-blue-50 rounded-lg transition text-left cursor-pointer"
+                      >
+                        <Settings className="w-3.5 h-3.5 text-[#1E40AF]" />
+                        <span>Console Config</span>
+                      </button>
+                    )}
 
                     <a
                       href="/"
