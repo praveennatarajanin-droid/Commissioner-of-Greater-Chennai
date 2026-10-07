@@ -568,9 +568,7 @@ export default function PoliceStationsManagement({ user, onTabChange }: PoliceSt
                   className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 p-2.5 rounded-xl text-xs font-bold text-slate-800 dark:text-white outline-none focus:border-[#2e3192] cursor-pointer"
                 >
                   <option value="Law & Order">Law & Order</option>
-                  <option value="AWPS">AWPS (All Women Police Station)</option>
                   <option value="Traffic">Traffic</option>
-                  <option value="Special">Special</option>
                 </select>
               </div>
 

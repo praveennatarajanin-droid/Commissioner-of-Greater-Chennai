@@ -8,7 +8,7 @@ interface PoliceStation {
   id: string;
   name_en: string;
   name_ta: string;
-  type: "law_order" | "traffic" | "awps";
+  type: "law_order" | "traffic";
   address_en: string;
   address_ta: string;
   incharge_en: string;
@@ -163,7 +163,7 @@ const stationsData: PoliceStation[] = [
     id: "g1-vepery-awps",
     name_en: "G-1 Vepery All Women Police Station (AWPS)",
     name_ta: "G-1 வேப்பேரி அனைத்து மகளிர் காவல் நிலையம்",
-    type: "awps",
+    type: "law_order",
     address_en: "122, Vepery High Road, Vepery, Chennai - 600007",
     address_ta: "122, வேப்பேரி நெடுஞ்சாலை, வேப்பேரி, சென்னை - 600007",
     incharge_en: "Thirumathi. S. Saraswathi",
@@ -180,7 +180,7 @@ const stationsData: PoliceStation[] = [
     id: "c1-flower-bazaar-awps",
     name_en: "C-1 Flower Bazaar All Women Police Station (AWPS)",
     name_ta: "C-1 பூக்கடை அனைத்து மகளிர் காவல் நிலையம்",
-    type: "awps",
+    type: "law_order",
     address_en: "NSC Bose Road, Flower Bazaar, Chennai - 600001",
     address_ta: "என்.எஸ்.சி போஸ் சாலை, பூக்கடை, சென்னை - 600001",
     incharge_en: "Thirumathi. K. Meenakshi",
@@ -197,7 +197,7 @@ const stationsData: PoliceStation[] = [
     id: "e1-mylapore-awps",
     name_en: "E-1 Mylapore All Women Police Station (AWPS)",
     name_ta: "E-1 மயிலாப்பூர் அனைத்து மகளிர் காவல் நிலையம்",
-    type: "awps",
+    type: "law_order",
     address_en: "Kutchery Road, Mylapore, Chennai - 600004",
     address_ta: "கச்சேரி சாலை, மயிலாப்பூர், சென்னை - 600004",
     incharge_en: "Thirumathi. P. Chitra",
@@ -214,7 +214,7 @@ const stationsData: PoliceStation[] = [
     id: "r1-tnagar-awps",
     name_en: "R-1 T. Nagar All Women Police Station (AWPS)",
     name_ta: "R-1 தியாகராய நகர் அனைத்து மகளிர் காவல் நிலையம்",
-    type: "awps",
+    type: "law_order",
     address_en: "Madley Road, T. Nagar, Chennai - 600017",
     address_ta: "மேட்லி சாலை, தியாகராய நகர், சென்னை - 600017",
     incharge_en: "Thirumathi. M. Kavitha",
@@ -232,7 +232,7 @@ const stationsData: PoliceStation[] = [
 export default function PoliceStationDirectory() {
   const { language } = useTranslation();
   const [searchVal, setSearchVal] = useState("");
-  const [activeTab, setActiveTab] = useState<"all" | "law_order" | "traffic" | "awps">("all");
+  const [activeTab, setActiveTab] = useState<"all" | "law_order" | "traffic">("all");
 
   const filteredStations = stationsData.filter((s) => {
     // 1. Filter by station type tab
@@ -302,16 +302,6 @@ export default function PoliceStationDirectory() {
         >
           {language === "ta" ? "போக்குவரத்து" : "Traffic"}
         </button>
-        <button
-          onClick={() => setActiveTab("awps")}
-          className={`px-4 py-2 rounded-full text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
-            activeTab === "awps"
-              ? "bg-brand-maroon dark:bg-brand-gold text-white dark:text-stone-955 shadow-md shadow-brand-maroon/10 dark:shadow-brand-gold/10"
-              : "bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-850 hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-300"
-          }`}
-        >
-          {language === "ta" ? "அனைத்து மகளிர்" : "AWPS (Women Safety)"}
-        </button>
       </div>
 
       {/* Directory Cards Grid */}
@@ -332,11 +322,7 @@ export default function PoliceStationDirectory() {
                 {/* Station card body */}
                 <div className="space-y-3.5">
                   <div className="flex items-start gap-2.5">
-                    {s.type === "awps" ? (
-                      <div className="w-8 h-8 rounded-lg bg-pink-500/10 text-pink-500 border border-pink-500/20 flex items-center justify-center shrink-0">
-                        <Award className="w-4 h-4" />
-                      </div>
-                    ) : s.type === "traffic" ? (
+                    {s.type === "traffic" ? (
                       <div className="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-500 border border-blue-500/20 flex items-center justify-center shrink-0">
                         <Map className="w-4 h-4" />
                       </div>
@@ -351,8 +337,7 @@ export default function PoliceStationDirectory() {
                         {name}
                       </h4>
                       <span className="inline-block mt-1 text-[8.5px] font-black uppercase tracking-wider text-stone-500 dark:text-stone-400">
-                        {s.type === "awps" ? (language === "ta" ? "அனைத்து மகளிர் காவல்" : "All Women Police Station") :
-                         s.type === "traffic" ? (language === "ta" ? "போக்குவரத்து காவல்" : "Traffic Unit") :
+                        {s.type === "traffic" ? (language === "ta" ? "போக்குவரத்து காவல்" : "Traffic Unit") :
                          (language === "ta" ? "சட்டம் & ஒழுங்கு" : "Law & Order Unit")}
                       </span>
                     </div>

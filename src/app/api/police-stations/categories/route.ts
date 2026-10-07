@@ -4,8 +4,11 @@ import { db } from "@/lib/db";
 export async function GET() {
   try {
     const stations = await db.getPoliceStations();
-    const dbCategories = stations.map(s => s.category || s.station_type || s.type).filter(Boolean);
-    const standardCategories = ["Law & Order", "AWPS", "Traffic", "Special"];
+    const dbCategories = stations
+      .map(s => s.category || s.station_type || s.type)
+      .filter(Boolean)
+      .filter(c => c !== "AWPS" && c !== "Special");
+    const standardCategories = ["Law & Order", "Traffic"];
     const categories = Array.from(new Set([...standardCategories, ...dbCategories]));
     return NextResponse.json({ success: true, categories });
   } catch (err: any) {
