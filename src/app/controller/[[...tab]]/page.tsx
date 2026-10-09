@@ -65,29 +65,10 @@ function ControllerContent({ params }: PageProps) {
   const router = useRouter();
   const { authenticated, user, loading, logout, refreshSession } = useAuth();
 
-  // Dynamic base path detection (/admin, /control-center, or /controller)
-  const [basePath, setBasePath] = useState(() => {
-    if (typeof window !== "undefined") {
-      const currentPath = window.location.pathname;
-      const firstSegment = "/" + currentPath.split("/").filter(Boolean)[0];
-      if (firstSegment && firstSegment !== "/") {
-        return firstSegment;
-      }
-    }
-    return "/admin";
-  });
+  // Base path is strictly /controller
+  const basePath = "/controller";
 
   const activeTabName = tab && tab.length > 0 ? tab[0] : undefined;
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const currentPath = window.location.pathname;
-      const firstSegment = "/" + currentPath.split("/").filter(Boolean)[0];
-      if (firstSegment && firstSegment !== "/") {
-        setBasePath(firstSegment);
-      }
-    }
-  }, []);
 
   useEffect(() => {
     document.title = "GCP Admin Control Panel";

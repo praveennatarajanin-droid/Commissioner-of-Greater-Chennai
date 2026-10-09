@@ -125,7 +125,7 @@ export default function SuperAdminConsole({ user, onTabChange }: SuperAdminConso
   const [activeSessions, setActiveSessions] = useState<any[]>([]);
   const [secEvents, setSecEvents] = useState<any[]>([]);
   const [secPolicyConfig, setSecPolicyConfig] = useState<any>({
-    admin_console_path: "/control-center",
+    admin_console_path: "/controller",
     session_timeout_minutes: 30,
     login_rate_limit: 5,
     max_failed_logins: 5,

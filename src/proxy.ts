@@ -65,52 +65,30 @@ export function proxy(request: NextRequest) {
     return response;
   }
 
-  // Obvious malicious scanner honeypot paths to block
+  // Obvious administrative, honeypot & scanner paths to block completely
   const blockedPaths = [
+    "/admin",
+    "/administrator",
+    "/control-center",
+    "/backend",
+    "/dashboard",
+    "/login",
+    "/login/admin",
+    "/superadmin",
     "/wp-admin",
     "/wp-login.php",
     "/cpanel",
     "/phpmyadmin",
-    "/administrator"
+    "/user/login"
   ];
 
-  // If path is an obvious scanner path, rewrite to 404
+  // If path is an unauthorized admin path or obvious scanner path, rewrite to 404
   const shouldBlock = blockedPaths.some(
     (path) => pathname.toLowerCase() === path || pathname.toLowerCase().startsWith(path + "/")
   );
 
   if (shouldBlock) {
     return NextResponse.rewrite(new URL("/404", request.url));
-  }
-
-  // Handle Admin URL routing (support /admin, /control-center, and /controller)
-  if (
-    pathname.toLowerCase() === "/admin" ||
-    pathname.toLowerCase().startsWith("/admin/") ||
-    pathname.toLowerCase() === "/control-center" ||
-    pathname.toLowerCase().startsWith("/control-center/")
-  ) {
-    const prefix = pathname.toLowerCase().startsWith("/admin") ? "/admin" : "/control-center";
-    const subPath = pathname.substring(prefix.length);
-    const targetUrl = new URL(`/controller${subPath}`, request.url);
-    const response = NextResponse.rewrite(targetUrl, {
-      request: {
-        headers: requestHeaders,
-      },
-    });
-
-    response.headers.set("Content-Security-Policy", contentSecurityPolicyHeaderValue);
-    response.headers.set("X-Frame-Options", "DENY");
-    response.headers.set("X-Content-Type-Options", "nosniff");
-    response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-    response.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=(self), payment=(), usb=(), screen-wake-lock=(), accelerometer=(), gyroscope=(), magnetometer=(), display-capture=()");
-    response.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
-    response.headers.set("Cross-Origin-Opener-Policy", "same-origin");
-    response.headers.set("Cross-Origin-Resource-Policy", "same-origin");
-    response.headers.set("X-Permitted-Cross-Domain-Policies", "none");
-    response.headers.set("X-XSS-Protection", "1; mode=block");
-    response.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive, noimageindex");
-    return response;
   }
 
   if (pathname.toLowerCase() === "/controller" || pathname.toLowerCase().startsWith("/controller/")) {

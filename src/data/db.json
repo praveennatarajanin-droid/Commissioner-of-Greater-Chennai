@@ -6840,6 +6840,26 @@
   ],
   "alerts": [
     {
+      "id": 4409,
+      "title": "Veeramani Case Raises Questions About Police Collusion and Accountability",
+      "summary": "Veeramani Case Raises Questions About Police Collusion and Accountability&nbsp;&nbsp;Frontline Magazine",
+      "category": "POLICE & LAW",
+      "source": "THE HINDU",
+      "source_name": "THE HINDU",
+      "source_url": "https://www.thehindu.com/",
+      "url": "https://news.google.com/rss/articles/CBMivwFBVV95cUxNampzNzBnSWg4S1R1cmtJV3Q4RzhLR3plZXh1bmZIaFk0elBCRDZUUFpDSXhubVdtM1RpNDZXSGNIdndlVFZSS1RnbnVnQm0tb1RrTV9vbWRYU1BETEtoc2wwVWVSbE0xR2xycDZOd196UXR5Y2xvN3JTSEtWcGlheHlVVV9sOF9RODZzS2E5YVRwQkhmcXZWc1ZnV3Vpb3hNT2xFZVVsaTNiTzRQa2ZzV19Cb21wc1h2SWl6cGdsMNIBxgFBVV95cUxPSVVlR3lyb2RfZlBWVmVtbER3RjBwanpkeUdHRllKSW1Xd25WanBxTzJRSUkzTGtHNFgyR2dJSlFKRl8yNE5VSmZEckJMQnhSUnAtREw2V24ybzc1MFdVVjBkVmRUYV95alZtLXRQZUc0dTRTTXU3V0ZZbks1OGx2SU4wdjJoM3pEd3U4VnVsNFlKVDFNUGhPM2JTZGxVTW4xMW0zbUwyRjU1a3BIZ3NVaVpIUTZYQWlQMHdVNnRFMFFyUzlXM2c?oc=5",
+      "article_url": "https://news.google.com/rss/articles/CBMivwFBVV95cUxNampzNzBnSWg4S1R1cmtJV3Q4RzhLR3plZXh1bmZIaFk0elBCRDZUUFpDSXhubVdtM1RpNDZXSGNIdndlVFZSS1RnbnVnQm0tb1RrTV9vbWRYU1BETEtoc2wwVWVSbE0xR2xycDZOd196UXR5Y2xvN3JTSEtWcGlheHlVVV9sOF9RODZzS2E5YVRwQkhmcXZWc1ZnV3Vpb3hNT2xFZVVsaTNiTzRQa2ZzV19Cb21wc1h2SWl6cGdsMNIBxgFBVV95cUxPSVVlR3lyb2RfZlBWVmVtbER3RjBwanpkeUdHRllKSW1Xd25WanBxTzJRSUkzTGtHNFgyR2dJSlFKRl8yNE5VSmZEckJMQnhSUnAtREw2V24ybzc1MFdVVjBkVmRUYV95alZtLXRQZUc0dTRTTXU3V0ZZbks1OGx2SU4wdjJoM3pEd3U4VnVsNFlKVDFNUGhPM2JTZGxVTW4xMW0zbUwyRjU1a3BIZ3NVaVpIUTZYQWlQMHdVNnRFMFFyUzlXM2c?oc=5",
+      "published_at": "2026-10-09T11:17:56.000Z",
+      "fetched_at": "2026-10-09T11:46:23.260Z",
+      "external_id": "https://news.google.com/rss/articles/CBMivwFBVV95cUxNampzNzBnSWg4S1R1cmtJV3Q4RzhLR3plZXh1bmZIaFk0elBCRDZUUFpDSXhubVdtM1RpNDZXSGNIdndlVFZSS1RnbnVnQm0tb1RrTV9vbWRYU1BETEtoc2wwVWVSbE0xR2xycDZOd196UXR5Y2xvN3JTSEtWcGlheHlVVV9sOF9RODZzS2E5YVRwQkhmcXZWc1ZnV3Vpb3hNT2xFZVVsaTNiTzRQa2ZzV19Cb21wc1h2SWl6cGdsMNIBxgFBVV95cUxPSVVlR3lyb2RfZlBWVmVtbER3RjBwanpkeUdHRllKSW1Xd25WanBxTzJRSUkzTGtHNFgyR2dJSlFKRl8yNE5VSmZEckJMQnhSUnAtREw2V24ybzc1MFdVVjBkVmRUYV95alZtLXRQZUc0dTRTTXU3V0ZZbks1OGx2SU4wdjJoM3pEd3U4VnVsNFlKVDFNUGhPM2JTZGxVTW4xMW0zbUwyRjU1a3BIZ3NVaVpIUTZYQWlQMHdVNnRFMFFyUzlXM2c?oc=5",
+      "language": "en",
+      "status": "active",
+      "approved": 1,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-10-09T11:46:31.235Z"
+    },
+    {
       "id": 4236,
       "title": "CJP’s October 10 protest: Delhi police cite late application to deny CJP protest permission",
       "summary": "CJP’s October 10 protest: Delhi police cite late application to deny CJP protest permission&nbsp;&nbsp;The Hindu",
@@ -6958,6 +6978,26 @@
       "pinned": 0,
       "removed": 0,
       "created_at": "2026-10-09T11:19:53.121Z"
+    },
+    {
+      "id": 4411,
+      "title": "U.S. Green Card hits Indian IT Giants such as HCL, Infosys alongside Microsoft",
+      "summary": "U.S. Green Card hits Indian IT Giants such as HCL, Infosys alongside Microsoft&nbsp;&nbsp;The Hindu",
+      "category": "LAW & ORDER",
+      "source": "THE HINDU",
+      "source_name": "THE HINDU",
+      "source_url": "https://www.thehindu.com/",
+      "url": "https://news.google.com/rss/articles/CBMizwFBVV95cUxNOHhMMVVPR0lhMXlYOEF6QzF1SEh0V2NvTWFwNTI5Z2RxSXVncndwUnQ2QWh1azlKUHpJUTJ1eWlSV2VZY24yc19mVW5McHVkNG1iT3paazlhbXVlNVE0RUlEdWNRNm0tdlJRa2lQZlpEWTlSTFF3Z3J3eUl4SFVfdk1xMUt6SWJuaTMxY3JGYmROY2NtTEEwWDZNajJ0bGdDN1VlOXNUUlpjZzFjOVVVS0E0YmtVXzlLY04yS3NNSjRHVDJMM1luZURqM1dvR0k?oc=5",
+      "article_url": "https://news.google.com/rss/articles/CBMizwFBVV95cUxNOHhMMVVPR0lhMXlYOEF6QzF1SEh0V2NvTWFwNTI5Z2RxSXVncndwUnQ2QWh1azlKUHpJUTJ1eWlSV2VZY24yc19mVW5McHVkNG1iT3paazlhbXVlNVE0RUlEdWNRNm0tdlJRa2lQZlpEWTlSTFF3Z3J3eUl4SFVfdk1xMUt6SWJuaTMxY3JGYmROY2NtTEEwWDZNajJ0bGdDN1VlOXNUUlpjZzFjOVVVS0E0YmtVXzlLY04yS3NNSjRHVDJMM1luZURqM1dvR0k?oc=5",
+      "published_at": "2026-10-09T07:08:47.000Z",
+      "fetched_at": "2026-10-09T11:46:23.260Z",
+      "external_id": "https://news.google.com/rss/articles/CBMizwFBVV95cUxNOHhMMVVPR0lhMXlYOEF6QzF1SEh0V2NvTWFwNTI5Z2RxSXVncndwUnQ2QWh1azlKUHpJUTJ1eWlSV2VZY24yc19mVW5McHVkNG1iT3paazlhbXVlNVE0RUlEdWNRNm0tdlJRa2lQZlpEWTlSTFF3Z3J3eUl4SFVfdk1xMUt6SWJuaTMxY3JGYmROY2NtTEEwWDZNajJ0bGdDN1VlOXNUUlpjZzFjOVVVS0E0YmtVXzlLY04yS3NNSjRHVDJMM1luZURqM1dvR0k?oc=5",
+      "language": "en",
+      "status": "active",
+      "approved": 1,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-10-09T11:46:31.485Z"
     },
     {
       "id": 4243,
@@ -8480,6 +8520,26 @@
       "created_at": "2026-10-09T11:19:53.082Z"
     },
     {
+      "id": 4410,
+      "title": "42 former judges defend ECI, slam ‘calculated campaign’ driven by ‘vested political interests’",
+      "summary": "42 former judges defend ECI, slam ‘calculated campaign’ driven by ‘vested political interests’&nbsp;&nbsp;The Hindu",
+      "category": "LAW & ORDER",
+      "source": "THE HINDU",
+      "source_name": "THE HINDU",
+      "source_url": "https://www.thehindu.com/",
+      "url": "https://news.google.com/rss/articles/CBMi4gFBVV95cUxON3dWZXpXZF9uVzVONHJMa0xrUXkxWFV4QTVKUWV4aWZXdXFzZjRIMDdGamJKSXZmQ0pBYTFZRVZsN3d0dWlqRWxtYjl2TURCYUs2dVdmcldXbE1iekgyWUw4ZTJFTUVvOGxMajRhVE1wMWxsTzhLUEVfdnZMcE1DY0Q2OVdpX2pyaHRXVW5sdU5xRWhBalozS1ZLMThRS2NlTHZHWmVyZjRjYWxlS0FWMDFfb1pwZzk0d3JZUGNKWHNFT2FhX05FWWFXeWFJb3lLQUdEQW1haUdjbkV0emswbVl30gHoAUFVX3lxTE9HMnE5TEpoX3Foa3cxRDFhMUZrVzBHOFp5U0tneTM0c1VlUWZfOHRPb1piOFBIOEVISzNiQWV4UE5vZGhzZ2JXQTlsQ1V0NW5CV2xSWWdxR213dlNXN0ZHb3VMSTBZZFZZZi1BUkx6bnktbm1XUjBLeGZfd1loMXBadHJKNzRyWDVRUDZfTlozaEFXVE1Wbl9vd0ZqMWtnOXE3THZsVjVOZ3A5TXlkOVpQemdxdzBPZFJCbGMwM1dfYUxzVjFwNGdhWGZVdkJGRnQ2REdWSzFfNzNaM0ZVb01hU3Nqcm1RMzg?oc=5",
+      "article_url": "https://news.google.com/rss/articles/CBMi4gFBVV95cUxON3dWZXpXZF9uVzVONHJMa0xrUXkxWFV4QTVKUWV4aWZXdXFzZjRIMDdGamJKSXZmQ0pBYTFZRVZsN3d0dWlqRWxtYjl2TURCYUs2dVdmcldXbE1iekgyWUw4ZTJFTUVvOGxMajRhVE1wMWxsTzhLUEVfdnZMcE1DY0Q2OVdpX2pyaHRXVW5sdU5xRWhBalozS1ZLMThRS2NlTHZHWmVyZjRjYWxlS0FWMDFfb1pwZzk0d3JZUGNKWHNFT2FhX05FWWFXeWFJb3lLQUdEQW1haUdjbkV0emswbVl30gHoAUFVX3lxTE9HMnE5TEpoX3Foa3cxRDFhMUZrVzBHOFp5U0tneTM0c1VlUWZfOHRPb1piOFBIOEVISzNiQWV4UE5vZGhzZ2JXQTlsQ1V0NW5CV2xSWWdxR213dlNXN0ZHb3VMSTBZZFZZZi1BUkx6bnktbm1XUjBLeGZfd1loMXBadHJKNzRyWDVRUDZfTlozaEFXVE1Wbl9vd0ZqMWtnOXE3THZsVjVOZ3A5TXlkOVpQemdxdzBPZFJCbGMwM1dfYUxzVjFwNGdhWGZVdkJGRnQ2REdWSzFfNzNaM0ZVb01hU3Nqcm1RMzg?oc=5",
+      "published_at": "2026-10-08T10:55:49.000Z",
+      "fetched_at": "2026-10-09T11:46:23.260Z",
+      "external_id": "https://news.google.com/rss/articles/CBMi4gFBVV95cUxON3dWZXpXZF9uVzVONHJMa0xrUXkxWFV4QTVKUWV4aWZXdXFzZjRIMDdGamJKSXZmQ0pBYTFZRVZsN3d0dWlqRWxtYjl2TURCYUs2dVdmcldXbE1iekgyWUw4ZTJFTUVvOGxMajRhVE1wMWxsTzhLUEVfdnZMcE1DY0Q2OVdpX2pyaHRXVW5sdU5xRWhBalozS1ZLMThRS2NlTHZHWmVyZjRjYWxlS0FWMDFfb1pwZzk0d3JZUGNKWHNFT2FhX05FWWFXeWFJb3lLQUdEQW1haUdjbkV0emswbVl30gHoAUFVX3lxTE9HMnE5TEpoX3Foa3cxRDFhMUZrVzBHOFp5U0tneTM0c1VlUWZfOHRPb1piOFBIOEVISzNiQWV4UE5vZGhzZ2JXQTlsQ1V0NW5CV2xSWWdxR213dlNXN0ZHb3VMSTBZZFZZZi1BUkx6bnktbm1XUjBLeGZfd1loMXBadHJKNzRyWDVRUDZfTlozaEFXVE1Wbl9vd0ZqMWtnOXE3THZsVjVOZ3A5TXlkOVpQemdxdzBPZFJCbGMwM1dfYUxzVjFwNGdhWGZVdkJGRnQ2REdWSzFfNzNaM0ZVb01hU3Nqcm1RMzg?oc=5",
+      "language": "en",
+      "status": "active",
+      "approved": 1,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-10-09T11:46:31.412Z"
+    },
+    {
       "id": 4312,
       "title": "Dhruv Rathee, Prakash Raj and Abhijeet Dipke join the SIR protest in Bengaluru",
       "summary": "Dhruv Rathee, Prakash Raj and Abhijeet Dipke join the SIR protest in Bengaluru&nbsp;&nbsp;The Hindu",
@@ -8918,6 +8978,26 @@
       "pinned": 0,
       "removed": 0,
       "created_at": "2026-10-09T11:19:54.894Z"
+    },
+    {
+      "id": 4412,
+      "title": "Bengaluru court stays defamation proceedings against Priyank, Nalapad in RSS issue",
+      "summary": "Bengaluru court stays defamation proceedings against Priyank, Nalapad in RSS issue&nbsp;&nbsp;The New Indian Express",
+      "category": "POLICE & LAW",
+      "source": "THE NEW INDIAN EXPRESS",
+      "source_name": "THE NEW INDIAN EXPRESS",
+      "source_url": "https://www.newindianexpress.com/",
+      "url": "https://news.google.com/rss/articles/CBMi2wFBVV95cUxQZXk4Z2gzc0wwQ3E5TUtldGxDdl80b0YzTlhSUUhydVNjOFlEdm1LaGF6bmE5YWtKekpQQnp0N3dQalEtM21rRzlyQ25fWWtBUTJyNmI2V1dMRTdaODdXSk5ETUM1Y0RmR095clJTUklraVFReGZNOVd6U3hUOVZSZUFELUdkRVVrSlFwNG93clJnWERQYjVINlNLU3V6RG5xbFB5VllQYmhmLVUtTEVXTnVYVXZxSkMyUC0wY0pxSzdUVnc4Q0t2ZE5IX1Y0c2RZTU5FQjh2UC1lcEnSAegBQVVfeXFMUHFyVVpLZHRwYWkxbDBMTUY2NU9ORkV6bERzX2VCaHpHLWdXVWVCb0xrelhMYkw0cmI1SnFmbHpYYk9qOUVHMno0WVdkR1FyejRyV2ZDMG0xSkx5ZGI0Q3FRelZWYjFTang4UDZNdTBIX2hCa2pPeHhJa2dVeUF4cUdZXzZUVGY0OVlwYk5BOWhod2dOM0ZBMkpVTG5oSnR3ZUJxc0MwY2NVWVlJcWxGSWlUNHdhUmpHd29RbXY4TGFndnM3d05zM0cxTUE1dXFldDdHNlUzWGJIMmhZX0xMWXlzaDhlRVZzag?oc=5",
+      "article_url": "https://news.google.com/rss/articles/CBMi2wFBVV95cUxQZXk4Z2gzc0wwQ3E5TUtldGxDdl80b0YzTlhSUUhydVNjOFlEdm1LaGF6bmE5YWtKekpQQnp0N3dQalEtM21rRzlyQ25fWWtBUTJyNmI2V1dMRTdaODdXSk5ETUM1Y0RmR095clJTUklraVFReGZNOVd6U3hUOVZSZUFELUdkRVVrSlFwNG93clJnWERQYjVINlNLU3V6RG5xbFB5VllQYmhmLVUtTEVXTnVYVXZxSkMyUC0wY0pxSzdUVnc4Q0t2ZE5IX1Y0c2RZTU5FQjh2UC1lcEnSAegBQVVfeXFMUHFyVVpLZHRwYWkxbDBMTUY2NU9ORkV6bERzX2VCaHpHLWdXVWVCb0xrelhMYkw0cmI1SnFmbHpYYk9qOUVHMno0WVdkR1FyejRyV2ZDMG0xSkx5ZGI0Q3FRelZWYjFTang4UDZNdTBIX2hCa2pPeHhJa2dVeUF4cUdZXzZUVGY0OVlwYk5BOWhod2dOM0ZBMkpVTG5oSnR3ZUJxc0MwY2NVWVlJcWxGSWlUNHdhUmpHd29RbXY4TGFndnM3d05zM0cxTUE1dXFldDdHNlUzWGJIMmhZX0xMWXlzaDhlRVZzag?oc=5",
+      "published_at": "2026-10-08T02:18:37.000Z",
+      "fetched_at": "2026-10-09T11:46:23.260Z",
+      "external_id": "https://news.google.com/rss/articles/CBMi2wFBVV95cUxQZXk4Z2gzc0wwQ3E5TUtldGxDdl80b0YzTlhSUUhydVNjOFlEdm1LaGF6bmE5YWtKekpQQnp0N3dQalEtM21rRzlyQ25fWWtBUTJyNmI2V1dMRTdaODdXSk5ETUM1Y0RmR095clJTUklraVFReGZNOVd6U3hUOVZSZUFELUdkRVVrSlFwNG93clJnWERQYjVINlNLU3V6RG5xbFB5VllQYmhmLVUtTEVXTnVYVXZxSkMyUC0wY0pxSzdUVnc4Q0t2ZE5IX1Y0c2RZTU5FQjh2UC1lcEnSAegBQVVfeXFMUHFyVVpLZHRwYWkxbDBMTUY2NU9ORkV6bERzX2VCaHpHLWdXVWVCb0xrelhMYkw0cmI1SnFmbHpYYk9qOUVHMno0WVdkR1FyejRyV2ZDMG0xSkx5ZGI0Q3FRelZWYjFTang4UDZNdTBIX2hCa2pPeHhJa2dVeUF4cUdZXzZUVGY0OVlwYk5BOWhod2dOM0ZBMkpVTG5oSnR3ZUJxc0MwY2NVWVlJcWxGSWlUNHdhUmpHd29RbXY4TGFndnM3d05zM0cxTUE1dXFldDdHNlUzWGJIMmhZX0xMWXlzaDhlRVZzag?oc=5",
+      "language": "en",
+      "status": "active",
+      "approved": 1,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-10-09T11:46:32.314Z"
     },
     {
       "id": 4315,
@@ -84828,6 +84908,26 @@
       "created_at": "2026-09-08T05:03:00.695Z"
     },
     {
+      "id": 4413,
+      "title": "guidelines for implementation of new health insurance scheme, 2026 for pensioners (including spouse)",
+      "summary": "guidelines for implementation of new health insurance scheme, 2026 for pensioners (including spouse)&nbsp;&nbsp;Government of Tamil Nadu",
+      "category": "SAFETY ADVISORY",
+      "source": "GOVERNMENT OF TAMIL NADU",
+      "source_name": "GOVERNMENT OF TAMIL NADU",
+      "source_url": "https://www.tn.gov.in/",
+      "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTFBaYjVsaUs5ZGhWeTJFX2J6OTFJTVdQMTZqREk1YV8zbHNYSU1kSHF4M3RnOW0xR0FhSGpWbzdRYnRHRzE4dnZlLWxVeWNfT3ZKcy1sTklqM1JnR25pVnVDS0d0ako2bDFCSkhHOTRRNS05SzA?oc=5",
+      "article_url": "https://news.google.com/rss/articles/CBMic0FVX3lxTFBaYjVsaUs5ZGhWeTJFX2J6OTFJTVdQMTZqREk1YV8zbHNYSU1kSHF4M3RnOW0xR0FhSGpWbzdRYnRHRzE4dnZlLWxVeWNfT3ZKcy1sTklqM1JnR25pVnVDS0d0ako2bDFCSkhHOTRRNS05SzA?oc=5",
+      "published_at": "2026-06-24T07:00:00.000Z",
+      "fetched_at": "2026-10-09T11:46:23.260Z",
+      "external_id": "https://news.google.com/rss/articles/CBMic0FVX3lxTFBaYjVsaUs5ZGhWeTJFX2J6OTFJTVdQMTZqREk1YV8zbHNYSU1kSHF4M3RnOW0xR0FhSGpWbzdRYnRHRzE4dnZlLWxVeWNfT3ZKcy1sTklqM1JnR25pVnVDS0d0ako2bDFCSkhHOTRRNS05SzA?oc=5",
+      "language": "en",
+      "status": "active",
+      "approved": 1,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-10-09T11:46:33.774Z"
+    },
+    {
       "id": 1882,
       "title": "Chennai: Car ploughs into group of cops on roadside, one dies",
       "summary": "Chennai: Car ploughs into group of cops on roadside, one dies&nbsp;&nbsp;The New Indian Express",
@@ -91681,7 +91781,7 @@
       "id": 1,
       "auto_fetch": 1,
       "require_approval": 1,
-      "last_fetched_at": "2026-10-09T11:19:42.820Z",
+      "last_fetched_at": "2026-10-09T11:46:23.260Z",
       "live_feed_enabled": 1,
       "approved_sources": "tnpolice.gov.in, gcp.tn.gov.in, greaterchennaipolice.in, tn.gov.in, pib.gov.in",
       "refresh_interval": 15
@@ -102562,9 +102662,9 @@
   "portal_visitor_stats": [
     {
       "id": 1,
-      "total_page_views": 478,
+      "total_page_views": 479,
       "created_at": "2026-09-08T05:38:30.468Z",
-      "updated_at": "2026-10-09T11:31:48.175Z"
+      "updated_at": "2026-10-09T11:46:26.281Z"
     }
   ],
   "portal_daily_visits": [
@@ -102676,9 +102776,9 @@
     {
       "id": 16,
       "visit_date": "2026-10-09",
-      "page_views": 1,
+      "page_views": 2,
       "created_at": "2026-10-09T11:31:48.175Z",
-      "updated_at": "2026-10-09T11:31:48.175Z"
+      "updated_at": "2026-10-09T11:46:26.281Z"
     }
   ],
   "superadmin_config": {
@@ -105281,8 +105381,8 @@
       "username": "newseditormanager",
       "session_id": "1f78e3cc8422ae86d7d01dfac9141c02ea849589b6603a83",
       "created_at": "2026-10-09T11:26:37.753Z",
-      "last_activity": "2026-10-09T11:43:04.031Z",
-      "expires_at": "2026-10-09T12:13:04.031Z",
+      "last_activity": "2026-10-09T11:49:45.539Z",
+      "expires_at": "2026-10-09T12:19:45.539Z",
       "ip_address": "::1",
       "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36 Edg/153.0.0.0",
       "revoked_at": null,
