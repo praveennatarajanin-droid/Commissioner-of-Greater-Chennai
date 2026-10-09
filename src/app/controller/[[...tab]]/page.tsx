@@ -16,9 +16,9 @@ function getAllowedTabs(role: string): string[] {
   const r = (role || "").toUpperCase().trim().replace(" ", "_");
   if (r === "SUPER_ADMIN" || r === "SUPERADMIN") {
     return [
-      "dashboard", "superadmin", "news", "ticker", "slider", "profile", 
-      "theme", "settings", "videos", "alerts", "media", "seo", "users", 
-      "logs", "police-stations", "emergency-contacts", "department-links", 
+      "dashboard", "superadmin", "news", "ticker", "slider", "profile",
+      "theme", "settings", "videos", "alerts", "media", "seo", "users",
+      "logs", "police-stations", "emergency-contacts", "department-links",
       "menu-management", "page-editor", "footer", "web-stories", "citizen-services",
       "faqs", "monthly-report", "reports"
     ];
@@ -65,8 +65,17 @@ function ControllerContent({ params }: PageProps) {
   const router = useRouter();
   const { authenticated, user, loading, logout, refreshSession } = useAuth();
 
-  // Dynamic stealth base path detection (e.g., /control-center or /controller)
-  const [basePath, setBasePath] = useState("/control-center");
+  // Dynamic base path detection (/admin, /control-center, or /controller)
+  const [basePath, setBasePath] = useState(() => {
+    if (typeof window !== "undefined") {
+      const currentPath = window.location.pathname;
+      const firstSegment = "/" + currentPath.split("/").filter(Boolean)[0];
+      if (firstSegment && firstSegment !== "/") {
+        return firstSegment;
+      }
+    }
+    return "/admin";
+  });
 
   const activeTabName = tab && tab.length > 0 ? tab[0] : undefined;
 

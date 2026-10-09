@@ -65,18 +65,13 @@ export function proxy(request: NextRequest) {
     return response;
   }
 
-  // Obvious administrative & scanner honeypot paths to block
+  // Obvious malicious scanner honeypot paths to block
   const blockedPaths = [
-    "/admin",
-    "/administrator",
-    "/backend",
-    "/dashboard",
-    "/login",
-    "/login/admin",
-    "/superadmin",
     "/wp-admin",
+    "/wp-login.php",
     "/cpanel",
-    "/user/login"
+    "/phpmyadmin",
+    "/administrator"
   ];
 
   // If path is an obvious scanner path, rewrite to 404
@@ -88,9 +83,15 @@ export function proxy(request: NextRequest) {
     return NextResponse.rewrite(new URL("/404", request.url));
   }
 
-  // Handle Admin URL routing (both /control-center and /controller)
-  if (pathname.toLowerCase() === "/control-center" || pathname.toLowerCase().startsWith("/control-center/")) {
-    const subPath = pathname.substring("/control-center".length);
+  // Handle Admin URL routing (support /admin, /control-center, and /controller)
+  if (
+    pathname.toLowerCase() === "/admin" ||
+    pathname.toLowerCase().startsWith("/admin/") ||
+    pathname.toLowerCase() === "/control-center" ||
+    pathname.toLowerCase().startsWith("/control-center/")
+  ) {
+    const prefix = pathname.toLowerCase().startsWith("/admin") ? "/admin" : "/control-center";
+    const subPath = pathname.substring(prefix.length);
     const targetUrl = new URL(`/controller${subPath}`, request.url);
     const response = NextResponse.rewrite(targetUrl, {
       request: {

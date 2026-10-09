@@ -29,24 +29,37 @@ export function validateCorsOrigin(req: Request): { allowed: boolean; origin: st
   if (!origin) return { allowed: true, origin: "" };
 
   const host = req.headers.get("host") || "";
+  const forwardedHost = req.headers.get("x-forwarded-host") || "";
   try {
     const originUrl = new URL(origin);
-    // Allow local development host or same origin
-    if (originUrl.host === host || originUrl.hostname === "localhost" || originUrl.hostname === "127.0.0.1") {
+    const hostClean = host.split(":")[0];
+    const fwdClean = forwardedHost.split(":")[0];
+    const origHostClean = originUrl.hostname;
+
+    // Allow local development host or same origin / reverse proxy host
+    if (
+      originUrl.host === host ||
+      (forwardedHost && originUrl.host === forwardedHost) ||
+      origHostClean === hostClean ||
+      (fwdClean && origHostClean === fwdClean) ||
+      origHostClean === "localhost" ||
+      origHostClean === "127.0.0.1"
+    ) {
       return { allowed: true, origin: originUrl.origin };
     }
 
     // Allow official police portal domains if configured or matching production domain
     const allowedDomains = (process.env.ALLOWED_CORS_ORIGINS || "").split(",").map((d) => d.trim()).filter(Boolean);
     if (
-      allowedDomains.includes(originUrl.hostname) ||
+      allowedDomains.includes(origHostClean) ||
       allowedDomains.includes(originUrl.origin) ||
-      originUrl.hostname.endsWith("mccmrfip.in") ||
-      originUrl.hostname.includes("chennaiguardian")
+      origHostClean.endsWith("mccmrfip.in") ||
+      origHostClean.includes("chennaiguardian") ||
+      origHostClean.includes("gcp.tn.gov.in")
     ) {
       return { allowed: true, origin: originUrl.origin };
     }
-  } catch {}
+  } catch { }
 
   return { allowed: false, origin: "" };
 }

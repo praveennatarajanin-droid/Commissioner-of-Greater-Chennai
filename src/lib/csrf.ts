@@ -35,17 +35,35 @@ export function validateTrustedOrigin(req: Request): boolean {
   if (!origin) return true; // Browser same-origin requests often omit Origin for non-CORS POSTs
 
   const host = req.headers.get("host") || "";
+  const forwardedHost = req.headers.get("x-forwarded-host") || "";
   try {
     const originUrl = new URL(origin);
-    if (originUrl.host === host || originUrl.hostname === "localhost" || originUrl.hostname === "127.0.0.1") {
+    const hostClean = host.split(":")[0];
+    const fwdClean = forwardedHost.split(":")[0];
+    const origHostClean = originUrl.hostname;
+
+    if (
+      originUrl.host === host ||
+      (forwardedHost && originUrl.host === forwardedHost) ||
+      origHostClean === hostClean ||
+      (fwdClean && origHostClean === fwdClean) ||
+      origHostClean === "localhost" ||
+      origHostClean === "127.0.0.1"
+    ) {
       return true;
     }
 
     const trustedOrigins = (process.env.TRUSTED_ORIGINS || "").split(",").map((o) => o.trim()).filter(Boolean);
-    if (trustedOrigins.includes(originUrl.origin) || trustedOrigins.includes(originUrl.hostname)) {
+    if (
+      trustedOrigins.includes(originUrl.origin) ||
+      trustedOrigins.includes(origHostClean) ||
+      origHostClean.endsWith("mccmrfip.in") ||
+      origHostClean.includes("chennaiguardian") ||
+      origHostClean.includes("gcp.tn.gov.in")
+    ) {
       return true;
     }
-  } catch {}
+  } catch { }
 
   return false;
 }
