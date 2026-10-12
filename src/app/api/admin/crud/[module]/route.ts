@@ -39,6 +39,17 @@ async function checkAuth(requiredRoles?: string[]) {
     if (!dbSession) return null;
     await db.touchSession(sessionData.sessionId);
 
+    // Refresh sliding session cookie maxAge so active administrators do not get 401
+    try {
+      cookieStore.set("admin_session", sessionCookie.value, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 30 * 60,
+        path: "/",
+      });
+    } catch {}
+
     // Verify user account status and fetch server-authoritative role
     const users = await db.getUsers();
     const uRec = users.find((u) => u.username.toLowerCase() === sessionData.username.toLowerCase());

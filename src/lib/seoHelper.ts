@@ -15,7 +15,11 @@ export async function getMetadataForPage(
     
     const articleSeoList = await db.getArticleSeo();
     const customSeo = articleSeoList.find(
-      (s) => s.article_id === articleId && s.content_type === contentType
+      (s) => s.article_id === articleId && (
+        s.content_type === contentType ||
+        (contentType === "media_centre_page" && s.content_type === "news_room_page") ||
+        (contentType === "news_room_page" && s.content_type === "media_centre_page")
+      )
     );
 
     const seoTitle = customSeo?.seo_title || fallbackTitle;
@@ -75,7 +79,11 @@ export async function getSchemaJsonForPage(contentType: string, articleId: numbe
   try {
     const articleSeoList = await db.getArticleSeo();
     const customSeo = articleSeoList.find(
-      (s) => s.article_id === articleId && s.content_type === contentType
+      (s) => s.article_id === articleId && (
+        s.content_type === contentType ||
+        (contentType === "media_centre_page" && s.content_type === "news_room_page") ||
+        (contentType === "news_room_page" && s.content_type === "media_centre_page")
+      )
     );
     return customSeo?.schema_json || null;
   } catch (e) {

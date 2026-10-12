@@ -234,6 +234,15 @@ export async function GET(req: Request) {
       return NextResponse.json({ authenticated: false, message: "SESSION EXPIRED" }, { headers: AUTH_SECURITY_HEADERS });
     }
     await db.touchSession(session.sessionId);
+    try {
+      cookieStore.set("admin_session", sessionCookie.value, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 30 * 60,
+        path: "/",
+      });
+    } catch {}
 
     const usersList = await db.getUsers();
     const userRecord = usersList.find((u) => normalizeUsername(u.username) === normalizeUsername(session.username));

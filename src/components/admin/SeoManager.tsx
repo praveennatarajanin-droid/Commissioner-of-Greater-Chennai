@@ -22,6 +22,8 @@ type ContentType =
   | "emergency_contacts_page" 
   | "traffic_alerts_page" 
   | "contact_us_page"
+  | "citizen_services_page"
+  | "faqs_page"
   | "news" 
   | "video" 
   | "alert" 
@@ -247,13 +249,13 @@ function generateDefaults(contentType: ContentType, itemId: number, state: { new
     case "news_room_page":
       return {
         ...baseDefaults,
-        seo_title: "News Room Archive | Greater Chennai Police",
+        seo_title: "News Articles & Press Archive | Greater Chennai Police",
         meta_description: "Access official press release journals, updates, news notifications, and media announcements from Greater Chennai Police.",
-        seo_slug: "/news",
-        canonical_url: `${baseUrl}/news`,
-        og_title: "News Room - Greater Chennai Police",
-        og_description: "Official announcements and press releases.",
-        og_url: `${baseUrl}/news`,
+        seo_slug: "/media-centre",
+        canonical_url: `${baseUrl}/media-centre`,
+        og_title: "News Articles & Press Releases - Greater Chennai Police",
+        og_description: "Official press coverage and media announcements.",
+        og_url: `${baseUrl}/media-centre`,
         sitemap_priority: 0.8,
         sitemap_changefreq: "daily"
       };
@@ -339,6 +341,34 @@ function generateDefaults(contentType: ContentType, itemId: number, state: { new
         og_description: "Send inquiries or visit the headquarters.",
         og_url: `${baseUrl}/contact-us`,
         sitemap_priority: 0.5,
+        sitemap_changefreq: "monthly"
+      };
+
+    case "citizen_services_page":
+      return {
+        ...baseDefaults,
+        seo_title: "Citizen Services & Online Applications | Greater Chennai Police",
+        meta_description: "Access essential police services, online verification desks, traffic permits and public safety assistance from Greater Chennai Police.",
+        seo_slug: "/citizen-services",
+        canonical_url: `${baseUrl}/citizen-services`,
+        og_title: "Citizen Services - Greater Chennai Police",
+        og_description: "Online police citizen services and desk portals.",
+        og_url: `${baseUrl}/citizen-services`,
+        sitemap_priority: 0.9,
+        sitemap_changefreq: "weekly"
+      };
+
+    case "faqs_page":
+      return {
+        ...baseDefaults,
+        seo_title: "Frequently Asked Questions (FAQ) | Greater Chennai Police",
+        meta_description: "Find official answers to common questions about Greater Chennai Police portal services, reporting crimes, station assistance, and citizen safety.",
+        seo_slug: "/faq",
+        canonical_url: `${baseUrl}/faq`,
+        og_title: "FAQs - Greater Chennai Police",
+        og_description: "Official answers to public safety and police portal questions.",
+        og_url: `${baseUrl}/faq`,
+        sitemap_priority: 0.7,
         sitemap_changefreq: "monthly"
       };
 
@@ -483,6 +513,20 @@ export default function SeoManager({ news, videos, alerts, slider, profile, onAl
       return;
     }
 
+    if (selectedPageKey.startsWith("news:")) {
+      setSelectedPageKey("news_room_page:0");
+      return;
+    }
+
+    if (
+      selectedPageKey.startsWith("video:") ||
+      selectedPageKey.startsWith("alert:") ||
+      selectedPageKey.startsWith("slider:")
+    ) {
+      setSelectedPageKey("homepage:0");
+      return;
+    }
+
     const existing = articleSeoList.find(
       s => s.article_id === selectedId && s.content_type === contentType
     );
@@ -573,7 +617,11 @@ export default function SeoManager({ news, videos, alerts, slider, profile, onAl
         const seoRes = await fetch("/api/admin/crud/article_seo");
         if (seoRes.ok) setArticleSeoList(await seoRes.json());
       } else {
-        onAlert("error", "Database API failed to store SEO overrides.");
+        if (res.status === 401) {
+          onAlert("error", "Session expired. Please sign in again to save SEO overrides.");
+        } else {
+          onAlert("error", "Database API failed to store SEO overrides.");
+        }
       }
     } catch (e) {
       onAlert("error", "Error connecting to CRUD endpoints.");
@@ -672,34 +720,34 @@ export default function SeoManager({ news, videos, alerts, slider, profile, onAl
       </div>
 
       {/* ─── Control Header ─── */}
-      <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-stone-200 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div className="space-y-1">
-          <h2 className="text-lg font-black text-indigo-950 flex items-center gap-2">
-            <Search className="w-5 h-5 text-indigo-600" /> SEO Management System
+          <h2 className="text-base sm:text-lg font-black text-indigo-950 flex items-center gap-2">
+            <Search className="w-5 h-5 text-indigo-600 shrink-0" /> SEO Management System
           </h2>
           <p className="text-xs text-stone-500 font-medium">
             Configure search engine optimization, canonicals, social meta cards, structured schema markup, and sitemaps dynamically.
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-2 shrink-0">
+        <div className="flex flex-wrap items-center gap-2 w-full md:w-auto shrink-0">
           <button
             onClick={handleResetAll}
-            className="px-4 py-2 border border-stone-200 hover:bg-stone-50 rounded-xl text-xs font-black uppercase tracking-wider transition cursor-pointer text-stone-600 bg-white"
+            className="flex-1 md:flex-none px-4 py-2 border border-stone-200 hover:bg-stone-50 rounded-xl text-xs font-black uppercase tracking-wider transition cursor-pointer text-stone-600 bg-white text-center"
           >
             Reset All
           </button>
           <button
             onClick={handleDownloadSitemap}
-            className="px-4 py-2 border border-stone-200 hover:bg-stone-50 rounded-xl text-xs font-black uppercase tracking-wider transition cursor-pointer text-stone-600 bg-white flex items-center gap-1.5"
+            className="flex-1 md:flex-none px-4 py-2 border border-stone-200 hover:bg-stone-50 rounded-xl text-xs font-black uppercase tracking-wider transition cursor-pointer text-stone-600 bg-white flex items-center justify-center gap-1.5"
           >
-            <Map className="w-3.5 h-3.5" /> Download Sitemap
+            <Map className="w-3.5 h-3.5 shrink-0" /> Sitemap
           </button>
           <button
             onClick={handleSavePageSeo}
             disabled={saving}
-            className="px-5 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white force-white rounded-xl text-xs font-black uppercase tracking-wider transition cursor-pointer shadow-sm flex items-center gap-1.5"
+            className="w-full sm:w-auto px-5 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white force-white rounded-xl text-xs font-black uppercase tracking-wider transition cursor-pointer shadow-sm flex items-center justify-center gap-1.5"
           >
-            <CheckCircle className="w-3.5 h-3.5" /> Save Page SEO
+            <CheckCircle className="w-3.5 h-3.5 shrink-0" /> {saving ? "Saving..." : "Save Page SEO"}
           </button>
         </div>
       </div>
@@ -711,46 +759,28 @@ export default function SeoManager({ news, videos, alerts, slider, profile, onAl
         <div className="lg:col-span-3 space-y-6">
           
           {/* Page Selector Card */}
-          <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm space-y-4">
+          <div className="bg-white p-4 sm:p-6 rounded-2xl border border-stone-200 shadow-sm space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
               <div className="md:col-span-2 space-y-1.5">
                 <label className="text-[10px] font-black uppercase text-stone-400 tracking-wider">Select Website Page</label>
                 <select
                   value={selectedPageKey}
                   onChange={e => setSelectedPageKey(e.target.value)}
-                  className="w-full bg-stone-50 border border-stone-250 outline-none text-xs text-stone-800 p-3.5 rounded-xl font-bold cursor-pointer"
+                  className="w-full bg-stone-50 border border-stone-250 outline-none text-xs text-stone-800 p-3 sm:p-3.5 rounded-xl font-bold cursor-pointer"
                 >
                   <optgroup label="Website Base Pages">
-                    <option value="homepage:0">Homepage (Home)</option>
-                    <option value="about_page:0">About Us Page</option>
-                    <option value="commissioner_profile_page:0">Commissioner Profile Page</option>
-                    <option value="news_room_page:0">Newsroom Archive Page</option>
-                    <option value="web_stories_page:0">Web Stories Section</option>
-                    <option value="video_gallery_page:0">Videos Gallery Page</option>
-                    <option value="police_stations_page:0">Police Stations Directory</option>
-                    <option value="emergency_contacts_page:0">Emergency Helplines Page</option>
-                    <option value="traffic_alerts_page:0">Traffic Alerts Page</option>
-                    <option value="contact_us_page:0">Contact Us Page</option>
-                  </optgroup>
-                  <optgroup label="News Articles Pages">
-                    {news.map(art => (
-                      <option key={`news:${art.id}`} value={`news:${art.id}`}>{art.title_en}</option>
-                    ))}
-                  </optgroup>
-                  <optgroup label="Videos Gallery Nodes">
-                    {videos.map(vid => (
-                      <option key={`video:${vid.id}`} value={`video:${vid.id}`}>{vid.title}</option>
-                    ))}
-                  </optgroup>
-                  <optgroup label="Official Alerts Announcements">
-                    {alerts.map(al => (
-                      <option key={`alert:${al.id}`} value={`alert:${al.id}`}>{al.title}</option>
-                    ))}
-                  </optgroup>
-                  <optgroup label="Slider Items Banners">
-                    {slider.map(sl => (
-                      <option key={`slider:${sl.id}`} value={`slider:${sl.id}`}>{sl.title_en || `Banner Slider #${sl.order_num}`}</option>
-                    ))}
+                    <option value="homepage:0">Homepage (Home) [/]</option>
+                    <option value="about_page:0">About Us Page [/about]</option>
+                    <option value="commissioner_profile_page:0">Commissioner Profile Page [/commissioner-profile]</option>
+                    <option value="news_room_page:0">News Articles Page [/media-centre]</option>
+                    <option value="citizen_services_page:0">Citizen Services Page [/citizen-services]</option>
+                    <option value="police_stations_page:0">Police Stations Directory [/stations]</option>
+                    <option value="emergency_contacts_page:0">Emergency Helplines Page [/emergency-contacts]</option>
+                    <option value="video_gallery_page:0">Videos Gallery Page [/videos]</option>
+                    <option value="web_stories_page:0">Web Stories Section [/stories]</option>
+                    <option value="traffic_alerts_page:0">Traffic Alerts Page [/traffic]</option>
+                    <option value="faqs_page:0">FAQs Page [/faq]</option>
+                    <option value="contact_us_page:0">Contact Us Page [/contact-us]</option>
                   </optgroup>
                 </select>
               </div>
@@ -758,9 +788,9 @@ export default function SeoManager({ news, videos, alerts, slider, profile, onAl
                 <button
                   onClick={handleGenerateSeo}
                   disabled={generating}
-                  className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white force-white rounded-xl text-xs font-black uppercase tracking-wider p-3.5 transition cursor-pointer flex items-center justify-center gap-1.5 shadow"
+                  className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white force-white rounded-xl text-xs font-black uppercase tracking-wider p-3 sm:p-3.5 transition cursor-pointer flex items-center justify-center gap-1.5 shadow"
                 >
-                  <Sparkles className="w-4 h-4 text-white force-white" /> Generate SEO
+                  <Sparkles className="w-4 h-4 text-white force-white shrink-0" /> {generating ? "Generating..." : "Generate SEO"}
                 </button>
               </div>
             </div>
@@ -1233,7 +1263,7 @@ export default function SeoManager({ news, videos, alerts, slider, profile, onAl
 
         {/* Right Audit Sidebar (1 Column) */}
         <div className="lg:col-span-1 space-y-6">
-          <div className="sticky top-6 space-y-6">
+          <div className="lg:sticky lg:top-6 space-y-6">
             
             {/* Score Ring Widget */}
             <div className="p-6 bg-white border border-stone-200 rounded-2xl shadow-sm text-center space-y-4">
