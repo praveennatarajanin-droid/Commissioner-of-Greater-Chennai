@@ -1113,6 +1113,10 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
         else if (filterCat === "AVAL SUPPORT WING" && (itemCat === "AVAL SUPPORT" || itemCat === "AVAL SUPPORT WING" || itemCat === "AVAL-SUPPORT")) isMatch = true;
         else if (filterCat === "WOMEN HELPLINE" && (itemCat === "WOMEN HELPLINE" || itemCat === "WOMEN-HELPLINE")) isMatch = true;
         else if (filterCat === "COMPLAINT PORTAL" && (itemCat === "COMPLAINT PORTAL" || itemCat === "COMPLAINT-PORTAL")) isMatch = true;
+        else if (filterCat === "EMERGENCY ALERTS" && (itemCat === "EMERGENCY ALERTS" || itemCat === "EMERGENCY-ALERTS" || itemCat === "POLICE OFFICIAL NEWS" || itemCat === "PUBLIC WARNINGS & ALERTS" || itemCat === "PUBLIC WARNINGS" || itemCat === "PUBLIC ANNOUNCEMENTS")) isMatch = true;
+        else if (filterCat === "POLICE OFFICIAL NEWS" && (itemCat === "POLICE OFFICIAL NEWS" || itemCat === "POLICE-OFFICIAL-NEWS" || itemCat === "OFFICIAL NEWS")) isMatch = true;
+        else if (filterCat === "PUBLIC WARNINGS & ALERTS" && (itemCat === "PUBLIC WARNINGS & ALERTS" || itemCat === "PUBLIC WARNINGS" || itemCat === "PUBLIC-WARNINGS" || itemCat === "WARNINGS & ALERTS")) isMatch = true;
+        else if (filterCat === "PUBLIC ANNOUNCEMENTS" && (itemCat === "PUBLIC ANNOUNCEMENTS" || itemCat === "PUBLIC-ANNOUNCEMENTS" || itemCat === "ANNOUNCEMENTS")) isMatch = true;
       }
       if (!isMatch) {
         return false;
@@ -1854,7 +1858,6 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                 items: [
                   { tab: "news", icon: <FileText className="w-5 h-5" />, label: "News Articles" },
                   { tab: "web-stories", icon: <BookOpen className="w-5 h-5" />, label: "Web Stories" },
-                  { tab: "ticker", icon: <Radio className="w-5 h-5" />, label: "News Ticker" },
                   { tab: "slider", icon: <ImageIcon className="w-5 h-5" />, label: "Hero Slider" },
                   { tab: "videos", icon: <Tv className="w-5 h-5" />, label: "Video & Media" },
                   { tab: "media", icon: <FolderOpen className="w-5 h-5" />, label: "Media Library" },
@@ -2238,7 +2241,6 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                 const kpiCards = [
                   { label: "News Articles", value: news.length, sub: `${publishedNews.length} live · ${draftNews.length} drafts`, icon: <FileText className="w-5 h-5" />, color: "#1e40af", bg: "rgba(30,64,175,0.1)", border: "rgba(30,64,175,0.2)", tab: "news" as TabType },
                   { label: "Hero Slider", value: activeSlider.length, sub: `${slider.length} total slides`, icon: <ImageIcon className="w-5 h-5" />, color: "#d4af37", bg: "rgba(212,175,55,0.1)", border: "rgba(212,175,55,0.2)", tab: "slider" as TabType },
-                  { label: "Live Ticker", value: activeTicker.length, sub: `${ticker.length} total items`, icon: <Radio className="w-5 h-5" />, color: "#ed1b24", bg: "rgba(237,27,36,0.1)", border: "rgba(237,27,36,0.2)", tab: "ticker" as TabType },
                   { label: "Videos", value: videos.length, sub: `${activeVideosCount} active in gallery`, icon: <Tv className="w-5 h-5" />, color: "#7c3aed", bg: "rgba(124,58,237,0.1)", border: "rgba(124,58,237,0.2)", tab: "videos" as TabType },
                   { label: "Helplines", value: activeContacts.length, sub: `${contacts.length} total contacts`, icon: <Phone className="w-5 h-5" />, color: "#059669", bg: "rgba(5,150,105,0.1)", border: "rgba(5,150,105,0.2)", tab: "emergency-contacts" as TabType },
                   { label: "Total Visitors", value: totalPortalVisitors !== null ? totalPortalVisitors.toLocaleString() : formatViewsCount(totalViews), sub: totalPortalVisitors !== null ? "Database verified" : `${formatViewsCount(totalNewsViews)} views`, icon: <Users className="w-5 h-5" />, color: "#0ea5e9", bg: "rgba(14,165,233,0.1)", border: "rgba(14,165,233,0.2)", tab: "dashboard" as TabType },
@@ -2316,7 +2318,6 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                               { id: "add-news", label: "Add News", sub: "Create Article", icon: <FileText className="w-5 h-5" />, color: "#1e40af", module: "news", permission: "create", action: () => { setActiveTab("news" as TabType); setIsAdding(true); setEditingItem({ title_en: "", title_ta: "", category_en: "", category_ta: "", summary_en: "", summary_ta: "", content_en: [""], content_ta: [""], image: "", tags_en: [], tags_ta: [], section: "latest", published: 1, date: new Date().toLocaleDateString("en-US", { month: "long", day: "2-digit", year: "numeric" }), author_en: "Greater Chennai Police", author_ta: "சென்னை பெருநகர காவல்" }); } },
                               { id: "add-slider", label: "Add Slider", sub: "Hero Slide", icon: <ImageIcon className="w-5 h-5" />, color: "#d4af37", module: "slider", permission: "create", action: () => { setActiveTab("slider" as TabType); setIsAdding(true); setEditingItem({ src: "", title_en: "", title_ta: "", desc_en: "", desc_ta: "", category_en: "", category_ta: "", order_num: slider.length + 1, active: 1 }); } },
                               { id: "add-video", label: "Add Video", sub: "Media Clip", icon: <Tv className="w-5 h-5" />, color: "#7c3aed", module: "videos", permission: "create", action: () => { setActiveTab("videos" as TabType); setIsAdding(true); setVideoYoutubeUrl(""); setEditingItem({ youtube_id: "", title: "", category: "", date: new Date().toLocaleDateString("en-US", { month: "long", day: "2-digit", year: "numeric" }), order_num: videos.length + 1, active: 1, section: "main" }); } },
-                              { id: "add-ticker", label: "Add Ticker", sub: "Flash News", icon: <Radio className="w-5 h-5" />, color: "#ed1b24", module: "ticker", permission: "create", action: () => { setActiveTab("ticker" as TabType); setIsAdding(true); setEditingItem({ text_en: "", text_ta: "", active: 1, order_num: ticker.length + 1 }); } },
                               { id: "add-web-story", label: "Add Story", sub: "Web Story", icon: <BookOpen className="w-5 h-5" />, color: "#ec4899", module: "web-stories", permission: "create", action: () => { setActiveTab("web-stories" as TabType); setIsAdding(true); setEditingItem({ title_en: "", title_ta: "", category_en: "General", category_ta: "பொது", cover_image: "", slides_json: JSON.stringify([{ image: "", caption_en: "", caption_ta: "" }]), active: 1, status: "active" }); } },
                               { id: "add-alert", label: "Add Alert", sub: "Official Alert", icon: <AlertTriangle className="w-5 h-5" />, color: "#dc2626", module: "alerts", permission: "create", action: () => { setActiveTab("alerts" as TabType); setIsAdding(true); setEditingItem({ title_en: "", title_ta: "", desc_en: "", desc_ta: "", severity: "warning", active: 1, popup_enabled: 0 }); } },
                               { id: "add-station", label: "Add Station", sub: "Police Station", icon: <MapPin className="w-5 h-5" />, color: "#0ea5e9", module: "police-stations", permission: "create", action: () => { setActiveTab("police-stations" as TabType); setIsAdding(true); setEditingItem({ station_name: "", station_code: "", zone_en: "South Chennai", zone_ta: "தெற்கு சென்னை", phone: "", address_en: "", address_ta: "" }); } },
@@ -2339,7 +2340,6 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                             { id: "add-news", label: "Add News", sub: "Create Article", icon: <FileText className="w-5 h-5" />, color: "#1e40af", module: "news", permission: "create", action: () => { setActiveTab("news" as TabType); setIsAdding(true); setEditingItem({ title_en: "", title_ta: "", category_en: "", category_ta: "", summary_en: "", summary_ta: "", content_en: [""], content_ta: [""], image: "", tags_en: [], tags_ta: [], section: "latest", published: 1, date: new Date().toLocaleDateString("en-US", { month: "long", day: "2-digit", year: "numeric" }), author_en: "Greater Chennai Police", author_ta: "சென்னை பெருநகர காவல்" }); } },
                             { id: "add-slider", label: "Add Slider", sub: "Hero Slide", icon: <ImageIcon className="w-5 h-5" />, color: "#d4af37", module: "slider", permission: "create", action: () => { setActiveTab("slider" as TabType); setIsAdding(true); setEditingItem({ src: "", title_en: "", title_ta: "", desc_en: "", desc_ta: "", category_en: "", category_ta: "", order_num: slider.length + 1, active: 1 }); } },
                             { id: "add-video", label: "Add Video", sub: "Media Clip", icon: <Tv className="w-5 h-5" />, color: "#7c3aed", module: "videos", permission: "create", action: () => { setActiveTab("videos" as TabType); setIsAdding(true); setVideoYoutubeUrl(""); setEditingItem({ youtube_id: "", title: "", category: "", date: new Date().toLocaleDateString("en-US", { month: "long", day: "2-digit", year: "numeric" }), order_num: videos.length + 1, active: 1, section: "main" }); } },
-                            { id: "add-ticker", label: "Add Ticker", sub: "Flash News", icon: <Radio className="w-5 h-5" />, color: "#ed1b24", module: "ticker", permission: "create", action: () => { setActiveTab("ticker" as TabType); setIsAdding(true); setEditingItem({ text_en: "", text_ta: "", active: 1, order_num: ticker.length + 1 }); } },
                             { id: "add-web-story", label: "Add Story", sub: "Web Story", icon: <BookOpen className="w-5 h-5" />, color: "#ec4899", module: "web-stories", permission: "create", action: () => { setActiveTab("web-stories" as TabType); setIsAdding(true); setEditingItem({ title_en: "", title_ta: "", category_en: "General", category_ta: "பொது", cover_image: "", slides_json: JSON.stringify([{ image: "", caption_en: "", caption_ta: "" }]), active: 1, status: "active" }); } },
                             { id: "add-alert", label: "Add Alert", sub: "Official Alert", icon: <AlertTriangle className="w-5 h-5" />, color: "#dc2626", module: "alerts", permission: "create", action: () => { setActiveTab("alerts" as TabType); setIsAdding(true); setEditingItem({ title_en: "", title_ta: "", desc_en: "", desc_ta: "", severity: "warning", active: 1, popup_enabled: 0 }); } },
                             { id: "add-station", label: "Add Station", sub: "Police Station", icon: <MapPin className="w-5 h-5" />, color: "#0ea5e9", module: "police-stations", permission: "create", action: () => { setActiveTab("police-stations" as TabType); setIsAdding(true); setEditingItem({ station_name: "", station_code: "", zone_en: "South Chennai", zone_ta: "தெற்கு சென்னை", phone: "", address_en: "", address_ta: "" }); } },
@@ -2550,7 +2550,6 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                             { label: "Published News", count: publishedNews.length, total: Math.max(news.length, 1), color: "#059669" },
                             { label: "Drafts", count: draftNews.length, total: Math.max(news.length, 1), color: "#d97706" },
                             { label: "Active Slider", count: activeSlider.length, total: Math.max(slider.length, 1), color: "#d4af37" },
-                            { label: "Ticker Active", count: activeTicker.length, total: Math.max(ticker.length, 1), color: "#1e40af" },
                             { label: "Videos Active", count: activeVideosCount, total: Math.max(videos.length, 1), color: "#7c3aed" },
                             { label: "Contacts", count: activeContacts.length, total: Math.max(contacts.length, 1), color: "#ed1b24" },
                           ].map(({ label, count, total, color }) => (
@@ -2767,6 +2766,13 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                           <option value="PUBLIC SAFETY">PUBLIC SAFETY</option>
                           <option value="COMMUNITY OUTREACH">COMMUNITY OUTREACH</option>
                         </optgroup>
+
+                        <optgroup label="🚨 EMERGENCY ALERTS & SUBMENUS">
+                          <option value="EMERGENCY ALERTS">EMERGENCY ALERTS</option>
+                          <option value="POLICE OFFICIAL NEWS">↳ POLICE OFFICIAL NEWS</option>
+                          <option value="PUBLIC WARNINGS & ALERTS">↳ PUBLIC WARNINGS & ALERTS</option>
+                          <option value="PUBLIC ANNOUNCEMENTS">↳ PUBLIC ANNOUNCEMENTS</option>
+                        </optgroup>
                       </select>
                     </div>
                     {/* Filter Date */}
@@ -2886,10 +2892,21 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                                   <button
                                     onClick={() => setPreviewItem(item)}
                                     className="p-1.5 text-slate-500 hover:text-brand-gold hover:bg-stone-100 dark:hover:bg-stone-800 rounded-lg transition cursor-pointer"
-                                    title="Live Preview"
+                                    title="Quick Preview"
                                   >
                                     <Eye className="w-3.5 h-3.5" />
                                   </button>
+                                  {item.slug && (
+                                    <a
+                                      href={`/news/${item.slug}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="p-1.5 text-slate-500 hover:text-emerald-500 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-lg transition cursor-pointer"
+                                      title="Open Live Article in New Tab"
+                                    >
+                                      <ExternalLink className="w-3.5 h-3.5" />
+                                    </a>
+                                  )}
                                   <button
                                     onClick={() => { setEditingItem(item); setIsAdding(false); }}
                                     className="p-1.5 text-slate-500 hover:text-blue-500 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-lg transition cursor-pointer"
@@ -3005,7 +3022,11 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                             { en: "AVAL SUPPORT WING", ta: "அவள் ஆதரவு பிரிவு" },
                             { en: "WOMEN HELPLINE", ta: "பெண்கள் உதவி எண்" },
                             { en: "PUBLIC SAFETY", ta: "பொது பாதுகாப்பு" },
-                            { en: "COMMUNITY OUTREACH", ta: "சமூக உதவி" }
+                            { en: "COMMUNITY OUTREACH", ta: "சமூக உதவி" },
+                            { en: "EMERGENCY ALERTS", ta: "அவசர எச்சரிக்கைகள்" },
+                            { en: "POLICE OFFICIAL NEWS", ta: "காவல்துறை அதிகாரப்பூர்வ செய்தி" },
+                            { en: "PUBLIC WARNINGS & ALERTS", ta: "பொது எச்சரிக்கைகள் & விழிப்பூட்டல்கள்" },
+                            { en: "PUBLIC ANNOUNCEMENTS", ta: "பொது அறிவிப்புகள்" }
                           ];
                           const found = defaults.find(c => c.en === val) || { en: val, ta: val };
                           setEditingItem({ ...editingItem, category_en: found.en, category_ta: found.ta });
@@ -3035,6 +3056,13 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                         <optgroup label="👁️ PUBLIC SAFETY & OUTREACH">
                           <option value="PUBLIC SAFETY">PUBLIC SAFETY</option>
                           <option value="COMMUNITY OUTREACH">COMMUNITY OUTREACH</option>
+                        </optgroup>
+
+                        <optgroup label="🚨 EMERGENCY ALERTS & SUBMENUS">
+                          <option value="EMERGENCY ALERTS">EMERGENCY ALERTS (Main Category)</option>
+                          <option value="POLICE OFFICIAL NEWS">↳ POLICE OFFICIAL NEWS</option>
+                          <option value="PUBLIC WARNINGS & ALERTS">↳ PUBLIC WARNINGS & ALERTS</option>
+                          <option value="PUBLIC ANNOUNCEMENTS">↳ PUBLIC ANNOUNCEMENTS</option>
                         </optgroup>
                       </select>
                     </div>
@@ -6492,6 +6520,18 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                   </h3>
                 </div>
                 <div className="flex items-center gap-4">
+                  {previewItem.slug && (
+                    <a
+                      href={`/news/${previewItem.slug}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1 bg-brand-maroon/10 hover:bg-brand-maroon/20 text-brand-maroon dark:bg-brand-gold/15 dark:hover:bg-brand-gold/25 dark:text-brand-gold rounded-lg text-xs font-bold transition"
+                      title="Open Live Article in New Tab"
+                    >
+                      <span>Live Site</span>
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                  )}
                   {/* Language Selector in Preview */}
                   <div className="flex bg-stone-200 dark:bg-stone-800 p-0.5 rounded-lg text-xs font-bold">
                     <button

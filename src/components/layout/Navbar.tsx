@@ -145,7 +145,11 @@ export default function Navbar({ customMenuItems, initialMenus, stickyOffset }: 
         (normalizedId === "women-safety" && (cat === "women safety" || cat === "women's safety" || cat === "pink patrol" || cat === "pink patrol (women safety)" || cat === "aval support wing" || cat === "aval support" || cat === "women helpline")) ||
         (normalizedId === "public-safety" && (cat === "public safety" || cat === "clean campus" || cat === "security audit")) ||
         (normalizedId === "traffic" && (cat === "traffic" || cat === "traffic news" || cat === "traffic advisory" || cat === "traffic updates")) ||
-        (normalizedId === "outreach" && (cat === "outreach" || cat === "community outreach" || cat === "social awareness" || cat === "legal outreach" || cat === "community support"));
+        (normalizedId === "outreach" && (cat === "outreach" || cat === "community outreach" || cat === "social awareness" || cat === "legal outreach" || cat === "community support")) ||
+        (normalizedId === "emergency-alerts" && (cat === "emergency alerts" || cat === "emergency-alerts" || cat === "police official news" || cat === "public warnings & alerts" || cat === "public warnings" || cat === "public announcements")) ||
+        (normalizedId === "police-official-news" && (cat === "police official news" || cat === "police-official-news" || cat === "official news")) ||
+        (normalizedId === "public-warnings" && (cat === "public warnings & alerts" || cat === "public warnings" || cat === "public-warnings" || cat === "warnings & alerts")) ||
+        (normalizedId === "public-announcements" && (cat === "public announcements" || cat === "public-announcements" || cat === "announcements"));
 
       if (exactMatch) return true;
 
@@ -155,7 +159,11 @@ export default function Navbar({ customMenuItems, initialMenus, stickyOffset }: 
             normalizedId === "public-safety" ? ["safety", "patrol", "beach", "audit", "cctv", "third eye", "surveillance", "clean campus"] :
               normalizedId === "traffic" ? ["traffic", "diversion", "road closure", "signal", "congestion", "transport", "accident alert", "traffic police"] :
                 normalizedId === "outreach" ? ["community", "outreach", "karangal", "rescue", "welfare", "pledge", "labour", "students", "legal", "social awareness", "community support"] :
-                  [];
+                  normalizedId === "emergency-alerts" ? ["emergency", "alert", "warning", "announcement", "police news"] :
+                    normalizedId === "police-official-news" ? ["police official news", "official news", "press release"] :
+                      normalizedId === "public-warnings" ? ["warning", "alert", "danger", "hazard"] :
+                        normalizedId === "public-announcements" ? ["announcement", "notice", "circular"] :
+                          [];
 
       return keywords.some(k => cat.includes(k) || title.includes(k));
     }).length;
@@ -191,6 +199,7 @@ export default function Navbar({ customMenuItems, initialMenus, stickyOffset }: 
   const [expandedMobileItems, setExpandedMobileItems] = useState<{ [key: number]: boolean }>({});
   const [expandedMobileSubItems, setExpandedMobileSubItems] = useState<{ [key: string]: boolean }>({});
   const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
+  const [activeNestedSubmenu, setActiveNestedSubmenu] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/menus")
@@ -212,10 +221,12 @@ export default function Navbar({ customMenuItems, initialMenus, stickyOffset }: 
   useEffect(() => {
     const handleOutsideClick = () => {
       setActiveDropdown(null);
+      setActiveNestedSubmenu(null);
     };
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setActiveDropdown(null);
+        setActiveNestedSubmenu(null);
       }
     };
     document.addEventListener("click", handleOutsideClick);
@@ -290,6 +301,15 @@ export default function Navbar({ customMenuItems, initialMenus, stickyOffset }: 
           label: language === "ta" ? "சமூக உதவி" : "Outreach",
           href: "/category/outreach",
           subMenus: []
+        },
+        {
+          label: language === "ta" ? "அவசர எச்சரிக்கைகள்" : "Emergency Alerts",
+          href: "/category/emergency-alerts",
+          subMenus: [
+            { label: language === "ta" ? "காவல்துறை அதிகாரப்பூர்வ செய்தி" : "Police Official News", href: "/category/police-official-news" },
+            { label: language === "ta" ? "பொது எச்சரிக்கைகள் & விழிப்பூட்டல்கள்" : "Public Warnings & Alerts", href: "/category/public-warnings" },
+            { label: language === "ta" ? "பொது அறிவிப்புகள்" : "Public Announcements", href: "/category/public-announcements" },
+          ]
         },
       ]
     },
@@ -494,7 +514,11 @@ export default function Navbar({ customMenuItems, initialMenus, stickyOffset }: 
                   : "gap-1 px-1.5 lg:px-2 xl:px-3 text-[8.5px] lg:text-[9.5px] xl:text-[11px]"
                 } ${isActive ? "bg-[#1e2060] text-[#c5a059] border-b-2 border-[#c5a059]" : ""}`;
               return (
-                <div key={idx} className="relative group flex items-stretch flex-1 shrink md:shrink-0">
+                <div
+                  key={idx}
+                  className="relative group flex items-stretch flex-1 shrink md:shrink-0"
+                  onMouseLeave={() => { setActiveDropdown(null); setActiveNestedSubmenu(null); }}
+                >
                   {isExternal ? (
                     <a
                       href={item.href}
@@ -512,6 +536,12 @@ export default function Navbar({ customMenuItems, initialMenus, stickyOffset }: 
                       target={item.openInNewTab ? "_blank" : undefined}
                       className={navLinkClass}
                       style={{ minHeight: "48px" }}
+                      onClick={(e) => {
+                        if (hasSub && activeDropdown !== idx) {
+                          e.preventDefault();
+                          setActiveDropdown(idx);
+                        }
+                      }}
                     >
                       <span>{shortenTamilLabel(item.label)}</span>
                       {hasSub && <ChevronDown className="w-2.5 h-2.5 xl:w-3 xl:h-3 ml-0.5 text-white/70 group-hover:text-[#c5a059] transition" />}
@@ -525,15 +555,32 @@ export default function Navbar({ customMenuItems, initialMenus, stickyOffset }: 
                         const hasSub2 = sub.subMenus && sub.subMenus.length > 0;
                         const isSubActive = isItemActive(sub, pathname);
                         const isSubExternal = sub.href && (sub.href.startsWith("http://") || sub.href.startsWith("https://") || sub.href.startsWith("www."));
+                        const nestedKey = `${idx}-${sIdx}`;
+                        const isNestedOpen = activeNestedSubmenu === nestedKey;
 
                         return (
                           <div key={sIdx} className="relative group/sub flex items-center justify-between w-full border-b border-white/5 last:border-b-0 hover:bg-[#1e2060]">
-                            {isSubExternal ? (
+                            {hasSub2 ? (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  setActiveNestedSubmenu(isNestedOpen ? null : nestedKey);
+                                }}
+                                className={`px-4 py-3 text-[10px] sm:text-xs uppercase font-black tracking-wider flex-grow text-left flex items-center justify-between transition cursor-pointer w-full ${
+                                  isSubActive || isNestedOpen ? "text-[#c5a059] bg-[#1e2060]/50" : "text-white hover:text-[#c5a059]"
+                                }`}
+                              >
+                                <span>{sub.label}</span>
+                                <ChevronRight className={`w-3.5 h-3.5 transition-transform duration-200 shrink-0 ${isNestedOpen ? "rotate-90 text-[#c5a059]" : "text-white/60 group-hover/sub:text-[#c5a059]"}`} />
+                              </button>
+                            ) : isSubExternal ? (
                               <a
                                 href={sub.href}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                onClick={() => setActiveDropdown(null)}
+                                onClick={() => { setActiveDropdown(null); setActiveNestedSubmenu(null); }}
                                 className={`px-4 py-3 text-[10px] sm:text-xs uppercase font-black tracking-wider flex-grow text-left block transition ${
                                   isSubActive ? "text-[#c5a059] bg-[#1e2060]/50" : "text-white hover:text-[#c5a059]"
                                 }`}
@@ -544,7 +591,7 @@ export default function Navbar({ customMenuItems, initialMenus, stickyOffset }: 
                               <Link
                                 href={sub.href}
                                 target={sub.openInNewTab ? "_blank" : undefined}
-                                onClick={() => setActiveDropdown(null)}
+                                onClick={() => { setActiveDropdown(null); setActiveNestedSubmenu(null); }}
                                 className={`px-4 py-3 text-[10px] sm:text-xs uppercase font-black tracking-wider flex-grow text-left block transition ${
                                   isSubActive ? "text-[#c5a059] bg-[#1e2060]/50" : "text-white hover:text-[#c5a059]"
                                 }`}
@@ -554,43 +601,40 @@ export default function Navbar({ customMenuItems, initialMenus, stickyOffset }: 
                             )}
 
                             {hasSub2 && (
-                              <>
-                                <div className="pr-3 text-white/60 group-hover/sub:text-[#c5a059] pointer-events-none shrink-0">
-                                  <ChevronRight className="w-3.5 h-3.5" />
-                                </div>
-                                <div className="absolute left-full top-0 flex-col bg-brand-blue border-l-2 border-[#c5a059] shadow-2xl min-w-[210px] z-50 hidden group-hover/sub:flex group-focus-within/sub:flex">
-                                  {sub.subMenus.map((child: any, cIdx: number) => {
-                                    const isChildActive = pathname === child.href;
-                                    const isChildExternal = child.href && (child.href.startsWith("http://") || child.href.startsWith("https://") || child.href.startsWith("www."));
-                                    return isChildExternal ? (
-                                      <a
-                                        key={cIdx}
-                                        href={child.href}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        onClick={() => setActiveDropdown(null)}
-                                        className={`px-4 py-3 text-[10px] sm:text-xs uppercase font-black tracking-wider text-white hover:bg-[#1e2060] hover:text-[#c5a059] border-b border-white/5 last:border-b-0 transition whitespace-nowrap text-left block ${
-                                          isChildActive ? "text-[#c5a059] bg-[#1e2060]" : ""
-                                        }`}
-                                      >
-                                        {child.label}
-                                      </a>
-                                    ) : (
-                                      <Link
-                                        key={cIdx}
-                                        href={child.href}
-                                        target={child.openInNewTab ? "_blank" : undefined}
-                                        onClick={() => setActiveDropdown(null)}
-                                        className={`px-4 py-3 text-[10px] sm:text-xs uppercase font-black tracking-wider text-white hover:bg-[#1e2060] hover:text-[#c5a059] border-b border-white/5 last:border-b-0 transition whitespace-nowrap text-left block ${
-                                          isChildActive ? "text-[#c5a059] bg-[#1e2060]" : ""
-                                        }`}
-                                      >
-                                        {child.label}
-                                      </Link>
-                                    );
-                                  })}
-                                </div>
-                              </>
+                              <div className={`absolute ${idx >= 4 ? "right-full left-auto border-r-2 border-l-0" : "left-full border-l-2"} top-0 flex-col bg-brand-blue border-[#c5a059] shadow-2xl min-w-[220px] max-w-[280px] max-h-[80vh] overflow-y-auto z-50 ${
+                                isNestedOpen ? "flex" : "hidden group-hover/sub:flex group-focus-within/sub:flex"
+                              }`}>
+                                {sub.subMenus.map((child: any, cIdx: number) => {
+                                  const isChildActive = pathname === child.href;
+                                  const isChildExternal = child.href && (child.href.startsWith("http://") || child.href.startsWith("https://") || child.href.startsWith("www."));
+                                  return isChildExternal ? (
+                                    <a
+                                      key={cIdx}
+                                      href={child.href}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      onClick={() => { setActiveDropdown(null); setActiveNestedSubmenu(null); }}
+                                      className={`px-4 py-3 text-[10px] sm:text-xs uppercase font-black tracking-wider text-white hover:bg-[#1e2060] hover:text-[#c5a059] border-b border-white/5 last:border-b-0 transition whitespace-nowrap text-left block ${
+                                        isChildActive ? "text-[#c5a059] bg-[#1e2060]" : ""
+                                      }`}
+                                    >
+                                      {child.label}
+                                    </a>
+                                  ) : (
+                                    <Link
+                                      key={cIdx}
+                                      href={child.href}
+                                      target={child.openInNewTab ? "_blank" : undefined}
+                                      onClick={() => { setActiveDropdown(null); setActiveNestedSubmenu(null); }}
+                                      className={`px-4 py-3 text-[10px] sm:text-xs uppercase font-black tracking-wider text-white hover:bg-[#1e2060] hover:text-[#c5a059] border-b border-white/5 last:border-b-0 transition whitespace-nowrap text-left block ${
+                                        isChildActive ? "text-[#c5a059] bg-[#1e2060]" : ""
+                                      }`}
+                                    >
+                                      {child.label}
+                                    </Link>
+                                  );
+                                })}
+                              </div>
                             )}
                           </div>
                         );
@@ -724,7 +768,16 @@ export default function Navbar({ customMenuItems, initialMenus, stickyOffset }: 
                 return (
                   <div key={idx} className="flex flex-col border-b border-white/5 last:border-b-0">
                     <div className="flex items-center justify-between w-full">
-                      {isMobileExternal ? (
+                      {hasSub ? (
+                        <button
+                          type="button"
+                          onClick={() => toggleMobileItem(idx)}
+                          className={`${mobileLinkClass} justify-between w-full`}
+                        >
+                          <span>{item.label}</span>
+                          <span className="text-base font-bold px-2">{isExpanded ? "−" : "+"}</span>
+                        </button>
+                      ) : isMobileExternal ? (
                         <a
                           href={item.href}
                           target="_blank"
@@ -744,17 +797,20 @@ export default function Navbar({ customMenuItems, initialMenus, stickyOffset }: 
                           {item.label}
                         </Link>
                       )}
-                      {hasSub && (
-                        <button
-                          onClick={() => toggleMobileItem(idx)}
-                          className="px-4 py-3.5 hover:bg-[#1e2060]/70 text-white rounded-lg transition min-h-[44px] cursor-pointer flex items-center justify-center font-bold text-lg"
-                        >
-                          {isExpanded ? "−" : "+"}
-                        </button>
-                      )}
                     </div>
                     {hasSub && isExpanded && (
                       <div className="pl-4 pr-1 flex flex-col bg-[#0b0c24]/30 rounded-lg mb-2">
+                        {item.href && item.href !== "#" && (
+                          <div className="border-b border-white/5">
+                            <Link
+                              href={item.href}
+                              onClick={() => setMobileMenuOpen(false)}
+                              className="py-2.5 px-3 text-[11px] uppercase font-black text-[#c5a059] hover:underline flex items-center gap-1 min-h-[40px]"
+                            >
+                              <span>{language === "ta" ? "அனைத்து சேவைகளையும் பார்க்க ➔" : "View Services Directory ➔"}</span>
+                            </Link>
+                          </div>
+                        )}
                         {item.subMenus.map((sub: any, sIdx: number) => {
                           const hasSub2 = sub.subMenus && sub.subMenus.length > 0;
                           const subKey = `${idx}-${sIdx}`;
@@ -765,7 +821,18 @@ export default function Navbar({ customMenuItems, initialMenus, stickyOffset }: 
                           return (
                             <div key={sIdx} className="flex flex-col border-b border-white/5 last:border-b-0">
                               <div className="flex items-center justify-between w-full">
-                                {isSubExt ? (
+                                {hasSub2 ? (
+                                  <button
+                                    type="button"
+                                    onClick={() => toggleMobileSubItem(subKey)}
+                                    className={`flex-grow py-3 px-3 text-[12px] uppercase font-bold hover:text-[#c5a059] text-left min-h-[44px] flex items-center justify-between cursor-pointer ${
+                                      isSubActive || isSubExpanded ? "text-[#c5a059]" : "text-stone-300"
+                                    }`}
+                                  >
+                                    <span>{sub.label}</span>
+                                    <span className="text-base font-bold px-2">{isSubExpanded ? "−" : "+"}</span>
+                                  </button>
+                                ) : isSubExt ? (
                                   <a
                                     href={sub.href}
                                     target="_blank"
@@ -788,14 +855,6 @@ export default function Navbar({ customMenuItems, initialMenus, stickyOffset }: 
                                   >
                                     {sub.label}
                                   </Link>
-                                )}
-                                {hasSub2 && (
-                                  <button
-                                    onClick={() => toggleMobileSubItem(subKey)}
-                                    className="px-3 py-3 hover:bg-[#1e2060]/70 text-white rounded-md transition min-h-[44px] cursor-pointer flex items-center justify-center font-bold text-base"
-                                  >
-                                    {isSubExpanded ? "−" : "+"}
-                                  </button>
                                 )}
                               </div>
                               {hasSub2 && isSubExpanded && (

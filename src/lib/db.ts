@@ -881,6 +881,7 @@ class JSONDatabaseManager {
             { id: 3, parent_menu_id: 3, parent_sub_id: null, name_en: "Women Safety", name_ta: "பெண்கள் பாதுகாப்பு", slug: "women-safety", url: "/category/women-safety", icon: "Heart", display_order: 3, status: "active" },
             { id: 4, parent_menu_id: 3, parent_sub_id: null, name_en: "Public Safety", name_ta: "பொது பாதுகாப்பு", slug: "public-safety", url: "/category/public-safety", icon: "Eye", display_order: 4, status: "active" },
             { id: 5, parent_menu_id: 3, parent_sub_id: null, name_en: "Outreach", name_ta: "சமூக உதவி", slug: "outreach", url: "/category/outreach", icon: "Users", display_order: 5, status: "active" },
+            { id: 13, parent_menu_id: 3, parent_sub_id: null, name_en: "Emergency Alerts", name_ta: "அவசர எச்சரிக்கைகள்", slug: "emergency-alerts", url: "/category/emergency-alerts", icon: "AlertTriangle", display_order: 6, status: "active" },
 
             // Level 2 submenus under Crime (parent_sub_id: 1)
             { id: 6, parent_menu_id: 3, parent_sub_id: 1, name_en: "Wanted Criminals", name_ta: "தேடப்படும் குற்றவாளிகள்", slug: "wanted-criminals", url: "/category/wanted-criminals", icon: "UserX", display_order: 1, status: "active" },
@@ -893,7 +894,12 @@ class JSONDatabaseManager {
             // Level 2 submenus under Women Safety (parent_sub_id: 3)
             { id: 10, parent_menu_id: 3, parent_sub_id: 3, name_en: "Pink Patrol", name_ta: "பிங்க் பேட்ரோல்", slug: "pink-patrol", url: "/category/pink-patrol", icon: "ShieldAlert", display_order: 1, status: "active" },
             { id: 11, parent_menu_id: 3, parent_sub_id: 3, name_en: "AVAL Support Wing", name_ta: "அவள் ஆதரவு பிரிவு", slug: "aval-support", url: "/category/aval-support", icon: "Smile", display_order: 2, status: "active" },
-            { id: 12, parent_menu_id: 3, parent_sub_id: 3, name_en: "Women Helpline", name_ta: "பெண்கள் உதவி எண்", slug: "women-helpline", url: "/category/women-helpline", icon: "PhoneCall", display_order: 3, status: "active" }
+            { id: 12, parent_menu_id: 3, parent_sub_id: 3, name_en: "Women Helpline", name_ta: "பெண்கள் உதவி எண்", slug: "women-helpline", url: "/category/women-helpline", icon: "PhoneCall", display_order: 3, status: "active" },
+
+            // Level 2 submenus under Emergency Alerts (parent_sub_id: 13)
+            { id: 14, parent_menu_id: 3, parent_sub_id: 13, name_en: "Police Official News", name_ta: "காவல்துறை அதிகாரப்பூர்வ செய்தி", slug: "police-official-news", url: "/category/police-official-news", icon: "Shield", display_order: 1, status: "active" },
+            { id: 15, parent_menu_id: 3, parent_sub_id: 13, name_en: "Public Warnings & Alerts", name_ta: "பொது எச்சரிக்கைகள் & விழிப்பூட்டல்கள்", slug: "public-warnings", url: "/category/public-warnings", icon: "AlertOctagon", display_order: 2, status: "active" },
+            { id: 16, parent_menu_id: 3, parent_sub_id: 13, name_en: "Public Announcements", name_ta: "பொது அறிவிப்புகள்", slug: "public-announcements", url: "/category/public-announcements", icon: "Megaphone", display_order: 3, status: "active" }
           ];
           modified = true;
         }
@@ -1055,6 +1061,56 @@ class JSONDatabaseManager {
         if (!this.data.portal_daily_visits) {
           this.data.portal_daily_visits = [];
           modified = true;
+        }
+
+        // Idempotent hierarchy verification: Ensure Emergency Alerts & 3 children exist under Citizen Services
+        if (this.data.sub_menus && Array.isArray(this.data.sub_menus)) {
+          const citizenMenu = (this.data.menus || []).find((m: any) => m.slug === "citizen-services") || { id: 3 };
+          let emergencySub = this.data.sub_menus.find((s: any) => s.slug === "emergency-alerts" && s.parent_menu_id === citizenMenu.id);
+          if (!emergencySub) {
+            const maxId = this.data.sub_menus.length > 0 ? Math.max(...this.data.sub_menus.map((s: any) => s.id || 0)) : 12;
+            emergencySub = {
+              id: maxId + 1,
+              parent_menu_id: citizenMenu.id,
+              parent_sub_id: null,
+              name_en: "Emergency Alerts",
+              name_ta: "அவசர எச்சரிக்கைகள்",
+              slug: "emergency-alerts",
+              url: "/category/emergency-alerts",
+              icon: "AlertTriangle",
+              display_order: 6,
+              status: "active"
+            };
+            this.data.sub_menus.push(emergencySub);
+            modified = true;
+          }
+
+          const emergencyId = emergencySub.id;
+          const subChildren = [
+            { id: 14, slug: "police-official-news", name_en: "Police Official News", name_ta: "காவல்துறை அதிகாரப்பூர்வ செய்தி", url: "/category/police-official-news", icon: "Shield", display_order: 1 },
+            { id: 15, slug: "public-warnings", name_en: "Public Warnings & Alerts", name_ta: "பொது எச்சரிக்கைகள் & விழிப்பூட்டல்கள்", url: "/category/public-warnings", icon: "AlertOctagon", display_order: 2 },
+            { id: 16, slug: "public-announcements", name_en: "Public Announcements", name_ta: "பொது அறிவிப்புகள்", url: "/category/public-announcements", icon: "Megaphone", display_order: 3 }
+          ];
+
+          for (const child of subChildren) {
+            const hasChild = this.data.sub_menus.some((s: any) => s.slug === child.slug && s.parent_sub_id === emergencyId);
+            if (!hasChild) {
+              const maxId = Math.max(...this.data.sub_menus.map((s: any) => s.id || 0));
+              this.data.sub_menus.push({
+                id: maxId + 1,
+                parent_menu_id: citizenMenu.id,
+                parent_sub_id: emergencyId,
+                name_en: child.name_en,
+                name_ta: child.name_ta,
+                slug: child.slug,
+                url: child.url,
+                icon: child.icon,
+                display_order: child.display_order,
+                status: "active"
+              });
+              modified = true;
+            }
+          }
         }
 
         if (modified) {
@@ -1228,6 +1284,7 @@ class JSONDatabaseManager {
       { id: 3, parent_menu_id: 3, parent_sub_id: null, name_en: "Women Safety", name_ta: "பெண்கள் பாதுகாப்பு", slug: "women-safety", url: "/category/women-safety", icon: "Heart", display_order: 3, status: "active" },
       { id: 4, parent_menu_id: 3, parent_sub_id: null, name_en: "Public Safety", name_ta: "பொது பாதுகாப்பு", slug: "public-safety", url: "/category/public-safety", icon: "Eye", display_order: 4, status: "active" },
       { id: 5, parent_menu_id: 3, parent_sub_id: null, name_en: "Outreach", name_ta: "சமூக உதவி", slug: "outreach", url: "/category/outreach", icon: "Users", display_order: 5, status: "active" },
+      { id: 13, parent_menu_id: 3, parent_sub_id: null, name_en: "Emergency Alerts", name_ta: "அவசர எச்சரிக்கைகள்", slug: "emergency-alerts", url: "/category/emergency-alerts", icon: "AlertTriangle", display_order: 6, status: "active" },
 
       // Level 2 submenus under Crime (parent_sub_id: 1)
       { id: 6, parent_menu_id: 3, parent_sub_id: 1, name_en: "Wanted Criminals", name_ta: "தேடப்படும் குற்றவாளிகள்", slug: "wanted-criminals", url: "/category/wanted-criminals", icon: "UserX", display_order: 1, status: "active" },
@@ -1240,7 +1297,12 @@ class JSONDatabaseManager {
       // Level 2 submenus under Women Safety (parent_sub_id: 3)
       { id: 10, parent_menu_id: 3, parent_sub_id: 3, name_en: "Pink Patrol", name_ta: "பிங்க் பேட்ரோல்", slug: "pink-patrol", url: "/category/pink-patrol", icon: "ShieldAlert", display_order: 1, status: "active" },
       { id: 11, parent_menu_id: 3, parent_sub_id: 3, name_en: "AVAL Support Wing", name_ta: "அவள் ஆதரவு பிரிவு", slug: "aval-support", url: "/category/aval-support", icon: "Smile", display_order: 2, status: "active" },
-      { id: 12, parent_menu_id: 3, parent_sub_id: 3, name_en: "Women Helpline", name_ta: "பெண்கள் உதவி எண்", slug: "women-helpline", url: "/category/women-helpline", icon: "PhoneCall", display_order: 3, status: "active" }
+      { id: 12, parent_menu_id: 3, parent_sub_id: 3, name_en: "Women Helpline", name_ta: "பெண்கள் உதவி எண்", slug: "women-helpline", url: "/category/women-helpline", icon: "PhoneCall", display_order: 3, status: "active" },
+
+      // Level 2 submenus under Emergency Alerts (parent_sub_id: 13)
+      { id: 14, parent_menu_id: 3, parent_sub_id: 13, name_en: "Police Official News", name_ta: "காவல்துறை அதிகாரப்பூர்வ செய்தி", slug: "police-official-news", url: "/category/police-official-news", icon: "Shield", display_order: 1, status: "active" },
+      { id: 15, parent_menu_id: 3, parent_sub_id: 13, name_en: "Public Warnings & Alerts", name_ta: "பொது எச்சரிக்கைகள் & விழிப்பூட்டல்கள்", slug: "public-warnings", url: "/category/public-warnings", icon: "AlertOctagon", display_order: 2, status: "active" },
+      { id: 16, parent_menu_id: 3, parent_sub_id: 13, name_en: "Public Announcements", name_ta: "பொது அறிவிப்புகள்", slug: "public-announcements", url: "/category/public-announcements", icon: "Megaphone", display_order: 3, status: "active" }
     ];
 
     this.save();
@@ -1609,6 +1671,14 @@ class ChennaiGuardianDatabase {
             },
             { id: 4, parent_menu_id: 3, name_en: "Public Safety", name_ta: "பொது பாதுகாப்பு", slug: "public-safety", url: "/category/public-safety", display_order: 4, status: "active", subMenus: [] },
             { id: 5, parent_menu_id: 3, name_en: "Outreach", name_ta: "சமூக உதவி", slug: "outreach", url: "/category/outreach", display_order: 5, status: "active", subMenus: [] },
+            {
+              id: 13, parent_menu_id: 3, name_en: "Emergency Alerts", name_ta: "அவசர எச்சரிக்கைகள்", slug: "emergency-alerts", url: "/category/emergency-alerts", display_order: 6, status: "active",
+              subMenus: [
+                { id: 14, parent_menu_id: 3, parent_sub_id: 13, name_en: "Police Official News", name_ta: "காவல்துறை அதிகாரப்பூர்வ செய்தி", slug: "police-official-news", url: "/category/police-official-news", display_order: 1, status: "active" },
+                { id: 15, parent_menu_id: 3, parent_sub_id: 13, name_en: "Public Warnings & Alerts", name_ta: "பொது எச்சரிக்கைகள் & விழிப்பூட்டல்கள்", slug: "public-warnings", url: "/category/public-warnings", display_order: 2, status: "active" },
+                { id: 16, parent_menu_id: 3, parent_sub_id: 13, name_en: "Public Announcements", name_ta: "பொது அறிவிப்புகள்", slug: "public-announcements", url: "/category/public-announcements", display_order: 3, status: "active" },
+              ] as any
+            },
           ] as any
         },
         { id: 4, name_en: "Traffic", name_ta: "போக்குவரத்து", slug: "traffic", display_order: 4, url: "https://gctp.in/chennai-home", page_type: "external", status: "active", open_in_new_tab: 1, subMenus: [] },

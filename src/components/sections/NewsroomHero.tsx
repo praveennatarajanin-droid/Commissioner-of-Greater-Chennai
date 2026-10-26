@@ -15,6 +15,7 @@ interface NewsItem {
   category_en: string;
   category_ta: string;
   image: string;
+  gallery?: string[];
   date: string;
   section: string;
   breaking?: number;
@@ -38,6 +39,8 @@ interface SliderItem {
   desc_ta: string;
   order_num: number;
   active: number;
+  slug?: string;
+  url?: string;
 }
 
 interface VideoItem {
@@ -145,6 +148,7 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
     .filter(n => n.section === "slider" && (n.title_en || n.title_ta))
     .map(n => ({
       id: n.id,
+      slug: n.slug,
       src: n.image || "/images/police_medal.jpg",
       title_en: n.title_en || "",
       title_ta: n.title_ta || n.title_en || "",
@@ -172,6 +176,7 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
   if (slidesToUse.length === 0 && heroStory) {
     slidesToUse.push({
       id: heroStory.id || 1,
+      slug: heroStory.slug,
       src: heroStory.image || "/images/police_medal.jpg",
       title_en: heroStory.title_en || "",
       title_ta: heroStory.title_ta || "",
@@ -201,13 +206,34 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
   // Derive slide URL link
   const findSlideLink = (slide: typeof currentSlide) => {
     if (!slide) return "/news";
-    const matchingById = news.find(n => n.id === slide.id && n.slug);
-    if (matchingById) return `/news/${matchingById.slug}`;
-    const matchingNews = news.find(n => 
-      ((n.title_en && n.title_en.toLowerCase() === slide.title_en?.toLowerCase()) ||
-      (n.title_ta && n.title_ta.toLowerCase() === slide.title_ta?.toLowerCase())) && n.slug
+    // 1. Direct slug or url on slide object
+    if ((slide as any).slug) return `/news/${(slide as any).slug}`;
+    if ((slide as any).url) return (slide as any).url;
+
+    // 2. Exact title match with news
+    const exactTitleMatch = news.find(n => 
+      n.slug && (
+        (n.title_en && slide.title_en && n.title_en.trim().toLowerCase() === slide.title_en.trim().toLowerCase()) ||
+        (n.title_ta && slide.title_ta && n.title_ta.trim().toLowerCase() === slide.title_ta.trim().toLowerCase())
+      )
     );
-    if (matchingNews) return `/news/${matchingNews.slug}`;
+    if (exactTitleMatch?.slug) return `/news/${exactTitleMatch.slug}`;
+
+    // 3. Partial title match with news
+    const partialTitleMatch = news.find(n =>
+      n.slug && slide.title_en && n.title_en && (
+        n.title_en.toLowerCase().includes(slide.title_en.toLowerCase().slice(0, 30)) ||
+        slide.title_en.toLowerCase().includes(n.title_en.toLowerCase().slice(0, 30))
+      )
+    );
+    if (partialTitleMatch?.slug) return `/news/${partialTitleMatch.slug}`;
+
+    // 4. Image match
+    if (slide.src) {
+      const imageMatch = news.find(n => n.slug && n.image && (n.image === slide.src || (n.gallery && n.gallery.includes(slide.src))));
+      if (imageMatch?.slug) return `/news/${imageMatch.slug}`;
+    }
+
     if (heroStory?.slug) return `/news/${heroStory.slug}`;
     return "/news";
   };
@@ -288,8 +314,13 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
               onTouchMove={handleTouchMove}
               onTouchEnd={handleTouchEnd}
             >
-              {/* Background Slide Image */}
-              <div className="absolute inset-0 z-0 bg-stone-955 flex items-center justify-center overflow-hidden">
+              {/* Background Slide Image wrapped in Link */}
+              <Link
+                href={currentLink}
+                className="absolute inset-0 z-0 bg-stone-955 flex items-center justify-center overflow-hidden cursor-pointer"
+                tabIndex={-1}
+                aria-label={slideTitle}
+              >
                 <Image
                   src={currentSlide.src || "/images/police_medal.jpg"}
                   alt={slideTitle}
@@ -306,7 +337,7 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
                   className="absolute inset-0 z-0" 
                   style={{ background: "linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.15) 100%)" }}
                 />
-              </div>
+              </Link>
 
               {/* Slider Controls (Manual Navigation Arrows) */}
               {slidesToUse.length > 1 && (
@@ -362,16 +393,18 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
               )}
 
               {/* Bottom text wrapper */}
-              <div className="absolute bottom-0 inset-x-0 p-6 md:p-8 z-10 text-left">
-                <h2 className="font-display font-black text-white text-xl sm:text-2xl md:text-3xl leading-tight mb-2.5 group-hover/slider:text-brand-gold transition-colors duration-300 line-clamp-2 newsroom-hero-title drop-shadow-md">
-                  {slideTitle}
-                </h2>
+              <div className="absolute bottom-0 inset-x-0 p-6 md:p-8 z-10 text-left pointer-events-none">
+                <Link href={currentLink} className="pointer-events-auto inline-block group/title">
+                  <h2 className="font-display font-black text-white text-xl sm:text-2xl md:text-3xl leading-tight mb-2.5 group-hover/slider:text-brand-gold group-hover/title:text-brand-gold transition-colors duration-300 line-clamp-2 newsroom-hero-title drop-shadow-md cursor-pointer">
+                    {slideTitle}
+                  </h2>
+                </Link>
                 {slideDesc && (
                   <p className="text-white/85 text-xs sm:text-sm md:text-base font-medium leading-relaxed mb-4 line-clamp-2 max-w-3xl newsroom-hero-desc drop-shadow-sm">
                     {slideDesc}
                   </p>
                 )}
-                <div className="flex items-center gap-4 flex-wrap pt-3 border-t border-white/15">
+                <div className="flex items-center gap-4 flex-wrap pt-3 border-t border-white/15 pointer-events-auto">
                   <Link 
                     href={currentLink}
                     className="inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-brand-gold bg-black/40 hover:bg-brand-maroon hover:text-white px-4 py-2 rounded-lg border border-brand-gold/40 hover:border-brand-maroon transition-all duration-300 backdrop-blur-xs group-hover/slider:translate-x-1"
@@ -590,11 +623,7 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
                 )}
               </div>
 
-              <div className="mt-2 flex items-center justify-end text-[9px] text-stone-400 font-semibold px-1">
-                <Link href="/news" className="text-brand-maroon dark:text-brand-gold hover:underline font-bold">
-                  {language === "ta" ? "அனைத்து செய்திகள் →" : "View All News →"}
-                </Link>
-              </div>
+
             </div>
           </div>
 

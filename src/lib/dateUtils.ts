@@ -323,3 +323,5 @@ export function isArticlePubliclyVisible(item: any): boolean {
 
   return true;
 }
+
+export { getCategorySlug, isCategorySlugMatch } from "./categoryUtils";

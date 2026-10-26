@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { NewsItem } from "@/data/newsData";
 import { useTranslation } from "@/context/LanguageContext";
-import { formatFullDateTime } from "@/lib/dateUtils";
+import { formatFullDateTime, getCategorySlug } from "@/lib/dateUtils";
 
 // Custom SVG Icons for Social Share
 const FacebookIcon = () => (
@@ -716,6 +716,17 @@ export default function NewsDetailClient({ article }: { article: NewsItem }) {
           <Link href="/#media" className="hover:text-brand-maroon dark:hover:text-brand-gold transition-colors">
             {t("navbar.news")}
           </Link>
+          {article.category_en && (
+            <>
+              <span className="mx-2 text-stone-400 dark:text-stone-600">/</span>
+              <Link
+                href={`/category/${getCategorySlug(article.category_en)}`}
+                className="hover:text-brand-maroon dark:hover:text-brand-gold transition-colors text-brand-maroon dark:text-brand-gold"
+              >
+                {language === "ta" ? (article.category_ta || article.category_en) : article.category_en}
+              </Link>
+            </>
+          )}
           <span className="mx-2 text-stone-400 dark:text-stone-600">/</span>
           <span className="text-slate-800 dark:text-stone-100 font-extrabold truncate max-w-xs md:max-w-lg text-left">
             {language === "ta" ? article.title_ta : article.title_en}
@@ -732,9 +743,13 @@ export default function NewsDetailClient({ article }: { article: NewsItem }) {
             
             {/* Header News Content */}
             <div className="space-y-4 text-left">
-              <span className="inline-flex px-3 py-1 rounded bg-brand-maroon/10 text-brand-maroon dark:bg-brand-gold/15 dark:text-brand-gold text-xs font-black uppercase tracking-widest border border-brand-maroon/20 dark:border-brand-gold/30">
+              <Link
+                href={`/category/${getCategorySlug(article.category_en)}`}
+                className="inline-flex px-3 py-1 rounded bg-brand-maroon/10 text-brand-maroon hover:bg-brand-maroon/20 dark:bg-brand-gold/15 dark:text-brand-gold dark:hover:bg-brand-gold/25 text-xs font-black uppercase tracking-widest border border-brand-maroon/20 dark:border-brand-gold/30 transition-colors"
+                title={`View all ${article.category_en} articles`}
+              >
                 {language === "ta" ? article.category_ta : article.category_en}
-              </span>
+              </Link>
               
               <h1 className="font-display font-black text-2xl sm:text-3xl lg:text-4xl text-slate-900 dark:text-white leading-tight text-left">
                 {language === "ta" ? article.title_ta : article.title_en}

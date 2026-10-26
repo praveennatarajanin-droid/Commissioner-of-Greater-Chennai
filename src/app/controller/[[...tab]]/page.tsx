@@ -16,7 +16,7 @@ function getAllowedTabs(role: string): string[] {
   const r = (role || "").toUpperCase().trim().replace(" ", "_");
   if (r === "SUPER_ADMIN" || r === "SUPERADMIN") {
     return [
-      "dashboard", "superadmin", "news", "ticker", "slider", "profile",
+      "dashboard", "superadmin", "news", "slider", "profile",
       "theme", "settings", "videos", "alerts", "media", "seo", "users",
       "logs", "police-stations", "emergency-contacts", "department-links",
       "menu-management", "page-editor", "footer", "web-stories", "citizen-services",

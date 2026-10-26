@@ -177,6 +177,78 @@ const CATEGORY_MAP: Record<string, { title_en: string; title_ta: string; color: 
     bgImage: "/images/singappen.png",
     bgGradient: "linear-gradient(90deg, #2d0b25 0%, rgba(45, 11, 37, 0.95) 30%, rgba(45, 11, 37, 0.5) 65%, rgba(45, 11, 37, 0) 100%)",
     bgPosition: "center 20%"
+  },
+  "emergency-alerts": {
+    title_en: "Emergency Alerts",
+    title_ta: "அவசர எச்சரிக்கைகள்",
+    color: "#dc2626",
+    keywords: ["emergency", "alert", "warning", "announcement", "police news"],
+    bgImage: "/images/public_safety_banner_bg.png",
+    bgGradient: "linear-gradient(90deg, #3f0909 0%, rgba(63, 9, 9, 0.95) 30%, rgba(63, 9, 9, 0.5) 65%, rgba(63, 9, 9, 0) 100%)",
+    bgPosition: "center 50%"
+  },
+  "police-official-news": {
+    title_en: "Police Official News",
+    title_ta: "காவல்துறை அதிகாரப்பூர்வ செய்தி",
+    color: "#1e3a8a",
+    keywords: ["police official news", "official news", "press release", "commissioner"],
+    bgImage: "/images/public_safety_banner_bg.png",
+    bgGradient: "linear-gradient(90deg, #111827 0%, rgba(17, 24, 39, 0.95) 30%, rgba(17, 24, 39, 0.5) 65%, rgba(17, 24, 39, 0) 100%)",
+    bgPosition: "center 50%"
+  },
+  "public-warnings": {
+    title_en: "Public Warnings & Alerts",
+    title_ta: "பொது எச்சரிக்கைகள் & விழிப்பூட்டல்கள்",
+    color: "#ea580c",
+    keywords: ["warning", "alert", "public warnings", "advisory", "danger"],
+    bgImage: "/images/public_safety_banner_bg.png",
+    bgGradient: "linear-gradient(90deg, #3f0909 0%, rgba(63, 9, 9, 0.95) 30%, rgba(63, 9, 9, 0.5) 65%, rgba(63, 9, 9, 0) 100%)",
+    bgPosition: "center 50%"
+  },
+  "public-announcements": {
+    title_en: "Public Announcements",
+    title_ta: "பொது அறிவிப்புகள்",
+    color: "#0891b2",
+    keywords: ["announcement", "public announcement", "notice", "circular"],
+    bgImage: "/images/public_safety_banner_bg.png",
+    bgGradient: "linear-gradient(90deg, #0f172a 0%, rgba(15, 23, 42, 0.95) 30%, rgba(15, 23, 42, 0.5) 65%, rgba(15, 23, 42, 0) 100%)",
+    bgPosition: "center 50%"
+  },
+  "public-warnings-alerts": {
+    title_en: "Public Warnings & Alerts",
+    title_ta: "பொது எச்சரிக்கைகள் & விழிப்பூட்டல்கள்",
+    color: "#ea580c",
+    keywords: ["warning", "alert", "public warnings", "advisory", "danger"],
+    bgImage: "/images/public_safety_banner_bg.png",
+    bgGradient: "linear-gradient(90deg, #3f0909 0%, rgba(63, 9, 9, 0.95) 30%, rgba(63, 9, 9, 0.5) 65%, rgba(63, 9, 9, 0) 100%)",
+    bgPosition: "center 50%"
+  },
+  "public-warnings-and-alerts": {
+    title_en: "Public Warnings & Alerts",
+    title_ta: "பொது எச்சரிக்கைகள் & விழிப்பூட்டல்கள்",
+    color: "#ea580c",
+    keywords: ["warning", "alert", "public warnings", "advisory", "danger"],
+    bgImage: "/images/public_safety_banner_bg.png",
+    bgGradient: "linear-gradient(90deg, #3f0909 0%, rgba(63, 9, 9, 0.95) 30%, rgba(63, 9, 9, 0.5) 65%, rgba(63, 9, 9, 0) 100%)",
+    bgPosition: "center 50%"
+  },
+  "official-news": {
+    title_en: "Police Official News",
+    title_ta: "காவல்துறை அதிகாரப்பூர்வ செய்தி",
+    color: "#1e3a8a",
+    keywords: ["police official news", "official news", "press release", "commissioner"],
+    bgImage: "/images/public_safety_banner_bg.png",
+    bgGradient: "linear-gradient(90deg, #111827 0%, rgba(17, 24, 39, 0.95) 30%, rgba(17, 24, 39, 0.5) 65%, rgba(17, 24, 39, 0) 100%)",
+    bgPosition: "center 50%"
+  },
+  "announcements": {
+    title_en: "Public Announcements",
+    title_ta: "பொது அறிவிப்புகள்",
+    color: "#0891b2",
+    keywords: ["announcement", "public announcement", "notice", "circular"],
+    bgImage: "/images/public_safety_banner_bg.png",
+    bgGradient: "linear-gradient(90deg, #0f172a 0%, rgba(15, 23, 42, 0.95) 30%, rgba(15, 23, 42, 0.5) 65%, rgba(15, 23, 42, 0) 100%)",
+    bgPosition: "center 50%"
   }
 };
 
@@ -200,7 +272,17 @@ export default function CategoryPageClient({
 
 
 
-  const catInfo = CATEGORY_MAP[id] || {
+  const canonicalId = (id === "public-warnings-alerts" || id === "public-warnings-and-alerts" || id === "warnings-alerts")
+    ? "public-warnings"
+    : (id === "official-news" || id === "police-news")
+      ? "police-official-news"
+      : (id === "announcements")
+        ? "public-announcements"
+        : (id === "emergency")
+          ? "emergency-alerts"
+          : id;
+
+  const catInfo = CATEGORY_MAP[canonicalId] || CATEGORY_MAP[id] || {
     title_en: id.toUpperCase().replace("-", " "),
     title_ta: id,
     color: "#2e3192",
@@ -231,6 +313,10 @@ export default function CategoryPageClient({
                            (id === "public-safety" && (catEn === "public safety" || catEn === "clean campus" || catEn === "security audit")) ||
                            (id === "traffic" && (catEn === "traffic" || catEn === "traffic news" || catEn === "traffic advisory" || catEn === "traffic updates")) ||
                            (id === "outreach" && (catEn === "outreach" || catEn === "community outreach" || catEn === "social awareness" || catEn === "legal outreach" || catEn === "community support")) ||
+                            (id === "emergency-alerts" && (catEn === "emergency alerts" || catEn === "emergency-alerts" || catEn === "police official news" || catEn === "public warnings & alerts" || catEn === "public warnings" || catEn === "public announcements")) ||
+                            (id === "police-official-news" && (catEn === "police official news" || catEn === "police-official-news" || catEn === "official news")) ||
+                            ((canonicalId === "public-warnings" || id === "public-warnings" || id === "public-warnings-alerts" || id === "public-warnings-and-alerts") && (catEn === "public warnings & alerts" || catEn === "public warnings" || catEn === "public-warnings" || catEn === "warnings & alerts" || catEn === "public warnings and alerts")) ||
+                            (id === "public-announcements" && (catEn === "public announcements" || catEn === "public-announcements" || catEn === "announcements")) ||
                            (id === "government" && (catEn === "government updates" || catEn === "government" || catEn === "government update")) ||
                            (id === "awards" && (catEn === "awards & recognition" || catEn === "awards" || catEn === "recognition")) ||
                            (id === "administration" && (catEn === "police administration" || catEn === "administration")) ||

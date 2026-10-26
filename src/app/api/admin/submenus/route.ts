@@ -41,17 +41,30 @@ export async function POST(req: Request) {
 
   try {
     const data = await req.json();
-    const { parent_menu_id, name_en, name_ta, slug, url, icon, display_order, status } = data;
+    const { parent_menu_id, parent_sub_id, name_en, name_ta, slug, url, icon, display_order, status } = data;
 
     if (!parent_menu_id || !name_en || !name_ta || !slug || !url) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
+    const menus = await db.getMenus();
+    if (!menus.some(m => m.id === Number(parent_menu_id))) {
+      return NextResponse.json({ error: "Invalid category relationship: parent menu does not exist" }, { status: 400 });
+    }
+
     const submenus = await db.getSubMenus();
+    if (parent_sub_id !== null && parent_sub_id !== undefined && parent_sub_id !== "") {
+      const parentSub = submenus.find(s => s.id === Number(parent_sub_id));
+      if (!parentSub || parentSub.parent_menu_id !== Number(parent_menu_id)) {
+        return NextResponse.json({ error: "Invalid category relationship: specified parent subcategory does not exist under this menu" }, { status: 400 });
+      }
+    }
+
     const newId = submenus.length > 0 ? Math.max(...submenus.map(s => s.id)) + 1 : 1;
     const newSub: DBSubMenu = {
       id: newId,
       parent_menu_id: Number(parent_menu_id),
+      parent_sub_id: parent_sub_id ? Number(parent_sub_id) : null,
       name_en,
       name_ta,
       slug,
@@ -97,14 +110,37 @@ export async function PUT(req: Request) {
       return NextResponse.json({ success: true });
     }
 
-    const { id, parent_menu_id, name_en, name_ta, slug, url, icon, display_order, status } = data;
+    const { id, parent_menu_id, parent_sub_id, name_en, name_ta, slug, url, icon, display_order, status } = data;
     if (!id) return NextResponse.json({ error: "ID is required" }, { status: 400 });
+
+    const targetSub = submenus.find(s => s.id === id);
+    if (!targetSub) {
+      return NextResponse.json({ error: "Submenu not found" }, { status: 404 });
+    }
+
+    const effectiveParentMenuId = parent_menu_id !== undefined ? Number(parent_menu_id) : targetSub.parent_menu_id;
+    const menus = await db.getMenus();
+    if (!menus.some(m => m.id === effectiveParentMenuId)) {
+      return NextResponse.json({ error: "Invalid category relationship: parent menu does not exist" }, { status: 400 });
+    }
+
+    if (parent_sub_id !== undefined && parent_sub_id !== null && parent_sub_id !== "") {
+      const pSubId = Number(parent_sub_id);
+      if (pSubId === id) {
+        return NextResponse.json({ error: "Invalid category relationship: a subcategory cannot be its own parent" }, { status: 400 });
+      }
+      const parentSub = submenus.find(s => s.id === pSubId);
+      if (!parentSub || parentSub.parent_menu_id !== effectiveParentMenuId) {
+        return NextResponse.json({ error: "Invalid category relationship: specified parent subcategory does not exist under this menu" }, { status: 400 });
+      }
+    }
 
     submenus = submenus.map(s => {
       if (s.id === id) {
         return {
           ...s,
-          parent_menu_id: parent_menu_id !== undefined ? Number(parent_menu_id) : s.parent_menu_id,
+          parent_menu_id: effectiveParentMenuId,
+          parent_sub_id: parent_sub_id !== undefined ? (parent_sub_id ? Number(parent_sub_id) : null) : s.parent_sub_id,
           name_en: name_en ?? s.name_en,
           name_ta: name_ta ?? s.name_ta,
           slug: slug ?? s.slug,

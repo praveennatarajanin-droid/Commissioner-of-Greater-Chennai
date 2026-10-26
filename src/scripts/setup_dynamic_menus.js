@@ -239,6 +239,25 @@ async function runMigration() {
             'INSERT INTO `sub_menus` (parent_menu_id, parent_sub_id, name_en, name_ta, slug, url, icon, display_order, status) VALUES (?, NULL, ?, ?, ?, ?, ?, ?, ?)',
             [menuId, 'Outreach', 'சமூக உதவி', 'outreach', '/category/outreach', 'Users', 5, 'active']
           );
+
+          // 6. Emergency Alerts
+          const [emergencyRes] = await connection.query(
+            'INSERT INTO `sub_menus` (parent_menu_id, parent_sub_id, name_en, name_ta, slug, url, icon, display_order, status) VALUES (?, NULL, ?, ?, ?, ?, ?, ?, ?)',
+            [menuId, 'Emergency Alerts', 'அவசர எச்சரிக்கைகள்', 'emergency-alerts', '/category/emergency-alerts', 'AlertTriangle', 6, 'active']
+          );
+          const emergencyId = emergencyRes.insertId;
+          await connection.query(
+            'INSERT INTO `sub_menus` (parent_menu_id, parent_sub_id, name_en, name_ta, slug, url, icon, display_order, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            [menuId, emergencyId, 'Police Official News', 'காவல்துறை அதிகாரப்பூர்வ செய்தி', 'police-official-news', '/category/police-official-news', 'Shield', 1, 'active']
+          );
+          await connection.query(
+            'INSERT INTO `sub_menus` (parent_menu_id, parent_sub_id, name_en, name_ta, slug, url, icon, display_order, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            [menuId, emergencyId, 'Public Warnings & Alerts', 'பொது எச்சரிக்கைகள் & விழிப்பூட்டல்கள்', 'public-warnings', '/category/public-warnings', 'AlertOctagon', 2, 'active']
+          );
+          await connection.query(
+            'INSERT INTO `sub_menus` (parent_menu_id, parent_sub_id, name_en, name_ta, slug, url, icon, display_order, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            [menuId, emergencyId, 'Public Announcements', 'பொது அறிவிப்புகள்', 'public-announcements', '/category/public-announcements', 'Megaphone', 3, 'active']
+          );
         }
       }
       console.log('`menus` and `sub_menus` seeded.');

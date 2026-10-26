@@ -5,7 +5,7 @@ import NewsTicker from "@/components/layout/NewsTicker";
 import Footer from "@/components/layout/Footer";
 import NewsDetailClient from "@/components/NewsDetailClient";
 import { db } from "@/lib/db";
-import { isArticlePubliclyVisible } from "@/lib/dateUtils";
+import { isArticlePubliclyVisible, getCategorySlug } from "@/lib/dateUtils";
 import { getSessionUser, isAdmin } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
@@ -17,7 +17,12 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const news = await db.getNews();
-  const article = news.find((item) => item.slug === slug);
+  const article = news.find(
+    (item) =>
+      item.slug === slug ||
+      (slug === "police-medal-award-ceremony" && (item.id === 1 || item.slug === "rajaratnam-stadium-egmore-dr-a-amalraj-ips")) ||
+      (slug === "amalraj-posted-commissioner" && (item.id === 7 || item.slug === "a-amalraj-ips-assumes-charge-as-greater-chennai-police-commissioner"))
+  );
   if (!article) {
     notFound();
   }
@@ -109,7 +114,12 @@ export default async function Page({
 }) {
   const { slug } = await params;
   const news = await db.getNews();
-  const article = news.find((item) => item.slug === slug);
+  const article = news.find(
+    (item) =>
+      item.slug === slug ||
+      (slug === "police-medal-award-ceremony" && (item.id === 1 || item.slug === "rajaratnam-stadium-egmore-dr-a-amalraj-ips")) ||
+      (slug === "amalraj-posted-commissioner" && (item.id === 7 || item.slug === "a-amalraj-ips-assumes-charge-as-greater-chennai-police-commissioner"))
+  );
 
   let isVisible = article ? isArticlePubliclyVisible(article) : false;
   if (article && !isVisible) {
@@ -168,12 +178,13 @@ export default async function Page({
   };
 
   // Breadcrumb Schema JSON-LD
+  const categorySlug = getCategorySlug(article.category_en);
   const breadcrumbSchema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     "itemListElement": [
       { "@type": "ListItem", "position": 1, "name": "Home", "item": baseUrl },
-      { "@type": "ListItem", "position": 2, "name": article.category_en || "News", "item": `${baseUrl}/category/${(article.category_en || "news").toLowerCase().replace(/\s+/g, "-")}` },
+      { "@type": "ListItem", "position": 2, "name": article.category_en || "News", "item": `${baseUrl}/category/${categorySlug}` },
       { "@type": "ListItem", "position": 3, "name": article.title_en, "item": `${baseUrl}/news/${article.slug}` }
     ]
   };
