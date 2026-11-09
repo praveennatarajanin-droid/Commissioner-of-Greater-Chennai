@@ -91,7 +91,9 @@ async function runMigration() {
       trusted_devices: 'trusted_devices',
       media_files: 'media_files',
       portal_visitor_stats: 'portal_visitor_stats',
-      portal_daily_visits: 'portal_daily_visits'
+      portal_daily_visits: 'portal_daily_visits',
+      maintenance_config: 'maintenance_config',
+      maintenance_notifications: 'maintenance_notifications'
     };
 
     // Pre-defined fallback fields for tables that are empty in JSON
@@ -253,6 +255,32 @@ async function runMigration() {
         page_views: 0,
         created_at: '',
         updated_at: ''
+      },
+      maintenance_config: {
+        id: 1,
+        maintenance_enabled: 0,
+        maintenance_title_en: "We'll Be Back Soon!",
+        maintenance_description_en: "The Greater Chennai Police Commissioner Portal is temporarily undergoing scheduled maintenance.",
+        maintenance_title_ta: "இணையதளம் பராமரிப்பில் உள்ளது",
+        maintenance_description_ta: "சென்னை பெருநகர காவல் ஆணையரக இணையதளம் தற்போது பராமரிப்புப் பணியில் உள்ளது.",
+        expected_restoration_datetime: null,
+        expected_restore_at: null,
+        maintenance_message_en: "The Greater Chennai Police Commissioner Portal is temporarily undergoing scheduled maintenance.",
+        maintenance_message_ta: "சென்னை பெருநகர காவல் ஆணையரக இணையதளம் தற்போது பராமரிப்புப் பணியில் உள்ளது.",
+        active_schedule_ref: null,
+        updated_by: "System",
+        updated_at: "2026-11-10T00:00:00.000Z"
+      },
+      maintenance_notifications: {
+        id: 'notif_init',
+        schedule_ref: 'sched_init',
+        scheduled_restoration_datetime: '2026-11-10T00:00:00.000Z',
+        generated_at: '2026-11-10T00:00:00.000Z',
+        status: 'NEW',
+        read_by: null,
+        read_at: null,
+        created_at: '2026-11-10T00:00:00.000Z',
+        maintenance_status_at_trigger: 'ACTIVE'
       }
     };
 

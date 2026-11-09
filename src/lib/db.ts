@@ -2595,6 +2595,34 @@ class ChennaiGuardianDatabase {
   }
 
   public async getMaintenanceConfig(): Promise<DBMaintenanceConfig> {
+    // 1. Try MySQL Database query first if available
+    try {
+      const rows: any = await mysqlQuery("SELECT * FROM maintenance_config WHERE id = 1 LIMIT 1");
+      if (Array.isArray(rows) && rows.length > 0) {
+        const cfg = rows[0];
+        const descEn = cfg.maintenance_description_en || cfg.maintenance_message_en || "The Greater Chennai Police Commissioner Portal is temporarily undergoing scheduled maintenance. We apologize for the inconvenience and will be back shortly.";
+        const descTa = cfg.maintenance_description_ta || cfg.maintenance_message_ta || "சென்னை பெருநகர காவல் ஆணையரக இணையதளம் தற்போது பராமரிப்புப் பணியில் உள்ளது. ஏற்பட்டுள்ள சிரமத்திற்கு வருந்துகிறோம். விரைவில் மீண்டும் செயல்படும்.";
+        const restoreIso = cfg.expected_restoration_datetime || cfg.expected_restore_at || null;
+        return {
+          id: 1,
+          maintenance_enabled: Boolean(cfg.maintenance_enabled),
+          maintenance_title_en: cfg.maintenance_title_en || "We'll Be Back Soon!",
+          maintenance_description_en: descEn,
+          maintenance_title_ta: cfg.maintenance_title_ta || "இணையதளம் பராமரிப்பில் உள்ளது",
+          maintenance_description_ta: descTa,
+          expected_restoration_datetime: restoreIso,
+          expected_restore_at: restoreIso,
+          maintenance_message_en: descEn,
+          maintenance_message_ta: descTa,
+          active_schedule_ref: cfg.active_schedule_ref || null,
+          updated_by: cfg.updated_by || "System",
+          updated_at: cfg.updated_at ? new Date(cfg.updated_at).toISOString() : new Date().toISOString()
+        };
+      }
+    } catch {
+      // Fallback to JSON database
+    }
+
     const raw = jsonDb.getTable<DBMaintenanceConfig>("maintenance_config");
     if (Array.isArray(raw) && raw.length > 0) {
       const cfg = raw[0];
@@ -2662,6 +2690,62 @@ class ChennaiGuardianDatabase {
     if (partial.active_schedule_ref !== undefined) {
       updated.active_schedule_ref = partial.active_schedule_ref;
     }
+
+    // 1. Update MySQL database if available
+    try {
+      await mysqlQuery(`
+        CREATE TABLE IF NOT EXISTS maintenance_config (
+          id INT PRIMARY KEY AUTO_INCREMENT,
+          maintenance_enabled TINYINT(1) NOT NULL DEFAULT 0,
+          maintenance_title_en VARCHAR(255) NULL,
+          maintenance_description_en LONGTEXT NULL,
+          maintenance_title_ta VARCHAR(255) NULL,
+          maintenance_description_ta LONGTEXT NULL,
+          expected_restoration_datetime VARCHAR(64) NULL,
+          expected_restore_at VARCHAR(64) NULL,
+          maintenance_message_en LONGTEXT NULL,
+          maintenance_message_ta LONGTEXT NULL,
+          active_schedule_ref VARCHAR(128) NULL,
+          updated_by VARCHAR(128) NOT NULL DEFAULT 'System',
+          updated_at VARCHAR(64) NOT NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+      `);
+      await mysqlQuery(`
+        INSERT INTO maintenance_config (
+          id, maintenance_enabled, maintenance_title_en, maintenance_description_en,
+          maintenance_title_ta, maintenance_description_ta, expected_restoration_datetime,
+          expected_restore_at, maintenance_message_en, maintenance_message_ta,
+          active_schedule_ref, updated_by, updated_at
+        ) VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON DUPLICATE KEY UPDATE
+          maintenance_enabled = VALUES(maintenance_enabled),
+          maintenance_title_en = VALUES(maintenance_title_en),
+          maintenance_description_en = VALUES(maintenance_description_en),
+          maintenance_title_ta = VALUES(maintenance_title_ta),
+          maintenance_description_ta = VALUES(maintenance_description_ta),
+          expected_restoration_datetime = VALUES(expected_restoration_datetime),
+          expected_restore_at = VALUES(expected_restore_at),
+          maintenance_message_en = VALUES(maintenance_message_en),
+          maintenance_message_ta = VALUES(maintenance_message_ta),
+          active_schedule_ref = VALUES(active_schedule_ref),
+          updated_by = VALUES(updated_by),
+          updated_at = VALUES(updated_at);
+      `, [
+        updated.maintenance_enabled ? 1 : 0,
+        updated.maintenance_title_en,
+        updated.maintenance_description_en,
+        updated.maintenance_title_ta,
+        updated.maintenance_description_ta,
+        updated.expected_restoration_datetime,
+        updated.expected_restore_at,
+        updated.maintenance_message_en,
+        updated.maintenance_message_ta,
+        updated.active_schedule_ref,
+        updated.updated_by,
+        updated.updated_at
+      ]);
+    } catch {}
+
     jsonDb.setTable("maintenance_config", [updated]);
 
     try {
@@ -2676,6 +2760,24 @@ class ChennaiGuardianDatabase {
 
   // Maintenance Notifications
   public async getMaintenanceNotifications(): Promise<DBMaintenanceNotification[]> {
+    // 1. Try MySQL Database query first
+    try {
+      const rows: any = await mysqlQuery("SELECT * FROM maintenance_notifications ORDER BY created_at DESC");
+      if (Array.isArray(rows) && rows.length > 0) {
+        return rows.map((r: any) => ({
+          id: String(r.id),
+          schedule_ref: String(r.schedule_ref),
+          scheduled_restoration_datetime: String(r.scheduled_restoration_datetime),
+          generated_at: String(r.generated_at),
+          status: r.status === "READ" ? "READ" : "NEW",
+          read_by: r.read_by || null,
+          read_at: r.read_at || null,
+          created_at: String(r.created_at),
+          maintenance_status_at_trigger: r.maintenance_status_at_trigger === "INACTIVE" ? "INACTIVE" : "ACTIVE"
+        }));
+      }
+    } catch {}
+
     const raw = jsonDb.getTable<DBMaintenanceNotification[]>("maintenance_notifications");
     return Array.isArray(raw) ? raw : [];
   }
@@ -2685,6 +2787,42 @@ class ChennaiGuardianDatabase {
   }
 
   public async addMaintenanceNotification(notification: DBMaintenanceNotification): Promise<DBMaintenanceNotification> {
+    // 1. Try MySQL Insert
+    try {
+      await mysqlQuery(`
+        CREATE TABLE IF NOT EXISTS maintenance_notifications (
+          id VARCHAR(128) PRIMARY KEY,
+          schedule_ref VARCHAR(128) NOT NULL,
+          scheduled_restoration_datetime VARCHAR(64) NOT NULL,
+          generated_at VARCHAR(64) NOT NULL,
+          status VARCHAR(32) NOT NULL DEFAULT 'NEW',
+          read_by VARCHAR(128) NULL,
+          read_at VARCHAR(64) NULL,
+          created_at VARCHAR(64) NOT NULL,
+          maintenance_status_at_trigger VARCHAR(32) NOT NULL DEFAULT 'ACTIVE',
+          INDEX idx_maint_schedule_ref (schedule_ref),
+          INDEX idx_maint_status (status)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+      `);
+      await mysqlQuery(`
+        INSERT INTO maintenance_notifications (
+          id, schedule_ref, scheduled_restoration_datetime, generated_at,
+          status, read_by, read_at, created_at, maintenance_status_at_trigger
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON DUPLICATE KEY UPDATE status = VALUES(status);
+      `, [
+        notification.id,
+        notification.schedule_ref,
+        notification.scheduled_restoration_datetime,
+        notification.generated_at,
+        notification.status,
+        notification.read_by || null,
+        notification.read_at || null,
+        notification.created_at,
+        notification.maintenance_status_at_trigger
+      ]);
+    } catch {}
+
     const notifications = await this.getMaintenanceNotifications();
     const existingIndex = notifications.findIndex((n) => n.schedule_ref === notification.schedule_ref);
     if (existingIndex >= 0) {
@@ -2696,12 +2834,21 @@ class ChennaiGuardianDatabase {
   }
 
   public async markMaintenanceNotificationRead(id: string, readBy: string): Promise<DBMaintenanceNotification | null> {
+    const nowIso = new Date().toISOString();
+    // 1. Try MySQL Update
+    try {
+      await mysqlQuery(
+        "UPDATE maintenance_notifications SET status = 'READ', read_by = ?, read_at = ? WHERE id = ?",
+        [readBy, nowIso, id]
+      );
+    } catch {}
+
     const notifications = await this.getMaintenanceNotifications();
     const target = notifications.find((n) => n.id === id);
     if (!target) return null;
     target.status = "READ";
     target.read_by = readBy;
-    target.read_at = new Date().toISOString();
+    target.read_at = nowIso;
     await this.saveMaintenanceNotifications(notifications);
     return target;
   }

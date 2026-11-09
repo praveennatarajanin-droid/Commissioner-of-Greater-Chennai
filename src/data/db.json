@@ -8,7 +8,7 @@
       "email": "superadmin@chennaiguardian.in",
       "status": "active",
       "createdAt": "2026-07-23T15:01:05.171Z",
-      "lastLogin": "2026-11-09T20:25:51.183Z",
+      "lastLogin": "2026-11-09T21:09:00.621Z",
       "failed_logins": 0,
       "force_password_change": 1
     },
@@ -20,7 +20,7 @@
       "email": "admin@chennaiguardian.in",
       "status": "active",
       "createdAt": "2026-07-23T15:01:05.172Z",
-      "lastLogin": "2026-11-09T20:25:49.720Z",
+      "lastLogin": "2026-11-09T21:08:59.215Z",
       "failed_logins": 0,
       "force_password_change": 1
     },
@@ -78,6 +78,108 @@
     }
   ],
   "activity_logs": [
+    {
+      "id": 828,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "127.0.0.1",
+      "action": "WEBSITE_MAINTENANCE_MODE_DISABLED",
+      "module": "MAINTENANCE_MODE",
+      "timestamp": "2026-11-09T21:09:05.226Z",
+      "browser": "node",
+      "before_val": "{\"enabled\":true,\"title_en\":\"Scheduled System Maintenance\",\"expected_restore\":\"2026-11-09T21:08:34.296Z\"}",
+      "after_val": "{\"enabled\":false,\"title_en\":\"Scheduled System Maintenance\",\"expected_restore\":\"2026-11-09T21:08:34.296Z\"}"
+    },
+    {
+      "id": 827,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "127.0.0.1",
+      "action": "WEBSITE_MAINTENANCE_MODE_DISABLED",
+      "module": "MAINTENANCE_MODE",
+      "timestamp": "2026-11-09T21:09:03.584Z",
+      "browser": "node",
+      "before_val": "{\"enabled\":true,\"title_en\":\"Scheduled System Maintenance\",\"expected_restore\":\"2026-11-10T00:09:02.979Z\"}",
+      "after_val": "{\"enabled\":false,\"title_en\":\"Scheduled System Maintenance\",\"expected_restore\":\"2026-11-10T00:09:02.979Z\"}"
+    },
+    {
+      "id": 826,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "127.0.0.1",
+      "action": "WEBSITE_MAINTENANCE_MODE_ENABLED",
+      "module": "MAINTENANCE_MODE",
+      "timestamp": "2026-11-09T21:09:03.216Z",
+      "browser": "node",
+      "before_val": "{\"enabled\":false,\"title_en\":\"Scheduled System Maintenance\",\"expected_restore\":\"2026-11-09T21:08:54.955Z\"}",
+      "after_val": "{\"enabled\":true,\"title_en\":\"Scheduled System Maintenance\",\"expected_restore\":\"2026-11-10T00:09:02.979Z\"}"
+    },
+    {
+      "id": 825,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "127.0.0.1",
+      "action": "WEBSITE_MAINTENANCE_MODE_DISABLED",
+      "module": "MAINTENANCE_MODE",
+      "timestamp": "2026-11-09T21:09:02.851Z",
+      "browser": "node",
+      "before_val": "{\"enabled\":true,\"title_en\":\"Scheduled System Maintenance\",\"expected_restore\":\"2026-11-09T21:08:54.955Z\"}",
+      "after_val": "{\"enabled\":false,\"title_en\":\"Scheduled System Maintenance\",\"expected_restore\":\"2026-11-09T21:08:54.955Z\"}"
+    },
+    {
+      "id": 824,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "127.0.0.1",
+      "action": "MFA verified successfully via INITIAL_MFA_PASS",
+      "module": "Auth",
+      "timestamp": "2026-11-09T21:09:00.999Z",
+      "browser": "node"
+    },
+    {
+      "id": 823,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "127.0.0.1",
+      "action": "WEBSITE_MAINTENANCE_SETTINGS_UPDATED",
+      "module": "MAINTENANCE_MODE",
+      "timestamp": "2026-11-09T21:09:00.139Z",
+      "browser": "node",
+      "before_val": "{\"enabled\":true,\"title_en\":\"Scheduled System Maintenance\",\"expected_restore\":\"2026-11-09T21:10:59.461Z\"}",
+      "after_val": "{\"enabled\":true,\"title_en\":\"Scheduled System Maintenance\",\"expected_restore\":\"2026-11-09T21:08:54.955Z\"}"
+    },
+    {
+      "id": 822,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "127.0.0.1",
+      "action": "WEBSITE_MAINTENANCE_MODE_ENABLED",
+      "module": "MAINTENANCE_MODE",
+      "timestamp": "2026-11-09T21:08:59.703Z",
+      "browser": "node",
+      "before_val": "{\"enabled\":false,\"title_en\":\"Scheduled System Maintenance\",\"expected_restore\":null}",
+      "after_val": "{\"enabled\":true,\"title_en\":\"Scheduled System Maintenance\",\"expected_restore\":\"2026-11-09T21:10:59.461Z\"}"
+    },
+    {
+      "id": 821,
+      "username": "newseditormanager",
+      "role": "admin",
+      "ip_address": "127.0.0.1",
+      "action": "User logged in successfully",
+      "module": "Auth",
+      "timestamp": "2026-11-09T21:08:59.334Z",
+      "browser": "node"
+    },
+    {
+      "id": 820,
+      "username": "Digital_TN_GovMaster",
+      "role": "superadmin",
+      "ip_address": "127.0.0.1",
+      "action": "MFA verified successfully via INITIAL_MFA_PASS",
+      "module": "Auth",
+      "timestamp": "2026-11-09T21:08:59.031Z",
+      "browser": "node"
+    },
     {
       "id": 819,
       "username": "Digital_TN_GovMaster",
@@ -4578,60 +4680,6 @@
       "username": "Digital_TN_GovMaster",
       "action": "Deleted police station: Flower Bazaar Police Station",
       "timestamp": "2026-08-28T14:19:26.392Z"
-    },
-    {
-      "id": 327,
-      "username": "Digital_TN_GovMaster",
-      "action": "Deleted police station: Ennore Police Station",
-      "timestamp": "2026-08-28T14:19:23.298Z"
-    },
-    {
-      "id": 326,
-      "username": "Digital_TN_GovMaster",
-      "action": "Deleted police station: Elephant Gate Police Station",
-      "timestamp": "2026-08-28T14:19:20.190Z"
-    },
-    {
-      "id": 325,
-      "username": "Digital_TN_GovMaster",
-      "action": "Deleted police station: Egmore Police Station",
-      "timestamp": "2026-08-28T14:19:15.354Z"
-    },
-    {
-      "id": 324,
-      "username": "Digital_TN_GovMaster",
-      "action": "Deleted police station: CMBT Police Station",
-      "timestamp": "2026-08-28T14:19:12.813Z"
-    },
-    {
-      "id": 323,
-      "username": "Digital_TN_GovMaster",
-      "action": "Deleted police station: Choolaimedu Police Station",
-      "timestamp": "2026-08-28T14:19:10.461Z"
-    },
-    {
-      "id": 322,
-      "username": "Digital_TN_GovMaster",
-      "action": "Deleted police station: Chintadripet Police Station",
-      "timestamp": "2026-08-28T14:19:08.323Z"
-    },
-    {
-      "id": 321,
-      "username": "Digital_TN_GovMaster",
-      "action": "Deleted police station: Blue Beach Police Station",
-      "timestamp": "2026-08-28T14:19:06.145Z"
-    },
-    {
-      "id": 320,
-      "username": "Digital_TN_GovMaster",
-      "action": "Deleted police station: Besant Nagar Police Station",
-      "timestamp": "2026-08-28T14:19:04.478Z"
-    },
-    {
-      "id": 319,
-      "username": "Digital_TN_GovMaster",
-      "action": "Deleted police station: Basin Bridge Police Station",
-      "timestamp": "2026-08-28T14:19:02.439Z"
     }
   ],
   "custom_roles": [],
@@ -7922,6 +7970,26 @@
     }
   ],
   "alerts": [
+    {
+      "id": 5999,
+      "title": "Found myself here after tough tournaments: Magda Linette after Chennai Open glory",
+      "summary": "Found myself here after tough tournaments: Magda Linette after Chennai Open glory&nbsp;&nbsp;The New Indian Express",
+      "category": "LAW & ORDER",
+      "source": "THE NEW INDIAN EXPRESS",
+      "source_name": "THE NEW INDIAN EXPRESS",
+      "source_url": "https://www.newindianexpress.com/",
+      "url": "https://news.google.com/rss/articles/CBMi2wFBVV95cUxQOG5XQ1N6QVdQSl9MMFE2ajctbmRrWjg4OFV3aUxHMEhBbWlVX0JlbHpDeUN0UWpNS0s1X3RIN2gybGhpbUQ1ZlU4OWJySUZwSF83Mm1GcG9LTFV5dVoyLXdjQ0docDJWNkZEdzhwcVJjVkNiNTg2bmtBZFk4clh2NUI2elZ4c0ZrdEw5dzM5a3doclB4YlM4LWRaM18xa0hhdlg2ODFUTDFpNGZTazFzR3pPS2NRdnZlVUl5QUg3SEVWMHpSakRjR2xrRkphZHhKaE9ZQnp2RTFJWmvSAegBQVVfeXFMTk9jQjZDbkh0VFFNckE4LU13VW9LR0RpVjFzd3NCYVZzWnBZT3NjaE9saHkzRnhiU3djcWRhcERRUXNlVFAyY3JvWFBSeVlPUXVEYnpJUWRucDdsUDY2WFVzMkxxSjdLWWdpZ2swY2dUMnpVODlSUENQcVF4bjFsdlJNbndrUWpZLVFvQ3dxcnUzVXBNRElSU2tKX0tXYjd4MXdWQTBTTy1NMGFRSjhUVlZfZnZSVFZrVVlSV0lLSmhieUFYV2tWSGxtX2J4TEdoS3UxUVhpOEY5cjY3RnRKY0lad19mVDNHbw?oc=5",
+      "article_url": "https://news.google.com/rss/articles/CBMi2wFBVV95cUxQOG5XQ1N6QVdQSl9MMFE2ajctbmRrWjg4OFV3aUxHMEhBbWlVX0JlbHpDeUN0UWpNS0s1X3RIN2gybGhpbUQ1ZlU4OWJySUZwSF83Mm1GcG9LTFV5dVoyLXdjQ0docDJWNkZEdzhwcVJjVkNiNTg2bmtBZFk4clh2NUI2elZ4c0ZrdEw5dzM5a3doclB4YlM4LWRaM18xa0hhdlg2ODFUTDFpNGZTazFzR3pPS2NRdnZlVUl5QUg3SEVWMHpSakRjR2xrRkphZHhKaE9ZQnp2RTFJWmvSAegBQVVfeXFMTk9jQjZDbkh0VFFNckE4LU13VW9LR0RpVjFzd3NCYVZzWnBZT3NjaE9saHkzRnhiU3djcWRhcERRUXNlVFAyY3JvWFBSeVlPUXVEYnpJUWRucDdsUDY2WFVzMkxxSjdLWWdpZ2swY2dUMnpVODlSUENQcVF4bjFsdlJNbndrUWpZLVFvQ3dxcnUzVXBNRElSU2tKX0tXYjd4MXdWQTBTTy1NMGFRSjhUVlZfZnZSVFZrVVlSV0lLSmhieUFYV2tWSGxtX2J4TEdoS3UxUVhpOEY5cjY3RnRKY0lad19mVDNHbw?oc=5",
+      "published_at": "2026-11-09T19:45:12.000Z",
+      "fetched_at": "2026-11-09T20:28:26.487Z",
+      "external_id": "https://news.google.com/rss/articles/CBMi2wFBVV95cUxQOG5XQ1N6QVdQSl9MMFE2ajctbmRrWjg4OFV3aUxHMEhBbWlVX0JlbHpDeUN0UWpNS0s1X3RIN2gybGhpbUQ1ZlU4OWJySUZwSF83Mm1GcG9LTFV5dVoyLXdjQ0docDJWNkZEdzhwcVJjVkNiNTg2bmtBZFk4clh2NUI2elZ4c0ZrdEw5dzM5a3doclB4YlM4LWRaM18xa0hhdlg2ODFUTDFpNGZTazFzR3pPS2NRdnZlVUl5QUg3SEVWMHpSakRjR2xrRkphZHhKaE9ZQnp2RTFJWmvSAegBQVVfeXFMTk9jQjZDbkh0VFFNckE4LU13VW9LR0RpVjFzd3NCYVZzWnBZT3NjaE9saHkzRnhiU3djcWRhcERRUXNlVFAyY3JvWFBSeVlPUXVEYnpJUWRucDdsUDY2WFVzMkxxSjdLWWdpZ2swY2dUMnpVODlSUENQcVF4bjFsdlJNbndrUWpZLVFvQ3dxcnUzVXBNRElSU2tKX0tXYjd4MXdWQTBTTy1NMGFRSjhUVlZfZnZSVFZrVVlSV0lLSmhieUFYV2tWSGxtX2J4TEdoS3UxUVhpOEY5cjY3RnRKY0lad19mVDNHbw?oc=5",
+      "language": "en",
+      "status": "active",
+      "approved": 1,
+      "pinned": 0,
+      "removed": 0,
+      "created_at": "2026-11-09T20:28:37.343Z"
+    },
     {
       "id": 5991,
       "title": "WTA Chennai Open: Postponement of singles final sparks controversy",
@@ -124564,7 +124632,7 @@
       "id": 1,
       "auto_fetch": 1,
       "require_approval": 1,
-      "last_fetched_at": "2026-11-09T19:40:02.789Z",
+      "last_fetched_at": "2026-11-09T20:28:26.487Z",
       "live_feed_enabled": 1,
       "approved_sources": "tnpolice.gov.in, gcp.tn.gov.in, greaterchennaipolice.in, tn.gov.in, pib.gov.in",
       "refresh_interval": 15
@@ -135711,9 +135779,9 @@
   "portal_visitor_stats": [
     {
       "id": 1,
-      "total_page_views": 544,
+      "total_page_views": 546,
       "created_at": "2026-09-08T05:38:30.468Z",
-      "updated_at": "2026-11-09T19:33:34.573Z"
+      "updated_at": "2026-11-09T20:28:31.980Z"
     }
   ],
   "portal_daily_visits": [
@@ -135860,9 +135928,9 @@
     {
       "id": 21,
       "visit_date": "2026-11-09",
-      "page_views": 6,
+      "page_views": 8,
       "created_at": "2026-11-09T15:04:14.479Z",
-      "updated_at": "2026-11-09T19:33:34.573Z"
+      "updated_at": "2026-11-09T20:28:31.980Z"
     }
   ],
   "superadmin_config": {
@@ -140811,6 +140879,136 @@
       "user_agent": "node",
       "details": "Global Website Maintenance Mode changed from ON to OFF. Updated by Super Admin: Digital_TN_GovMaster.",
       "created_at": "2026-11-09T20:25:55.632Z"
+    },
+    {
+      "id": 489,
+      "username": "Digital_TN_GovMaster",
+      "event_type": "MFA_CHALLENGE_ISSUED",
+      "severity": "info",
+      "ip_address": "127.0.0.1",
+      "user_agent": "node",
+      "details": "MFA challenge issued for login attempt.",
+      "created_at": "2026-11-09T21:08:58.776Z"
+    },
+    {
+      "id": 490,
+      "username": "Digital_TN_GovMaster",
+      "event_type": "MFA_LOGIN_SUCCESS",
+      "severity": "info",
+      "ip_address": "127.0.0.1",
+      "user_agent": "node",
+      "details": "MFA authenticated via INITIAL_MFA_PASS.",
+      "created_at": "2026-11-09T21:08:59.094Z"
+    },
+    {
+      "id": 491,
+      "username": "newseditormanager",
+      "event_type": "LOGIN_SUCCESS",
+      "severity": "info",
+      "ip_address": "127.0.0.1",
+      "user_agent": "node",
+      "details": "User authenticated successfully.",
+      "created_at": "2026-11-09T21:08:59.394Z"
+    },
+    {
+      "id": 492,
+      "username": "Digital_TN_GovMaster",
+      "event_type": "WEBSITE_MAINTENANCE_MODE_ENABLED",
+      "severity": "critical",
+      "ip_address": "127.0.0.1",
+      "user_agent": "node",
+      "details": "Global Website Maintenance Mode changed from OFF to ON. Updated by Super Admin: Digital_TN_GovMaster.",
+      "created_at": "2026-11-09T21:08:59.765Z"
+    },
+    {
+      "id": 493,
+      "username": "Digital_TN_GovMaster",
+      "event_type": "WEBSITE_MAINTENANCE_SETTINGS_UPDATED",
+      "severity": "info",
+      "ip_address": "127.0.0.1",
+      "user_agent": "node",
+      "details": "Maintenance settings updated by Super Admin: Digital_TN_GovMaster. Title: \"Scheduled System Maintenance\", Expected restore: 2026-11-09T21:08:54.955Z.",
+      "created_at": "2026-11-09T21:09:00.205Z"
+    },
+    {
+      "id": 494,
+      "username": "SYSTEM_SCHEDULER",
+      "event_type": "MAINTENANCE_RESTORATION_TIME_REACHED",
+      "severity": "warning",
+      "ip_address": "127.0.0.1",
+      "user_agent": "OverdueDetectionScheduler",
+      "details": "Maintenance restoration time reached: 2026-11-09T21:08:54.955Z. Super Admin notification generated.",
+      "created_at": "2026-11-09T21:09:00.336Z"
+    },
+    {
+      "id": 495,
+      "username": "Digital_TN_GovMaster",
+      "event_type": "MFA_CHALLENGE_ISSUED",
+      "severity": "info",
+      "ip_address": "127.0.0.1",
+      "user_agent": "node",
+      "details": "MFA challenge issued for login attempt.",
+      "created_at": "2026-11-09T21:09:00.746Z"
+    },
+    {
+      "id": 496,
+      "username": "Digital_TN_GovMaster",
+      "event_type": "MFA_LOGIN_SUCCESS",
+      "severity": "info",
+      "ip_address": "127.0.0.1",
+      "user_agent": "node",
+      "details": "MFA authenticated via INITIAL_MFA_PASS.",
+      "created_at": "2026-11-09T21:09:01.059Z"
+    },
+    {
+      "id": 497,
+      "username": "Digital_TN_GovMaster",
+      "event_type": "WEBSITE_MAINTENANCE_MODE_DISABLED",
+      "severity": "warning",
+      "ip_address": "127.0.0.1",
+      "user_agent": "node",
+      "details": "Global Website Maintenance Mode changed from ON to OFF. Updated by Super Admin: Digital_TN_GovMaster.",
+      "created_at": "2026-11-09T21:09:02.912Z"
+    },
+    {
+      "id": 498,
+      "username": "Digital_TN_GovMaster",
+      "event_type": "WEBSITE_MAINTENANCE_MODE_ENABLED",
+      "severity": "critical",
+      "ip_address": "127.0.0.1",
+      "user_agent": "node",
+      "details": "Global Website Maintenance Mode changed from OFF to ON. Updated by Super Admin: Digital_TN_GovMaster.",
+      "created_at": "2026-11-09T21:09:03.278Z"
+    },
+    {
+      "id": 499,
+      "username": "Digital_TN_GovMaster",
+      "event_type": "WEBSITE_MAINTENANCE_MODE_DISABLED",
+      "severity": "warning",
+      "ip_address": "127.0.0.1",
+      "user_agent": "node",
+      "details": "Global Website Maintenance Mode changed from ON to OFF. Updated by Super Admin: Digital_TN_GovMaster.",
+      "created_at": "2026-11-09T21:09:03.651Z"
+    },
+    {
+      "id": 500,
+      "username": "SYSTEM_SCHEDULER",
+      "event_type": "MAINTENANCE_RESTORATION_TIME_REACHED",
+      "severity": "warning",
+      "ip_address": "127.0.0.1",
+      "user_agent": "OverdueDetectionScheduler",
+      "details": "Maintenance restoration time reached: 2026-11-09T21:08:34.296Z. Super Admin notification generated.",
+      "created_at": "2026-11-09T21:09:04.810Z"
+    },
+    {
+      "id": 501,
+      "username": "Digital_TN_GovMaster",
+      "event_type": "WEBSITE_MAINTENANCE_MODE_DISABLED",
+      "severity": "warning",
+      "ip_address": "127.0.0.1",
+      "user_agent": "node",
+      "details": "Global Website Maintenance Mode changed from ON to OFF. Updated by Super Admin: Digital_TN_GovMaster.",
+      "created_at": "2026-11-09T21:09:05.284Z"
     }
   ],
   "security_config": {
@@ -142221,8 +142419,8 @@
       "username": "Digital_TN_GovMaster",
       "session_id": "1949e391df6c63f84d03c01a11e54cd1bbeac79e4434d2cb",
       "created_at": "2026-11-09T17:18:14.239Z",
-      "last_activity": "2026-11-09T20:21:20.789Z",
-      "expires_at": "2026-11-09T20:51:20.789Z",
+      "last_activity": "2026-11-09T20:30:24.776Z",
+      "expires_at": "2026-11-09T21:00:24.776Z",
       "ip_address": "::1",
       "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36 Edg/153.0.0.0",
       "revoked_at": null,
@@ -142643,6 +142841,42 @@
       "created_at": "2026-11-09T20:25:51.462Z",
       "last_activity": "2026-11-09T20:25:55.743Z",
       "expires_at": "2026-11-09T20:55:55.743Z",
+      "ip_address": "127.0.0.1",
+      "user_agent": "node",
+      "revoked_at": null,
+      "status": "active"
+    },
+    {
+      "id": 153,
+      "username": "Digital_TN_GovMaster",
+      "session_id": "6f18bc240bcb79ff4eb1b229a046203503dd28d4fe288875",
+      "created_at": "2026-11-09T21:08:58.967Z",
+      "last_activity": "2026-11-09T21:09:00.477Z",
+      "expires_at": "2026-11-09T21:39:00.477Z",
+      "ip_address": "127.0.0.1",
+      "user_agent": "node",
+      "revoked_at": null,
+      "status": "active"
+    },
+    {
+      "id": 154,
+      "username": "newseditormanager",
+      "session_id": "378772619f135873f96d1ec628bfeb7f99d48bcea429653e",
+      "created_at": "2026-11-09T21:08:59.269Z",
+      "last_activity": "2026-11-09T21:09:04.129Z",
+      "expires_at": "2026-11-09T21:39:04.129Z",
+      "ip_address": "127.0.0.1",
+      "user_agent": "node",
+      "revoked_at": null,
+      "status": "active"
+    },
+    {
+      "id": 155,
+      "username": "Digital_TN_GovMaster",
+      "session_id": "e0b84ce10ca11caa29a2bca82b9e66e89cccf875371ccfcb",
+      "created_at": "2026-11-09T21:09:00.925Z",
+      "last_activity": "2026-11-09T21:09:05.425Z",
+      "expires_at": "2026-11-09T21:39:05.425Z",
       "ip_address": "127.0.0.1",
       "user_agent": "node",
       "revoked_at": null,
@@ -143099,6 +143333,24 @@
       "attempt_count": 0,
       "verified": 1,
       "created_at": "2026-11-09T20:25:51.240Z"
+    },
+    {
+      "id": 51,
+      "challenge_id": "mfa_ch_1794258538715_6peijk3",
+      "username": "Digital_TN_GovMaster",
+      "expires_at": "2026-11-09T21:13:58.715Z",
+      "attempt_count": 0,
+      "verified": 1,
+      "created_at": "2026-11-09T21:08:58.715Z"
+    },
+    {
+      "id": 52,
+      "challenge_id": "mfa_ch_1794258540678_dr9rw8f",
+      "username": "Digital_TN_GovMaster",
+      "expires_at": "2026-11-09T21:14:00.678Z",
+      "attempt_count": 0,
+      "verified": 1,
+      "created_at": "2026-11-09T21:09:00.678Z"
     }
   ],
   "trusted_devices": [
@@ -143235,10 +143487,32 @@
       "maintenance_message_ta": "சென்னை பெருநகர காவல் ஆணையரக இணையதளம் தற்போது பராமரிப்புப் பணியில் உள்ளது.",
       "active_schedule_ref": null,
       "updated_by": "Digital_TN_GovMaster",
-      "updated_at": "2026-11-09T20:25:55.510Z"
+      "updated_at": "2026-11-09T21:09:05.166Z"
     }
   ],
   "maintenance_notifications": [
+    {
+      "id": "notif_1794258544740_1cf5y",
+      "schedule_ref": "sched_restart_1794258544296",
+      "scheduled_restoration_datetime": "2026-11-09T21:08:34.296Z",
+      "generated_at": "2026-11-09T21:09:04.740Z",
+      "status": "READ",
+      "read_by": "Digital_TN_GovMaster",
+      "read_at": "2026-11-09T21:09:04.995Z",
+      "created_at": "2026-11-09T21:09:04.740Z",
+      "maintenance_status_at_trigger": "ACTIVE"
+    },
+    {
+      "id": "notif_1794258540268_kkc0l",
+      "schedule_ref": "sched_1794258540077_miquf",
+      "scheduled_restoration_datetime": "2026-11-09T21:08:54.955Z",
+      "generated_at": "2026-11-09T21:09:00.268Z",
+      "status": "READ",
+      "read_by": "Digital_TN_GovMaster",
+      "read_at": "2026-11-09T21:09:02.284Z",
+      "created_at": "2026-11-09T21:09:00.268Z",
+      "maintenance_status_at_trigger": "ACTIVE"
+    },
     {
       "id": "notif_1794255955104_8qccj",
       "schedule_ref": "sched_restart_1794255954671",
