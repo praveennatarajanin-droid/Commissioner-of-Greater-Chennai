@@ -224,6 +224,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     refreshSession();
   }, [refreshSession]);
 
+  // ── 5b. PERIODIC SERVER HEARTBEAT TO PREVENT UNEXPECTED 401 EXPIRATIONS ──
+  useEffect(() => {
+    if (!authenticated) return;
+
+    // Send a silent heartbeat every 4 minutes to keep server session and sliding cookies fresh
+    const heartbeatInterval = setInterval(async () => {
+      const now = Date.now();
+      // Only heartbeat if user was active within last 25 minutes
+      if (now - lastActivity < 25 * 60 * 1000) {
+        try {
+          await fetch("/api/admin/auth", {
+            method: "GET",
+            credentials: "include",
+            headers: { "Cache-Control": "no-cache" },
+          });
+        } catch {}
+      }
+    }, 4 * 60 * 1000);
+
+    return () => clearInterval(heartbeatInterval);
+  }, [authenticated, lastActivity]);
+
   // ── 6. PERMISSION & ROLE CHECKS ──
   const hasPermission = useCallback(
     (module: string, action: string): boolean => {

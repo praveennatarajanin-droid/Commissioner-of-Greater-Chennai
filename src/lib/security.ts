@@ -159,6 +159,19 @@ export async function authenticateApiRequest(req: Request): Promise<AuthApiResul
     // Touch session activity
     await db.touchSession(sessionData.sessionId);
 
+    // Refresh sliding session cookie maxAge so active administrators do not get 401
+    try {
+      if (sessionCookie && sessionCookie.value) {
+        cookieStore.set("admin_session", sessionCookie.value, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "lax",
+          maxAge: 30 * 60,
+          path: "/",
+        });
+      }
+    } catch {}
+
     // Resolve authoritative permissions from database
     const permissions = await db.getResolvedPermissions(userRecord.username, userRecord.role);
 

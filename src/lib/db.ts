@@ -86,6 +86,34 @@ export interface DBSecurityEvent {
   created_at: string;
 }
 
+export interface DBMaintenanceConfig {
+  id: number;
+  maintenance_enabled: boolean;
+  maintenance_title_en: string;
+  maintenance_description_en: string;
+  maintenance_title_ta: string;
+  maintenance_description_ta: string;
+  expected_restoration_datetime: string | null;
+  expected_restore_at?: string | null;
+  maintenance_message_en?: string;
+  maintenance_message_ta?: string;
+  active_schedule_ref?: string | null;
+  updated_by: string;
+  updated_at: string;
+}
+
+export interface DBMaintenanceNotification {
+  id: string;
+  schedule_ref: string;
+  scheduled_restoration_datetime: string;
+  generated_at: string;
+  status: "NEW" | "READ";
+  read_by?: string | null;
+  read_at?: string | null;
+  created_at: string;
+  maintenance_status_at_trigger: "ACTIVE" | "INACTIVE";
+}
+
 export interface DBSecurityConfig {
   admin_console_path: string;
   session_timeout_minutes: number;
@@ -2421,10 +2449,19 @@ class ChennaiGuardianDatabase {
     const now = new Date();
     const expiresAt = new Date(session.expires_at);
 
-    if (now > expiresAt) {
+    // Provide a 15-minute sliding grace period so active administrators are not abruptly logged out
+    const GRACE_PERIOD_MS = 15 * 60 * 1000;
+    if (now.getTime() > expiresAt.getTime() + GRACE_PERIOD_MS) {
       session.status = "expired";
       await this.saveSessions(sessions);
       return null;
+    }
+
+    // If within grace window, revive and extend the active session
+    if (now > expiresAt) {
+      session.last_activity = now.toISOString();
+      session.expires_at = new Date(now.getTime() + 30 * 60 * 1000).toISOString();
+      await this.saveSessions(sessions);
     }
 
     return session;
@@ -2555,6 +2592,118 @@ class ChennaiGuardianDatabase {
     const updated = { ...current, ...newConfig };
     jsonDb.setTable("security_config", updated);
     return updated;
+  }
+
+  public async getMaintenanceConfig(): Promise<DBMaintenanceConfig> {
+    const raw = jsonDb.getTable<DBMaintenanceConfig>("maintenance_config");
+    if (Array.isArray(raw) && raw.length > 0) {
+      const cfg = raw[0];
+      return {
+        id: 1,
+        maintenance_enabled: Boolean(cfg.maintenance_enabled),
+        maintenance_title_en: cfg.maintenance_title_en || "We'll Be Back Soon!",
+        maintenance_description_en: cfg.maintenance_description_en || cfg.maintenance_message_en || "The Greater Chennai Police Commissioner Portal is temporarily undergoing scheduled maintenance. We apologize for the inconvenience and will be back shortly.",
+        maintenance_title_ta: cfg.maintenance_title_ta || "இணையதளம் பராமரிப்பில் உள்ளது",
+        maintenance_description_ta: cfg.maintenance_description_ta || cfg.maintenance_message_ta || "சென்னை பெருநகர காவல் ஆணையரக இணையதளம் தற்போது பராமரிப்புப் பணியில் உள்ளது. ஏற்பட்டுள்ள சிரமத்திற்கு வருந்துகிறோம். விரைவில் மீண்டும் செயல்படும்.",
+        expected_restoration_datetime: cfg.expected_restoration_datetime || cfg.expected_restore_at || null,
+        expected_restore_at: cfg.expected_restoration_datetime || cfg.expected_restore_at || null,
+        maintenance_message_en: cfg.maintenance_description_en || cfg.maintenance_message_en || "The Greater Chennai Police Commissioner Portal is temporarily undergoing scheduled maintenance. We apologize for the inconvenience and will be back shortly.",
+        maintenance_message_ta: cfg.maintenance_description_ta || cfg.maintenance_message_ta || "சென்னை பெருநகர காவல் ஆணையரக இணையதளம் தற்போது பராமரிப்புப் பணியில் உள்ளது. ஏற்பட்டுள்ள சிரமத்திற்கு வருந்துகிறோம். விரைவில் மீண்டும் செயல்படும்.",
+        active_schedule_ref: cfg.active_schedule_ref || null,
+        updated_by: cfg.updated_by || "System",
+        updated_at: cfg.updated_at || new Date().toISOString()
+      };
+    }
+    const defaultConfig: DBMaintenanceConfig = {
+      id: 1,
+      maintenance_enabled: false,
+      maintenance_title_en: "We'll Be Back Soon!",
+      maintenance_description_en: "The Greater Chennai Police Commissioner Portal is temporarily undergoing scheduled maintenance. We apologize for the inconvenience and will be back shortly.",
+      maintenance_title_ta: "இணையதளம் பராமரிப்பில் உள்ளது",
+      maintenance_description_ta: "சென்னை பெருநகர காவல் ஆணையரக இணையதளம் தற்போது பராமரிப்புப் பணியில் உள்ளது. ஏற்பட்டுள்ள சிரமத்திற்கு வருந்துகிறோம். விரைவில் மீண்டும் செயல்படும்.",
+      expected_restoration_datetime: null,
+      expected_restore_at: null,
+      maintenance_message_en: "The Greater Chennai Police Commissioner Portal is temporarily undergoing scheduled maintenance. We apologize for the inconvenience and will be back shortly.",
+      maintenance_message_ta: "சென்னை பெருநகர காவல் ஆணையரக இணையதளம் தற்போது பராமரிப்புப் பணியில் உள்ளது. ஏற்பட்டுள்ள சிரமத்திற்கு வருந்துகிறோம். விரைவில் மீண்டும் செயல்படும்.",
+      active_schedule_ref: null,
+      updated_by: "System",
+      updated_at: new Date().toISOString()
+    };
+    jsonDb.setTable("maintenance_config", [defaultConfig]);
+    return defaultConfig;
+  }
+
+  public async updateMaintenanceConfig(partial: Partial<DBMaintenanceConfig>, updatedBy: string = "System"): Promise<DBMaintenanceConfig> {
+    const current = await this.getMaintenanceConfig();
+    const updated: DBMaintenanceConfig = {
+      ...current,
+      ...partial,
+      id: 1,
+      updated_by: updatedBy,
+      updated_at: new Date().toISOString()
+    };
+    if (partial.maintenance_description_en && !partial.maintenance_message_en) {
+      updated.maintenance_message_en = partial.maintenance_description_en;
+    }
+    if (partial.maintenance_message_en && !partial.maintenance_description_en) {
+      updated.maintenance_description_en = partial.maintenance_message_en;
+    }
+    if (partial.maintenance_description_ta && !partial.maintenance_message_ta) {
+      updated.maintenance_message_ta = partial.maintenance_description_ta;
+    }
+    if (partial.maintenance_message_ta && !partial.maintenance_description_ta) {
+      updated.maintenance_description_ta = partial.maintenance_message_ta;
+    }
+    if (partial.expected_restoration_datetime !== undefined) {
+      updated.expected_restore_at = partial.expected_restoration_datetime;
+    } else if (partial.expected_restore_at !== undefined) {
+      updated.expected_restoration_datetime = partial.expected_restore_at;
+    }
+    if (partial.active_schedule_ref !== undefined) {
+      updated.active_schedule_ref = partial.active_schedule_ref;
+    }
+    jsonDb.setTable("maintenance_config", [updated]);
+
+    try {
+      const sec = await this.getSecurityPolicyConfig();
+      if (sec.maintenance_mode !== updated.maintenance_enabled) {
+        await this.saveSecurityPolicyConfig({ maintenance_mode: updated.maintenance_enabled });
+      }
+    } catch {}
+
+    return updated;
+  }
+
+  // Maintenance Notifications
+  public async getMaintenanceNotifications(): Promise<DBMaintenanceNotification[]> {
+    const raw = jsonDb.getTable<DBMaintenanceNotification[]>("maintenance_notifications");
+    return Array.isArray(raw) ? raw : [];
+  }
+
+  public async saveMaintenanceNotifications(notifications: DBMaintenanceNotification[]): Promise<void> {
+    jsonDb.setTable("maintenance_notifications", notifications);
+  }
+
+  public async addMaintenanceNotification(notification: DBMaintenanceNotification): Promise<DBMaintenanceNotification> {
+    const notifications = await this.getMaintenanceNotifications();
+    const existingIndex = notifications.findIndex((n) => n.schedule_ref === notification.schedule_ref);
+    if (existingIndex >= 0) {
+      return notifications[existingIndex];
+    }
+    notifications.unshift(notification);
+    await this.saveMaintenanceNotifications(notifications);
+    return notification;
+  }
+
+  public async markMaintenanceNotificationRead(id: string, readBy: string): Promise<DBMaintenanceNotification | null> {
+    const notifications = await this.getMaintenanceNotifications();
+    const target = notifications.find((n) => n.id === id);
+    if (!target) return null;
+    target.status = "READ";
+    target.read_by = readBy;
+    target.read_at = new Date().toISOString();
+    await this.saveMaintenanceNotifications(notifications);
+    return target;
   }
 
   public async getSecurityConfig(): Promise<DBSecurityConfig> {
@@ -3111,10 +3260,72 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<string, Record<string, string[]>> 
 
 let dbInstance: ChennaiGuardianDatabase;
 if (globalWithDb._chennaiGuardianDb) {
+  // Turbopack / Next.js Dev Server Hot-Reload Support:
+  // Re-link prototype so newly added methods immediately exist on the cached singleton!
+  Object.setPrototypeOf(globalWithDb._chennaiGuardianDb, ChennaiGuardianDatabase.prototype);
   dbInstance = globalWithDb._chennaiGuardianDb;
 } else {
   dbInstance = new ChennaiGuardianDatabase();
   globalWithDb._chennaiGuardianDb = dbInstance;
 }
 
+// Fail-safe direct method attachment on both dbInstance and global singleton:
+if (typeof (dbInstance as any).getMaintenanceConfig !== "function") {
+  (dbInstance as any).getMaintenanceConfig = ChennaiGuardianDatabase.prototype.getMaintenanceConfig.bind(dbInstance);
+}
+if (typeof (dbInstance as any).updateMaintenanceConfig !== "function") {
+  (dbInstance as any).updateMaintenanceConfig = ChennaiGuardianDatabase.prototype.updateMaintenanceConfig.bind(dbInstance);
+}
+if (typeof (dbInstance as any).getMaintenanceNotifications !== "function") {
+  (dbInstance as any).getMaintenanceNotifications = ChennaiGuardianDatabase.prototype.getMaintenanceNotifications.bind(dbInstance);
+}
+if (typeof (dbInstance as any).addMaintenanceNotification !== "function") {
+  (dbInstance as any).addMaintenanceNotification = ChennaiGuardianDatabase.prototype.addMaintenanceNotification.bind(dbInstance);
+}
+if (typeof (dbInstance as any).markMaintenanceNotificationRead !== "function") {
+  (dbInstance as any).markMaintenanceNotificationRead = ChennaiGuardianDatabase.prototype.markMaintenanceNotificationRead.bind(dbInstance);
+}
+if (globalWithDb._chennaiGuardianDb) {
+  (globalWithDb._chennaiGuardianDb as any).getMaintenanceConfig = ChennaiGuardianDatabase.prototype.getMaintenanceConfig.bind(globalWithDb._chennaiGuardianDb);
+  (globalWithDb._chennaiGuardianDb as any).updateMaintenanceConfig = ChennaiGuardianDatabase.prototype.updateMaintenanceConfig.bind(globalWithDb._chennaiGuardianDb);
+  (globalWithDb._chennaiGuardianDb as any).getMaintenanceNotifications = ChennaiGuardianDatabase.prototype.getMaintenanceNotifications.bind(globalWithDb._chennaiGuardianDb);
+  (globalWithDb._chennaiGuardianDb as any).addMaintenanceNotification = ChennaiGuardianDatabase.prototype.addMaintenanceNotification.bind(globalWithDb._chennaiGuardianDb);
+  (globalWithDb._chennaiGuardianDb as any).markMaintenanceNotificationRead = ChennaiGuardianDatabase.prototype.markMaintenanceNotificationRead.bind(globalWithDb._chennaiGuardianDb);
+}
+
 export const db = dbInstance;
+
+export async function getMaintenanceConfig(): Promise<DBMaintenanceConfig> {
+  if (typeof (db as any)?.getMaintenanceConfig === "function") {
+    return (db as any).getMaintenanceConfig();
+  }
+  return ChennaiGuardianDatabase.prototype.getMaintenanceConfig.call(db);
+}
+
+export async function updateMaintenanceConfig(partial: Partial<DBMaintenanceConfig>, updatedBy?: string): Promise<DBMaintenanceConfig> {
+  if (typeof (db as any)?.updateMaintenanceConfig === "function") {
+    return (db as any).updateMaintenanceConfig(partial, updatedBy);
+  }
+  return ChennaiGuardianDatabase.prototype.updateMaintenanceConfig.call(db, partial, updatedBy);
+}
+
+export async function getMaintenanceNotifications(): Promise<DBMaintenanceNotification[]> {
+  if (typeof (db as any)?.getMaintenanceNotifications === "function") {
+    return (db as any).getMaintenanceNotifications();
+  }
+  return ChennaiGuardianDatabase.prototype.getMaintenanceNotifications.call(db);
+}
+
+export async function addMaintenanceNotification(notification: DBMaintenanceNotification): Promise<DBMaintenanceNotification> {
+  if (typeof (db as any)?.addMaintenanceNotification === "function") {
+    return (db as any).addMaintenanceNotification(notification);
+  }
+  return ChennaiGuardianDatabase.prototype.addMaintenanceNotification.call(db, notification);
+}
+
+export async function markMaintenanceNotificationRead(id: string, readBy: string): Promise<DBMaintenanceNotification | null> {
+  if (typeof (db as any)?.markMaintenanceNotificationRead === "function") {
+    return (db as any).markMaintenanceNotificationRead(id, readBy);
+  }
+  return ChennaiGuardianDatabase.prototype.markMaintenanceNotificationRead.call(db, id, readBy);
+}

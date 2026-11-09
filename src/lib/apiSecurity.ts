@@ -215,7 +215,8 @@ export async function secureApiHandler(
     }
 
     // 4. Authenticated Rate Limiting Check (User-Aware Quotas)
-    const isSuperAdmin = auth.user.role.toUpperCase().includes("SUPER_ADMIN");
+    const roleClean = (auth.user.role || "").toUpperCase().replace(/[\s_-]/g, "");
+    const isSuperAdmin = roleClean === "SUPERADMIN";
     const isWriteMethod = req.method !== "GET" && req.method !== "HEAD" && req.method !== "OPTIONS";
     const policy = isSuperAdmin ? RateLimitPolicies.SUPERADMIN : isWriteMethod ? RateLimitPolicies.WRITE : RateLimitPolicies.ADMIN;
     const rateLimitKey = `${clientIp}:${auth.user.username}`;
@@ -232,7 +233,7 @@ export async function secureApiHandler(
     }
 
     // 5. MFA State Validation Check
-    if (options.requireMfa || auth.user.role.toUpperCase().includes("SUPER_ADMIN")) {
+    if (options.requireMfa || isSuperAdmin) {
       const userMfa = await db.getUserMfa(auth.user.username);
       if (userMfa && userMfa.enabled === 1 && auth.sessionStatus !== "MFA_VERIFIED") {
         return secureApiResponse({ error: "MULTI-FACTOR AUTHENTICATION REQUIRED: Session unverified." }, 401, traceId);

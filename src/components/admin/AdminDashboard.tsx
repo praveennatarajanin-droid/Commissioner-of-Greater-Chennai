@@ -47,7 +47,8 @@ import {
   ChevronDown,
   ShieldCheck,
   HelpCircle,
-  BarChart3
+  BarChart3,
+  Wrench
 } from "lucide-react";
 import { DBUser, DBNewsItem, DBTickerItem, DBSliderItem, DBCommissionerProfile, DBThemeSettings, DBMenuItem, DBContact, DBTtsSettings, DBVideoItem, DBAlertItem, DBAlertSettings } from "@/lib/db";
 import dynamic from "next/dynamic";
@@ -62,6 +63,7 @@ import CitizenServicesManagement from "./CitizenServicesManagement";
 import FaqManagement from "./FaqManagement";
 import SecurityStatusIndicator from "./SecurityStatusIndicator";
 import MonthlyReportManagement from "./MonthlyReportManagement";
+import MaintenanceSettingsCard from "./MaintenanceSettingsCard";
 
 const RichTextEditor = dynamic(() => import("./RichTextEditor"), {
   loading: () => <div className="h-64 bg-stone-50 dark:bg-stone-900 animate-pulse rounded-2xl w-full" />,
@@ -569,7 +571,8 @@ const getTabTitle = (tab: string): string => {
     settings: "Console Config",
     "page-editor": "Page Editor",
     "monthly-report": "Monthly Report",
-    reports: "Monthly Report"
+    reports: "Monthly Report",
+    maintenance: "Maintenance Mode"
   };
   return titles[tab] || tab.split("-").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
 };
@@ -582,7 +585,7 @@ interface AdminDashboardProps {
   onTabChange?: (tab: any) => void;
 }
 
-type TabType = "dashboard" | "news" | "ticker" | "slider" | "profile" | "theme" | "footer" | "settings" | "videos" | "alerts" | "media" | "citizen-services" | "police-stations" | "emergency-contacts" | "department-links" | "menu-management" | "page-editor" | "superadmin" | "web-stories" | "seo" | "faqs" | "monthly-report" | "reports";
+type TabType = "dashboard" | "news" | "ticker" | "slider" | "profile" | "theme" | "footer" | "settings" | "videos" | "alerts" | "media" | "citizen-services" | "police-stations" | "emergency-contacts" | "department-links" | "menu-management" | "page-editor" | "superadmin" | "web-stories" | "seo" | "faqs" | "monthly-report" | "reports" | "maintenance";
 
 export default function AdminDashboard({ user, onLogout, activeTab: propActiveTab, subPage, onTabChange }: AdminDashboardProps) {
   const displayName = user.role === "superadmin" ? "Super Admin" : user.role === "admin" ? "Admin" : user.username;
@@ -1851,6 +1854,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                 items: [
                   { tab: "dashboard", icon: <LayoutDashboard className="w-5 h-5" />, label: "Overview" },
                   { tab: "superadmin", icon: <Shield className="w-5 h-5" />, label: "Access Control" },
+                  { tab: "maintenance", icon: <Wrench className="w-5 h-5" />, label: "Maintenance Mode" },
                 ]
               },
               {
@@ -6186,6 +6190,33 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                   );
                 }
                 return <SuperAdminConsole user={user} onTabChange={setActiveTab} />;
+              })()}
+            </div>
+          )}
+
+          {/* ==================== TAB: MAINTENANCE MODE ==================== */}
+          {activeTab === "maintenance" && (
+            <div className="space-y-6">
+              {(() => {
+                const isAllowedMaintenance = hasModulePermission("maintenance", "view");
+                if (!isAllowedMaintenance) {
+                  return (
+                    <div className="flex flex-col items-center justify-center p-12 text-center bg-white border border-slate-200 rounded-2xl shadow-sm min-h-[450px]">
+                      <ShieldAlert className="w-16 h-16 text-rose-600 mb-4 animate-bounce" />
+                      <h2 className="text-xl font-black uppercase text-slate-800 tracking-wider font-display">403 - Access Denied</h2>
+                      <p className="text-xs text-slate-500 mt-2 max-w-md leading-relaxed">
+                        You do not have permission to view or manage Website Maintenance Mode. This section is strictly reserved for Super Admin.
+                      </p>
+                      <button
+                        onClick={() => setActiveTab("dashboard")}
+                        className="mt-6 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition cursor-pointer"
+                      >
+                        Return to Overview
+                      </button>
+                    </div>
+                  );
+                }
+                return <MaintenanceSettingsCard currentUser={user} onStatusChange={() => {}} />;
               })()}
             </div>
           )}
