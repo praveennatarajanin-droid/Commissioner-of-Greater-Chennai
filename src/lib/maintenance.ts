@@ -60,15 +60,20 @@ export interface UpdateMaintenancePayload {
 const DB_PATH = path.join(process.cwd(), "src", "data", "db.json");
 
 let inMemoryConfig: DBMaintenanceConfig | null = null;
+let lastConfigMtime = 0;
 let inMemoryNotifications: DBMaintenanceNotification[] = [];
+let lastNotifMtime = 0;
 
 /**
- * Direct file/memory fallback if db instance method was detached during hot-reload.
+ * Direct in-memory/file-based fallback if db instance method was detached during hot-reload.
  */
 function readDirectConfig(): DBMaintenanceConfig {
-  if (inMemoryConfig) return inMemoryConfig;
   try {
     if (fs.existsSync(DB_PATH)) {
+      const stat = fs.statSync(DB_PATH);
+      if (inMemoryConfig && lastConfigMtime === stat.mtimeMs) {
+        return inMemoryConfig;
+      }
       const data = JSON.parse(fs.readFileSync(DB_PATH, "utf8"));
       if (Array.isArray(data.maintenance_config) && data.maintenance_config.length > 0) {
         const c = data.maintenance_config[0];
@@ -95,12 +100,15 @@ function readDirectConfig(): DBMaintenanceConfig {
           updated_by: c.updated_by || "System",
           updated_at: c.updated_at || new Date().toISOString(),
         };
+        lastConfigMtime = stat.mtimeMs;
         return inMemoryConfig;
       }
     }
   } catch (err) {
     console.error("[Maintenance] Error in readDirectConfig fallback:", err);
   }
+
+  if (inMemoryConfig) return inMemoryConfig;
 
   inMemoryConfig = {
     id: 1,
@@ -153,8 +161,8 @@ function writeDirectConfig(partial: Partial<DBMaintenanceConfig>, updatedBy: str
     updated.active_schedule_ref = partial.active_schedule_ref;
   }
 
+  // Update in-memory cache and live fast edge proxy cache
   inMemoryConfig = updated;
-
   try {
     setFastMaintenanceCache({
       maintenance_enabled: updated.maintenance_enabled,
@@ -171,27 +179,33 @@ function writeDirectConfig(partial: Partial<DBMaintenanceConfig>, updatedBy: str
     });
   } catch {}
 
+  // DO NOT write to db.json. All persistence is stored in MySQL database `chennaiguardian`.
   return updated;
 }
 
 export function readDirectNotifications(): DBMaintenanceNotification[] {
-  if (inMemoryNotifications.length > 0) return inMemoryNotifications;
   try {
     if (fs.existsSync(DB_PATH)) {
+      const stat = fs.statSync(DB_PATH);
+      if (inMemoryNotifications && inMemoryNotifications.length > 0 && lastNotifMtime === stat.mtimeMs) {
+        return inMemoryNotifications;
+      }
       const data = JSON.parse(fs.readFileSync(DB_PATH, "utf8"));
       if (Array.isArray(data.maintenance_notifications)) {
         inMemoryNotifications = data.maintenance_notifications;
+        lastNotifMtime = stat.mtimeMs;
         return inMemoryNotifications;
       }
     }
   } catch (err) {
     console.error("[Maintenance] Error in readDirectNotifications fallback:", err);
   }
-  return inMemoryNotifications;
+  return inMemoryNotifications || [];
 }
 
 export function writeDirectNotifications(notifications: DBMaintenanceNotification[]): void {
   inMemoryNotifications = notifications;
+  // DO NOT write to db.json. All persistence is stored in MySQL database `chennaiguardian`.
 }
 
 export async function getMaintenanceNotifications(): Promise<DBMaintenanceNotification[]> {
@@ -239,7 +253,8 @@ export async function markRestorationAlertRead(id: string, readBy: string): Prom
 export async function getMaintenanceConfiguration(): Promise<DBMaintenanceConfig> {
   if (db && typeof (db as any).getMaintenanceConfig === "function") {
     try {
-      return await db.getMaintenanceConfig();
+      const cfg = await db.getMaintenanceConfig();
+      if (cfg) return cfg;
     } catch {
       return readDirectConfig();
     }
@@ -439,6 +454,7 @@ export async function updateMaintenanceConfiguration(
   if (db && typeof (db as any).updateMaintenanceConfig === "function") {
     try {
       updated = await db.updateMaintenanceConfig(effectivePayload, adminUser.username);
+      writeDirectConfig(updated, adminUser.username);
     } catch {
       updated = writeDirectConfig(effectivePayload, adminUser.username);
     }

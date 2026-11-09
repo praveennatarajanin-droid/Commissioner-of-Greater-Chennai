@@ -875,7 +875,7 @@ class JSONDatabaseManager {
       try {
         const stat = fs.statSync(JSON_DB_PATH);
         this.lastChecked = now;
-        if (this.isLoaded && stat.mtimeMs <= this.lastMtime) {
+        if (this.isLoaded && stat.mtimeMs === this.lastMtime) {
           return;
         }
         const raw = fs.readFileSync(JSON_DB_PATH, "utf8");
@@ -883,7 +883,15 @@ class JSONDatabaseManager {
           return;
         }
         const parsed = JSON.parse(raw);
+        const activeSessions = (this.data && (this.data as any).sessions) || [];
         this.data = { ...this.data, ...parsed };
+        if (activeSessions.length > 0) {
+          const existingIds = new Set(((this.data as any).sessions || []).map((s: any) => s.id));
+          const toKeep = activeSessions.filter(
+            (s: any) => !existingIds.has(s.id) && (!s.expires_at || new Date(s.expires_at).getTime() > Date.now())
+          );
+          (this.data as any).sessions = [...((this.data as any).sessions || []), ...toKeep];
+        }
         this.lastMtime = stat.mtimeMs;
         this.isLoaded = true;
 
@@ -1156,28 +1164,9 @@ class JSONDatabaseManager {
   }
 
   private save() {
-    try {
-      const dir = path.dirname(JSON_DB_PATH);
-      if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true });
-      }
-      const serialized = JSON.stringify(this.data, null, 2);
-      const tempPath = `${JSON_DB_PATH}.${process.pid}.${Date.now()}.${Math.random().toString(36).substring(2, 8)}.tmp`;
-      fs.writeFileSync(tempPath, serialized, "utf8");
-      try {
-        fs.renameSync(tempPath, JSON_DB_PATH);
-      } catch {
-        fs.writeFileSync(JSON_DB_PATH, serialized, "utf8");
-        try { fs.unlinkSync(tempPath); } catch {}
-      }
-      try {
-        this.lastMtime = fs.statSync(JSON_DB_PATH).mtimeMs;
-      } catch {}
-      this.lastChecked = Date.now();
-      this.isLoaded = true;
-    } catch (err) {
-      console.error("Database save warning:", err);
-    }
+    // Permanent Protection: DO NOT store runtime data in db.json.
+    // In-memory cache is maintained, and all persistence is routed directly to MySQL database 'chennaiguardian'.
+    this.isLoaded = true;
   }
 
   private seed() {
@@ -1345,6 +1334,10 @@ class JSONDatabaseManager {
 
   public setTable(name: string, items: any) {
     (this.data as any)[name] = items;
+    // Persist directly to MySQL database `chennaiguardian`
+    syncTableToMySQL(name, items).catch((err) => {
+      console.warn(`[MySQL Persistence] Table ${name} sync warning:`, err?.message || err);
+    });
     this.save();
     const layoutTables = ["menus", "sub_menus", "theme_settings", "ticker", "slider", "page_contents"];
     if (layoutTables.includes(name)) {
@@ -1357,6 +1350,52 @@ class JSONDatabaseManager {
     }
   }
 
+}
+
+export async function syncTableToMySQL(tableName: string, items: any): Promise<void> {
+  try {
+    const rawRecords = Array.isArray(items) ? items : [items];
+    const records = rawRecords.filter((r) => r && typeof r === "object");
+    if (records.length === 0) {
+      await mysqlQuery(`DELETE FROM \`${tableName}\``);
+      return;
+    }
+
+    const colSet = new Set<string>();
+    for (const r of records) {
+      for (const k of Object.keys(r)) {
+        colSet.add(k);
+      }
+    }
+    const cols = Array.from(colSet);
+    if (cols.length === 0) return;
+
+    await mysqlQuery(`DELETE FROM \`${tableName}\``);
+
+    for (let i = 0; i < records.length; i += 50) {
+      const batch = records.slice(i, i + 50);
+      const placeholders = batch.map(() => `(${cols.map(() => "?").join(", ")})`).join(", ");
+      const values: any[] = [];
+      for (const r of batch) {
+        for (const col of cols) {
+          const val = (r as any)[col];
+          if (val !== null && typeof val === "object") {
+            values.push(JSON.stringify(val));
+          } else if (typeof val === "boolean") {
+            values.push(val ? 1 : 0);
+          } else if (val === undefined) {
+            values.push(null);
+          } else {
+            values.push(val);
+          }
+        }
+      }
+      const escapedCols = cols.map((c) => `\`${c}\``).join(", ");
+      await mysqlQuery(`INSERT INTO \`${tableName}\` (${escapedCols}) VALUES ${placeholders}`, values);
+    }
+  } catch (err: any) {
+    console.warn(`[MySQL Persistence] Table ${tableName} sync notice:`, err?.message || err);
+  }
 }
 
 const globalWithDb = globalThis as typeof globalThis & {
@@ -2658,6 +2697,7 @@ class ChennaiGuardianDatabase {
       updated_by: "System",
       updated_at: new Date().toISOString()
     };
+    jsonDb.setTable("maintenance_config", [defaultConfig]);
     return defaultConfig;
   }
 
@@ -2692,7 +2732,6 @@ class ChennaiGuardianDatabase {
     }
 
     // 1. Update MySQL database if available
-    let mysqlUpdated = false;
     try {
       await mysqlQuery(`
         CREATE TABLE IF NOT EXISTS maintenance_config (
@@ -2745,7 +2784,6 @@ class ChennaiGuardianDatabase {
         updated.updated_by,
         updated.updated_at
       ]);
-      mysqlUpdated = true;
     } catch {}
 
     // Synchronize fast in-memory cache for middleware/proxy immediately
@@ -2765,10 +2803,7 @@ class ChennaiGuardianDatabase {
       });
     } catch {}
 
-    // Only update local jsonDb if MySQL write was offline/unavailable
-    if (!mysqlUpdated) {
-      jsonDb.setTable("maintenance_config", [updated]);
-    }
+    jsonDb.setTable("maintenance_config", [updated]);
 
     try {
       const sec = await this.getSecurityPolicyConfig();
@@ -2810,7 +2845,6 @@ class ChennaiGuardianDatabase {
 
   public async addMaintenanceNotification(notification: DBMaintenanceNotification): Promise<DBMaintenanceNotification> {
     // 1. Try MySQL Insert
-    let mysqlAdded = false;
     try {
       await mysqlQuery(`
         CREATE TABLE IF NOT EXISTS maintenance_notifications (
@@ -2844,54 +2878,36 @@ class ChennaiGuardianDatabase {
         notification.created_at,
         notification.maintenance_status_at_trigger
       ]);
-      mysqlAdded = true;
     } catch {}
 
-    // Only update local jsonDb if MySQL write was offline/unavailable
-    if (!mysqlAdded) {
-      const notifications = await this.getMaintenanceNotifications();
-      const existingIndex = notifications.findIndex((n) => n.schedule_ref === notification.schedule_ref);
-      if (existingIndex >= 0) {
-        return notifications[existingIndex];
-      }
-      notifications.unshift(notification);
-      await this.saveMaintenanceNotifications(notifications);
+    const notifications = await this.getMaintenanceNotifications();
+    const existingIndex = notifications.findIndex((n) => n.schedule_ref === notification.schedule_ref);
+    if (existingIndex >= 0) {
+      return notifications[existingIndex];
     }
+    notifications.unshift(notification);
+    await this.saveMaintenanceNotifications(notifications);
     return notification;
   }
 
   public async markMaintenanceNotificationRead(id: string, readBy: string): Promise<DBMaintenanceNotification | null> {
     const nowIso = new Date().toISOString();
     // 1. Try MySQL Update
-    let mysqlMarked = false;
     try {
       await mysqlQuery(
         "UPDATE maintenance_notifications SET status = 'READ', read_by = ?, read_at = ? WHERE id = ?",
         [readBy, nowIso, id]
       );
-      mysqlMarked = true;
     } catch {}
-
-    // Only update local jsonDb if MySQL write was offline/unavailable
-    if (!mysqlMarked) {
-      const notifications = await this.getMaintenanceNotifications();
-      const target = notifications.find((n) => n.id === id);
-      if (!target) return null;
-      target.status = "READ";
-      target.read_by = readBy;
-      target.read_at = nowIso;
-      await this.saveMaintenanceNotifications(notifications);
-      return target;
-    }
 
     const notifications = await this.getMaintenanceNotifications();
     const target = notifications.find((n) => n.id === id);
-    if (target) {
-      target.status = "READ";
-      target.read_by = readBy;
-      target.read_at = nowIso;
-    }
-    return target || null;
+    if (!target) return null;
+    target.status = "READ";
+    target.read_by = readBy;
+    target.read_at = nowIso;
+    await this.saveMaintenanceNotifications(notifications);
+    return target;
   }
 
   public async getSecurityConfig(): Promise<DBSecurityConfig> {

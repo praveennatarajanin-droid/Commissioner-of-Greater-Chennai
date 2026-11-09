@@ -1,7 +1,7 @@
 -- ==============================================================================
 -- GREATER CHENNAI POLICE COMMISSIONER PORTAL — ENTERPRISE DATABASE DUMP
 -- Target Database: chennaiguardian
--- Generated on: 2026-11-09T21:42:32.441Z
+-- Generated on: 2026-11-09T21:53:34.925Z
 -- Includes Maintenance Mode & Automated Restoration Alert Tables
 -- ==============================================================================
 
