@@ -20,16 +20,23 @@ interface MaintenanceClientViewProps {
     updated_at?: string;
   };
   initialLanguage?: "en" | "ta";
+  isPreview?: boolean;
 }
 
 export default function MaintenanceClientView({
   initialConfig,
   initialLanguage = "en",
+  isPreview = false,
 }: MaintenanceClientViewProps) {
   const [lang, setLang] = useState<"en" | "ta">(initialLanguage);
 
   // Poll maintenance status every 20 seconds. If disabled by admin, automatically refresh back to portal!
   useEffect(() => {
+    // If viewing in preview mode or maintenance was already off, do not auto-redirect
+    if (isPreview) return;
+    if (typeof window !== "undefined" && window.location.search.includes("preview")) return;
+    if (!initialConfig.maintenance_enabled) return;
+
     const interval = setInterval(async () => {
       try {
         const res = await fetch("/api/maintenance/status", { cache: "no-store" });
@@ -43,7 +50,7 @@ export default function MaintenanceClientView({
     }, 20000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [isPreview, initialConfig.maintenance_enabled]);
 
   const restoreTimeIso = initialConfig.expected_restoration_datetime || initialConfig.expected_restore_at;
 

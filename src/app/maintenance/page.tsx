@@ -46,6 +46,7 @@ export default async function MaintenancePage(props: PageProps) {
         updated_at: config.updated_at,
       }}
       initialLanguage={initialLanguage}
+      isPreview={isPreview}
     />
   );
 }

@@ -3,6 +3,46 @@ import { revalidatePath } from "next/cache";
 import fs from "fs";
 import path from "path";
 
+// Safely absorb normal browser navigation socket disconnections (ECONNRESET / aborted)
+if (typeof process !== "undefined" && typeof process.on === "function") {
+  const g = globalThis as any;
+  if (!g._econnresetHandlerRegistered) {
+    g._econnresetHandlerRegistered = true;
+    process.on("uncaughtException", (err: any) => {
+      const code = err?.code;
+      const msg = typeof err?.message === "string" ? err.message.toLowerCase() : "";
+      if (
+        code === "ECONNRESET" ||
+        code === "EPIPE" ||
+        code === "ECANCELED" ||
+        msg === "aborted" ||
+        msg.includes("aborted") ||
+        err?.name === "AbortError"
+      ) {
+        // Normal client browser socket disconnect / navigation cancellation - safe to ignore
+        return;
+      }
+      console.error("[Process UncaughtException]", err);
+    });
+
+    process.on("unhandledRejection", (reason: any) => {
+      const code = reason?.code;
+      const msg = typeof reason?.message === "string" ? reason.message.toLowerCase() : "";
+      if (
+        code === "ECONNRESET" ||
+        code === "EPIPE" ||
+        code === "ECANCELED" ||
+        msg === "aborted" ||
+        msg.includes("aborted") ||
+        reason?.name === "AbortError"
+      ) {
+        return;
+      }
+      console.error("[Process UnhandledRejection]", reason);
+    });
+  }
+}
+
 export interface UpdateMaintenancePayload {
   maintenance_enabled?: boolean;
   maintenance_title_en?: string;

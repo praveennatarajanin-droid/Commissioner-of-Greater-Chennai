@@ -769,17 +769,19 @@ export function renderMaintenanceHtml(config: MaintenanceHtmlConfig): string {
     }
 
     // Auto-poll maintenance status every 15 seconds to return to live portal automatically
-    setInterval(async () => {
-      try {
-        const res = await fetch('/api/maintenance/status', { cache: 'no-store' });
-        if (res.ok) {
-          const data = await res.json();
-          if (data && data.maintenance === false) {
-            window.location.href = '/';
+    if (!window.location.search.includes('preview')) {
+      setInterval(async () => {
+        try {
+          const res = await fetch('/api/maintenance/status', { cache: 'no-store' });
+          if (res.ok) {
+            const data = await res.json();
+            if (data && data.maintenance === false) {
+              window.location.href = '/';
+            }
           }
-        }
-      } catch(e) {}
-    }, 15000);
+        } catch(e) {}
+      }, 15000);
+    }
   </script>
 </body>
 </html>`;
