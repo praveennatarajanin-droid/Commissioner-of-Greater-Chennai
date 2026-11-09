@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import { newsData } from "@/data/newsData";
 import { query as mysqlQuery } from "@/lib/mysql";
 import { isArticlePubliclyVisible } from "@/lib/dateUtils";
+import { setFastMaintenanceCache } from "@/lib/maintenanceFast";
 
 // Username normalization policy
 export function normalizeUsername(username: string | null | undefined): string {
@@ -2657,7 +2658,6 @@ class ChennaiGuardianDatabase {
       updated_by: "System",
       updated_at: new Date().toISOString()
     };
-    jsonDb.setTable("maintenance_config", [defaultConfig]);
     return defaultConfig;
   }
 
@@ -2692,6 +2692,7 @@ class ChennaiGuardianDatabase {
     }
 
     // 1. Update MySQL database if available
+    let mysqlUpdated = false;
     try {
       await mysqlQuery(`
         CREATE TABLE IF NOT EXISTS maintenance_config (
@@ -2744,9 +2745,30 @@ class ChennaiGuardianDatabase {
         updated.updated_by,
         updated.updated_at
       ]);
+      mysqlUpdated = true;
     } catch {}
 
-    jsonDb.setTable("maintenance_config", [updated]);
+    // Synchronize fast in-memory cache for middleware/proxy immediately
+    try {
+      setFastMaintenanceCache({
+        maintenance_enabled: updated.maintenance_enabled,
+        maintenance_title_en: updated.maintenance_title_en,
+        maintenance_description_en: updated.maintenance_description_en,
+        maintenance_title_ta: updated.maintenance_title_ta,
+        maintenance_description_ta: updated.maintenance_description_ta,
+        expected_restoration_datetime: updated.expected_restoration_datetime ?? null,
+        expected_restore_at: updated.expected_restore_at ?? null,
+        maintenance_message_en: updated.maintenance_message_en || updated.maintenance_description_en,
+        maintenance_message_ta: updated.maintenance_message_ta || updated.maintenance_description_ta,
+        updated_by: updated.updated_by,
+        updated_at: updated.updated_at,
+      });
+    } catch {}
+
+    // Only update local jsonDb if MySQL write was offline/unavailable
+    if (!mysqlUpdated) {
+      jsonDb.setTable("maintenance_config", [updated]);
+    }
 
     try {
       const sec = await this.getSecurityPolicyConfig();
@@ -2788,6 +2810,7 @@ class ChennaiGuardianDatabase {
 
   public async addMaintenanceNotification(notification: DBMaintenanceNotification): Promise<DBMaintenanceNotification> {
     // 1. Try MySQL Insert
+    let mysqlAdded = false;
     try {
       await mysqlQuery(`
         CREATE TABLE IF NOT EXISTS maintenance_notifications (
@@ -2821,36 +2844,54 @@ class ChennaiGuardianDatabase {
         notification.created_at,
         notification.maintenance_status_at_trigger
       ]);
+      mysqlAdded = true;
     } catch {}
 
-    const notifications = await this.getMaintenanceNotifications();
-    const existingIndex = notifications.findIndex((n) => n.schedule_ref === notification.schedule_ref);
-    if (existingIndex >= 0) {
-      return notifications[existingIndex];
+    // Only update local jsonDb if MySQL write was offline/unavailable
+    if (!mysqlAdded) {
+      const notifications = await this.getMaintenanceNotifications();
+      const existingIndex = notifications.findIndex((n) => n.schedule_ref === notification.schedule_ref);
+      if (existingIndex >= 0) {
+        return notifications[existingIndex];
+      }
+      notifications.unshift(notification);
+      await this.saveMaintenanceNotifications(notifications);
     }
-    notifications.unshift(notification);
-    await this.saveMaintenanceNotifications(notifications);
     return notification;
   }
 
   public async markMaintenanceNotificationRead(id: string, readBy: string): Promise<DBMaintenanceNotification | null> {
     const nowIso = new Date().toISOString();
     // 1. Try MySQL Update
+    let mysqlMarked = false;
     try {
       await mysqlQuery(
         "UPDATE maintenance_notifications SET status = 'READ', read_by = ?, read_at = ? WHERE id = ?",
         [readBy, nowIso, id]
       );
+      mysqlMarked = true;
     } catch {}
+
+    // Only update local jsonDb if MySQL write was offline/unavailable
+    if (!mysqlMarked) {
+      const notifications = await this.getMaintenanceNotifications();
+      const target = notifications.find((n) => n.id === id);
+      if (!target) return null;
+      target.status = "READ";
+      target.read_by = readBy;
+      target.read_at = nowIso;
+      await this.saveMaintenanceNotifications(notifications);
+      return target;
+    }
 
     const notifications = await this.getMaintenanceNotifications();
     const target = notifications.find((n) => n.id === id);
-    if (!target) return null;
-    target.status = "READ";
-    target.read_by = readBy;
-    target.read_at = nowIso;
-    await this.saveMaintenanceNotifications(notifications);
-    return target;
+    if (target) {
+      target.status = "READ";
+      target.read_by = readBy;
+      target.read_at = nowIso;
+    }
+    return target || null;
   }
 
   public async getSecurityConfig(): Promise<DBSecurityConfig> {

@@ -550,6 +550,7 @@ export default function MaintenanceSettingsCard({
         <div
           className="rounded-2xl p-4 sm:p-6 md:p-7 relative overflow-hidden transition-all duration-300 shadow-xl text-left w-full"
           style={{
+            backgroundColor: "#091326",
             background: "linear-gradient(135deg, #091326 0%, #0d1e3d 50%, #091326 100%)",
             border: activeAlert.status === "NEW" ? "2px solid #f59e0b" : "2px solid #334155",
             boxShadow:
@@ -623,7 +624,7 @@ export default function MaintenanceSettingsCard({
 
                 <p
                   className="text-xs sm:text-sm mt-2 leading-relaxed font-medium break-words"
-                  style={{ color: "#e2e8f0" }}
+                  style={{ color: "#f8fafc" }}
                 >
                   The scheduled maintenance restoration time has been reached. Please review the maintenance status and decide whether to make the public portal available again.
                 </p>
@@ -665,8 +666,9 @@ export default function MaintenanceSettingsCard({
           <div
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 p-4 sm:p-5 rounded-xl text-xs mt-5 shadow-inner"
             style={{
-              background: "rgba(5, 12, 28, 0.85)",
-              border: "1.5px solid rgba(59, 130, 246, 0.25)",
+              backgroundColor: "#050c1c",
+              background: "rgba(5, 12, 28, 0.92)",
+              border: "1.5px solid rgba(59, 130, 246, 0.3)",
             }}
           >
             <div className="space-y-1 min-w-0">
@@ -730,7 +732,7 @@ export default function MaintenanceSettingsCard({
               </span>
               <p
                 className="text-sm sm:text-base font-bold break-words"
-                style={{ color: "#e2e8f0" }}
+                style={{ color: "#f8fafc" }}
               >
                 {formatISTDateTime(activeAlert.generated_at)}
               </p>

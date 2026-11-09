@@ -1,5 +1,6 @@
 import { db, DBMaintenanceConfig, DBMaintenanceNotification } from "@/lib/db";
 import { revalidatePath } from "next/cache";
+import { setFastMaintenanceCache } from "@/lib/maintenanceFast";
 import fs from "fs";
 import path from "path";
 
@@ -58,16 +59,20 @@ export interface UpdateMaintenancePayload {
 
 const DB_PATH = path.join(process.cwd(), "src", "data", "db.json");
 
+let inMemoryConfig: DBMaintenanceConfig | null = null;
+let inMemoryNotifications: DBMaintenanceNotification[] = [];
+
 /**
- * Direct file-based fallback if db instance method was detached during hot-reload.
+ * Direct file/memory fallback if db instance method was detached during hot-reload.
  */
 function readDirectConfig(): DBMaintenanceConfig {
+  if (inMemoryConfig) return inMemoryConfig;
   try {
     if (fs.existsSync(DB_PATH)) {
       const data = JSON.parse(fs.readFileSync(DB_PATH, "utf8"));
       if (Array.isArray(data.maintenance_config) && data.maintenance_config.length > 0) {
         const c = data.maintenance_config[0];
-        return {
+        inMemoryConfig = {
           id: 1,
           maintenance_enabled: Boolean(c.maintenance_enabled),
           maintenance_title_en: c.maintenance_title_en || "We'll Be Back Soon!",
@@ -90,13 +95,14 @@ function readDirectConfig(): DBMaintenanceConfig {
           updated_by: c.updated_by || "System",
           updated_at: c.updated_at || new Date().toISOString(),
         };
+        return inMemoryConfig;
       }
     }
   } catch (err) {
     console.error("[Maintenance] Error in readDirectConfig fallback:", err);
   }
 
-  return {
+  inMemoryConfig = {
     id: 1,
     maintenance_enabled: false,
     maintenance_title_en: "We'll Be Back Soon!",
@@ -113,6 +119,7 @@ function readDirectConfig(): DBMaintenanceConfig {
     updated_by: "System",
     updated_at: new Date().toISOString(),
   };
+  return inMemoryConfig;
 }
 
 function writeDirectConfig(partial: Partial<DBMaintenanceConfig>, updatedBy: string): DBMaintenanceConfig {
@@ -146,46 +153,45 @@ function writeDirectConfig(partial: Partial<DBMaintenanceConfig>, updatedBy: str
     updated.active_schedule_ref = partial.active_schedule_ref;
   }
 
+  inMemoryConfig = updated;
+
   try {
-    if (fs.existsSync(DB_PATH)) {
-      const data = JSON.parse(fs.readFileSync(DB_PATH, "utf8"));
-      data.maintenance_config = [updated];
-      if (data.security_config) {
-        data.security_config.maintenance_mode = updated.maintenance_enabled;
-      }
-      fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2), "utf8");
-    }
-  } catch (err) {
-    console.error("[Maintenance] Error in writeDirectConfig fallback:", err);
-  }
+    setFastMaintenanceCache({
+      maintenance_enabled: updated.maintenance_enabled,
+      maintenance_title_en: updated.maintenance_title_en,
+      maintenance_description_en: updated.maintenance_description_en,
+      maintenance_title_ta: updated.maintenance_title_ta,
+      maintenance_description_ta: updated.maintenance_description_ta,
+      expected_restoration_datetime: updated.expected_restoration_datetime ?? null,
+      expected_restore_at: updated.expected_restore_at ?? null,
+      maintenance_message_en: updated.maintenance_message_en || updated.maintenance_description_en,
+      maintenance_message_ta: updated.maintenance_message_ta || updated.maintenance_description_ta,
+      updated_by: updated.updated_by,
+      updated_at: updated.updated_at,
+    });
+  } catch {}
 
   return updated;
 }
 
 export function readDirectNotifications(): DBMaintenanceNotification[] {
+  if (inMemoryNotifications.length > 0) return inMemoryNotifications;
   try {
     if (fs.existsSync(DB_PATH)) {
       const data = JSON.parse(fs.readFileSync(DB_PATH, "utf8"));
       if (Array.isArray(data.maintenance_notifications)) {
-        return data.maintenance_notifications;
+        inMemoryNotifications = data.maintenance_notifications;
+        return inMemoryNotifications;
       }
     }
   } catch (err) {
     console.error("[Maintenance] Error in readDirectNotifications fallback:", err);
   }
-  return [];
+  return inMemoryNotifications;
 }
 
 export function writeDirectNotifications(notifications: DBMaintenanceNotification[]): void {
-  try {
-    if (fs.existsSync(DB_PATH)) {
-      const data = JSON.parse(fs.readFileSync(DB_PATH, "utf8"));
-      data.maintenance_notifications = notifications;
-      fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2), "utf8");
-    }
-  } catch (err) {
-    console.error("[Maintenance] Error in writeDirectNotifications fallback:", err);
-  }
+  inMemoryNotifications = notifications;
 }
 
 export async function getMaintenanceNotifications(): Promise<DBMaintenanceNotification[]> {

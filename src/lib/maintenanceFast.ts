@@ -40,14 +40,34 @@ interface CacheHolder {
   state: FastMaintenanceState;
 }
 
+const globalWithFastCache = globalThis as typeof globalThis & {
+  _fastMaintenanceCache?: FastMaintenanceState;
+  _fastMaintenanceTimestamp?: number;
+};
+
 let cache: CacheHolder | null = null;
+
+export function setFastMaintenanceCache(state: FastMaintenanceState) {
+  globalWithFastCache._fastMaintenanceCache = state;
+  globalWithFastCache._fastMaintenanceTimestamp = Date.now();
+  cache = {
+    mtime: -1,
+    state,
+  };
+}
 
 /**
  * Fast, non-blocking maintenance state reader for proxy.ts.
  * Does not import database drivers, next/cache, or client components.
- * Cached by mtime; fails open safely to maintenance_enabled: false.
+ * Prioritizes live in-memory state; fails open safely to maintenance_enabled: false.
  */
 export function getFastMaintenanceState(): FastMaintenanceState {
+  if (globalWithFastCache._fastMaintenanceCache) {
+    return globalWithFastCache._fastMaintenanceCache;
+  }
+  if (cache && cache.mtime === -1) {
+    return cache.state;
+  }
   try {
     if (!fs.existsSync(DB_JSON_PATH)) {
       return fallbackState;
