@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import PoliceCarAnimation from "./PoliceCarAnimation";
 import ChennaiSkylineIllustration from "./ChennaiSkylineIllustration";
-import { Phone, Clock, Shield, Globe } from "lucide-react";
+import { Phone, Shield, Globe } from "lucide-react";
 
 interface MaintenanceClientViewProps {
   initialConfig: {
@@ -51,30 +51,6 @@ export default function MaintenanceClientView({
 
     return () => clearInterval(interval);
   }, [isPreview, initialConfig.maintenance_enabled]);
-
-  const restoreTimeIso = initialConfig.expected_restoration_datetime || initialConfig.expected_restore_at;
-
-  const formatIST = (isoString?: string | null) => {
-    if (!isoString) return null;
-    try {
-      const d = new Date(isoString);
-      if (isNaN(d.getTime())) return null;
-      return new Intl.DateTimeFormat("en-IN", {
-        timeZone: "Asia/Kolkata",
-        weekday: "short",
-        year: "numeric",
-        month: "short",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true,
-      }).format(d) + " IST";
-    } catch {
-      return null;
-    }
-  };
-
-  const formattedRestorationTime = formatIST(restoreTimeIso);
 
   // Exact English and Tamil copies
   const englishStatusBadge = "WEBSITE UNDER MAINTENANCE";
@@ -272,66 +248,6 @@ export default function MaintenanceClientView({
           >
             {lang === "en" ? englishDescription : tamilDescription}
           </p>
-        </div>
-
-        {/* ── 3. SERVICE AVAILABILITY NOTICE CARD (ENHANCED) ── */}
-        <div
-          className="mt-2.5 sm:mt-3.5 p-3.5 sm:p-4 rounded-xl shadow-2xl max-w-lg w-full shrink-0"
-          style={{
-            background: "linear-gradient(180deg, rgba(15, 23, 42, 0.96) 0%, rgba(2, 6, 23, 0.98) 100%)",
-            border: "1.5px solid rgba(245, 158, 11, 0.45)",
-            boxShadow: "0 14px 32px rgba(0, 0, 0, 0.7), 0 0 20px rgba(245, 158, 11, 0.15)",
-            backdropFilter: "blur(12px)",
-            WebkitBackdropFilter: "blur(12px)",
-          }}
-        >
-          <div
-            className="flex items-center justify-center gap-2 text-xs sm:text-sm font-black uppercase tracking-wider"
-            style={{ color: "#f59e0b" }}
-          >
-            <Clock className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
-            <span>
-              {lang === "en" ? "SERVICE AVAILABILITY NOTICE" : "சேவை கிடைக்கும் அறிவிப்பு"}
-            </span>
-          </div>
-
-          <div
-            className="my-1.5 sm:my-2"
-            style={{ borderTop: "1px solid rgba(51, 65, 85, 0.85)" }}
-          />
-
-          <div className="space-y-1">
-            <p
-              className="text-[11px] sm:text-xs uppercase tracking-wider font-bold"
-              style={{ color: "#94a3b8" }}
-            >
-              {lang === "en" ? "EXPECTED RESTORATION TIME:" : "எதிர்பார்க்கப்படும் மீட்பு நேரம்:"}
-            </p>
-            <div
-              className="text-base sm:text-lg md:text-xl font-black tracking-wide"
-              style={{
-                color: "#ffffff",
-                textShadow: "0 2px 6px rgba(0, 0, 0, 0.9)",
-              }}
-            >
-              {formattedRestorationTime ? (
-                <span
-                  className="inline-block px-3.5 py-1 rounded-md"
-                  style={{
-                    backgroundColor: "rgba(245, 158, 11, 0.18)",
-                    border: "1px solid rgba(245, 158, 11, 0.4)",
-                    color: "#fef08a",
-                  }}
-                >
-                  {formattedRestorationTime}
-                </span>
-              ) : (
-                <span style={{ color: "#e2e8f0" }}>
-                  {lang === "en" ? "To be announced" : "விரைவில் அறிவிக்கப்படும்"}
-                </span>
-              )}
-            </div>
-          </div>
         </div>
 
         {/* ── 4. EMERGENCY HELPLINE SECTION (4 VIBRANT EXPANDED CARDS) ── */}

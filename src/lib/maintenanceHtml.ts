@@ -24,32 +24,6 @@ export interface MaintenanceHtmlConfig {
 }
 
 export function renderMaintenanceHtml(config: MaintenanceHtmlConfig): string {
-  const restoreIso = config.expected_restoration_datetime || config.expected_restore_at;
-
-  let formattedDateEn = "To be announced";
-  let formattedDateTa = "விரைவில் அறிவிக்கப்படும்";
-
-  if (restoreIso) {
-    try {
-      const d = new Date(restoreIso);
-      if (!isNaN(d.getTime())) {
-        const formatted =
-          new Intl.DateTimeFormat("en-IN", {
-            timeZone: "Asia/Kolkata",
-            weekday: "short",
-            year: "numeric",
-            month: "short",
-            day: "2-digit",
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: true,
-          }).format(d) + " IST";
-        formattedDateEn = formatted;
-        formattedDateTa = formatted;
-      }
-    } catch {}
-  }
-
   const descEn =
     config.maintenance_description_en ||
     config.maintenance_message_en ||
@@ -245,55 +219,6 @@ export function renderMaintenanceHtml(config: MaintenanceHtmlConfig): string {
       max-width: 680px;
       margin: 0 auto;
       text-shadow: 0 1px 8px rgba(0, 0, 0, 0.8);
-    }
-
-    /* Notice Card (Prominent & Clear) */
-    .notice-card {
-      background: linear-gradient(180deg, rgba(15, 23, 42, 0.96) 0%, rgba(2, 6, 23, 0.98) 100%);
-      border: 1.5px solid rgba(245, 158, 11, 0.45);
-      box-shadow: 0 14px 32px rgba(0, 0, 0, 0.7), 0 0 20px rgba(245, 158, 11, 0.15);
-      border-radius: 14px;
-      padding: 12px 20px;
-      margin-top: 12px;
-      max-width: 500px;
-      width: 100%;
-      flex-shrink: 0;
-    }
-    .notice-header {
-      font-size: 12.5px;
-      font-weight: 900;
-      text-transform: uppercase;
-      color: #f59e0b;
-      letter-spacing: 0.1em;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      margin-bottom: 8px;
-    }
-    .notice-divider {
-      height: 1px;
-      background: rgba(51, 65, 85, 0.85);
-      margin-bottom: 8px;
-    }
-    .notice-label {
-      font-size: 11px;
-      font-weight: 800;
-      text-transform: uppercase;
-      color: #94a3b8;
-      letter-spacing: 0.06em;
-      margin-bottom: 5px;
-    }
-    .notice-time {
-      font-size: clamp(14px, 2vw, 18px);
-      font-weight: 900;
-      color: #fef08a;
-      background: rgba(245, 158, 11, 0.18);
-      border: 1px solid rgba(245, 158, 11, 0.4);
-      padding: 4px 14px;
-      border-radius: 8px;
-      display: inline-block;
-      letter-spacing: 0.03em;
     }
 
     /* Helpline Section (Generous Typography) */
@@ -509,17 +434,6 @@ export function renderMaintenanceHtml(config: MaintenanceHtmlConfig): string {
       <h2 class="heading-sub" id="txt-subheading">We'll Be Back Soon!</h2>
       <p class="description" id="txt-desc">${descEn}</p>
 
-      <!-- Restoration Card -->
-      <div class="notice-card">
-        <div class="notice-header">
-          <span>🕒</span>
-          <span id="txt-notice-title">SERVICE AVAILABILITY NOTICE</span>
-        </div>
-        <div class="notice-divider"></div>
-        <div class="notice-label" id="txt-notice-lbl">EXPECTED RESTORATION TIME:</div>
-        <div class="notice-time" id="txt-notice-time">${formattedDateEn}</div>
-      </div>
-
       <!-- Emergency Helpline Section -->
       <div class="helpline-section">
         <div class="helpline-title" id="txt-helpline-title">
@@ -720,9 +634,6 @@ export function renderMaintenanceHtml(config: MaintenanceHtmlConfig): string {
         heading: "UNDER MAINTENANCE",
         subheading: "We'll Be Back Soon!",
         desc: ${JSON.stringify(descEn)},
-        noticeTitle: "SERVICE AVAILABILITY NOTICE",
-        noticeLbl: "EXPECTED RESTORATION TIME:",
-        noticeTime: ${JSON.stringify(formattedDateEn)},
         helplineTitle: "FOR IMMEDIATE EMERGENCY ASSISTANCE, DIAL 24×7 HELPLINES",
         lbl100: "POLICE CONTROL",
         lbl112: "ALL EMERGENCY",
@@ -736,9 +647,6 @@ export function renderMaintenanceHtml(config: MaintenanceHtmlConfig): string {
         heading: "இணையதளம் பராமரிப்பில் உள்ளது",
         subheading: "விரைவில் மீண்டும் செயல்படும்!",
         desc: ${JSON.stringify(descTa)},
-        noticeTitle: "சேவை கிடைக்கும் அறிவிப்பு",
-        noticeLbl: "எதிர்பார்க்கப்படும் மீட்பு நேரம்:",
-        noticeTime: ${JSON.stringify(formattedDateTa)},
         helplineTitle: "அவசர உதவிக்கு 24×7 தொடர்பு எண்கள்",
         lbl100: "காவல் கட்டுப்பாடு",
         lbl112: "அனைத்து அவசரம்",
@@ -755,9 +663,6 @@ export function renderMaintenanceHtml(config: MaintenanceHtmlConfig): string {
       document.getElementById('txt-heading').innerText = c.heading;
       document.getElementById('txt-subheading').innerText = c.subheading;
       document.getElementById('txt-desc').innerText = c.desc;
-      document.getElementById('txt-notice-title').innerText = c.noticeTitle;
-      document.getElementById('txt-notice-lbl').innerText = c.noticeLbl;
-      document.getElementById('txt-notice-time').innerText = c.noticeTime;
       document.getElementById('txt-helpline-title').innerText = c.helplineTitle;
       document.getElementById('lbl-100').innerText = c.lbl100;
       document.getElementById('lbl-112').innerText = c.lbl112;
