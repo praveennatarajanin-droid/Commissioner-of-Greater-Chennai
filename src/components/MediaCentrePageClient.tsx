@@ -432,7 +432,7 @@ export default function MediaCentrePageClient({
                     </div>
 
                     <Link
-                      href={item.slug ? `/news/${item.slug}` : "#"}
+                      href={item.slug ? `/news/${item.slug}` : `/news/${item.id}`}
                       className="block font-bold text-base sm:text-lg text-slate-900 dark:text-white group-hover:text-blue-900 dark:group-hover:text-[#c5a059] transition-colors leading-snug"
                     >
                       {title}
@@ -446,7 +446,7 @@ export default function MediaCentrePageClient({
 
                     <div className="pt-2">
                       <Link
-                        href={item.slug ? `/news/${item.slug}` : "#"}
+                        href={item.slug ? `/news/${item.slug}` : `/news/${item.id}`}
                         className="inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-[#081325] hover:text-blue-900 dark:text-[#c5a059] dark:hover:text-amber-300 transition-colors"
                       >
                         <span>{language === "ta" ? "அறிக்கையைப் பார்க்க" : "View Official Release"}</span>

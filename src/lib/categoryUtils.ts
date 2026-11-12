@@ -23,6 +23,7 @@ export const CATEGORY_SLUG_MAP: Record<string, string> = {
 
   // Core Citizen Services
   "CRIME": "crime",
+  "CRIME NEWS": "crime",
   "CRIME PREVENTION": "crime",
   "CYBER SAFETY": "cyber-safety",
   "CYBER AWARENESS": "cyber-awareness",

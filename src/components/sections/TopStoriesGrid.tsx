@@ -94,7 +94,7 @@ export default function TopStoriesGrid({ news, language = "en" }: TopStoriesGrid
             </span>
           </div>
           <Link
-            href="/news"
+            href="/category/crime"
             className="flex items-center gap-1 text-xs font-black text-brand-maroon dark:text-brand-gold uppercase tracking-widest hover:gap-2 transition-all"
           >
             All Stories <ChevronRight className="w-3.5 h-3.5" />
@@ -115,7 +115,7 @@ export default function TopStoriesGrid({ news, language = "en" }: TopStoriesGrid
               return (
                 <Link
                   key={item.id}
-                  href={item.slug ? `/news/${item.slug}` : "#"}
+                  href={item.slug ? `/news/${item.slug}` : `/news/${item.id}`}
                   className="group flex flex-col bg-white dark:bg-stone-950 rounded-xl overflow-hidden border border-stone-100 dark:border-stone-800 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 news-card-white"
                 >
                   {/* Thumbnail */}

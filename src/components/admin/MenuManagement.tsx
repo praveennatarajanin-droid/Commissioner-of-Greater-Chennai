@@ -211,12 +211,12 @@ function CMSPageEditor({
       const catEn = (art.category_en || "").toLowerCase().trim();
       const titleEn = (art.title_en || "").toLowerCase().trim();
       
-      const exactMatch = (s === "crime" && (catEn === "crime" || catEn === "crime prevention")) ||
+      const exactMatch = ((s === "crime" || s === "crime-news") && (catEn === "crime" || catEn === "crime news" || catEn === "crime prevention")) ||
                          (s === "cyber-safety" && catEn === "cyber safety") ||
                          (s === "women-safety" && (catEn === "women safety" || catEn === "women's safety")) ||
                          (s === "public-safety" && catEn === "public safety") ||
                          (s === "traffic" && (catEn === "traffic" || catEn === "traffic news" || catEn === "traffic advisory" || catEn === "traffic updates")) ||
-                         (s === "outreach" && (catEn === "outreach" || catEn === "community outreach")) ||
+                         ((s === "outreach" || s === "community-outreach") && (catEn === "outreach" || catEn === "community outreach")) ||
                          (s === "government" && (catEn === "government updates" || catEn === "government" || catEn === "government update")) ||
                          (s === "awards" && (catEn === "awards & recognition" || catEn === "awards" || catEn === "recognition")) ||
                          (s === "administration" && (catEn === "police administration" || catEn === "administration")) ||
@@ -977,18 +977,16 @@ function CMSPageEditor({
                           return;
                         }
                         const defaults = [
+                          { en: "CRIME NEWS", ta: "குற்றச் செய்திகள்" },
                           { en: "CRIME", ta: "குற்றம்" },
-                          { en: "WANTED CRIMINALS", ta: "தேடப்படும் குற்றவாளிகள்" },
-                          { en: "MISSING PERSONS", ta: "காணாமல் போனவர்கள்" },
                           { en: "CYBER SAFETY", ta: "இணைய பாதுகாப்பு" },
-                          { en: "CYBER AWARENESS", ta: "சைபர் விழிப்புணர்வு" },
-                          { en: "ONLINE FRAUD", ta: "ஆன்லைன் மோசடி" },
                           { en: "WOMEN SAFETY", ta: "பெண்கள் பாதுகாப்பு" },
-                          { en: "PINK PATROL", ta: "பிங்க் ரோந்து" },
-                          { en: "AVAL SUPPORT WING", ta: "அவள் ஆதரவு பிரிவு" },
-                          { en: "WOMEN HELPLINE", ta: "பெண்கள் உதவி எண்" },
                           { en: "PUBLIC SAFETY", ta: "பொது பாதுகாப்பு" },
-                          { en: "COMMUNITY OUTREACH", ta: "சமூக உதவி" }
+                          { en: "COMMUNITY OUTREACH", ta: "சமூக உதவி" },
+                          { en: "EMERGENCY ALERTS", ta: "அவசர எச்சரிக்கைகள்" },
+                          { en: "POLICE OFFICIAL NEWS", ta: "காவல்துறை அதிகாரப்பூர்வ செய்தி" },
+                          { en: "PUBLIC WARNINGS & ALERTS", ta: "பொது எச்சரிக்கைகள் & விழிப்பூட்டல்கள்" },
+                          { en: "PUBLIC ANNOUNCEMENTS", ta: "பொது அறிவிப்புகள்" }
                         ];
                         const found = defaults.find(d => d.en === val) || { en: val, ta: val };
                         setLocalArticle({ ...localArticle, category_en: found.en, category_ta: found.ta });
@@ -996,18 +994,15 @@ function CMSPageEditor({
                       className="w-full border border-slate-200 rounded-xl p-2.5 outline-none focus:border-[#1e40af] focus:ring-2 focus:ring-[#1e40af]/10 bg-white cursor-pointer"
                     >
                       <option value="">-- Select Category --</option>
-                      <option value="CRIME">CRIME</option>
-                      <option value="WANTED CRIMINALS">WANTED CRIMINALS</option>
-                      <option value="MISSING PERSONS">MISSING PERSONS</option>
+                      <option value="CRIME NEWS">CRIME NEWS</option>
                       <option value="CYBER SAFETY">CYBER SAFETY</option>
-                      <option value="CYBER AWARENESS">CYBER AWARENESS</option>
-                      <option value="ONLINE FRAUD">ONLINE FRAUD</option>
                       <option value="WOMEN SAFETY">WOMEN SAFETY</option>
-                      <option value="PINK PATROL">PINK PATROL</option>
-                      <option value="AVAL SUPPORT WING">AVAL SUPPORT WING</option>
-                      <option value="WOMEN HELPLINE">WOMEN HELPLINE</option>
                       <option value="PUBLIC SAFETY">PUBLIC SAFETY</option>
                       <option value="COMMUNITY OUTREACH">COMMUNITY OUTREACH</option>
+                      <option value="EMERGENCY ALERTS">EMERGENCY ALERTS</option>
+                      <option value="POLICE OFFICIAL NEWS">↳ POLICE OFFICIAL NEWS</option>
+                      <option value="PUBLIC WARNINGS & ALERTS">↳ PUBLIC WARNINGS & ALERTS</option>
+                      <option value="PUBLIC ANNOUNCEMENTS">↳ PUBLIC ANNOUNCEMENTS</option>
                     </select>
                   </div>
                   <div className="space-y-1">

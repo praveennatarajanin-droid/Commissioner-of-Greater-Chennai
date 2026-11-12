@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { Download, FileText, ChevronRight, BookOpen } from "lucide-react";
 
 interface DocumentItem {
@@ -104,9 +105,9 @@ export default function DocsSection() {
             ))}
           </div>
 
-          <a href="#" className="inline-flex items-center gap-1.5 text-xs font-bold text-brand-maroon dark:text-brand-gold hover:text-brand-maroon-dark dark:hover:text-brand-gold-light transition-colors">
+          <Link href="/category/public-announcements" className="inline-flex items-center gap-1.5 text-xs font-bold text-brand-maroon dark:text-brand-gold hover:text-brand-maroon-dark dark:hover:text-brand-gold-light transition-colors">
             View All Circulars <ChevronRight className="w-4 h-4" />
-          </a>
+          </Link>
         </div>
 
       </div>

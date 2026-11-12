@@ -39,7 +39,11 @@ export async function GET(req: Request) {
       });
     }
 
-    return NextResponse.json(services);
+    return NextResponse.json(services, {
+      headers: {
+        "Cache-Control": "no-store, no-cache, must-revalidate",
+      },
+    });
   } catch (error: any) {
     console.error("Failed to fetch citizen services:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

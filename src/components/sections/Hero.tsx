@@ -82,7 +82,7 @@ export default function Hero({ customSlides, customNews }: HeroProps = {}) {
   );
 
   useEffect(() => {
-    const activeSlides = customSlides && customSlides.length > 0 ? customSlides : slides;
+    const activeSlides = customSlides !== undefined ? customSlides : slides;
     setValidSlides(activeSlides);
     setIsMounted(true);
   }, [customSlides]);
@@ -181,6 +181,10 @@ export default function Hero({ customSlides, customNews }: HeroProps = {}) {
                   <div className="h-3.5 w-32 bg-stone-800 dark:bg-stone-750 rounded-full" />
                   <div className="h-2.5 w-48 bg-stone-800/60 dark:bg-stone-750/50 rounded-full" />
                 </div>
+              </div>
+            ) : validSlides.length === 0 ? (
+              <div className="relative w-full h-[320px] sm:h-[420px] md:h-[480px] lg:h-[530px] bg-stone-950 dark:bg-stone-900 rounded-2xl overflow-hidden border border-stone-200 dark:border-stone-850 shadow-lg flex flex-col items-center justify-center p-6 text-center text-stone-400">
+                <p className="text-sm font-medium">No featured slides available</p>
               </div>
             ) : (
               <div className="relative w-full h-[320px] sm:h-[420px] md:h-[480px] lg:h-[530px] bg-stone-950 rounded-2xl overflow-hidden group select-none border border-stone-200 dark:border-stone-855 shadow-lg">

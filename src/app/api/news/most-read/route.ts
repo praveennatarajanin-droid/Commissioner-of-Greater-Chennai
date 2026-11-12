@@ -1,21 +1,13 @@
 import { NextResponse } from "next/server";
 import { db, sanitizePublicNewsItem } from "@/lib/db";
 import { getNewsTimestamp } from "@/lib/dateUtils";
-
-let mostReadCache: any = null;
-let mostReadCacheTime = 0;
-const CACHE_TTL = 2 * 60 * 1000; // 2 minutes
-
-export function invalidateMostReadNewsCache() {
-  mostReadCache = null;
-  mostReadCacheTime = 0;
-}
+import { getMostReadCache, setMostReadCache } from "@/lib/newsCache";
 
 export async function GET() {
   try {
-    const now = Date.now();
-    if (mostReadCache && (now - mostReadCacheTime < CACHE_TTL)) {
-      return NextResponse.json(mostReadCache, {
+    const cached = getMostReadCache();
+    if (cached) {
+      return NextResponse.json(cached, {
         headers: {
           "Cache-Control": "public, max-age=60, s-maxage=120, stale-while-revalidate=300",
         },
@@ -23,6 +15,7 @@ export async function GET() {
     }
 
     const publishedNews = await db.getPublishedNews();
+    const now = Date.now();
     const thirtyDaysAgo = now - 30 * 24 * 60 * 60 * 1000;
 
     const filtered = publishedNews.filter((item: any) => {
@@ -39,8 +32,7 @@ export async function GET() {
 
     const result = filtered.slice(0, 5).map(sanitizePublicNewsItem);
 
-    mostReadCache = result;
-    mostReadCacheTime = now;
+    setMostReadCache(result);
 
     return NextResponse.json(result, {
       headers: {

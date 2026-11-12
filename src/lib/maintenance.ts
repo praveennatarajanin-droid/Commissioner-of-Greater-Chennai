@@ -1,8 +1,6 @@
 import { db, DBMaintenanceConfig, DBMaintenanceNotification } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { setFastMaintenanceCache } from "@/lib/maintenanceFast";
-import fs from "fs";
-import path from "path";
 
 // Safely absorb normal browser navigation socket disconnections (ECONNRESET / aborted)
 if (typeof process !== "undefined" && typeof process.on === "function") {
@@ -57,57 +55,13 @@ export interface UpdateMaintenancePayload {
   active_schedule_ref?: string | null;
 }
 
-const DB_PATH = path.join(process.cwd(), "src", "data", "db.json");
-
 let inMemoryConfig: DBMaintenanceConfig | null = null;
-let lastConfigMtime = 0;
 let inMemoryNotifications: DBMaintenanceNotification[] = [];
-let lastNotifMtime = 0;
 
 /**
- * Direct in-memory/file-based fallback if db instance method was detached during hot-reload.
+ * Direct in-memory fallback if db instance method was detached during hot-reload.
  */
 function readDirectConfig(): DBMaintenanceConfig {
-  try {
-    if (fs.existsSync(DB_PATH)) {
-      const stat = fs.statSync(DB_PATH);
-      if (inMemoryConfig && lastConfigMtime === stat.mtimeMs) {
-        return inMemoryConfig;
-      }
-      const data = JSON.parse(fs.readFileSync(DB_PATH, "utf8"));
-      if (Array.isArray(data.maintenance_config) && data.maintenance_config.length > 0) {
-        const c = data.maintenance_config[0];
-        inMemoryConfig = {
-          id: 1,
-          maintenance_enabled: Boolean(c.maintenance_enabled),
-          maintenance_title_en: c.maintenance_title_en || "We'll Be Back Soon!",
-          maintenance_description_en:
-            c.maintenance_description_en ||
-            c.maintenance_message_en ||
-            "The Greater Chennai Police Commissioner Portal is temporarily undergoing scheduled maintenance. We apologize for the inconvenience and will be back shortly.",
-          maintenance_title_ta: c.maintenance_title_ta || "இணையதளம் பராமரிப்பில் உள்ளது",
-          maintenance_description_ta:
-            c.maintenance_description_ta ||
-            c.maintenance_message_ta ||
-            "சென்னை பெருநகர காவல் ஆணையரக இணையதளம் தற்போது பராமரிப்புப் பணியில் உள்ளது. ஏற்பட்டுள்ள சிரமத்திற்கு வருந்துகிறோம். விரைவில் மீண்டும் செயல்படும்.",
-          expected_restoration_datetime: c.expected_restoration_datetime || c.expected_restore_at || null,
-          expected_restore_at: c.expected_restoration_datetime || c.expected_restore_at || null,
-          maintenance_message_en:
-            c.maintenance_description_en || c.maintenance_message_en || "The Greater Chennai Police Commissioner Portal is temporarily undergoing scheduled maintenance.",
-          maintenance_message_ta:
-            c.maintenance_description_ta || c.maintenance_message_ta || "சென்னை பெருநகர காவல் ஆணையரக இணையதளம் தற்போது பராமரிப்புப் பணியில் உள்ளது.",
-          active_schedule_ref: c.active_schedule_ref || null,
-          updated_by: c.updated_by || "System",
-          updated_at: c.updated_at || new Date().toISOString(),
-        };
-        lastConfigMtime = stat.mtimeMs;
-        return inMemoryConfig;
-      }
-    }
-  } catch (err) {
-    console.error("[Maintenance] Error in readDirectConfig fallback:", err);
-  }
-
   if (inMemoryConfig) return inMemoryConfig;
 
   inMemoryConfig = {
@@ -184,22 +138,6 @@ function writeDirectConfig(partial: Partial<DBMaintenanceConfig>, updatedBy: str
 }
 
 export function readDirectNotifications(): DBMaintenanceNotification[] {
-  try {
-    if (fs.existsSync(DB_PATH)) {
-      const stat = fs.statSync(DB_PATH);
-      if (inMemoryNotifications && inMemoryNotifications.length > 0 && lastNotifMtime === stat.mtimeMs) {
-        return inMemoryNotifications;
-      }
-      const data = JSON.parse(fs.readFileSync(DB_PATH, "utf8"));
-      if (Array.isArray(data.maintenance_notifications)) {
-        inMemoryNotifications = data.maintenance_notifications;
-        lastNotifMtime = stat.mtimeMs;
-        return inMemoryNotifications;
-      }
-    }
-  } catch (err) {
-    console.error("[Maintenance] Error in readDirectNotifications fallback:", err);
-  }
   return inMemoryNotifications || [];
 }
 

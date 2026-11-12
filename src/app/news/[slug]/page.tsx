@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Navbar from "@/components/layout/Navbar";
 import NewsTicker from "@/components/layout/NewsTicker";
 import Footer from "@/components/layout/Footer";
@@ -20,6 +20,7 @@ export async function generateMetadata({
   const article = news.find(
     (item) =>
       item.slug === slug ||
+      String(item.id) === slug ||
       (slug === "police-medal-award-ceremony" && (item.id === 1 || item.slug === "rajaratnam-stadium-egmore-dr-a-amalraj-ips")) ||
       (slug === "amalraj-posted-commissioner" && (item.id === 7 || item.slug === "a-amalraj-ips-assumes-charge-as-greater-chennai-police-commissioner"))
   );
@@ -117,12 +118,22 @@ export default async function Page({
   const article = news.find(
     (item) =>
       item.slug === slug ||
+      String(item.id) === slug ||
       (slug === "police-medal-award-ceremony" && (item.id === 1 || item.slug === "rajaratnam-stadium-egmore-dr-a-amalraj-ips")) ||
       (slug === "amalraj-posted-commissioner" && (item.id === 7 || item.slug === "a-amalraj-ips-assumes-charge-as-greater-chennai-police-commissioner"))
   );
 
-  let isVisible = article ? isArticlePubliclyVisible(article) : false;
-  if (article && !isVisible) {
+  if (!article) {
+    notFound();
+  }
+
+  // Canonical redirect for ID-based or alias slug requests to the official canonical slug
+  if (article.slug && article.slug !== slug) {
+    redirect(`/news/${article.slug}`);
+  }
+
+  let isVisible = isArticlePubliclyVisible(article);
+  if (!isVisible) {
     const authUser = await getSessionUser();
     if (authUser) {
       const roleUpper = (authUser.role || "").toUpperCase().trim().replace(/[_\s]+/g, "");
@@ -139,7 +150,7 @@ export default async function Page({
     }
   }
 
-  if (!article || !isVisible) {
+  if (!isVisible) {
     notFound();
   }
 

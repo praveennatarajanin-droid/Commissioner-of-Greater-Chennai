@@ -184,7 +184,7 @@ export default function CitizenQuickActions({ language: propLang }: CitizenQuick
     let isMounted = true;
     async function loadFeatured() {
       try {
-        const res = await fetch("/api/citizen-services?featured=1");
+        const res = await fetch("/api/citizen-services?featured=1", { cache: "no-store" });
         if (res.ok) {
           const data = await res.json();
           if (Array.isArray(data) && data.length > 0 && isMounted) {
@@ -192,7 +192,14 @@ export default function CitizenQuickActions({ language: propLang }: CitizenQuick
               const iconKey = (item.icon || "filetext").toLowerCase().replace(/[^a-z0-9]/g, "");
               const iconComp = ICON_COMPONENTS[iconKey] || FileText;
               const palette = COLOR_PALETTES[idx % COLOR_PALETTES.length];
-              const isExt = Boolean(item.external_url && (item.external_url.startsWith("http://") || item.external_url.startsWith("https://")));
+              const rawUrl = (item.external_url || "").trim();
+              let targetUrl = rawUrl;
+              if (targetUrl && !targetUrl.startsWith("http://") && !targetUrl.startsWith("https://") && !targetUrl.startsWith("/")) {
+                if (/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/.test(targetUrl)) {
+                  targetUrl = `https://${targetUrl}`;
+                }
+              }
+              const isExt = Boolean(targetUrl && (targetUrl.startsWith("http://") || targetUrl.startsWith("https://")));
 
               return {
                 id: item.id,
@@ -201,7 +208,7 @@ export default function CitizenQuickActions({ language: propLang }: CitizenQuick
                 descEn: item.description || item.description_en || "",
                 descTa: item.description_ta || item.description || item.description_en || "",
                 icon: iconComp,
-                href: item.external_url || "/citizen-services",
+                href: targetUrl || "/citizen-services",
                 isExternal: isExt,
                 iconBg: palette.bg,
                 iconColor: palette.color

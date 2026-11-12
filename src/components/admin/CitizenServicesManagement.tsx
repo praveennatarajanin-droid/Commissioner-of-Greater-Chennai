@@ -207,8 +207,8 @@ export default function CitizenServicesManagement({
     setLoading(true);
     try {
       const [catRes, srvRes] = await Promise.all([
-        fetch("/api/admin/crud/citizen-service-categories"),
-        fetch("/api/admin/crud/citizen-services")
+        fetch("/api/admin/crud/citizen-service-categories", { cache: "no-store" }),
+        fetch("/api/admin/crud/citizen-services", { cache: "no-store" })
       ]);
 
       if (catRes.ok) {
@@ -299,27 +299,34 @@ export default function CitizenServicesManagement({
       return;
     }
 
-    if (editingService.external_url && editingService.external_url.trim() !== "") {
-      const url = editingService.external_url.trim();
-      if (!url.startsWith("http://") && !url.startsWith("https://") && !url.startsWith("/")) {
-        setToast({ type: "error", text: "URL must begin with https:// or http://" });
-        return;
+    let trimmedUrl = (editingService.external_url || "").trim();
+    if (trimmedUrl !== "") {
+      if (!trimmedUrl.startsWith("http://") && !trimmedUrl.startsWith("https://") && (!trimmedUrl.startsWith("/") || trimmedUrl.startsWith("//"))) {
+        if (/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/.test(trimmedUrl)) {
+          trimmedUrl = `https://${trimmedUrl}`;
+        } else {
+          setToast({ type: "error", text: "URL must begin with https://, http://, or /" });
+          return;
+        }
       }
     }
 
     setSavingService(true);
 
+    const { category_name_en: _cnEn, category_name_ta: _cnTa, category_slug: _cSlug, category: _cat, ...cleanService } = editingService as any;
+
     const payload = {
-      ...editingService,
+      ...cleanService,
       service_name: sName,
       service_name_en: sName,
       description: sDesc,
       description_en: sDesc,
+      external_url: trimmedUrl,
       category_id: Number(editingService.category_id),
       display_order: Number(editingService.display_order) || 1,
       is_active: Number(editingService.is_active) ? 1 : 0,
       is_featured: Number(editingService.is_featured) ? 1 : 0,
-      open_in_new_tab: Number(editingService.open_in_new_tab) ? 1 : 0,
+      open_in_new_tab: editingService.open_in_new_tab !== undefined ? (Number(editingService.open_in_new_tab) ? 1 : 0) : 1,
       updated_by: user.username,
       updated_at: new Date().toISOString()
     };
@@ -1179,12 +1186,12 @@ export default function CitizenServicesManagement({
                 </label>
                 <div className="relative">
                   <input
-                    type="url"
+                    type="text"
                     value={editingService.external_url || ""}
                     onChange={(e) =>
                       setEditingService((prev) => ({ ...prev, external_url: e.target.value }))
                     }
-                    placeholder="https://official-government-url.gov.in"
+                    placeholder="https://official-government-url.gov.in or /stations"
                     className="w-full pl-3 pr-8 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none font-mono text-xs"
                   />
                   <ExternalLink className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />

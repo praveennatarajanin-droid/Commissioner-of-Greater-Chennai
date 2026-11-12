@@ -62,7 +62,7 @@ interface CategoryPageClientProps {
 
 const CATEGORY_MAP: Record<string, { title_en: string; title_ta: string; color: string; keywords: string[]; bgImage?: string; bgGradient?: string; objectPosition?: string; bgPosition?: string }> = {
   crime: {
-    title_en: "Crime",
+    title_en: "Crime News",
     title_ta: "குற்றச் செய்திகள்",
     color: "#7c3aed",
     keywords: ["crime", "arrest", "painkiller", "dvac", "bribery", "cheat", "theft", "seizure", "corruption", "law and order"],
@@ -98,7 +98,7 @@ const CATEGORY_MAP: Record<string, { title_en: string; title_ta: string; color: 
     bgPosition: "center 50%"
   },
   outreach: {
-    title_en: "Outreach",
+    title_en: "Community Outreach",
     title_ta: "சமூக உதவித் திட்டங்கள்",
     color: "#059669",
     keywords: ["community", "outreach", "karangal", "rescue", "welfare", "pledge", "labour", "students", "legal", "social awareness", "community support"],
@@ -280,7 +280,11 @@ export default function CategoryPageClient({
         ? "public-announcements"
         : (id === "emergency")
           ? "emergency-alerts"
-          : id;
+          : (id === "crime-news")
+            ? "crime"
+            : (id === "community-outreach")
+              ? "outreach"
+              : id;
 
   const catInfo = CATEGORY_MAP[canonicalId] || CATEGORY_MAP[id] || {
     title_en: id.toUpperCase().replace("-", " "),
@@ -307,12 +311,12 @@ export default function CategoryPageClient({
         const idMatch = normalizedId === normalizedCat;
 
         const exactMatch = idMatch ||
-                           (id === "crime" && (catEn === "crime" || catEn === "crime prevention" || catEn === "wanted criminals" || catEn === "missing persons")) ||
+                           ((id === "crime" || id === "crime-news" || canonicalId === "crime") && (catEn === "crime" || catEn === "crime news" || catEn === "crime prevention" || catEn === "wanted criminals" || catEn === "missing persons")) ||
                            (id === "cyber-safety" && (catEn === "cyber safety" || catEn === "cyber awareness" || catEn === "online fraud")) ||
                            (id === "women-safety" && (catEn === "women safety" || catEn === "women's safety" || catEn === "pink patrol" || catEn === "pink patrol (women safety)" || catEn === "aval support wing" || catEn === "aval support" || catEn === "women helpline")) ||
                            (id === "public-safety" && (catEn === "public safety" || catEn === "clean campus" || catEn === "security audit")) ||
                            (id === "traffic" && (catEn === "traffic" || catEn === "traffic news" || catEn === "traffic advisory" || catEn === "traffic updates")) ||
-                           (id === "outreach" && (catEn === "outreach" || catEn === "community outreach" || catEn === "social awareness" || catEn === "legal outreach" || catEn === "community support")) ||
+                           ((id === "outreach" || id === "community-outreach" || canonicalId === "outreach") && (catEn === "outreach" || catEn === "community outreach" || catEn === "social awareness" || catEn === "legal outreach" || catEn === "community support")) ||
                             (id === "emergency-alerts" && (catEn === "emergency alerts" || catEn === "emergency-alerts" || catEn === "police official news" || catEn === "public warnings & alerts" || catEn === "public warnings" || catEn === "public announcements")) ||
                             (id === "police-official-news" && (catEn === "police official news" || catEn === "police-official-news" || catEn === "official news")) ||
                             ((canonicalId === "public-warnings" || id === "public-warnings" || id === "public-warnings-alerts" || id === "public-warnings-and-alerts") && (catEn === "public warnings & alerts" || catEn === "public warnings" || catEn === "public-warnings" || catEn === "warnings & alerts" || catEn === "public warnings and alerts")) ||
@@ -444,7 +448,7 @@ export default function CategoryPageClient({
                 return (
                   <Link
                     key={n.id}
-                    href={n.slug ? `/news/${n.slug}` : "#"}
+                    href={n.slug ? `/news/${n.slug}` : `/news/${n.id}`}
                     className="group flex flex-col bg-white dark:bg-stone-900 rounded-xl overflow-hidden border border-stone-200 dark:border-stone-850 hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 text-left news-card-white app-card-white"
                   >
                     <div className="relative w-full overflow-hidden" style={{ paddingTop: "56.25%" }}>

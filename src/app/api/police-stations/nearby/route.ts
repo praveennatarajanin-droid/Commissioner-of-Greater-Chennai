@@ -17,7 +17,7 @@ function getDistance(lat1: number, lon1: number, lat2: number, lon2: number) {
   return R * c; // Distance in km
 }
 
-export const CHENNAI_LANDMARKS: Record<string, { lat: number; lng: number; name: string }> = {
+const CHENNAI_LANDMARKS: Record<string, { lat: number; lng: number; name: string }> = {
   "mcc": { lat: 12.9248, lng: 80.1247, name: "MCC College, Tambaram" },
   "mcc college": { lat: 12.9248, lng: 80.1247, name: "MCC College, Tambaram" },
   "madras christian college": { lat: 12.9248, lng: 80.1247, name: "MCC College, Tambaram" },

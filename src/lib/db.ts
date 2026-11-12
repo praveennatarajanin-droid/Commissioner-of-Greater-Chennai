@@ -1,9 +1,6 @@
-import fs from "fs";
-import path from "path";
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
-import { newsData } from "@/data/newsData";
-import { query as mysqlQuery } from "@/lib/mysql";
+import { query as mysqlQuery, transaction as mysqlTransaction } from "@/lib/mysql";
 import { isArticlePubliclyVisible } from "@/lib/dateUtils";
 import { setFastMaintenanceCache } from "@/lib/maintenanceFast";
 
@@ -780,645 +777,532 @@ export interface DBDailyVisits {
   updated_at: string;
 }
 
-const JSON_DB_PATH = path.join(process.cwd(), "src", "data", "db.json");
-
-// Standalone JSON Database Manager
-class JSONDatabaseManager {
-  private lastChecked = 0;
-  private lastMtime = 0;
-  private isLoaded = false;
-
-  private data: {
-    users: DBUser[];
-    activity_logs: DBActivityLog[];
-    custom_roles: DBCustomRole[];
-    news: DBNewsItem[];
-    ticker: DBTickerItem[];
-    slider: DBSliderItem[];
-    commissioner_profile: DBCommissionerProfile[];
-    theme_settings: DBThemeSettings[];
-    menu_items: DBMenuItem[];
-    menus: DBMenu[];
-    sub_menus: DBSubMenu[];
-    contacts: DBContact[];
-    tts_settings: DBTtsSettings[];
-    videos: DBVideoItem[];
-    alerts: DBAlertItem[];
-    alert_settings: DBAlertSettings[];
-    seo_settings: DBSeoSettings[];
-    article_seo: DBArticleSeo[];
-    asset_metadata: DBAssetMetadata[];
-    police_stations: DBPoliceStation[];
-    emergency_contacts: DBEmergencyContact[];
-    department_links: DBDepartmentLink[];
-    web_stories: DBWebStory[];
-    service_requests: DBServiceRequest[];
-    page_contents: DBPageContent[];
-    content_versions: DBContentVersion[];
-    media_files: DBMediaFileRecord[];
-    backups: DBBackupRecord[];
-    security_assessments: DBSecurityAssessmentRecord[];
-    citizen_service_categories: DBCitizenServiceCategory[];
-    citizen_services: DBCitizenService[];
-    portal_visitor_stats: DBVisitorStats[];
-    portal_daily_visits: DBDailyVisits[];
-    superadmin_config: Record<string, any>;
-  } = {
-      users: [],
-      activity_logs: [],
-      custom_roles: [],
-      news: [],
-      ticker: [],
-      slider: [],
-      commissioner_profile: [],
-      theme_settings: [],
-      menu_items: [],
-      menus: [],
-      sub_menus: [],
-      contacts: [],
-      tts_settings: [],
-      videos: [],
-      alerts: [],
-      alert_settings: [],
-      seo_settings: [],
-      article_seo: [],
-      asset_metadata: [],
-      police_stations: [],
-      emergency_contacts: [],
-      department_links: [],
-      web_stories: [],
-      service_requests: [],
-      page_contents: [],
-      content_versions: [],
-      media_files: [],
-      backups: [],
-      security_assessments: [],
-      citizen_service_categories: [],
-      citizen_services: [],
-      portal_visitor_stats: [],
-      portal_daily_visits: [],
-      superadmin_config: {}
-    };
-
-
-  constructor() {
-    this.init();
-  }
-
-  private init() {
-    const now = Date.now();
-    if (this.isLoaded && now - this.lastChecked < 50) {
-      return;
-    }
-
-    if (fs.existsSync(JSON_DB_PATH)) {
-      try {
-        const stat = fs.statSync(JSON_DB_PATH);
-        this.lastChecked = now;
-        if (this.isLoaded && stat.mtimeMs === this.lastMtime) {
-          return;
-        }
-        const raw = fs.readFileSync(JSON_DB_PATH, "utf8");
-        if (!raw || !raw.trim()) {
-          return;
-        }
-        const parsed = JSON.parse(raw);
-        const activeSessions = (this.data && (this.data as any).sessions) || [];
-        this.data = { ...this.data, ...parsed };
-        if (activeSessions.length > 0) {
-          const existingIds = new Set(((this.data as any).sessions || []).map((s: any) => s.id));
-          const toKeep = activeSessions.filter(
-            (s: any) => !existingIds.has(s.id) && (!s.expires_at || new Date(s.expires_at).getTime() > Date.now())
-          );
-          (this.data as any).sessions = [...((this.data as any).sessions || []), ...toKeep];
-        }
-        this.lastMtime = stat.mtimeMs;
-        this.isLoaded = true;
-
-        let modified = false;
-
-        if (!this.data.menus || this.data.menus.length === 0) {
-          this.data.menus = [
-            { id: 1, name_en: "Home", name_ta: "முகப்பு", slug: "home", icon: "Home", display_order: 1, url: "/", page_type: "static", status: "active", open_in_new_tab: 0 },
-            { id: 2, name_en: "About Us", name_ta: "எங்களைப் பற்றி", slug: "about", icon: "Info", display_order: 2, url: "/about", page_type: "static", status: "active", open_in_new_tab: 0 },
-            { id: 3, name_en: "Citizen Services", name_ta: "குடிமக்கள் சேவைகள்", slug: "citizen-services", icon: "Handshake", display_order: 3, url: "/citizen-services", page_type: "static", status: "active", open_in_new_tab: 0 },
-            { id: 4, name_en: "Traffic", name_ta: "போக்குவரத்து", slug: "traffic", icon: "Car", display_order: 4, url: "https://gctp.in/chennai-home", page_type: "external", status: "active", open_in_new_tab: 1 },
-            { id: 5, name_en: "Stations", name_ta: "காவல் நிலையங்கள்", slug: "stations", icon: "MapPin", display_order: 5, url: "/stations", page_type: "static", status: "active", open_in_new_tab: 0 },
-            { id: 6, name_en: "Media Service", name_ta: "வீடியோக்கள்", slug: "videos", icon: "Video", display_order: 6, url: "/videos", page_type: "static", status: "active", open_in_new_tab: 0 },
-            { id: 7, name_en: "Contact Us", name_ta: "தொடர்பு கொள்ளுங்கள்", slug: "contact-us", icon: "Phone", display_order: 7, url: "/contact-us", page_type: "static", status: "active", open_in_new_tab: 0 }
-          ];
-          modified = true;
-        }
-
-        if (!this.data.sub_menus || this.data.sub_menus.length === 0) {
-          this.data.sub_menus = [
-            // Level 1 submenus under Citizen Services (parent_menu_id: 3)
-            { id: 1, parent_menu_id: 3, parent_sub_id: null, name_en: "Crime", name_ta: "குற்றம்", slug: "crime", url: "/category/crime", icon: "Shield", display_order: 1, status: "active" },
-            { id: 2, parent_menu_id: 3, parent_sub_id: null, name_en: "Cyber Safety", name_ta: "இணைய பாதுகாப்பு", slug: "cyber-safety", url: "/category/cyber-safety", icon: "Lock", display_order: 2, status: "active" },
-            { id: 3, parent_menu_id: 3, parent_sub_id: null, name_en: "Women Safety", name_ta: "பெண்கள் பாதுகாப்பு", slug: "women-safety", url: "/category/women-safety", icon: "Heart", display_order: 3, status: "active" },
-            { id: 4, parent_menu_id: 3, parent_sub_id: null, name_en: "Public Safety", name_ta: "பொது பாதுகாப்பு", slug: "public-safety", url: "/category/public-safety", icon: "Eye", display_order: 4, status: "active" },
-            { id: 5, parent_menu_id: 3, parent_sub_id: null, name_en: "Outreach", name_ta: "சமூக உதவி", slug: "outreach", url: "/category/outreach", icon: "Users", display_order: 5, status: "active" },
-            { id: 13, parent_menu_id: 3, parent_sub_id: null, name_en: "Emergency Alerts", name_ta: "அவசர எச்சரிக்கைகள்", slug: "emergency-alerts", url: "/category/emergency-alerts", icon: "AlertTriangle", display_order: 6, status: "active" },
-
-            // Level 2 submenus under Crime (parent_sub_id: 1)
-            { id: 6, parent_menu_id: 3, parent_sub_id: 1, name_en: "Wanted Criminals", name_ta: "தேடப்படும் குற்றவாளிகள்", slug: "wanted-criminals", url: "/category/wanted-criminals", icon: "UserX", display_order: 1, status: "active" },
-            { id: 7, parent_menu_id: 3, parent_sub_id: 1, name_en: "Missing Persons", name_ta: "காணாமல் போனவர்கள்", slug: "missing-persons", url: "/category/missing-persons", icon: "Search", display_order: 2, status: "active" },
-
-            // Level 2 submenus under Cyber Safety (parent_sub_id: 2)
-            { id: 8, parent_menu_id: 3, parent_sub_id: 2, name_en: "Cyber Awareness", name_ta: "இணைய விழிப்புணர்வு", slug: "cyber-awareness", url: "/category/cyber-awareness", icon: "Globe", display_order: 1, status: "active" },
-            { id: 9, parent_menu_id: 3, parent_sub_id: 2, name_en: "Online Fraud", name_ta: "ஆன்லைன் மோசடி", slug: "online-fraud", url: "/category/online-fraud", icon: "AlertTriangle", display_order: 2, status: "active" },
-
-            // Level 2 submenus under Women Safety (parent_sub_id: 3)
-            { id: 10, parent_menu_id: 3, parent_sub_id: 3, name_en: "Pink Patrol", name_ta: "பிங்க் பேட்ரோல்", slug: "pink-patrol", url: "/category/pink-patrol", icon: "ShieldAlert", display_order: 1, status: "active" },
-            { id: 11, parent_menu_id: 3, parent_sub_id: 3, name_en: "AVAL Support Wing", name_ta: "அவள் ஆதரவு பிரிவு", slug: "aval-support", url: "/category/aval-support", icon: "Smile", display_order: 2, status: "active" },
-            { id: 12, parent_menu_id: 3, parent_sub_id: 3, name_en: "Women Helpline", name_ta: "பெண்கள் உதவி எண்", slug: "women-helpline", url: "/category/women-helpline", icon: "PhoneCall", display_order: 3, status: "active" },
-
-            // Level 2 submenus under Emergency Alerts (parent_sub_id: 13)
-            { id: 14, parent_menu_id: 3, parent_sub_id: 13, name_en: "Police Official News", name_ta: "காவல்துறை அதிகாரப்பூர்வ செய்தி", slug: "police-official-news", url: "/category/police-official-news", icon: "Shield", display_order: 1, status: "active" },
-            { id: 15, parent_menu_id: 3, parent_sub_id: 13, name_en: "Public Warnings & Alerts", name_ta: "பொது எச்சரிக்கைகள் & விழிப்பூட்டல்கள்", slug: "public-warnings", url: "/category/public-warnings", icon: "AlertOctagon", display_order: 2, status: "active" },
-            { id: 16, parent_menu_id: 3, parent_sub_id: 13, name_en: "Public Announcements", name_ta: "பொது அறிவிப்புகள்", slug: "public-announcements", url: "/category/public-announcements", icon: "Megaphone", display_order: 3, status: "active" }
-          ];
-          modified = true;
-        }
-
-        if (!this.data.web_stories) {
-          this.data.web_stories = [
-            {
-              id: 1,
-              title_en: "300 GCP Officers Honored with Chief Minister's Police Medal",
-              title_ta: "300 சென்னை பெருநகர காவலர்களுக்கு முதலமைச்சரின் காவல் பதக்கம் வழங்கி கௌரவம்",
-              cover_image: "/uploads/upload_1782285632960.png",
-              slides_json: JSON.stringify([
-                {
-                  image: "/uploads/upload_1782285632960.png",
-                  caption_en: "300 Greater Chennai Police personnel received the prestigious TN Chief Minister's Police Medal.",
-                  caption_ta: "300 சென்னை பெருநகர காவல் பணியாளர்களுக்கு தமிழ்நாடு முதலமைச்சரின் காவல் பதக்கம் வழங்கப்பட்டது."
-                },
-                {
-                  image: "/images/slider_4.jpg",
-                  caption_en: "Commendation certificates awarded for exceptional devotion to duty and administrative excellence.",
-                  caption_ta: "சிறந்த கடமை உணர்வு மற்றும் நிர்வாக சிறப்பிற்காக பாராட்டு சான்றிதழ்கள் வழங்கப்பட்டன."
-                },
-                {
-                  image: "/images/slider_6.jpg",
-                  caption_en: "Greater Chennai Police continues to uphold the highest standards of public service.",
-                  caption_ta: "சென்னை பெருநகர காவல் துறை பொதுச் சேவையில் உயர்ந்த தரத்தைப் பேணுகிறது."
-                }
-              ]),
-              category_en: "Awards",
-              category_ta: "விருதுகள்",
-              status: "active",
-              active: 1,
-              views_count: 142,
-              created_at: "2026-07-03T10:00:00.000Z",
-              news_slug: "police-medal-award-ceremony"
-            },
-            {
-              id: 2,
-              title_en: "Singappen Special Women Patrol Force Unit Launched",
-              title_ta: "சென்னை நகரில் சிங்கப்பெண் சிறப்பு பெண்கள் பாதுகாப்பு ரோந்து படை தொடக்கம்",
-              cover_image: "/images/slider_2.jpg",
-              slides_json: JSON.stringify([
-                {
-                  image: "/images/slider_2.jpg",
-                  caption_en: "Singappen Initiative: All-women mobile patrolling squads deployed in high-density areas.",
-                  caption_ta: "சிங்கப்பெண் திட்டம்: பெண்கள் அதிகம் கூடும் இடங்களில் 24 மணி நேர ரோந்து பணி."
-                },
-                {
-                  image: "/uploads/upload_1782285477484.png",
-                  caption_en: "Ensuring safe transit, immediate response, and zero tolerance for harassment.",
-                  caption_ta: "பாதுகாப்பான பயணம், உடனடி நடவடிக்கை மற்றும் பெண்களுக்கு எதிரான குற்றங்களுக்கு முற்றுப்புள்ளி."
-                },
-                {
-                  image: "/images/gcp_logo.png",
-                  caption_en: "Call Women Helpline 1091 or National Emergency 112 for immediate assistance.",
-                  caption_ta: "அவசர உதவிக்கு பெண்கள் உதவி எண் 1091 அல்லது 112 ஐ தொடர்பு கொள்ளவும்."
-                }
-              ]),
-              category_en: "Women Safety",
-              category_ta: "பெண்கள் பாதுகாப்பு",
-              status: "active",
-              active: 1,
-              views_count: 215,
-              created_at: "2026-07-03T10:05:00.000Z",
-              news_slug: "singappen-womens-safety-initiative"
-            },
-            {
-              id: 3,
-              title_en: "Dr. A. Amalraj IPS Takes Charge as Commissioner of Police, Greater Chennai",
-              title_ta: "டாக்டர் ஏ. அமல்ராஜ் ஐபிஎஸ் சென்னை பெருநகர காவல் ஆணையராக பொறுப்பேற்றார்",
-              cover_image: "/images/amalraj_portrait.png",
-              slides_json: JSON.stringify([
-                {
-                  image: "/images/amalraj_portrait.png",
-                  caption_en: "Dr. A. Amalraj IPS of 1996 batch takes command as Commissioner of Police, Greater Chennai.",
-                  caption_ta: "1996 பேட்ச் ஐபிஎஸ் அதிகாரி டாக்டர் ஏ. அமல்ராஜ் சென்னை பெருநகர காவல் ஆணையராக பொறுப்பேற்றார்."
-                },
-                {
-                  image: "/uploads/upload_1782285932912.png",
-                  caption_en: "Emphasizing modern human resource management, scientific analytics, and proactive policing.",
-                  caption_ta: "நவீன மனிதவள மேலாண்மை மற்றும் அறிவியல் பகுப்பாய்வு முறைகளுக்கு முக்கியத்துவம்."
-                },
-                {
-                  image: "/uploads/upload_1782285750226.png",
-                  caption_en: "Pledged dedicated public safety, crime prevention, and community outreach.",
-                  caption_ta: "பொதுமக்கள் பாதுகாப்பு மற்றும் சமூக தொடர்புகளுக்கு முன்னுரிமை அளிக்கப்படும் என உறுதி."
-                }
-              ]),
-              category_en: "Police Update",
-              category_ta: "காவல் நிர்வாகம்",
-              status: "active",
-              active: 1,
-              views_count: 389,
-              created_at: "2026-07-03T10:10:00.000Z",
-              news_slug: "amalraj-posted-commissioner"
-            },
-            {
-              id: 4,
-              title_en: "Kaaval Karangal Rescues Homeless & Reunites Families",
-              title_ta: "காவல் கரங்கள் திட்டம் மூலம் ஆதரவற்ற முதியவர்கள் மீட்பு மற்றும் குடும்ப இணைப்பு",
-              cover_image: "/images/slider_6.jpg",
-              slides_json: JSON.stringify([
-                {
-                  image: "/images/slider_6.jpg",
-                  caption_en: "Greater Chennai Police's Kaaval Karangal wing rescues abandoned senior citizens.",
-                  caption_ta: "சென்னை பெருநகர காவல்துறையின் காவல் கரங்கள் பிரிவு ஆதரவற்ற முதியவர்களை மீட்கிறது."
-                },
-                {
-                  image: "/images/slider_2.jpg",
-                  caption_en: "Providing medical aid, shelter homes, and reuniting missing persons with families.",
-                  caption_ta: "மருத்துவ உதவி, தங்குமிடம் மற்றும் காணாமல் போனவர்களை குடும்பத்தினருடன் சேர்த்தல்."
-                }
-              ]),
-              category_en: "Community Outreach",
-              category_ta: "சமூக உதவி",
-              status: "active",
-              active: 1,
-              views_count: 178,
-              created_at: "2026-07-03T10:15:00.000Z",
-              news_slug: "kaaval-karangal-rescue-drive"
-            },
-            {
-              id: 5,
-              title_en: "Cyber Safety Alert: Report Financial Scams on Helpline 1930",
-              title_ta: "சைபர் விழிப்புணர்வு: ஆன்லைன் நிதி மோசடிகளை 1930 எண்ணில் தெரிவிக்கவும்",
-              cover_image: "/images/slider_4.jpg",
-              slides_json: JSON.stringify([
-                {
-                  image: "/images/slider_4.jpg",
-                  caption_en: "Never share OTP, PIN, CVV, or banking credentials with unknown callers.",
-                  caption_ta: "OTP, PIN அல்லது வங்கி விவரங்களை யாருடனும் ஒருபோதும் பகிர வேண்டாம்."
-                },
-                {
-                  image: "/images/gcp_logo.png",
-                  caption_en: "Report financial fraud within 1 hour to Helpline 1930 or cybercrime.gov.in.",
-                  caption_ta: "நிதி மோசடியை 1 மணி நேரத்திற்குள் 1930 உதவி எண் அல்லது cybercrime.gov.in இல் தெரிவிக்கவும்."
-                }
-              ]),
-              category_en: "Cyber Safety",
-              category_ta: "சைபர் பாதுகாப்பு",
-              status: "active",
-              active: 1,
-              views_count: 294,
-              created_at: "2026-07-03T10:20:00.000Z",
-              news_slug: "cyber-crime-advisory-1930"
-            }
-          ];
-          modified = true;
-        }
-
-        if (!this.data.portal_visitor_stats || this.data.portal_visitor_stats.length === 0) {
-          const nowIso = new Date().toISOString();
-          this.data.portal_visitor_stats = [
-            { id: 1, total_page_views: 0, created_at: nowIso, updated_at: nowIso }
-          ];
-          modified = true;
-        }
-
-        if (!this.data.portal_daily_visits) {
-          this.data.portal_daily_visits = [];
-          modified = true;
-        }
-
-        // Idempotent hierarchy verification: Ensure Emergency Alerts & 3 children exist under Citizen Services
-        if (this.data.sub_menus && Array.isArray(this.data.sub_menus)) {
-          const citizenMenu = (this.data.menus || []).find((m: any) => m.slug === "citizen-services") || { id: 3 };
-          let emergencySub = this.data.sub_menus.find((s: any) => s.slug === "emergency-alerts" && s.parent_menu_id === citizenMenu.id);
-          if (!emergencySub) {
-            const maxId = this.data.sub_menus.length > 0 ? Math.max(...this.data.sub_menus.map((s: any) => s.id || 0)) : 12;
-            emergencySub = {
-              id: maxId + 1,
-              parent_menu_id: citizenMenu.id,
-              parent_sub_id: null,
-              name_en: "Emergency Alerts",
-              name_ta: "அவசர எச்சரிக்கைகள்",
-              slug: "emergency-alerts",
-              url: "/category/emergency-alerts",
-              icon: "AlertTriangle",
-              display_order: 6,
-              status: "active"
-            };
-            this.data.sub_menus.push(emergencySub);
-            modified = true;
-          }
-
-          const emergencyId = emergencySub.id;
-          const subChildren = [
-            { id: 14, slug: "police-official-news", name_en: "Police Official News", name_ta: "காவல்துறை அதிகாரப்பூர்வ செய்தி", url: "/category/police-official-news", icon: "Shield", display_order: 1 },
-            { id: 15, slug: "public-warnings", name_en: "Public Warnings & Alerts", name_ta: "பொது எச்சரிக்கைகள் & விழிப்பூட்டல்கள்", url: "/category/public-warnings", icon: "AlertOctagon", display_order: 2 },
-            { id: 16, slug: "public-announcements", name_en: "Public Announcements", name_ta: "பொது அறிவிப்புகள்", url: "/category/public-announcements", icon: "Megaphone", display_order: 3 }
-          ];
-
-          for (const child of subChildren) {
-            const hasChild = this.data.sub_menus.some((s: any) => s.slug === child.slug && s.parent_sub_id === emergencyId);
-            if (!hasChild) {
-              const maxId = Math.max(...this.data.sub_menus.map((s: any) => s.id || 0));
-              this.data.sub_menus.push({
-                id: maxId + 1,
-                parent_menu_id: citizenMenu.id,
-                parent_sub_id: emergencyId,
-                name_en: child.name_en,
-                name_ta: child.name_ta,
-                slug: child.slug,
-                url: child.url,
-                icon: child.icon,
-                display_order: child.display_order,
-                status: "active"
-              });
-              modified = true;
-            }
-          }
-        }
-
-        if (modified) {
-          this.save();
-        }
-        return;
-      } catch (e) {
-        // Safe fallback - keep existing in-memory data
-        return;
-      }
-    } else {
-      this.seed();
-    }
-  }
-
-  private save() {
-    // Permanent Protection: DO NOT store runtime data in db.json.
-    // In-memory cache is maintained, and all persistence is routed directly to MySQL database 'chennaiguardian'.
-    this.isLoaded = true;
-  }
-
-  private seed() {
-    // Permanent Data Protection Guard: NEVER overwrite if db.json already exists with content
-    if (fs.existsSync(JSON_DB_PATH)) {
-      try {
-        const stat = fs.statSync(JSON_DB_PATH);
-        if (stat.size > 100) {
-          console.warn("Safety Guard: db.json exists on disk with active data. Aborting destructive re-seed.");
-          return;
-        }
-      } catch {}
-    }
-
-    this.data.users = [
-      { id: 1, username: "Digital_TN_GovMaster", passwordHash: hashPassword("govmaster100"), role: "superadmin", email: "superadmin@chennaiguardian.in", status: "active", createdAt: new Date().toISOString(), lastLogin: null },
-      { id: 2, username: "newseditormanager", passwordHash: hashPassword("editor00100"), role: "admin", email: "admin@chennaiguardian.in", status: "active", createdAt: new Date().toISOString(), lastLogin: null },
-      { id: 3, username: "editor", passwordHash: hashPassword("editor123"), role: "editor", email: "editor@chennaiguardian.in", status: "active", createdAt: new Date().toISOString(), lastLogin: null },
-      { id: 4, username: "content", passwordHash: hashPassword("content123"), role: "contentadmin", email: "content@chennaiguardian.in", status: "active", createdAt: new Date().toISOString(), lastLogin: null },
-    ];
-    this.data.activity_logs = [];
-    this.data.custom_roles = [];
-    this.data.news = newsData.map((item) => ({
-      ...item,
-      published: 1,
-    }));
-
-    this.data.ticker = [
-      { id: 1, text_en: "TN Chief Minister's Police Medal Ceremony Awarded to GCP Personnel.", text_ta: "சென்னை பெருநகர காவல் பணியாளர்களுக்கு தமிழ்நாடு முதலமைச்சரின் காவல் பதக்க விழா வழங்கப்பட்டது.", order_num: 1, active: 1 },
-      { id: 2, text_en: "Singapen Women's Safety Awareness Special Initiative launched in Chennai.", text_ta: "சென்னை பெருநகர காவல் துறையின் சிங்கப்பெண் பெண்கள் பாதுகாப்பு விழிப்புணர்வு சிறப்புத் திட்டம் தொடங்கப்பட்டது.", order_num: 2, active: 1 },
-      { id: 3, text_en: "Clean Campus maintenance operations successfully conducted in Police Quarters.", text_ta: "காவலர் குடியிருப்புகளில் சுத்தமான வளாக பராமரிப்புப் பணிகள் வெற்றிகரமாக நடத்தப்பட்டன.", order_num: 3, active: 1 },
-      { id: 4, text_en: "Kaaval Karangal rescues senior citizens and reunites missing persons.", text_ta: "காவல் கரங்கள் ஆதரவற்ற முதியவர்களை மீட்டு காணாமல் போனவர்களை குடும்பத்தினருடன் சேர்க்கிறது.", order_num: 4, active: 1 },
-    ];
-
-    this.data.slider = [
-      {
-        id: 1,
-        src: "/images/slider_6.jpg",
-        category_en: "POLICE ADMINISTRATION",
-        category_ta: "காவல் நிர்வாகம்",
-        title_en: "Felicitation and Greeting to Senior Police Officers",
-        title_ta: "உயர் காவல் அதிகாரிகளுக்கு வாழ்த்து மற்றும் மரியாதை",
-        desc_en: "Greetings and commendations were presented to the newly appointed officers in Greater Chennai Police.",
-        desc_ta: "சென்னை பெருநகர காவல்துறையில் புதிதாக பொறுப்பேற்ற அதிகாரிகளுக்கு வாழ்த்துக்கள் மற்றும் பாராட்டுக்கள் வழங்கப்பட்டது.",
-        order_num: 1,
-        active: 1
-      },
-      {
-        id: 2,
-        src: "/images/slider_2.jpg",
-        category_en: "COMMUNITY SAFETY",
-        category_ta: "சமூக பாதுகாப்பு",
-        title_en: "Launch of Singappen Special Force",
-        title_ta: "சிங்கப்பெண் சிறப்பு அதிரடிப்படை தொடக்கம்",
-        desc_en: "Hon'ble Chief Minister of Tamil Nadu Thiru. S. Joseph Vijay accepted the parade salute of women police personnel.",
-        desc_ta: "மாண்புமிகு தமிழ்நாடு முதலமைச்சர் திரு. ச.ஜோசப் விஜய் அவர்கள் பெண் காவலர்களின் அணிவகுப்பு மரியாதையை ஏற்றுக்கொண்டார்.",
-        order_num: 2,
-        active: 1
-      },
-      {
-        id: 3,
-        src: "/images/slider_4.jpg",
-        category_en: "AWARDS",
-        category_ta: "விருதுகள்",
-        title_en: "Commendation Certificates for Outstanding Service",
-        title_ta: "சிறந்த சேவைக்கான பாராட்டு சான்றிதழ்கள்",
-        desc_en: "Presentation of certificates of appreciation and awards to police officers who rendered outstanding service to the public.",
-        desc_ta: "பொதுமக்களுக்கு சிறப்பான சேவை புரிந்த காவல் அதிகாரிகளுக்கு பாராட்டுச் சான்றிதழ்கள் மற்றும் விருதுகள் வழங்கல்.",
-        order_num: 3,
-        active: 1
-      }
-    ];
-
-    this.data.commissioner_profile = [
-      {
-        id: 1,
-        name_en: "Dr. A. Amalraj IPS",
-        name_ta: "டாக்டர் ஏ. அமல்ராஜ் ஐபிஎஸ்",
-        designation_en: "Commissioner of Police, Greater Chennai",
-        designation_ta: "காவல் ஆணையர், சென்னை பெருநகரம்",
-        bio_en1: "Dr. A. Amalraj is a senior Indian Police Service (IPS) officer of the 1996 batch. Hailing from the Kanniyakumari district of Tamil Nadu, his administrative philosophy integrates scientific analytical methods, modern human resource practices, and proactive community engagement.",
-        bio_en2: "His academic credentials include a BSc and MSc in Physics, followed by an MBA in Human Resource Management, and a PhD from Madurai Kamaraj University. He has spent three decades serving across various district, commissionerate, and state-level divisions in Tamil Nadu, including leadership roles in Coimbatore, Salem, Trichy, and Tambaram.",
-        bio_ta1: "டாக்டர் ஏ. அமல்ராஜ் 1996 பேட்ச் மூத்த இந்திய காவல் பணி (IPS) அதிகாரி ஆவார். தமிழ்நாட்டின் கன்னியாகுமரி மாவட்டத்தைப் பூர்வீகமாகக் கொண்ட இவரது நிர்வாகத் தத்துவம் அறிவியல் பகுப்பாய்வு முறைகள், நவீன மனிதவள நடைமுறைகள் மற்றும் செயலூக்கமான சமூக ஈடுபாடு ஆகியவற்றை ஒருங்கிணைக்கிறது.",
-        bio_ta2: "இவரது கல்விச் சான்றுகளில் இயற்பியலில் பிஎஸ்சி மற்றும் எம்எஸ்சி, அதைத் தொடர்ந்து மனிதவள மேலாண்மையில் எம்பிஏ மற்றும் மதுரை காமராஜர் பல்கலைக்கழகத்தில் பிஎச்டி பட்டம் ஆகியவை அடங்கும். கோயம்புத்தூர், சேலம், திருச்சி மற்றும் தாம்பரம் ஆகிய இடங்களில் தலைமைப் பொறுப்புகள் உட்பட தமிழ்நாட்டின் பல்வேறு மாவட்ட, ஆணையர் மற்றும் மாநில அளவிலான பிரிவுகளில் மூன்று தசாப்தங்களாக பணியாற்றியுள்ளார்.",
-        photo: "/images/amalraj_portrait.png",
-        facebook: "https://www.facebook.com/Chennai.Police/",
-        twitter: "https://x.com/chennaipolice_?lang=en",
-        instagram: "https://www.instagram.com/greater_chennai_police_/?hl=en",
-        email: "cop@gcp.tn.gov.in",
-        phone: "044-23452300",
-        office_address_en: "Commissioner Office, Vepery, Chennai",
-        office_address_ta: "காவல் ஆணையர் அலுவலகம், வேப்பேரி, சென்னை",
-        ips_batch: "1996 Batch",
-        years_of_service: "30 Years",
-        motto_en: "Duty, Honor, Community Safety",
-        motto_ta: "கடமை, கண்ணியம், சமூக பாதுகாப்பு",
-        birthplace_en: "Kanniyakumari, Tamil Nadu",
-        birthplace_ta: "கன்னியாகுமரி, தமிழ்நாடு",
-        education_en: "BSc Physics, MSc Physics, MBA HR, PhD from Madurai Kamaraj University",
-        education_ta: "இயற்பியலில் பிஎஸ்சி மற்றும் எம்எஸ்சி, மனிதவள மேலாண்மையில் எம்பிஏ மற்றும் மதுரை காமராஜர் பல்கலைக்கழகத்தில் பிஎச்டி",
-        vision_en: "To establish a technologically advanced, highly responsive, and citizen-friendly police force that ensures safety, protects human rights, and fosters community trust.",
-        vision_ta: "பாதுகாப்பை உறுதிசெய்து, மனித உரிமைகளைப் பேணி, சமூக நம்பிக்கையை வளர்க்கும் வகையில் தொழில்நுட்பரீதியாக மேம்பட்ட, மிகச் சிறந்த முறையில் பதிலளிக்கக்கூடிய மற்றும் மக்கள்-நட்பு கொண்ட காவல் படையை நிறுவுதல்."
-      }
-    ];
-
-    this.data.theme_settings = [
-      {
-        id: 1,
-        primary_color: "#ed1b24",
-        secondary_color: "#2e3192",
-        accent_color: "#c5a059",
-        logo_path: "/images/gcp_logo.png",
-        footer_logo_path: "/images/gcp_logo.png",
-        favicon_path: "/favicon.ico",
-        ticker_speed: "normal"
-      }
-    ];
-
-    this.data.menus = [
-      { id: 1, name_en: "Home", name_ta: "முகப்பு", slug: "home", icon: "Home", display_order: 1, url: "/", page_type: "static", status: "active", open_in_new_tab: 0 },
-      { id: 2, name_en: "About Us", name_ta: "எங்களைப் பற்றி", slug: "about", icon: "Info", display_order: 2, url: "/about", page_type: "static", status: "active", open_in_new_tab: 0 },
-      { id: 3, name_en: "Citizen Services", name_ta: "குடிமக்கள் சேவைகள்", slug: "citizen-services", icon: "Handshake", display_order: 3, url: "/citizen-services", page_type: "static", status: "active", open_in_new_tab: 0 },
-      { id: 4, name_en: "Traffic", name_ta: "போக்குவரத்து", slug: "traffic", icon: "Car", display_order: 4, url: "https://gctp.in/chennai-home", page_type: "external", status: "active", open_in_new_tab: 1 },
-      { id: 5, name_en: "Stations", name_ta: "காவல் நிலையங்கள்", slug: "stations", icon: "MapPin", display_order: 5, url: "/stations", page_type: "static", status: "active", open_in_new_tab: 0 },
-      { id: 6, name_en: "Media Service", name_ta: "வீடியோக்கள்", slug: "videos", icon: "Video", display_order: 6, url: "/videos", page_type: "static", status: "active", open_in_new_tab: 0 },
-      { id: 7, name_en: "Contact Us", name_ta: "தொடர்பு கொள்ளுங்கள்", slug: "contact-us", icon: "Phone", display_order: 7, url: "/contact-us", page_type: "static", status: "active", open_in_new_tab: 0 }
-    ];
-
-    this.data.sub_menus = [
-      // Level 1 submenus under Citizen Services (parent_menu_id: 3)
-      { id: 1, parent_menu_id: 3, parent_sub_id: null, name_en: "Crime", name_ta: "குற்றம்", slug: "crime", url: "/category/crime", icon: "Shield", display_order: 1, status: "active" },
-      { id: 2, parent_menu_id: 3, parent_sub_id: null, name_en: "Cyber Safety", name_ta: "இணைய பாதுகாப்பு", slug: "cyber-safety", url: "/category/cyber-safety", icon: "Lock", display_order: 2, status: "active" },
-      { id: 3, parent_menu_id: 3, parent_sub_id: null, name_en: "Women Safety", name_ta: "பெண்கள் பாதுகாப்பு", slug: "women-safety", url: "/category/women-safety", icon: "Heart", display_order: 3, status: "active" },
-      { id: 4, parent_menu_id: 3, parent_sub_id: null, name_en: "Public Safety", name_ta: "பொது பாதுகாப்பு", slug: "public-safety", url: "/category/public-safety", icon: "Eye", display_order: 4, status: "active" },
-      { id: 5, parent_menu_id: 3, parent_sub_id: null, name_en: "Outreach", name_ta: "சமூக உதவி", slug: "outreach", url: "/category/outreach", icon: "Users", display_order: 5, status: "active" },
-      { id: 13, parent_menu_id: 3, parent_sub_id: null, name_en: "Emergency Alerts", name_ta: "அவசர எச்சரிக்கைகள்", slug: "emergency-alerts", url: "/category/emergency-alerts", icon: "AlertTriangle", display_order: 6, status: "active" },
-
-      // Level 2 submenus under Crime (parent_sub_id: 1)
-      { id: 6, parent_menu_id: 3, parent_sub_id: 1, name_en: "Wanted Criminals", name_ta: "தேடப்படும் குற்றவாளிகள்", slug: "wanted-criminals", url: "/category/wanted-criminals", icon: "UserX", display_order: 1, status: "active" },
-      { id: 7, parent_menu_id: 3, parent_sub_id: 1, name_en: "Missing Persons", name_ta: "காணாமல் போனவர்கள்", slug: "missing-persons", url: "/category/missing-persons", icon: "Search", display_order: 2, status: "active" },
-
-      // Level 2 submenus under Cyber Safety (parent_sub_id: 2)
-      { id: 8, parent_menu_id: 3, parent_sub_id: 2, name_en: "Cyber Awareness", name_ta: "இணைய விழிப்புணர்வு", slug: "cyber-awareness", url: "/category/cyber-awareness", icon: "Globe", display_order: 1, status: "active" },
-      { id: 9, parent_menu_id: 3, parent_sub_id: 2, name_en: "Online Fraud", name_ta: "ஆன்லைன் மோசடி", slug: "online-fraud", url: "/category/online-fraud", icon: "AlertTriangle", display_order: 2, status: "active" },
-
-      // Level 2 submenus under Women Safety (parent_sub_id: 3)
-      { id: 10, parent_menu_id: 3, parent_sub_id: 3, name_en: "Pink Patrol", name_ta: "பிங்க் பேட்ரோல்", slug: "pink-patrol", url: "/category/pink-patrol", icon: "ShieldAlert", display_order: 1, status: "active" },
-      { id: 11, parent_menu_id: 3, parent_sub_id: 3, name_en: "AVAL Support Wing", name_ta: "அவள் ஆதரவு பிரிவு", slug: "aval-support", url: "/category/aval-support", icon: "Smile", display_order: 2, status: "active" },
-      { id: 12, parent_menu_id: 3, parent_sub_id: 3, name_en: "Women Helpline", name_ta: "பெண்கள் உதவி எண்", slug: "women-helpline", url: "/category/women-helpline", icon: "PhoneCall", display_order: 3, status: "active" },
-
-      // Level 2 submenus under Emergency Alerts (parent_sub_id: 13)
-      { id: 14, parent_menu_id: 3, parent_sub_id: 13, name_en: "Police Official News", name_ta: "காவல்துறை அதிகாரப்பூர்வ செய்தி", slug: "police-official-news", url: "/category/police-official-news", icon: "Shield", display_order: 1, status: "active" },
-      { id: 15, parent_menu_id: 3, parent_sub_id: 13, name_en: "Public Warnings & Alerts", name_ta: "பொது எச்சரிக்கைகள் & விழிப்பூட்டல்கள்", slug: "public-warnings", url: "/category/public-warnings", icon: "AlertOctagon", display_order: 2, status: "active" },
-      { id: 16, parent_menu_id: 3, parent_sub_id: 13, name_en: "Public Announcements", name_ta: "பொது அறிவிப்புகள்", slug: "public-announcements", url: "/category/public-announcements", icon: "Megaphone", display_order: 3, status: "active" }
-    ];
-
-    this.save();
-    console.log("JSON Database successfully seeded!");
-  }
+// Pure in-memory offline fallback store (used only when MySQL is unavailable; zero db.json disk I/O)
+class InMemoryStore {
+  private data: Record<string, any> = {};
 
   public getTable<T = any>(name: string): T {
-    this.init();
-    return ((this.data as any)[name] || []) as T;
+    return (this.data[name] ?? []) as T;
+  }
+
+  public updateCacheOnly(name: string, items: any) {
+    this.data[name] = items;
   }
 
   public setTable(name: string, items: any) {
-    (this.data as any)[name] = items;
-    // Persist directly to MySQL database `chennaiguardian`
-    syncTableToMySQL(name, items).catch((err) => {
-      console.warn(`[MySQL Persistence] Table ${name} sync warning:`, err?.message || err);
-    });
-    this.save();
-    const layoutTables = ["menus", "sub_menus", "theme_settings", "ticker", "slider", "page_contents"];
-    if (layoutTables.includes(name)) {
-      try {
-        const { revalidatePath } = require("next/cache");
-        revalidatePath("/", "layout");
-      } catch (e) {
-        // Ignore when running outside Next server context
-      }
+    this.data[name] = items;
+  }
+}
+
+interface TableSchemaMeta {
+  createSql?: string;
+  ensureColumns?: Array<[string, string]>;
+  modifyIdVarchar?: boolean;
+  jsonColumns?: string[];
+  defaultOrderBy?: string;
+  revalidateLayout?: boolean;
+  revalidatePaths?: string[];
+}
+
+const MYSQL_TABLE_META: Record<string, TableSchemaMeta> = {
+  users: {
+    createSql: `CREATE TABLE IF NOT EXISTS \`users\` (
+      \`id\` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+      \`username\` VARCHAR(255) NOT NULL,
+      \`passwordHash\` VARCHAR(255) NOT NULL,
+      \`role\` VARCHAR(100) NULL,
+      \`email\` VARCHAR(255) NULL,
+      \`status\` VARCHAR(50) NULL,
+      \`permissions_json\` LONGTEXT NULL,
+      \`mfa_enabled\` DOUBLE NULL,
+      \`mfa_secret\` VARCHAR(255) NULL,
+      \`createdAt\` VARCHAR(64) NULL,
+      \`lastLogin\` VARCHAR(64) NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
+  },
+  custom_roles: {
+    createSql: `CREATE TABLE IF NOT EXISTS \`custom_roles\` (
+      \`id\` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+      \`role_name\` VARCHAR(255) NULL,
+      \`description\` LONGTEXT NULL,
+      \`permissions_json\` LONGTEXT NULL,
+      \`created_at\` VARCHAR(64) NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
+    ensureColumns: [
+      ["role_name", "VARCHAR(255) NULL"],
+      ["description", "LONGTEXT NULL"],
+      ["permissions_json", "LONGTEXT NULL"],
+      ["created_at", "VARCHAR(64) NULL"],
+    ],
+  },
+  activity_logs: {
+    createSql: `CREATE TABLE IF NOT EXISTS \`activity_logs\` (
+      \`id\` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+      \`username\` VARCHAR(255) NULL,
+      \`action\` LONGTEXT NULL,
+      \`timestamp\` VARCHAR(64) NULL,
+      \`role\` VARCHAR(100) NULL,
+      \`ip_address\` VARCHAR(100) NULL,
+      \`module\` VARCHAR(150) NULL,
+      \`browser\` LONGTEXT NULL,
+      \`before_val\` LONGTEXT NULL,
+      \`after_val\` LONGTEXT NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
+    defaultOrderBy: "`id` DESC",
+  },
+  news: {
+    ensureColumns: [
+      ["status", "VARCHAR(50) NULL"],
+      ["image_locked", "DOUBLE NULL"],
+      ["scheduled_at", "VARCHAR(64) NULL"],
+      ["published_at", "VARCHAR(64) NULL"],
+      ["publishedAt", "VARCHAR(64) NULL"],
+    ],
+    jsonColumns: [
+      "content_en",
+      "content_ta",
+      "gallery",
+      "tags_en",
+      "tags_ta",
+      "highlights_en",
+      "highlights_ta",
+      "quote",
+      "timeline",
+    ],
+    revalidatePaths: ["/", "/news"],
+  },
+  ticker: {
+    ensureColumns: [["url", "VARCHAR(500) NULL"]],
+    defaultOrderBy: "`order_num` ASC, `id` ASC",
+    revalidateLayout: true,
+  },
+  slider: {
+    ensureColumns: [
+      ["desc_en", "MEDIUMTEXT NULL"],
+      ["desc_ta", "MEDIUMTEXT NULL"],
+      ["title_en", "TEXT NULL"],
+      ["title_ta", "TEXT NULL"],
+      ["src", "LONGTEXT NULL"],
+      ["slug", "VARCHAR(255) NULL"],
+      ["url", "TEXT NULL"],
+    ],
+    defaultOrderBy: "`order_num` ASC, `id` ASC",
+    revalidateLayout: true,
+    revalidatePaths: ["/"],
+  },
+  commissioner_profile: {
+    ensureColumns: [
+      ["motto_en", "LONGTEXT NULL"],
+      ["motto_ta", "LONGTEXT NULL"],
+      ["birthplace_en", "LONGTEXT NULL"],
+      ["birthplace_ta", "LONGTEXT NULL"],
+      ["education_en", "LONGTEXT NULL"],
+      ["education_ta", "LONGTEXT NULL"],
+      ["vision_en", "LONGTEXT NULL"],
+      ["vision_ta", "LONGTEXT NULL"],
+    ],
+    jsonColumns: ["gallery", "initiatives", "awards", "timeline"],
+    revalidatePaths: ["/", "/about", "/commissioner"],
+  },
+  theme_settings: {
+    revalidateLayout: true,
+  },
+  menu_items: {
+    defaultOrderBy: "`order_num` ASC, `id` ASC",
+    revalidateLayout: true,
+  },
+  menus: {
+    defaultOrderBy: "`display_order` ASC, `id` ASC",
+    revalidateLayout: true,
+  },
+  sub_menus: {
+    ensureColumns: [["open_in_new_tab", "DOUBLE NULL"]],
+    defaultOrderBy: "`display_order` ASC, `id` ASC",
+    revalidateLayout: true,
+  },
+  contacts: {},
+  tts_settings: {},
+  videos: {
+    revalidatePaths: ["/", "/videos"],
+  },
+  alerts: {
+    defaultOrderBy: "`id` DESC",
+  },
+  alert_settings: {
+    jsonColumns: ["approved_sources"],
+  },
+  seo_settings: {
+    revalidateLayout: true,
+  },
+  article_seo: {},
+  asset_metadata: {},
+  police_stations: {
+    defaultOrderBy: "`id` ASC",
+    revalidatePaths: ["/", "/stations"],
+  },
+  emergency_contacts: {
+    defaultOrderBy: "`display_order` ASC, `id` ASC",
+    revalidateLayout: true,
+  },
+  department_links: {
+    defaultOrderBy: "`display_order` ASC, `id` ASC",
+    revalidateLayout: true,
+  },
+  web_stories: {
+    defaultOrderBy: "`id` ASC",
+    revalidatePaths: ["/"],
+  },
+  contact_messages: {
+    createSql: `CREATE TABLE IF NOT EXISTS \`contact_messages\` (
+      \`id\` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+      \`name\` VARCHAR(255) NULL,
+      \`mobile\` VARCHAR(255) NULL,
+      \`email\` VARCHAR(255) NULL,
+      \`subject\` VARCHAR(255) NULL,
+      \`category\` VARCHAR(255) NULL,
+      \`message\` LONGTEXT NULL,
+      \`status\` VARCHAR(255) NULL,
+      \`created_at\` VARCHAR(255) NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
+  },
+  service_requests: {},
+  page_contents: {
+    revalidateLayout: true,
+  },
+  content_versions: {},
+  media_files: {
+    createSql: `CREATE TABLE IF NOT EXISTS \`media_files\` (
+      \`id\` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+      \`uuid\` VARCHAR(255) NULL,
+      \`original_name\` VARCHAR(255) NULL,
+      \`stored_name\` VARCHAR(255) NULL,
+      \`mime_type\` VARCHAR(255) NULL,
+      \`detected_mime\` VARCHAR(255) NULL,
+      \`extension\` VARCHAR(255) NULL,
+      \`file_size\` DOUBLE NULL,
+      \`sha256_hash\` LONGTEXT NULL,
+      \`storage_path\` LONGTEXT NULL,
+      \`status\` VARCHAR(255) NULL,
+      \`scan_status\` VARCHAR(255) NULL,
+      \`uploaded_by\` VARCHAR(255) NULL,
+      \`created_at\` VARCHAR(255) NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
+    ensureColumns: [
+      ["uuid", "VARCHAR(255) NULL"],
+      ["original_name", "VARCHAR(255) NULL"],
+      ["stored_name", "VARCHAR(255) NULL"],
+      ["mime_type", "VARCHAR(255) NULL"],
+      ["detected_mime", "VARCHAR(255) NULL"],
+      ["extension", "VARCHAR(255) NULL"],
+      ["file_size", "DOUBLE NULL"],
+      ["sha256_hash", "LONGTEXT NULL"],
+      ["storage_path", "LONGTEXT NULL"],
+      ["status", "VARCHAR(255) NULL"],
+      ["scan_status", "VARCHAR(255) NULL"],
+      ["uploaded_by", "VARCHAR(255) NULL"],
+      ["created_at", "VARCHAR(255) NULL"],
+    ],
+    defaultOrderBy: "`id` DESC",
+  },
+  backups: {
+    modifyIdVarchar: true,
+    createSql: `CREATE TABLE IF NOT EXISTS \`backups\` (
+      \`id\` VARCHAR(128) NOT NULL PRIMARY KEY,
+      \`backup_name\` VARCHAR(255) NULL,
+      \`backup_type\` VARCHAR(64) NULL,
+      \`file_path\` VARCHAR(500) NULL,
+      \`file_size\` DOUBLE NULL,
+      \`db_size\` DOUBLE NULL,
+      \`media_size\` DOUBLE NULL,
+      \`file_count\` DOUBLE NULL,
+      \`sha256_checksum\` VARCHAR(255) NULL,
+      \`created_by\` VARCHAR(255) NULL,
+      \`status\` VARCHAR(64) NULL,
+      \`verification_status\` VARCHAR(64) NULL,
+      \`created_at\` VARCHAR(64) NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
+    ensureColumns: [
+      ["backup_name", "VARCHAR(255) NULL"],
+      ["backup_type", "VARCHAR(64) NULL"],
+      ["file_path", "VARCHAR(500) NULL"],
+      ["file_size", "DOUBLE NULL"],
+      ["db_size", "DOUBLE NULL"],
+      ["media_size", "DOUBLE NULL"],
+      ["file_count", "DOUBLE NULL"],
+      ["sha256_checksum", "VARCHAR(255) NULL"],
+      ["created_by", "VARCHAR(255) NULL"],
+      ["status", "VARCHAR(64) NULL"],
+      ["verification_status", "VARCHAR(64) NULL"],
+      ["created_at", "VARCHAR(64) NULL"],
+    ],
+    defaultOrderBy: "`created_at` DESC",
+  },
+  security_assessments: {
+    modifyIdVarchar: true,
+    createSql: `CREATE TABLE IF NOT EXISTS \`security_assessments\` (
+      \`id\` VARCHAR(128) NOT NULL PRIMARY KEY,
+      \`assessment_date\` VARCHAR(64) NULL,
+      \`created_by\` VARCHAR(255) NULL,
+      \`score\` DOUBLE NULL,
+      \`status\` VARCHAR(64) NULL,
+      \`total_checks\` DOUBLE NULL,
+      \`passed_checks\` DOUBLE NULL,
+      \`findings_critical\` DOUBLE NULL,
+      \`findings_high\` DOUBLE NULL,
+      \`findings_medium\` DOUBLE NULL,
+      \`findings_low\` DOUBLE NULL,
+      \`findings_info\` DOUBLE NULL,
+      \`findings\` LONGTEXT NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
+    ensureColumns: [
+      ["assessment_date", "VARCHAR(64) NULL"],
+      ["created_by", "VARCHAR(255) NULL"],
+      ["score", "DOUBLE NULL"],
+      ["status", "VARCHAR(64) NULL"],
+      ["total_checks", "DOUBLE NULL"],
+      ["passed_checks", "DOUBLE NULL"],
+      ["findings_critical", "DOUBLE NULL"],
+      ["findings_high", "DOUBLE NULL"],
+      ["findings_medium", "DOUBLE NULL"],
+      ["findings_low", "DOUBLE NULL"],
+      ["findings_info", "DOUBLE NULL"],
+      ["findings", "LONGTEXT NULL"],
+    ],
+    jsonColumns: ["findings"],
+    defaultOrderBy: "`assessment_date` DESC",
+  },
+  superadmin_config: {
+    createSql: `CREATE TABLE IF NOT EXISTS \`superadmin_config\` (
+      \`id\` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+      \`footer_config\` LONGTEXT NULL,
+      \`config_json\` LONGTEXT NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
+    ensureColumns: [["config_json", "LONGTEXT NULL"]],
+    jsonColumns: ["footer_config", "config_json"],
+    revalidateLayout: true,
+  },
+  security_events: {
+    ensureColumns: [["user_id", "DOUBLE NULL"]],
+    defaultOrderBy: "`id` DESC",
+  },
+  security_config: {},
+  sessions: {
+    ensureColumns: [["user_id", "DOUBLE NULL"]],
+  },
+  user_mfa: {},
+  mfa_challenges: {},
+  mfa_recovery_codes: {},
+  trusted_devices: {},
+  faqs: {
+    defaultOrderBy: "`display_order` ASC, `id` ASC",
+    revalidatePaths: ["/", "/faq"],
+  },
+};
+
+function safeParseJsonField(val: any): any {
+  if (typeof val !== "string") return val;
+  const trimmed = val.trim();
+  if (!trimmed) return val;
+  if (
+    (trimmed.startsWith("[") && trimmed.endsWith("]")) ||
+    (trimmed.startsWith("{") && trimmed.endsWith("}"))
+  ) {
+    try {
+      return JSON.parse(trimmed);
+    } catch {
+      return val;
     }
   }
-
+  return val;
 }
 
 export async function syncTableToMySQL(tableName: string, items: any): Promise<void> {
-  try {
-    const rawRecords = Array.isArray(items) ? items : [items];
-    const records = rawRecords.filter((r) => r && typeof r === "object");
-    if (records.length === 0) {
-      await mysqlQuery(`DELETE FROM \`${tableName}\``);
-      return;
-    }
-
-    const colSet = new Set<string>();
-    for (const r of records) {
-      for (const k of Object.keys(r)) {
-        colSet.add(k);
-      }
-    }
-    const cols = Array.from(colSet);
-    if (cols.length === 0) return;
-
-    await mysqlQuery(`DELETE FROM \`${tableName}\``);
-
-    for (let i = 0; i < records.length; i += 50) {
-      const batch = records.slice(i, i + 50);
-      const placeholders = batch.map(() => `(${cols.map(() => "?").join(", ")})`).join(", ");
-      const values: any[] = [];
-      for (const r of batch) {
-        for (const col of cols) {
-          const val = (r as any)[col];
-          if (val !== null && typeof val === "object") {
-            values.push(JSON.stringify(val));
-          } else if (typeof val === "boolean") {
-            values.push(val ? 1 : 0);
-          } else if (val === undefined) {
-            values.push(null);
-          } else {
-            values.push(val);
-          }
-        }
-      }
-      const escapedCols = cols.map((c) => `\`${c}\``).join(", ");
-      await mysqlQuery(`INSERT INTO \`${tableName}\` (${escapedCols}) VALUES ${placeholders}`, values);
-    }
-  } catch (err: any) {
-    console.warn(`[MySQL Persistence] Table ${tableName} sync notice:`, err?.message || err);
-  }
+  const list = Array.isArray(items) ? items : [items];
+  await db.persistTableToMySQL(tableName, list);
 }
 
 const globalWithDb = globalThis as typeof globalThis & {
-  _chennaiGuardianJsonDb?: JSONDatabaseManager;
+  _chennaiGuardianMemoryDb?: InMemoryStore;
   _chennaiGuardianDb?: ChennaiGuardianDatabase;
 };
 
-let jsonDb: JSONDatabaseManager;
-if (globalWithDb._chennaiGuardianJsonDb) {
-  jsonDb = globalWithDb._chennaiGuardianJsonDb;
+let memoryDb: InMemoryStore;
+if (globalWithDb._chennaiGuardianMemoryDb) {
+  memoryDb = globalWithDb._chennaiGuardianMemoryDb;
 } else {
-  jsonDb = new JSONDatabaseManager();
-  globalWithDb._chennaiGuardianJsonDb = jsonDb;
+  memoryDb = new InMemoryStore();
+  globalWithDb._chennaiGuardianMemoryDb = memoryDb;
 }
 
-// Dynamic Database Interface
+// Dynamic Database Interface (100% MySQL `chennaiguardian` backed)
 class ChennaiGuardianDatabase {
+  private readyTables = new Set<string>();
+  private tableColumns = new Map<string, Set<string>>();
+
+  private async ensureMySqlTable(tableName: string): Promise<Set<string>> {
+    if (!this.readyTables) {
+      this.readyTables = new Set<string>();
+    }
+    if (!this.tableColumns) {
+      this.tableColumns = new Map<string, Set<string>>();
+    }
+    if (this.readyTables.has(tableName) && this.tableColumns.has(tableName)) {
+      return this.tableColumns.get(tableName)!;
+    }
+
+    const meta = MYSQL_TABLE_META[tableName];
+    if (meta?.createSql) {
+      await mysqlQuery(meta.createSql);
+    }
+
+    let colRows = (await mysqlQuery(`SHOW COLUMNS FROM \`${tableName}\``)) as Array<{ Field: string; Type: string }>;
+    if (meta?.modifyIdVarchar) {
+      const idCol = colRows.find((r) => r.Field === "id");
+      if (idCol && /^(int|bigint|smallint|tinyint|mediumint)/i.test(idCol.Type || "")) {
+        try {
+          await mysqlQuery(`ALTER TABLE \`${tableName}\` MODIFY COLUMN \`id\` VARCHAR(128) NOT NULL`);
+        } catch {}
+      }
+    }
+
+    let colSet = new Set(colRows.map((r) => r.Field));
+    if (meta?.ensureColumns && meta.ensureColumns.length > 0) {
+      let altered = false;
+      for (const [col, def] of meta.ensureColumns) {
+        if (!colSet.has(col)) {
+          try {
+            await mysqlQuery(`ALTER TABLE \`${tableName}\` ADD COLUMN \`${col}\` ${def}`);
+            altered = true;
+          } catch {}
+        } else if (def.toUpperCase().includes("TEXT")) {
+          try {
+            await mysqlQuery(`ALTER TABLE \`${tableName}\` MODIFY COLUMN \`${col}\` ${def}`);
+          } catch {}
+        }
+      }
+      if (altered) {
+        colRows = (await mysqlQuery(`SHOW COLUMNS FROM \`${tableName}\``)) as Array<{ Field: string; Type: string }>;
+        colSet = new Set(colRows.map((r) => r.Field));
+      }
+    }
+
+    this.tableColumns.set(tableName, colSet);
+    this.readyTables.add(tableName);
+    return colSet;
+  }
+
+  private revalidateAppPaths(tableName: string) {
+    const meta = MYSQL_TABLE_META[tableName];
+    if (!meta?.revalidateLayout && (!meta?.revalidatePaths || meta.revalidatePaths.length === 0)) {
+      return;
+    }
+    try {
+      const { revalidatePath } = require("next/cache");
+      if (meta.revalidateLayout) {
+        revalidatePath("/", "layout");
+      }
+      if (meta.revalidatePaths) {
+        for (const p of meta.revalidatePaths) {
+          revalidatePath(p);
+        }
+      }
+    } catch {
+      // Ignore outside Next.js server request context
+    }
+  }
+
+  private async mysqlReadTable<T = any>(tableName: string, orderByOverride?: string): Promise<T[]> {
+    try {
+      const cols = await this.ensureMySqlTable(tableName);
+      const colsLower = new Set([...cols].map((c) => c.toLowerCase()));
+      const meta = MYSQL_TABLE_META[tableName];
+      const rawOrderBy = orderByOverride ?? meta?.defaultOrderBy ?? "`id` ASC";
+      const safeOrderBy = rawOrderBy
+        .split(",")
+        .map((part) => part.trim())
+        .filter((part) => {
+          const colMatch = part.match(/^`?([a-zA-Z0-9_]+)`?/);
+          return colMatch ? colsLower.has(colMatch[1].toLowerCase()) : false;
+        })
+        .join(", ");
+      const orderBy = safeOrderBy || (colsLower.has("id") ? "`id` ASC" : "");
+      const sql = orderBy ? `SELECT * FROM \`${tableName}\` ORDER BY ${orderBy}` : `SELECT * FROM \`${tableName}\``;
+      const rows = (await mysqlQuery(sql)) as any[];
+      const jsonCols = meta?.jsonColumns;
+      const normalized = (rows || []).map((row) => {
+        if (!jsonCols || jsonCols.length === 0) return row;
+        const copy = { ...row };
+        for (const col of jsonCols) {
+          if (copy[col] !== undefined && copy[col] !== null) {
+            copy[col] = safeParseJsonField(copy[col]);
+          }
+        }
+        return copy;
+      });
+      memoryDb.updateCacheOnly(tableName, normalized);
+      return normalized as T[];
+    } catch (err: any) {
+      if (this.isMySqlUnavailableError(err)) {
+        return memoryDb.getTable<T[]>(tableName) || [];
+      }
+      console.warn(`[MySQL] Read table ${tableName} warning:`, err?.message || err);
+      return memoryDb.getTable<T[]>(tableName) || [];
+    }
+  }
+
+  public async persistTableToMySQL(tableName: string, items: any[]): Promise<void> {
+    const records = (Array.isArray(items) ? items : [items]).filter((r) => r && typeof r === "object");
+    memoryDb.updateCacheOnly(tableName, records);
+    try {
+      const cols = await this.ensureMySqlTable(tableName);
+      const hasIdCol = cols.has("id");
+
+      await mysqlTransaction(async (conn) => {
+        if (records.length === 0) {
+          await conn.execute(`DELETE FROM \`${tableName}\``);
+          return;
+        }
+
+        if (hasIdCol) {
+          const [existingRows] = (await conn.execute(`SELECT \`id\` FROM \`${tableName}\``)) as [Array<{ id: any }>, any];
+          const incomingIdSet = new Set(
+            records
+              .map((r) => (r as any).id)
+              .filter((id) => id !== undefined && id !== null && id !== "")
+              .map((id) => String(id))
+          );
+          const toDelete = (existingRows || [])
+            .map((r) => r.id)
+            .filter((id) => !incomingIdSet.has(String(id)));
+
+          for (let i = 0; i < toDelete.length; i += 200) {
+            const batchIds = toDelete.slice(i, i + 200);
+            const placeholders = batchIds.map(() => "?").join(", ");
+            await conn.execute(`DELETE FROM \`${tableName}\` WHERE \`id\` IN (${placeholders})`, batchIds);
+          }
+        } else {
+          await conn.execute(`DELETE FROM \`${tableName}\``);
+        }
+
+        await this.upsertRowsInMySQL(tableName, records, cols, conn);
+      });
+
+      this.revalidateAppPaths(tableName);
+    } catch (err: any) {
+      if (this.isMySqlUnavailableError(err)) {
+        console.warn(`[MySQL Persistence] persistTableToMySQL(${tableName}) skipped (MySQL unavailable):`, err?.message || err);
+        return;
+      }
+      console.error(`[MySQL Persistence] persistTableToMySQL(${tableName}) failed:`, err);
+      throw err;
+    }
+  }
   // Users
   public async getUsers(): Promise<DBUser[]> {
-    return jsonDb.getTable("users") as DBUser[];
+    return this.mysqlReadTable<DBUser>("users");
   }
   public async saveUsers(users: DBUser[]) {
-    jsonDb.setTable("users", users);
+    await this.persistTableToMySQL("users", users);
   }
   public async getUserById(id: number): Promise<DBUser | undefined> {
     const users = await this.getUsers();
@@ -1432,35 +1316,57 @@ class ChennaiGuardianDatabase {
 
   // Roles & Logs
   public async getCustomRoles(): Promise<DBCustomRole[]> {
-    return jsonDb.getTable("custom_roles") as DBCustomRole[];
+    return this.mysqlReadTable<DBCustomRole>("custom_roles");
   }
   public async saveCustomRoles(roles: DBCustomRole[]) {
-    jsonDb.setTable("custom_roles", roles);
+    await this.persistTableToMySQL("custom_roles", roles);
   }
 
   public async getActivityLogs(): Promise<DBActivityLog[]> {
-    return jsonDb.getTable("activity_logs") as DBActivityLog[];
+    return this.mysqlReadTable<DBActivityLog>("activity_logs", "`id` DESC");
   }
   public async saveActivityLogs(logs: DBActivityLog[]) {
-    jsonDb.setTable("activity_logs", logs);
+    await this.persistTableToMySQL("activity_logs", logs);
+  }
+  private async insertActivityLogRow(entry: Omit<DBActivityLog, "id">) {
+    try {
+      const cols = await this.ensureMySqlTable("activity_logs");
+      const allowedKeys = Object.keys(entry).filter((k) => cols.has(k) && (entry as any)[k] !== undefined);
+      if (allowedKeys.length > 0) {
+        const escaped = allowedKeys.map((k) => `\`${k}\``).join(", ");
+        const placeholders = allowedKeys.map(() => "?").join(", ");
+        const vals = allowedKeys.map((k) => (entry as any)[k]);
+        await mysqlQuery(`INSERT INTO \`activity_logs\` (${escaped}) VALUES (${placeholders})`, vals);
+        // Keep table bounded to latest 500 entries
+        await mysqlQuery(
+          "DELETE FROM `activity_logs` WHERE `id` NOT IN (SELECT id FROM (SELECT `id` FROM `activity_logs` ORDER BY `id` DESC LIMIT 500) AS recent)"
+        );
+      }
+      memoryDb.updateCacheOnly("activity_logs", [
+        { id: Date.now(), ...entry },
+        ...(memoryDb.getTable<DBActivityLog[]>("activity_logs") || []).slice(0, 499),
+      ]);
+    } catch (err: any) {
+      if (this.isMySqlUnavailableError(err)) {
+        const logs = [...(memoryDb.getTable<DBActivityLog[]>("activity_logs") || [])];
+        const id = logs.length > 0 ? Math.max(...logs.map((l) => l.id || 0)) + 1 : 1;
+        logs.unshift({ id, ...entry });
+        if (logs.length > 500) logs.splice(500);
+        memoryDb.updateCacheOnly("activity_logs", logs);
+        return;
+      }
+      console.warn("[MySQL] insertActivityLogRow warning:", err?.message || err);
+    }
   }
   public async addActivityLog(username: string, action: string) {
-    const logs = await this.getActivityLogs();
-    const id = logs.length > 0 ? Math.max(...logs.map(l => l.id)) + 1 : 1;
-    logs.unshift({
-      id,
+    await this.insertActivityLogRow({
       username,
       action,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
-    if (logs.length > 500) logs.splice(500);
-    await this.saveActivityLogs(logs);
   }
   public async addRbacAuditLog(username: string, role: string, ip: string, action: string, moduleName: string, browser?: string, beforeVal?: string, afterVal?: string) {
-    const logs = await this.getActivityLogs();
-    const id = logs.length > 0 ? Math.max(...logs.map(l => l.id)) + 1 : 1;
-    logs.unshift({
-      id,
+    await this.insertActivityLogRow({
       username,
       role,
       ip_address: ip,
@@ -1469,10 +1375,8 @@ class ChennaiGuardianDatabase {
       timestamp: new Date().toISOString(),
       browser,
       before_val: beforeVal,
-      after_val: afterVal
+      after_val: afterVal,
     });
-    if (logs.length > 500) logs.splice(500);
-    await this.saveActivityLogs(logs);
   }
 
   public async getResolvedPermissions(username: string, roleName: string): Promise<Record<string, string[]>> {
@@ -1501,10 +1405,7 @@ class ChennaiGuardianDatabase {
 
   // News
   public async getNews(): Promise<DBNewsItem[]> {
-    let raw = jsonDb.getTable("news") as DBNewsItem[];
-    if (!raw || raw.length === 0) {
-      raw = newsData.map((item) => ({ ...item, published: 1 }));
-    }
+    const raw = await this.mysqlReadTable<DBNewsItem>("news", "`id` DESC");
 
     const normalized = raw.map((item) => {
       let pubAt = item.published_at || item.publishedAt;
@@ -1537,10 +1438,10 @@ class ChennaiGuardianDatabase {
     });
   }
   public async getAllRawNews(): Promise<DBNewsItem[]> {
-    return jsonDb.getTable("news") as DBNewsItem[];
+    return this.mysqlReadTable<DBNewsItem>("news", "`id` DESC");
   }
   public async saveNews(news: DBNewsItem[]) {
-    jsonDb.setTable("news", news);
+    await this.persistTableToMySQL("news", news);
   }
 
   /**
@@ -1605,33 +1506,35 @@ class ChennaiGuardianDatabase {
     return news.find((n) => n.slug === slug);
   }
   public async incrementViews(id: number) {
-    const news = await this.getNews();
-    const item = news.find(n => n.id === id);
-    if (item) {
-      item.views_count = (item.views_count || 0) + 1;
-      await this.saveNews(news);
+    try {
+      await this.ensureMySqlTable("news");
+      await mysqlQuery("UPDATE `news` SET `views_count` = COALESCE(`views_count`, 0) + 1 WHERE `id` = ?", [id]);
+    } catch (err: any) {
+      if (!this.isMySqlUnavailableError(err)) {
+        console.warn("[MySQL] incrementViews warning:", err?.message || err);
+      }
     }
   }
 
   // Ticker
   public async getTicker(): Promise<DBTickerItem[]> {
-    return jsonDb.getTable("ticker") as DBTickerItem[];
+    return this.mysqlReadTable<DBTickerItem>("ticker", "`order_num` ASC, `id` ASC");
   }
   public async saveTicker(ticker: DBTickerItem[]) {
-    jsonDb.setTable("ticker", ticker);
+    await this.persistTableToMySQL("ticker", ticker);
   }
 
   // Slider
   public async getSlider(): Promise<DBSliderItem[]> {
-    return jsonDb.getTable("slider") as DBSliderItem[];
+    return this.mysqlReadTable<DBSliderItem>("slider", "`order_num` ASC, `id` ASC");
   }
   public async saveSlider(slider: DBSliderItem[]) {
-    jsonDb.setTable("slider", slider);
+    await this.persistTableToMySQL("slider", slider);
   }
 
   // Profile
   public async getCommissionerProfile(): Promise<DBCommissionerProfile> {
-    const list = jsonDb.getTable("commissioner_profile") as DBCommissionerProfile[];
+    const list = await this.mysqlReadTable<DBCommissionerProfile>("commissioner_profile");
     if (list && list.length > 0) return list[0];
     return {
       id: 1,
@@ -1647,12 +1550,12 @@ class ChennaiGuardianDatabase {
     };
   }
   public async saveCommissionerProfile(profile: DBCommissionerProfile) {
-    jsonDb.setTable("commissioner_profile", [profile]);
+    await this.persistTableToMySQL("commissioner_profile", [profile]);
   }
 
   // Theme
   public async getThemeSettings(): Promise<DBThemeSettings> {
-    const list = jsonDb.getTable("theme_settings") as DBThemeSettings[];
+    const list = await this.mysqlReadTable<DBThemeSettings>("theme_settings");
     if (list && list.length > 0) return list[0];
     return {
       id: 1,
@@ -1665,7 +1568,7 @@ class ChennaiGuardianDatabase {
     };
   }
   public async saveThemeSettings(theme: DBThemeSettings) {
-    jsonDb.setTable("theme_settings", [theme]);
+    await this.persistTableToMySQL("theme_settings", [theme]);
   }
 
   // Menus
@@ -1681,25 +1584,25 @@ class ChennaiGuardianDatabase {
         position: "header"
       }));
     }
-    return (jsonDb.getTable("menu_items") as DBMenuItem[]) || [];
+    return this.mysqlReadTable<DBMenuItem>("menu_items", "`order_num` ASC, `id` ASC");
   }
   public async saveMenuItems(menu: DBMenuItem[]) {
-    jsonDb.setTable("menu_items", menu);
+    await this.persistTableToMySQL("menu_items", menu);
   }
 
   public async getMenus(): Promise<DBMenu[]> {
-    const list = jsonDb.getTable("menus") as DBMenu[];
+    const list = await this.mysqlReadTable<DBMenu>("menus", "`display_order` ASC, `id` ASC");
     return Array.isArray(list) ? list : [];
   }
   public async saveMenus(menus: DBMenu[]) {
-    jsonDb.setTable("menus", menus);
+    await this.persistTableToMySQL("menus", menus);
   }
   public async getSubMenus(): Promise<DBSubMenu[]> {
-    const list = jsonDb.getTable("sub_menus") as DBSubMenu[];
+    const list = await this.mysqlReadTable<DBSubMenu>("sub_menus", "`display_order` ASC, `id` ASC");
     return Array.isArray(list) ? list : [];
   }
   public async saveSubMenus(subMenus: DBSubMenu[]) {
-    jsonDb.setTable("sub_menus", subMenus);
+    await this.persistTableToMySQL("sub_menus", subMenus);
   }
 
   public async getPublicMenus(): Promise<DBMenu[]> {
@@ -1716,29 +1619,19 @@ class ChennaiGuardianDatabase {
           id: 3, name_en: "Citizen Services", name_ta: "குடிமக்கள் சேவைகள்", slug: "citizen-services", display_order: 3, url: "/citizen-services", page_type: "static", status: "active", open_in_new_tab: 0,
           subMenus: [
             {
-              id: 1, parent_menu_id: 3, name_en: "Crime", name_ta: "குற்றம்", slug: "crime", url: "/category/crime", display_order: 1, status: "active",
-              subMenus: [
-                { id: 6, parent_menu_id: 3, parent_sub_id: 1, name_en: "Wanted Criminals", name_ta: "தேடப்படும் குற்றவாளிகள்", slug: "wanted-criminals", url: "/category/wanted-criminals", display_order: 1, status: "active" },
-                { id: 7, parent_menu_id: 3, parent_sub_id: 1, name_en: "Missing Persons", name_ta: "காணாமல் போனவர்கள்", slug: "missing-persons", url: "/category/missing-persons", display_order: 2, status: "active" },
-              ] as any
+              id: 1, parent_menu_id: 3, name_en: "Crime News", name_ta: "குற்றச் செய்திகள்", slug: "crime", url: "/category/crime", display_order: 1, status: "active",
+              subMenus: []
             },
             {
               id: 2, parent_menu_id: 3, name_en: "Cyber Safety", name_ta: "இணைய பாதுகாப்பு", slug: "cyber-safety", url: "/category/cyber-safety", display_order: 2, status: "active",
-              subMenus: [
-                { id: 8, parent_menu_id: 3, parent_sub_id: 2, name_en: "Cyber Awareness", name_ta: "இணைய விழிப்புணர்வு", slug: "cyber-awareness", url: "/category/cyber-awareness", display_order: 1, status: "active" },
-                { id: 9, parent_menu_id: 3, parent_sub_id: 2, name_en: "Online Fraud", name_ta: "ஆன்லைன் மோசடி", slug: "online-fraud", url: "/category/online-fraud", display_order: 2, status: "active" },
-              ] as any
+              subMenus: []
             },
             {
               id: 3, parent_menu_id: 3, name_en: "Women Safety", name_ta: "பெண்கள் பாதுகாப்பு", slug: "women-safety", url: "/category/women-safety", display_order: 3, status: "active",
-              subMenus: [
-                { id: 10, parent_menu_id: 3, parent_sub_id: 3, name_en: "Pink Patrol", name_ta: "பிங்க் பேட்ரோல்", slug: "pink-patrol", url: "/category/pink-patrol", display_order: 1, status: "active" },
-                { id: 11, parent_menu_id: 3, parent_sub_id: 3, name_en: "AVAL Support Wing", name_ta: "அவள் ஆதரவு பிரிவு", slug: "aval-support", url: "/category/aval-support", display_order: 2, status: "active" },
-                { id: 12, parent_menu_id: 3, parent_sub_id: 3, name_en: "Women Helpline", name_ta: "பெண்கள் உதவி எண்", slug: "women-helpline", url: "/category/women-helpline", display_order: 3, status: "active" },
-              ] as any
+              subMenus: []
             },
             { id: 4, parent_menu_id: 3, name_en: "Public Safety", name_ta: "பொது பாதுகாப்பு", slug: "public-safety", url: "/category/public-safety", display_order: 4, status: "active", subMenus: [] },
-            { id: 5, parent_menu_id: 3, name_en: "Outreach", name_ta: "சமூக உதவி", slug: "outreach", url: "/category/outreach", display_order: 5, status: "active", subMenus: [] },
+            { id: 5, parent_menu_id: 3, name_en: "Community Outreach", name_ta: "சமூக உதவி", slug: "outreach", url: "/category/outreach", display_order: 5, status: "active", subMenus: [] },
             {
               id: 13, parent_menu_id: 3, name_en: "Emergency Alerts", name_ta: "அவசர எச்சரிக்கைகள்", slug: "emergency-alerts", url: "/category/emergency-alerts", display_order: 6, status: "active",
               subMenus: [
@@ -1773,50 +1666,55 @@ class ChennaiGuardianDatabase {
 
   // Contacts & TTS
   public async getContacts(): Promise<DBContact[]> {
-    return jsonDb.getTable("contacts") as DBContact[];
+    return this.mysqlReadTable<DBContact>("contacts");
   }
   public async saveContacts(contacts: DBContact[]) {
-    jsonDb.setTable("contacts", contacts);
+    await this.persistTableToMySQL("contacts", contacts);
   }
   public async getTtsSettings(): Promise<DBTtsSettings> {
-    const list = jsonDb.getTable("tts_settings") as DBTtsSettings[];
+    const list = await this.mysqlReadTable<DBTtsSettings>("tts_settings");
     if (list && list.length > 0) return list[0];
     return { id: 1, enabled: 1, tamil_voice: "ta-IN-PallaviNeural", english_voice: "en-IN-NeerjaNeural", speed: 1.0 };
   }
   public async saveTtsSettings(tts: DBTtsSettings) {
-    jsonDb.setTable("tts_settings", [tts]);
+    await this.persistTableToMySQL("tts_settings", [tts]);
   }
 
   // Videos
   public async getVideos(): Promise<DBVideoItem[]> {
-    return jsonDb.getTable("videos") as DBVideoItem[];
+    return this.mysqlReadTable<DBVideoItem>("videos");
   }
   public async saveVideos(videos: DBVideoItem[]) {
-    jsonDb.setTable("videos", videos);
+    await this.persistTableToMySQL("videos", videos);
   }
   public async incrementVideoViews(id: number | string) {
-    const videos = await this.getVideos();
-    const item = videos.find(v => v.id === id || v.youtube_id === String(id));
-    if (item) {
-      item.views_count = (item.views_count || 0) + 1;
-      await this.saveVideos(videos);
+    try {
+      await this.ensureMySqlTable("videos");
+      await mysqlQuery(
+        "UPDATE `videos` SET `views_count` = COALESCE(`views_count`, 0) + 1 WHERE `id` = ? OR `youtube_id` = ?",
+        [id, String(id)]
+      );
+    } catch (err: any) {
+      if (!this.isMySqlUnavailableError(err)) {
+        console.warn("[MySQL] incrementVideoViews warning:", err?.message || err);
+      }
     }
   }
 
   // Alerts
   public async getAlerts(): Promise<DBAlertItem[]> {
-    return jsonDb.getTable("alerts") as DBAlertItem[];
+    return this.mysqlReadTable<DBAlertItem>("alerts", "`id` DESC");
   }
   public async saveAlerts(alerts: DBAlertItem[]) {
-    jsonDb.setTable("alerts", alerts);
+    await this.persistTableToMySQL("alerts", alerts);
   }
   public async getAlertSettings(): Promise<DBAlertSettings> {
-    const list = jsonDb.getTable("alert_settings") as DBAlertSettings[];
+    const list = await this.mysqlReadTable<DBAlertSettings>("alert_settings");
     if (list && list.length > 0) return list[0];
     return { id: 1, auto_fetch: 1, require_approval: 1, last_fetched_at: "" };
   }
   public async saveAlertSettings(settings: DBAlertSettings) {
-    jsonDb.setTable("alert_settings", [settings]);
+    await this.persistTableToMySQL("alert_settings", [settings]);
   }
   public async syncAlerts(force: boolean = false): Promise<{ success: boolean; newCount: number }> {
     try {
@@ -2092,7 +1990,7 @@ class ChennaiGuardianDatabase {
 
   // SEO
   public async getSeoSettings(): Promise<DBSeoSettings> {
-    const list = jsonDb.getTable("seo_settings") as DBSeoSettings[];
+    const list = await this.mysqlReadTable<DBSeoSettings>("seo_settings");
     const liveSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://chennaiguardian.mccmrfip.in";
     if (list && list.length > 0) {
       const item = { ...list[0] };
@@ -2126,91 +2024,34 @@ class ChennaiGuardianDatabase {
     };
   }
   public async saveSeoSettings(seo: DBSeoSettings) {
-    jsonDb.setTable("seo_settings", [seo]);
+    await this.persistTableToMySQL("seo_settings", [seo]);
   }
   public async getArticleSeo(): Promise<DBArticleSeo[]> {
-    return jsonDb.getTable("article_seo") as DBArticleSeo[];
+    return this.mysqlReadTable<DBArticleSeo>("article_seo");
   }
   public async saveArticleSeo(articleSeo: DBArticleSeo[]) {
-    jsonDb.setTable("article_seo", articleSeo);
+    await this.persistTableToMySQL("article_seo", articleSeo);
   }
 
   // Asset Metadata
   public async getAssetMetadata(): Promise<DBAssetMetadata[]> {
-    return jsonDb.getTable("asset_metadata") as DBAssetMetadata[];
+    return this.mysqlReadTable<DBAssetMetadata>("asset_metadata");
   }
   public async saveAssetMetadata(items: DBAssetMetadata[]) {
-    jsonDb.setTable("asset_metadata", items);
+    await this.persistTableToMySQL("asset_metadata", items);
   }
 
   // Contact Messages
   public async getContactMessages(): Promise<DBContactMessage[]> {
-    return jsonDb.getTable("service_requests") as DBContactMessage[];
+    return this.mysqlReadTable<DBContactMessage>("contact_messages", "`id` DESC");
   }
   public async saveContactMessages(items: DBContactMessage[]) {
-    jsonDb.setTable("service_requests", items);
+    await this.persistTableToMySQL("contact_messages", items);
   }
 
-  // Police Stations (221 Master Stations)
+  // Police Stations (Master Stations stored strictly in MySQL)
   public async getPoliceStations(): Promise<DBPoliceStation[]> {
-    let stations = jsonDb.getTable("police_stations") as DBPoliceStation[];
-    if (!stations || !Array.isArray(stations) || stations.length < 200) {
-      try {
-        const { CHENNAI_POLICE_STATIONS } = require("../data/chennai-stations-seed");
-        if (Array.isArray(CHENNAI_POLICE_STATIONS) && CHENNAI_POLICE_STATIONS.length > 0) {
-          stations = CHENNAI_POLICE_STATIONS.map((s: any) => {
-            const nameEn = (s.station_name || s.name_en || `Police Station ${s.id}`).replace(/"/g, "").trim();
-            const address = (s.address_en || s.address || s.ps_address || "Chennai, Tamil Nadu").replace(/\\n/g, "").replace(/"/g, "").trim();
-            const lat = typeof s.lat === "number" ? s.lat : parseFloat(s.lat) || 13.0827;
-            const lng = typeof s.lng === "number" ? s.lng : parseFloat(s.lng) || 80.2707;
-            
-            return {
-              id: s.id,
-              station_name: nameEn,
-              name_en: nameEn,
-              station_name_ta: s.station_name_ta || s.name_ta || `காவல் நிலையம் - ${nameEn.replace(" Police Station", "").replace(" TR PS", " போக்குவரத்து").replace(" L&O PS", " சட்டம் ஒழுங்கு")}`,
-              name_ta: s.name_ta || `காவல் நிலையம் - ${nameEn.replace(" Police Station", "").replace(" TR PS", " போக்குவரத்து").replace(" L&O PS", " சட்டம் ஒழுங்கு")}`,
-              station_code: s.station_code || `station-${s.id}`,
-              area_name: s.area_name || s.locality || "Chennai",
-              locality: s.locality || s.area_name || "Chennai",
-              zone: s.zone || "Chennai",
-              zone_en: s.zone || "Chennai",
-              division: s.division || s.locality || "Chennai Division",
-              district: s.district || (s.division ? `${s.division} District` : "Chennai District"),
-              category: s.category || (nameEn.includes("TR") ? "Traffic" : "Law & Order"),
-              type: s.type || (nameEn.includes("TR") ? "Traffic" : "Law & Order"),
-              station_type: s.station_type || s.type || (nameEn.includes("TR") ? "Traffic" : "Law & Order"),
-              address: address,
-              ps_address: address,
-              address_en: address,
-              address_ta: s.address_ta || address,
-              landmark: s.landmark || "",
-              pincode: s.pincode || (address.match(/\b6\d{5}\b/)?.[0] ?? "600001"),
-              phone: s.phone || s.phone_no || "044-23452300",
-              phone_no: s.phone_no || s.phone || "044-23452300",
-              alternate_phone: s.alternate_phone || "",
-              email: s.email || "",
-              lat: lat,
-              lng: lng,
-              lon: lng,
-              latitude: lat,
-              longitude: lng,
-              sdo: s.sdo || (s.division ? `ACP ${s.division} Division` : "ACP Sub-Divisional Officer"),
-              range: s.range || s.zone || "Metropolitan Range",
-              range_name: s.range || s.zone || "Metropolitan Range",
-              jurisdiction_areas: s.jurisdiction_areas || "",
-              working_hours: s.working_hours || "24/7",
-              is_active: s.is_active !== undefined ? s.is_active : 1,
-              status: s.status || (s.is_active === 0 ? "INACTIVE" : "ACTIVE"),
-              station_image: s.station_image || ""
-            };
-          });
-          jsonDb.setTable("police_stations", stations);
-        }
-      } catch (err) {
-        console.error("Failed to load 221 stations from chennai-stations-seed:", err);
-      }
-    }
+    const stations = await this.mysqlReadTable<DBPoliceStation>("police_stations", "`id` ASC");
 
     // Return all valid stations mapped with consistent fields
     return (stations || []).map((s, index) => {
@@ -2243,53 +2084,53 @@ class ChennaiGuardianDatabase {
     });
   }
   public async savePoliceStations(stations: DBPoliceStation[]) {
-    jsonDb.setTable("police_stations", stations);
+    await this.persistTableToMySQL("police_stations", stations);
   }
 
   // Emergency Contacts
   public async getEmergencyContacts(): Promise<DBEmergencyContact[]> {
-    return jsonDb.getTable("emergency_contacts") as DBEmergencyContact[];
+    return this.mysqlReadTable<DBEmergencyContact>("emergency_contacts", "`display_order` ASC, `id` ASC");
   }
   public async saveEmergencyContacts(contacts: DBEmergencyContact[]) {
-    jsonDb.setTable("emergency_contacts", contacts);
+    await this.persistTableToMySQL("emergency_contacts", contacts);
   }
 
   // Department Links
   public async getDepartmentLinks(): Promise<DBDepartmentLink[]> {
-    return jsonDb.getTable("department_links") as DBDepartmentLink[];
+    return this.mysqlReadTable<DBDepartmentLink>("department_links", "`display_order` ASC, `id` ASC");
   }
   public async saveDepartmentLinks(links: DBDepartmentLink[]) {
-    jsonDb.setTable("department_links", links);
+    await this.persistTableToMySQL("department_links", links);
   }
 
   // Web Stories
   public async getWebStories(): Promise<DBWebStory[]> {
-    return jsonDb.getTable("web_stories") as DBWebStory[];
+    return this.mysqlReadTable<DBWebStory>("web_stories", "`id` ASC");
   }
   public async saveWebStories(stories: DBWebStory[]) {
-    jsonDb.setTable("web_stories", stories);
+    await this.persistTableToMySQL("web_stories", stories);
   }
 
   // Service Requests
   public async getServiceRequests(): Promise<DBServiceRequest[]> {
-    return jsonDb.getTable("service_requests") as DBServiceRequest[];
+    return this.mysqlReadTable<DBServiceRequest>("service_requests", "`id` DESC");
   }
   public async saveServiceRequests(requests: DBServiceRequest[]) {
-    jsonDb.setTable("service_requests", requests);
+    await this.persistTableToMySQL("service_requests", requests);
   }
 
   // Page Contents
   public async getPageContents(): Promise<DBPageContent[]> {
-    return jsonDb.getTable("page_contents") as DBPageContent[];
+    return this.mysqlReadTable<DBPageContent>("page_contents");
   }
   public async savePageContents(pages: DBPageContent[]) {
-    jsonDb.setTable("page_contents", pages);
+    await this.persistTableToMySQL("page_contents", pages);
   }
   public async getContentVersions(): Promise<DBContentVersion[]> {
-    return jsonDb.getTable("content_versions") as DBContentVersion[];
+    return this.mysqlReadTable<DBContentVersion>("content_versions");
   }
   public async saveContentVersions(versions: DBContentVersion[]) {
-    jsonDb.setTable("content_versions", versions);
+    await this.persistTableToMySQL("content_versions", versions);
   }
   public async getPageContent(page_name: string) {
     return this.getPageContentByName(page_name);
@@ -2307,29 +2148,316 @@ class ChennaiGuardianDatabase {
     };
   }
 
+  private citizenTablesReady = false;
+  private citizenTablesPromise: Promise<void> | null = null;
+  private citizenServiceColumns: Set<string> | null = null;
+  private citizenCategoryColumns: Set<string> | null = null;
+
+  private isMySqlUnavailableError(err: any): boolean {
+    const code = err?.code || "";
+    return (
+      code === "ECONNREFUSED" ||
+      code === "ER_BAD_DB_ERROR" ||
+      code === "ENOTFOUND" ||
+      code === "ETIMEDOUT" ||
+      code === "EHOSTUNREACH"
+    );
+  }
+
+  private async ensureCitizenServiceTables(): Promise<void> {
+    if (this.citizenTablesReady && this.citizenServiceColumns && this.citizenCategoryColumns) {
+      return;
+    }
+    if (this.citizenTablesPromise) {
+      return this.citizenTablesPromise;
+    }
+
+    this.citizenTablesPromise = (async () => {
+      await mysqlQuery(`
+        CREATE TABLE IF NOT EXISTS \`citizen_service_categories\` (
+          \`id\` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+          \`name\` VARCHAR(255) NULL,
+          \`name_en\` VARCHAR(255) NULL,
+          \`name_ta\` VARCHAR(255) NULL,
+          \`slug\` VARCHAR(255) NULL,
+          \`description\` LONGTEXT NULL,
+          \`description_en\` LONGTEXT NULL,
+          \`description_ta\` LONGTEXT NULL,
+          \`display_order\` DOUBLE NULL,
+          \`is_active\` DOUBLE NULL,
+          \`created_at\` VARCHAR(64) NULL,
+          \`updated_at\` VARCHAR(64) NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+      `);
+
+      await mysqlQuery(`
+        CREATE TABLE IF NOT EXISTS \`citizen_services\` (
+          \`id\` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+          \`category_id\` DOUBLE NULL,
+          \`service_name\` VARCHAR(255) NULL,
+          \`service_name_en\` VARCHAR(255) NULL,
+          \`service_name_ta\` VARCHAR(255) NULL,
+          \`description\` LONGTEXT NULL,
+          \`description_en\` LONGTEXT NULL,
+          \`description_ta\` LONGTEXT NULL,
+          \`icon\` VARCHAR(255) NULL,
+          \`external_url\` LONGTEXT NULL,
+          \`display_order\` DOUBLE NULL,
+          \`is_active\` DOUBLE NULL,
+          \`is_featured\` DOUBLE NULL,
+          \`open_in_new_tab\` DOUBLE NULL,
+          \`created_by\` VARCHAR(255) NULL,
+          \`updated_by\` VARCHAR(255) NULL,
+          \`created_at\` VARCHAR(64) NULL,
+          \`updated_at\` VARCHAR(64) NULL,
+          \`deleted_at\` VARCHAR(64) NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+      `);
+
+      const loadCols = async (table: string): Promise<Set<string>> => {
+        const rows = (await mysqlQuery(`SHOW COLUMNS FROM \`${table}\``)) as Array<Record<string, any>>;
+        return new Set(rows.map((r) => String(r.Field ?? r.field ?? Object.values(r)[0] ?? "")));
+      };
+
+      let catCols = await loadCols("citizen_service_categories");
+      let catColsLower = new Set([...catCols].map((c) => c.toLowerCase()));
+      for (const [col, def] of [
+        ["created_at", "VARCHAR(64) NULL"],
+        ["updated_at", "VARCHAR(64) NULL"],
+      ] as const) {
+        if (!catColsLower.has(col.toLowerCase())) {
+          try {
+            await mysqlQuery(`ALTER TABLE \`citizen_service_categories\` ADD COLUMN \`${col}\` ${def}`);
+          } catch {}
+        }
+      }
+      catCols = await loadCols("citizen_service_categories");
+
+      let srvCols = await loadCols("citizen_services");
+      let srvColsLower = new Set([...srvCols].map((c) => c.toLowerCase()));
+      for (const [col, def] of [
+        ["created_by", "VARCHAR(255) NULL"],
+        ["created_at", "VARCHAR(64) NULL"],
+        ["deleted_at", "VARCHAR(64) NULL"],
+      ] as const) {
+        if (!srvColsLower.has(col.toLowerCase())) {
+          try {
+            await mysqlQuery(`ALTER TABLE \`citizen_services\` ADD COLUMN \`${col}\` ${def}`);
+          } catch {}
+        }
+      }
+      srvCols = await loadCols("citizen_services");
+
+      this.citizenCategoryColumns = catCols;
+      this.citizenServiceColumns = srvCols;
+      this.citizenTablesReady = true;
+    })();
+
+    try {
+      await this.citizenTablesPromise;
+    } finally {
+      this.citizenTablesPromise = null;
+    }
+  }
+
+  private async upsertRowsInMySQL(
+    tableName: string,
+    records: Record<string, any>[],
+    allowedCols: Set<string>,
+    conn?: { execute: (sql: string, params?: any[]) => Promise<any> }
+  ): Promise<void> {
+    if (!records || records.length === 0) return;
+
+    const keySet = new Set<string>();
+    for (const r of records) {
+      for (const k of Object.keys(r)) {
+        if (allowedCols.has(k)) keySet.add(k);
+      }
+    }
+    const cols = Array.from(keySet);
+    if (cols.length === 0) return;
+
+    const exec = conn ? conn.execute.bind(conn) : mysqlQuery;
+    const escapedCols = cols.map((c) => `\`${c}\``).join(", ");
+    const updateClause = cols
+      .filter((c) => c !== "id")
+      .map((c) => `\`${c}\` = VALUES(\`${c}\`)`)
+      .join(", ");
+
+    for (let i = 0; i < records.length; i += 50) {
+      const batch = records.slice(i, i + 50);
+      const placeholders = batch.map(() => `(${cols.map(() => "?").join(", ")})`).join(", ");
+      const values: any[] = [];
+      for (const r of batch) {
+        for (const col of cols) {
+          const val = r[col];
+          if (val !== null && typeof val === "object") {
+            values.push(JSON.stringify(val));
+          } else if (typeof val === "boolean") {
+            values.push(val ? 1 : 0);
+          } else if (val === undefined) {
+            values.push(null);
+          } else {
+            values.push(val);
+          }
+        }
+      }
+      const sql = updateClause
+        ? `INSERT INTO \`${tableName}\` (${escapedCols}) VALUES ${placeholders} ON DUPLICATE KEY UPDATE ${updateClause}`
+        : `INSERT INTO \`${tableName}\` (${escapedCols}) VALUES ${placeholders}`;
+      await exec(sql, values);
+    }
+  }
+
+  private revalidateCitizenServicePaths() {
+    try {
+      const { revalidatePath } = require("next/cache");
+      revalidatePath("/citizen-services");
+      revalidatePath("/");
+    } catch {
+      // Ignore outside Next.js server request context
+    }
+  }
+
   // Citizen Service Categories
   public async getCitizenServiceCategories(includeInactive: boolean = false): Promise<DBCitizenServiceCategory[]> {
-    const list = (jsonDb.getTable("citizen_service_categories") || []) as DBCitizenServiceCategory[];
-    if (includeInactive) {
-      return [...list].sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+    try {
+      await this.ensureCitizenServiceTables();
+      const rows = (await mysqlQuery(
+        "SELECT * FROM `citizen_service_categories` ORDER BY `display_order` ASC, `id` ASC"
+      )) as any[];
+      const normalized: DBCitizenServiceCategory[] = (rows || []).map((c) => ({
+        ...c,
+        id: Number(c.id),
+        name: c.name || c.name_en || "",
+        name_en: c.name_en || c.name || "",
+        name_ta: c.name_ta || "",
+        slug: c.slug || "",
+        description: c.description || c.description_en || "",
+        description_en: c.description_en || c.description || "",
+        description_ta: c.description_ta || "",
+        display_order: Number(c.display_order ?? 0),
+        is_active: Number(c.is_active ?? 1),
+        created_at: c.created_at || "",
+        updated_at: c.updated_at || "",
+      }));
+      memoryDb.updateCacheOnly("citizen_service_categories", normalized);
+      return includeInactive ? normalized : normalized.filter((c) => c.is_active === 1);
+    } catch (err: any) {
+      console.warn("[MySQL] getCitizenServiceCategories fallback:", err?.message || err);
+      const list = (memoryDb.getTable("citizen_service_categories") || []) as DBCitizenServiceCategory[];
+      if (includeInactive) {
+        return [...list].sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+      }
+      return list.filter((c) => c.is_active === 1).sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
     }
-    return list.filter(c => c.is_active === 1).sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
   }
+
   public async saveCitizenServiceCategories(categories: DBCitizenServiceCategory[]) {
-    jsonDb.setTable("citizen_service_categories", categories);
+    memoryDb.updateCacheOnly("citizen_service_categories", categories);
+    try {
+      await this.ensureCitizenServiceTables();
+      const cols = this.citizenCategoryColumns!;
+      await mysqlTransaction(async (conn) => {
+        const ids = categories.map((c) => Number(c.id)).filter((id) => Number.isFinite(id) && id > 0);
+        if (ids.length === 0) {
+          await conn.execute("DELETE FROM `citizen_service_categories`");
+        } else {
+          const placeholders = ids.map(() => "?").join(", ");
+          await conn.execute(`DELETE FROM \`citizen_service_categories\` WHERE \`id\` NOT IN (${placeholders})`, ids);
+          await this.upsertRowsInMySQL("citizen_service_categories", categories, cols, conn);
+        }
+      });
+      this.revalidateCitizenServicePaths();
+    } catch (err: any) {
+      if (this.isMySqlUnavailableError(err)) {
+        console.warn("[MySQL Persistence] saveCitizenServiceCategories skipped (MySQL unavailable):", err?.message || err);
+        return;
+      }
+      console.error("[MySQL Persistence] saveCitizenServiceCategories failed:", err);
+      throw err;
+    }
   }
 
   // Citizen Services
   public async getCitizenServices(includeInactive: boolean = false): Promise<DBCitizenService[]> {
-    const list = (jsonDb.getTable("citizen_services") || []) as DBCitizenService[];
-    let filtered = list.filter(s => !s.deleted_at);
-    if (!includeInactive) {
-      filtered = filtered.filter(s => s.is_active === 1);
+    try {
+      await this.ensureCitizenServiceTables();
+      const rows = (await mysqlQuery(
+        "SELECT * FROM `citizen_services` ORDER BY `display_order` ASC, `id` ASC"
+      )) as any[];
+      const normalized: DBCitizenService[] = (rows || []).map((s) => ({
+        ...s,
+        id: Number(s.id),
+        category_id: Number(s.category_id ?? 1),
+        service_name: s.service_name || s.service_name_en || "",
+        service_name_en: s.service_name_en || s.service_name || "",
+        service_name_ta: s.service_name_ta || "",
+        description: s.description || s.description_en || "",
+        description_en: s.description_en || s.description || "",
+        description_ta: s.description_ta || "",
+        icon: s.icon || "FileText",
+        external_url: s.external_url ?? null,
+        display_order: Number(s.display_order ?? 0),
+        is_active: Number(s.is_active ?? 1),
+        is_featured: Number(s.is_featured ?? 0),
+        open_in_new_tab: s.open_in_new_tab !== undefined && s.open_in_new_tab !== null ? Number(s.open_in_new_tab) : 1,
+        created_by: s.created_by ?? null,
+        updated_by: s.updated_by ?? null,
+        created_at: s.created_at || "",
+        updated_at: s.updated_at || "",
+        deleted_at: s.deleted_at ?? null,
+      }));
+      memoryDb.updateCacheOnly("citizen_services", normalized);
+      let filtered = normalized.filter((s) => !s.deleted_at);
+      if (!includeInactive) {
+        filtered = filtered.filter((s) => s.is_active === 1);
+      }
+      return filtered.sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+    } catch (err: any) {
+      console.warn("[MySQL] getCitizenServices fallback:", err?.message || err);
+      const list = (memoryDb.getTable("citizen_services") || []) as DBCitizenService[];
+      let filtered = list.filter((s) => !s.deleted_at);
+      if (!includeInactive) {
+        filtered = filtered.filter((s) => s.is_active === 1);
+      }
+      return filtered.sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
     }
-    return filtered.sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
   }
+
   public async saveCitizenServices(services: DBCitizenService[]) {
-    jsonDb.setTable("citizen_services", services);
+    memoryDb.updateCacheOnly("citizen_services", services);
+    try {
+      await this.ensureCitizenServiceTables();
+      const cols = this.citizenServiceColumns!;
+      const recordsToPersist = cols.has("deleted_at") ? services : services.filter((s) => !s.deleted_at);
+
+      await mysqlTransaction(async (conn) => {
+        const ids = recordsToPersist.map((s) => Number(s.id)).filter((id) => Number.isFinite(id) && id > 0);
+        if (ids.length === 0) {
+          if (cols.has("deleted_at")) {
+            await conn.execute("DELETE FROM `citizen_services` WHERE `deleted_at` IS NULL");
+          } else {
+            await conn.execute("DELETE FROM `citizen_services`");
+          }
+        } else {
+          const placeholders = ids.map(() => "?").join(", ");
+          const deleteSql = cols.has("deleted_at")
+            ? `DELETE FROM \`citizen_services\` WHERE \`deleted_at\` IS NULL AND \`id\` NOT IN (${placeholders})`
+            : `DELETE FROM \`citizen_services\` WHERE \`id\` NOT IN (${placeholders})`;
+          await conn.execute(deleteSql, ids);
+          await this.upsertRowsInMySQL("citizen_services", recordsToPersist, cols, conn);
+        }
+      });
+      this.revalidateCitizenServicePaths();
+    } catch (err: any) {
+      if (this.isMySqlUnavailableError(err)) {
+        console.warn("[MySQL Persistence] saveCitizenServices skipped (MySQL unavailable):", err?.message || err);
+        return;
+      }
+      console.error("[MySQL Persistence] saveCitizenServices failed:", err);
+      throw err;
+    }
   }
 
   public async getCitizenServicesWithCategories(includeInactive: boolean = false): Promise<any[]> {
@@ -2352,49 +2480,121 @@ class ChennaiGuardianDatabase {
   }
 
   // Superadmin Config
+  private buildDefaultFooterConfig() {
+    return {
+      logo: "/images/gcp_logo.png",
+      website_name_en: "Greater Chennai Police",
+      website_name_ta: "சென்னை பெருநகர காவல்",
+      description_en: "Official news platform of Greater Chennai Police, providing 24/7 updates on public safety, cyber alerts, and community-centered policing initiatives.",
+      description_ta: "சென்னையின் முன்னணி சட்டம் ஒழுங்கு, குற்றப் புலனாய்வு மற்றும் மக்கள் விழிப்புணர்வு செய்திகளை உடனுக்குடன் வழங்கும் அதிகாரப்பூர்வ செய்தி ஊடகம்.",
+      copyright_text_en: "© 2026 Greater Chennai Police. All rights reserved.",
+      copyright_text_ta: "© 2026 சென்னை பெருநகர காவல். அனைத்து உரிமைகளும் பாதுகாக்கப்பட்டவை.",
+      developer_credit_en: "Developed by GCP Media Team",
+      developer_credit_ta: "சென்னை பெருநகர காவல் ஊடகக் குழுவால் உருவாக்கப்பட்டது",
+      address_en: "Commissioner Office, Greater Chennai Police, Vepery, Chennai - 600007",
+      address_ta: "காவல் ஆணையர் அலுவலகம், சென்னை பெருநகர காவல், வேப்பேரி, சென்னை - 600007",
+      phone: "044-23452300",
+      email: "cop@gcp.tn.gov.in",
+      google_map_link: "https://maps.google.com/?q=Commissioner+Office+Greater+Chennai+Police+Vepery",
+      social_facebook: "https://facebook.com",
+      social_twitter: "https://twitter.com",
+      social_youtube: "https://youtube.com",
+      social_instagram: "https://instagram.com",
+      background_image: "",
+      background_color: "#1e40af",
+      text_color: "#ffffff",
+      footer_visible: true,
+      quick_links: [
+        { id: "ql1", label_en: "Home", label_ta: "முகப்பு", url: "/", target_blank: false, active: true, order_index: 1 },
+        { id: "ql2", label_en: "Citizen Services", label_ta: "குடிமக்கள் சேவைகள்", url: "/citizen-services", target_blank: false, active: true, order_index: 2 },
+        { id: "ql3", label_en: "Police Stations", label_ta: "காவல் நிலையங்கள்", url: "/stations", target_blank: false, active: true, order_index: 3 }
+      ],
+      government_links: [
+        { id: "gl1", label_en: "Tamil Nadu Government", label_ta: "தமிழ்நாடு அரசு", url: "https://www.tn.gov.in", target_blank: true, active: true, order_index: 1 }
+      ]
+    };
+  }
+
   public async getSuperadminConfig(): Promise<Record<string, any>> {
-    const raw = jsonDb.getTable("superadmin_config") as Record<string, any>;
-    if (!raw || !raw.footer_config) {
-      raw.footer_config = {
-        logo: "/images/gcp_logo.png",
-        website_name_en: "Greater Chennai Police",
-        website_name_ta: "சென்னை பெருநகர காவல்",
-        description_en: "Official news platform of Greater Chennai Police, providing 24/7 updates on public safety, cyber alerts, and community-centered policing initiatives.",
-        description_ta: "சென்னையின் முன்னணி சட்டம் ஒழுங்கு, குற்றப் புலனாய்வு மற்றும் மக்கள் விழிப்புணர்வு செய்திகளை உடனுக்குடன் வழங்கும் அதிகாரப்பூர்வ செய்தி ஊடகம்.",
-        copyright_text_en: "© 2026 Greater Chennai Police. All rights reserved.",
-        copyright_text_ta: "© 2026 சென்னை பெருநகர காவல். அனைத்து உரிமைகளும் பாதுகாக்கப்பட்டவை.",
-        developer_credit_en: "Developed by GCP Media Team",
-        developer_credit_ta: "சென்னை பெருநகர காவல் ஊடகக் குழுவால் உருவாக்கப்பட்டது",
-        address_en: "Commissioner Office, Greater Chennai Police, Vepery, Chennai - 600007",
-        address_ta: "காவல் ஆணையர் அலுவலகம், சென்னை பெருநகர காவல், வேப்பேரி, சென்னை - 600007",
-        phone: "044-23452300",
-        email: "cop@gcp.tn.gov.in",
-        google_map_link: "https://maps.google.com/?q=Commissioner+Office+Greater+Chennai+Police+Vepery",
-        social_facebook: "https://facebook.com",
-        social_twitter: "https://twitter.com",
-        social_youtube: "https://youtube.com",
-        social_instagram: "https://instagram.com",
-        background_image: "",
-        background_color: "#1e40af",
-        text_color: "#ffffff",
-        footer_visible: true,
-        quick_links: [
-          { id: "ql1", label_en: "Home", label_ta: "முகப்பு", url: "/", target_blank: false, active: true, order_index: 1 },
-          { id: "ql2", label_en: "Citizen Services", label_ta: "குடிமக்கள் சேவைகள்", url: "/citizen-services", target_blank: false, active: true, order_index: 2 },
-          { id: "ql3", label_en: "Police Stations", label_ta: "காவல் நிலையங்கள்", url: "/stations", target_blank: false, active: true, order_index: 3 }
-        ],
-        government_links: [
-          { id: "gl1", label_en: "Tamil Nadu Government", label_ta: "தமிழ்நாடு அரசு", url: "https://www.tn.gov.in", target_blank: true, active: true, order_index: 1 }
-        ]
+    try {
+      const cols = await this.ensureMySqlTable("superadmin_config");
+      const rows = await this.mysqlReadTable<Record<string, any>>("superadmin_config");
+
+      if (cols.has("config_key") && cols.has("config_value")) {
+        const cfg: Record<string, any> = {};
+        for (const r of rows) {
+          if (r.config_key) {
+            cfg[String(r.config_key)] = safeParseJsonField(r.config_value);
+          }
+        }
+        const defaults = this.buildDefaultFooterConfig();
+        const existingFooter =
+          cfg.footer_config && typeof cfg.footer_config === "object" ? cfg.footer_config : {};
+        cfg.footer_config = { ...defaults, ...existingFooter };
+
+        if (!rows.some((r) => String(r.config_key) === "footer_config")) {
+          await mysqlQuery(
+            "INSERT INTO `superadmin_config` (`config_key`, `config_value`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `config_value` = VALUES(`config_value`)",
+            ["footer_config", JSON.stringify(cfg.footer_config)]
+          );
+        }
+        return cfg;
+      }
+
+      const row = Array.isArray(rows) && rows.length > 0 ? rows[0] : null;
+      const extra = row && row.config_json && typeof row.config_json === "object" ? row.config_json : {};
+      const cfg: Record<string, any> = {
+        ...extra,
+        ...(row?.footer_config ? { footer_config: row.footer_config } : {}),
       };
-      jsonDb.setTable("superadmin_config", raw);
+      if (!cfg.footer_config || typeof cfg.footer_config !== "object") {
+        cfg.footer_config = this.buildDefaultFooterConfig();
+        const { footer_config, ...rest } = cfg;
+        await this.persistTableToMySQL("superadmin_config", [
+          { id: 1, footer_config, config_json: rest },
+        ]);
+      }
+      return cfg;
+    } catch (err: any) {
+      if (!this.isMySqlUnavailableError(err)) {
+        console.warn("[MySQL] getSuperadminConfig fallback:", err?.message || err);
+      }
+      const cached = memoryDb.getTable<any[]>("superadmin_config");
+      const row = Array.isArray(cached) && cached.length > 0 ? cached[0] : null;
+      return {
+        footer_config: this.buildDefaultFooterConfig(),
+        ...(row && typeof row === "object" ? row : {}),
+      };
     }
-    return raw;
   }
   public async saveSuperadminConfig(key: string, value: any) {
-    const cfg = await this.getSuperadminConfig();
-    cfg[key] = value;
-    jsonDb.setTable("superadmin_config", cfg);
+    try {
+      const cols = await this.ensureMySqlTable("superadmin_config");
+      if (cols.has("config_key") && cols.has("config_value")) {
+        const serialized = typeof value === "string" ? value : JSON.stringify(value);
+        await mysqlQuery(
+          "INSERT INTO `superadmin_config` (`config_key`, `config_value`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `config_value` = VALUES(`config_value`)",
+          [key, serialized]
+        );
+        this.revalidateAppPaths("superadmin_config");
+        return;
+      }
+
+      const cfg = await this.getSuperadminConfig();
+      cfg[key] = value;
+      const { footer_config, ...rest } = cfg;
+      await this.persistTableToMySQL("superadmin_config", [
+        { id: 1, footer_config: footer_config || this.buildDefaultFooterConfig(), config_json: rest },
+      ]);
+    } catch (err: any) {
+      if (this.isMySqlUnavailableError(err)) {
+        const cached = memoryDb.getTable<any[]>("superadmin_config") || [{}];
+        const current = { ...(cached[0] || {}), [key]: value };
+        memoryDb.updateCacheOnly("superadmin_config", [current]);
+        return;
+      }
+      throw err;
+    }
   }
   public async getSuperAdminConfig(): Promise<Record<string, any>> {
     return this.getSuperadminConfig();
@@ -2448,41 +2648,81 @@ class ChennaiGuardianDatabase {
 
   // ── SESSIONS MANAGEMENT ──
   public async getSessions(): Promise<DBSession[]> {
-    const raw = jsonDb.getTable("sessions") || [];
-    return raw;
+    return this.mysqlReadTable<DBSession>("sessions");
   }
 
   public async saveSessions(sessions: DBSession[]): Promise<void> {
-    jsonDb.setTable("sessions", sessions);
+    await this.persistTableToMySQL("sessions", sessions);
   }
 
   public async createSession(username: string, role: string, ip?: string, userAgent?: string, durationMinutes: number = 30): Promise<{ session_id: string; expires_at: string }> {
-    const sessions = await this.getSessions();
     const sessionId = crypto.randomBytes(24).toString("hex");
     const now = new Date();
     const expiresAt = new Date(now.getTime() + durationMinutes * 60 * 1000).toISOString();
+    const nowIso = now.toISOString();
+    const ipAddr = ip || "127.0.0.1";
+    const ua = userAgent || "Unknown";
 
-    const newSession: DBSession = {
-      id: sessions.length > 0 ? Math.max(...sessions.map((s) => s.id)) + 1 : 1,
-      username,
-      session_id: sessionId,
-      created_at: now.toISOString(),
-      last_activity: now.toISOString(),
-      expires_at: expiresAt,
-      ip_address: ip || "127.0.0.1",
-      user_agent: userAgent || "Unknown",
-      revoked_at: null,
-      status: "active",
-    };
-
-    sessions.push(newSession);
-    await this.saveSessions(sessions);
-    return { session_id: sessionId, expires_at: expiresAt };
+    try {
+      const cols = await this.ensureMySqlTable("sessions");
+      const row: Record<string, any> = {
+        username,
+        session_id: sessionId,
+        created_at: nowIso,
+        last_activity: nowIso,
+        expires_at: expiresAt,
+        ip_address: ipAddr,
+        user_agent: ua,
+        revoked_at: null,
+        status: "active",
+      };
+      const keys = Object.keys(row).filter((k) => cols.has(k));
+      const escaped = keys.map((k) => `\`${k}\``).join(", ");
+      const placeholders = keys.map(() => "?").join(", ");
+      await mysqlQuery(
+        `INSERT INTO \`sessions\` (${escaped}) VALUES (${placeholders})`,
+        keys.map((k) => row[k])
+      );
+      return { session_id: sessionId, expires_at: expiresAt };
+    } catch (err: any) {
+      if (this.isMySqlUnavailableError(err)) {
+        const sessions = [...(memoryDb.getTable<DBSession[]>("sessions") || [])];
+        sessions.push({
+          id: sessions.length > 0 ? Math.max(...sessions.map((s) => s.id || 0)) + 1 : 1,
+          username,
+          session_id: sessionId,
+          created_at: nowIso,
+          last_activity: nowIso,
+          expires_at: expiresAt,
+          ip_address: ipAddr,
+          user_agent: ua,
+          revoked_at: null,
+          status: "active",
+        });
+        memoryDb.updateCacheOnly("sessions", sessions);
+        return { session_id: sessionId, expires_at: expiresAt };
+      }
+      throw err;
+    }
   }
 
   public async validateSession(sessionId: string): Promise<DBSession | null> {
-    const sessions = await this.getSessions();
-    const session = sessions.find((s) => s.session_id === sessionId && s.status === "active");
+    let session: DBSession | undefined;
+    try {
+      await this.ensureMySqlTable("sessions");
+      const rows = (await mysqlQuery(
+        "SELECT * FROM `sessions` WHERE `session_id` = ? AND `status` = 'active' LIMIT 1",
+        [sessionId]
+      )) as DBSession[];
+      session = rows && rows.length > 0 ? rows[0] : undefined;
+    } catch (err: any) {
+      if (this.isMySqlUnavailableError(err)) {
+        const sessions = memoryDb.getTable<DBSession[]>("sessions") || [];
+        session = sessions.find((s) => s.session_id === sessionId && s.status === "active");
+      } else {
+        throw err;
+      }
+    }
 
     if (!session) return null;
 
@@ -2493,7 +2733,9 @@ class ChennaiGuardianDatabase {
     const GRACE_PERIOD_MS = 15 * 60 * 1000;
     if (now.getTime() > expiresAt.getTime() + GRACE_PERIOD_MS) {
       session.status = "expired";
-      await this.saveSessions(sessions);
+      try {
+        await mysqlQuery("UPDATE `sessions` SET `status` = 'expired' WHERE `session_id` = ?", [sessionId]);
+      } catch {}
       return null;
     }
 
@@ -2501,54 +2743,90 @@ class ChennaiGuardianDatabase {
     if (now > expiresAt) {
       session.last_activity = now.toISOString();
       session.expires_at = new Date(now.getTime() + 30 * 60 * 1000).toISOString();
-      await this.saveSessions(sessions);
+      try {
+        await mysqlQuery(
+          "UPDATE `sessions` SET `last_activity` = ?, `expires_at` = ? WHERE `session_id` = ?",
+          [session.last_activity, session.expires_at, sessionId]
+        );
+      } catch {}
     }
 
     return session;
   }
 
   public async touchSession(sessionId: string, durationMinutes: number = 30): Promise<void> {
-    const sessions = await this.getSessions();
-    const session = sessions.find((s) => s.session_id === sessionId && s.status === "active");
-
-    if (session) {
-      const now = new Date();
-      session.last_activity = now.toISOString();
-      session.expires_at = new Date(now.getTime() + durationMinutes * 60 * 1000).toISOString();
-      await this.saveSessions(sessions);
+    const now = new Date();
+    const lastActivity = now.toISOString();
+    const expiresAt = new Date(now.getTime() + durationMinutes * 60 * 1000).toISOString();
+    try {
+      await this.ensureMySqlTable("sessions");
+      await mysqlQuery(
+        "UPDATE `sessions` SET `last_activity` = ?, `expires_at` = ? WHERE `session_id` = ? AND `status` = 'active'",
+        [lastActivity, expiresAt, sessionId]
+      );
+    } catch (err: any) {
+      if (this.isMySqlUnavailableError(err)) {
+        const sessions = memoryDb.getTable<DBSession[]>("sessions") || [];
+        const session = sessions.find((s) => s.session_id === sessionId && s.status === "active");
+        if (session) {
+          session.last_activity = lastActivity;
+          session.expires_at = expiresAt;
+          memoryDb.updateCacheOnly("sessions", sessions);
+        }
+      }
     }
   }
 
   public async revokeSession(sessionId: string): Promise<boolean> {
-    const sessions = await this.getSessions();
-    const session = sessions.find((s) => s.session_id === sessionId);
-
-    if (session) {
-      session.status = "revoked";
-      session.revoked_at = new Date().toISOString();
-      await this.saveSessions(sessions);
-      return true;
+    const nowIso = new Date().toISOString();
+    try {
+      await this.ensureMySqlTable("sessions");
+      const res: any = await mysqlQuery(
+        "UPDATE `sessions` SET `status` = 'revoked', `revoked_at` = ? WHERE `session_id` = ?",
+        [nowIso, sessionId]
+      );
+      return Number(res?.affectedRows || 0) > 0;
+    } catch (err: any) {
+      if (this.isMySqlUnavailableError(err)) {
+        const sessions = memoryDb.getTable<DBSession[]>("sessions") || [];
+        const session = sessions.find((s) => s.session_id === sessionId);
+        if (session) {
+          session.status = "revoked";
+          session.revoked_at = nowIso;
+          memoryDb.updateCacheOnly("sessions", sessions);
+          return true;
+        }
+        return false;
+      }
+      throw err;
     }
-    return false;
   }
 
   public async revokeAllUserSessions(username: string): Promise<boolean> {
-    const sessions = await this.getSessions();
-    let count = 0;
-    const now = new Date().toISOString();
-
-    for (const session of sessions) {
-      if (session.username.toLowerCase() === username.toLowerCase() && session.status === "active") {
-        session.status = "revoked";
-        session.revoked_at = now;
-        count++;
+    const nowIso = new Date().toISOString();
+    try {
+      await this.ensureMySqlTable("sessions");
+      const res: any = await mysqlQuery(
+        "UPDATE `sessions` SET `status` = 'revoked', `revoked_at` = ? WHERE LOWER(`username`) = LOWER(?) AND `status` = 'active'",
+        [nowIso, username]
+      );
+      return Number(res?.affectedRows || 0) > 0;
+    } catch (err: any) {
+      if (this.isMySqlUnavailableError(err)) {
+        const sessions = memoryDb.getTable<DBSession[]>("sessions") || [];
+        let count = 0;
+        for (const s of sessions) {
+          if (s.username.toLowerCase() === username.toLowerCase() && s.status === "active") {
+            s.status = "revoked";
+            s.revoked_at = nowIso;
+            count++;
+          }
+        }
+        memoryDb.updateCacheOnly("sessions", sessions);
+        return count > 0;
       }
+      throw err;
     }
-
-    if (count > 0) {
-      await this.saveSessions(sessions);
-    }
-    return count > 0;
   }
 
   public async getActiveSessions(): Promise<DBSession[]> {
@@ -2559,7 +2837,7 @@ class ChennaiGuardianDatabase {
 
   // ── SECURITY EVENTS ──
   public async getSecurityEvents(): Promise<DBSecurityEvent[]> {
-    const raw = jsonDb.getTable("security_events") || [];
+    const raw = await this.mysqlReadTable<DBSecurityEvent>("security_events", "`id` DESC");
     return raw.sort((a: DBSecurityEvent, b: DBSecurityEvent) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
   }
 
@@ -2571,19 +2849,37 @@ class ChennaiGuardianDatabase {
     userAgent?: string,
     details?: string
   ): Promise<void> {
-    const events = jsonDb.getTable("security_events") || [];
-    const newEvent: DBSecurityEvent = {
-      id: events.length > 0 ? Math.max(...events.map((e: any) => e.id)) + 1 : 1,
+    const nowIso = new Date().toISOString();
+    const entry: Record<string, any> = {
       username,
       event_type: eventType,
       severity,
       ip_address: ip || "127.0.0.1",
       user_agent: userAgent || "Unknown",
       details: details || "",
-      created_at: new Date().toISOString(),
+      created_at: nowIso,
     };
-    events.push(newEvent);
-    jsonDb.setTable("security_events", events);
+    try {
+      const cols = await this.ensureMySqlTable("security_events");
+      const keys = Object.keys(entry).filter((k) => cols.has(k));
+      const escaped = keys.map((k) => `\`${k}\``).join(", ");
+      const placeholders = keys.map(() => "?").join(", ");
+      await mysqlQuery(
+        `INSERT INTO \`security_events\` (${escaped}) VALUES (${placeholders})`,
+        keys.map((k) => entry[k])
+      );
+    } catch (err: any) {
+      if (this.isMySqlUnavailableError(err)) {
+        const events = [...(memoryDb.getTable<DBSecurityEvent[]>("security_events") || [])];
+        events.push({
+          id: events.length > 0 ? Math.max(...events.map((e) => e.id || 0)) + 1 : 1,
+          ...(entry as Omit<DBSecurityEvent, "id">),
+        });
+        memoryDb.updateCacheOnly("security_events", events);
+        return;
+      }
+      console.warn("[MySQL] logSecurityEvent warning:", err?.message || err);
+    }
   }
 
   public async addSecurityEvent(event: { username?: string; event_type?: string; severity?: "info" | "warning" | "high" | "critical" | "low" | "medium"; ip_address?: string; browser?: string; details?: string }): Promise<void> {
@@ -2609,8 +2905,9 @@ class ChennaiGuardianDatabase {
 
   // ── SECURITY CONFIGURATION ──
   public async getSecurityPolicyConfig(): Promise<DBSecurityConfig> {
-    const raw = jsonDb.getTable("security_config");
-    if (!raw || typeof raw !== "object") {
+    const rows = await this.mysqlReadTable<any>("security_config");
+    const row = Array.isArray(rows) && rows.length > 0 ? rows[0] : null;
+    if (!row) {
       const defaultConfig: DBSecurityConfig = {
         admin_console_path: process.env.ADMIN_CONSOLE_PATH || "/control-center",
         session_timeout_minutes: 30,
@@ -2621,21 +2918,30 @@ class ChennaiGuardianDatabase {
         mfa_policy: "optional",
         maintenance_mode: false,
       };
-      jsonDb.setTable("security_config", defaultConfig);
+      await this.persistTableToMySQL("security_config", [{ id: 1, ...defaultConfig }]);
       return defaultConfig;
     }
-    return raw;
+    return {
+      admin_console_path: row.admin_console_path || process.env.ADMIN_CONSOLE_PATH || "/control-center",
+      session_timeout_minutes: Number(row.session_timeout_minutes ?? 30),
+      login_rate_limit: Number(row.login_rate_limit ?? 5),
+      max_failed_logins: Number(row.max_failed_logins ?? 5),
+      lockout_duration_minutes: Number(row.lockout_duration_minutes ?? 30),
+      captcha_enabled: Boolean(row.captcha_enabled),
+      mfa_policy: row.mfa_policy || "optional",
+      maintenance_mode: Boolean(row.maintenance_mode),
+    };
   }
 
   public async saveSecurityPolicyConfig(newConfig: Partial<DBSecurityConfig>): Promise<DBSecurityConfig> {
     const current = await this.getSecurityPolicyConfig();
-    const updated = { ...current, ...newConfig };
-    jsonDb.setTable("security_config", updated);
+    const updated: DBSecurityConfig = { ...current, ...newConfig };
+    await this.persistTableToMySQL("security_config", [{ id: 1, ...updated }]);
     return updated;
   }
 
   public async getMaintenanceConfig(): Promise<DBMaintenanceConfig> {
-    // 1. Try MySQL Database query first if available
+    // 1. Query MySQL Database first
     try {
       const rows: any = await mysqlQuery("SELECT * FROM maintenance_config WHERE id = 1 LIMIT 1");
       if (Array.isArray(rows) && rows.length > 0) {
@@ -2643,7 +2949,7 @@ class ChennaiGuardianDatabase {
         const descEn = cfg.maintenance_description_en || cfg.maintenance_message_en || "The Greater Chennai Police Commissioner Portal is temporarily undergoing scheduled maintenance. We apologize for the inconvenience and will be back shortly.";
         const descTa = cfg.maintenance_description_ta || cfg.maintenance_message_ta || "சென்னை பெருநகர காவல் ஆணையரக இணையதளம் தற்போது பராமரிப்புப் பணியில் உள்ளது. ஏற்பட்டுள்ள சிரமத்திற்கு வருந்துகிறோம். விரைவில் மீண்டும் செயல்படும்.";
         const restoreIso = cfg.expected_restoration_datetime || cfg.expected_restore_at || null;
-        return {
+        const result: DBMaintenanceConfig = {
           id: 1,
           maintenance_enabled: Boolean(cfg.maintenance_enabled),
           maintenance_title_en: cfg.maintenance_title_en || "We'll Be Back Soon!",
@@ -2658,12 +2964,29 @@ class ChennaiGuardianDatabase {
           updated_by: cfg.updated_by || "System",
           updated_at: cfg.updated_at ? new Date(cfg.updated_at).toISOString() : new Date().toISOString()
         };
+        memoryDb.updateCacheOnly("maintenance_config", [result]);
+        try {
+          setFastMaintenanceCache({
+            maintenance_enabled: result.maintenance_enabled,
+            maintenance_title_en: result.maintenance_title_en,
+            maintenance_description_en: result.maintenance_description_en,
+            maintenance_title_ta: result.maintenance_title_ta,
+            maintenance_description_ta: result.maintenance_description_ta,
+            expected_restoration_datetime: result.expected_restoration_datetime ?? null,
+            expected_restore_at: result.expected_restore_at ?? null,
+            maintenance_message_en: result.maintenance_message_en || result.maintenance_description_en,
+            maintenance_message_ta: result.maintenance_message_ta || result.maintenance_description_ta,
+            updated_by: result.updated_by,
+            updated_at: result.updated_at,
+          });
+        } catch {}
+        return result;
       }
     } catch {
-      // Fallback to JSON database
+      // Fallback strictly to in-memory cache when MySQL is unavailable
     }
 
-    const raw = jsonDb.getTable<DBMaintenanceConfig>("maintenance_config");
+    const raw = memoryDb.getTable<DBMaintenanceConfig[]>("maintenance_config");
     if (Array.isArray(raw) && raw.length > 0) {
       const cfg = raw[0];
       return {
@@ -2697,7 +3020,7 @@ class ChennaiGuardianDatabase {
       updated_by: "System",
       updated_at: new Date().toISOString()
     };
-    jsonDb.setTable("maintenance_config", [defaultConfig]);
+    memoryDb.updateCacheOnly("maintenance_config", [defaultConfig]);
     return defaultConfig;
   }
 
@@ -2731,7 +3054,7 @@ class ChennaiGuardianDatabase {
       updated.active_schedule_ref = partial.active_schedule_ref;
     }
 
-    // 1. Update MySQL database if available
+    // 1. Update MySQL database
     try {
       await mysqlQuery(`
         CREATE TABLE IF NOT EXISTS maintenance_config (
@@ -2784,7 +3107,12 @@ class ChennaiGuardianDatabase {
         updated.updated_by,
         updated.updated_at
       ]);
-    } catch {}
+    } catch (err: any) {
+      if (!this.isMySqlUnavailableError(err)) {
+        console.error("[MySQL Persistence] updateMaintenanceConfig failed:", err);
+        throw err;
+      }
+    }
 
     // Synchronize fast in-memory cache for middleware/proxy immediately
     try {
@@ -2803,7 +3131,7 @@ class ChennaiGuardianDatabase {
       });
     } catch {}
 
-    jsonDb.setTable("maintenance_config", [updated]);
+    memoryDb.updateCacheOnly("maintenance_config", [updated]);
 
     try {
       const sec = await this.getSecurityPolicyConfig();
@@ -2817,11 +3145,11 @@ class ChennaiGuardianDatabase {
 
   // Maintenance Notifications
   public async getMaintenanceNotifications(): Promise<DBMaintenanceNotification[]> {
-    // 1. Try MySQL Database query first
+    // 1. Query MySQL Database directly
     try {
       const rows: any = await mysqlQuery("SELECT * FROM maintenance_notifications ORDER BY created_at DESC");
-      if (Array.isArray(rows) && rows.length > 0) {
-        return rows.map((r: any) => ({
+      if (Array.isArray(rows)) {
+        const mapped: DBMaintenanceNotification[] = rows.map((r: any) => ({
           id: String(r.id),
           schedule_ref: String(r.schedule_ref),
           scheduled_restoration_datetime: String(r.scheduled_restoration_datetime),
@@ -2832,19 +3160,20 @@ class ChennaiGuardianDatabase {
           created_at: String(r.created_at),
           maintenance_status_at_trigger: r.maintenance_status_at_trigger === "INACTIVE" ? "INACTIVE" : "ACTIVE"
         }));
+        memoryDb.updateCacheOnly("maintenance_notifications", mapped);
+        return mapped;
       }
     } catch {}
 
-    const raw = jsonDb.getTable<DBMaintenanceNotification[]>("maintenance_notifications");
+    const raw = memoryDb.getTable<DBMaintenanceNotification[]>("maintenance_notifications");
     return Array.isArray(raw) ? raw : [];
   }
 
   public async saveMaintenanceNotifications(notifications: DBMaintenanceNotification[]): Promise<void> {
-    jsonDb.setTable("maintenance_notifications", notifications);
+    await this.persistTableToMySQL("maintenance_notifications", notifications);
   }
 
   public async addMaintenanceNotification(notification: DBMaintenanceNotification): Promise<DBMaintenanceNotification> {
-    // 1. Try MySQL Insert
     try {
       await mysqlQuery(`
         CREATE TABLE IF NOT EXISTS maintenance_notifications (
@@ -2861,6 +3190,13 @@ class ChennaiGuardianDatabase {
           INDEX idx_maint_status (status)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
       `);
+      const existing: any = await mysqlQuery(
+        "SELECT * FROM maintenance_notifications WHERE schedule_ref = ? LIMIT 1",
+        [notification.schedule_ref]
+      );
+      if (Array.isArray(existing) && existing.length > 0) {
+        return existing[0] as DBMaintenanceNotification;
+      }
       await mysqlQuery(`
         INSERT INTO maintenance_notifications (
           id, schedule_ref, scheduled_restoration_datetime, generated_at,
@@ -2878,36 +3214,59 @@ class ChennaiGuardianDatabase {
         notification.created_at,
         notification.maintenance_status_at_trigger
       ]);
-    } catch {}
-
-    const notifications = await this.getMaintenanceNotifications();
-    const existingIndex = notifications.findIndex((n) => n.schedule_ref === notification.schedule_ref);
-    if (existingIndex >= 0) {
-      return notifications[existingIndex];
+      const cached = [...(memoryDb.getTable<DBMaintenanceNotification[]>("maintenance_notifications") || [])];
+      cached.unshift(notification);
+      memoryDb.updateCacheOnly("maintenance_notifications", cached);
+      return notification;
+    } catch (err: any) {
+      if (this.isMySqlUnavailableError(err)) {
+        const notifications = [...(memoryDb.getTable<DBMaintenanceNotification[]>("maintenance_notifications") || [])];
+        const existingIndex = notifications.findIndex((n) => n.schedule_ref === notification.schedule_ref);
+        if (existingIndex >= 0) return notifications[existingIndex];
+        notifications.unshift(notification);
+        memoryDb.updateCacheOnly("maintenance_notifications", notifications);
+        return notification;
+      }
+      throw err;
     }
-    notifications.unshift(notification);
-    await this.saveMaintenanceNotifications(notifications);
-    return notification;
   }
 
   public async markMaintenanceNotificationRead(id: string, readBy: string): Promise<DBMaintenanceNotification | null> {
     const nowIso = new Date().toISOString();
-    // 1. Try MySQL Update
     try {
       await mysqlQuery(
         "UPDATE maintenance_notifications SET status = 'READ', read_by = ?, read_at = ? WHERE id = ?",
         [readBy, nowIso, id]
       );
-    } catch {}
-
-    const notifications = await this.getMaintenanceNotifications();
-    const target = notifications.find((n) => n.id === id);
-    if (!target) return null;
-    target.status = "READ";
-    target.read_by = readBy;
-    target.read_at = nowIso;
-    await this.saveMaintenanceNotifications(notifications);
-    return target;
+      const rows: any = await mysqlQuery("SELECT * FROM maintenance_notifications WHERE id = ? LIMIT 1", [id]);
+      if (Array.isArray(rows) && rows.length > 0) {
+        const r = rows[0];
+        return {
+          id: String(r.id),
+          schedule_ref: String(r.schedule_ref),
+          scheduled_restoration_datetime: String(r.scheduled_restoration_datetime),
+          generated_at: String(r.generated_at),
+          status: r.status === "READ" ? "READ" : "NEW",
+          read_by: r.read_by || null,
+          read_at: r.read_at || null,
+          created_at: String(r.created_at),
+          maintenance_status_at_trigger: r.maintenance_status_at_trigger === "INACTIVE" ? "INACTIVE" : "ACTIVE"
+        };
+      }
+      return null;
+    } catch (err: any) {
+      if (this.isMySqlUnavailableError(err)) {
+        const notifications = memoryDb.getTable<DBMaintenanceNotification[]>("maintenance_notifications") || [];
+        const target = notifications.find((n) => n.id === id);
+        if (!target) return null;
+        target.status = "READ";
+        target.read_by = readBy;
+        target.read_at = nowIso;
+        memoryDb.updateCacheOnly("maintenance_notifications", notifications);
+        return target;
+      }
+      throw err;
+    }
   }
 
   public async getSecurityConfig(): Promise<DBSecurityConfig> {
@@ -2928,17 +3287,17 @@ class ChennaiGuardianDatabase {
 
   // ── MFA & TRUSTED DEVICES SYSTEM ──
   public async getUserMfa(username: string): Promise<DBUserMfa | null> {
-    const list: DBUserMfa[] = jsonDb.getTable("user_mfa") || [];
-    return list.find((m) => m.username.toLowerCase() === username.toLowerCase() && m.enabled === 1) || null;
+    const list = await this.mysqlReadTable<DBUserMfa>("user_mfa");
+    return list.find((m) => m.username.toLowerCase() === username.toLowerCase() && Number(m.enabled) === 1) || null;
   }
 
   public async saveUserMfa(username: string, secretEncrypted: string, enabled = 1): Promise<DBUserMfa> {
-    const list: DBUserMfa[] = jsonDb.getTable("user_mfa") || [];
+    const list = [...(await this.mysqlReadTable<DBUserMfa>("user_mfa"))];
     const idx = list.findIndex((m) => m.username.toLowerCase() === username.toLowerCase());
     const now = new Date().toISOString();
 
     const record: DBUserMfa = {
-      id: idx >= 0 ? list[idx].id : (list.length > 0 ? Math.max(...list.map((m) => m.id)) + 1 : 1),
+      id: idx >= 0 ? list[idx].id : (list.length > 0 ? Math.max(...list.map((m) => Number(m.id) || 0)) + 1 : 1),
       username,
       secret_encrypted: secretEncrypted,
       method: "TOTP",
@@ -2952,24 +3311,24 @@ class ChennaiGuardianDatabase {
     } else {
       list.push(record);
     }
-    jsonDb.setTable("user_mfa", list);
+    await this.persistTableToMySQL("user_mfa", list);
     return record;
   }
 
   public async disableUserMfa(username: string): Promise<void> {
-    const list: DBUserMfa[] = jsonDb.getTable("user_mfa") || [];
+    const list = await this.mysqlReadTable<DBUserMfa>("user_mfa");
     const updated = list.map((m) => (m.username.toLowerCase() === username.toLowerCase() ? { ...m, enabled: 0 } : m));
-    jsonDb.setTable("user_mfa", updated);
+    await this.persistTableToMySQL("user_mfa", updated);
   }
 
   public async createMfaChallenge(username: string): Promise<DBMfaChallenge> {
-    const challenges: DBMfaChallenge[] = jsonDb.getTable("mfa_challenges") || [];
+    const challenges = [...(await this.mysqlReadTable<DBMfaChallenge>("mfa_challenges"))];
     const now = new Date();
     const expiresAt = new Date(now.getTime() + 5 * 60 * 1000).toISOString(); // 5 min expiry
     const challengeId = `mfa_ch_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
 
     const newChallenge: DBMfaChallenge = {
-      id: challenges.length > 0 ? Math.max(...challenges.map((c) => c.id)) + 1 : 1,
+      id: challenges.length > 0 ? Math.max(...challenges.map((c) => Number(c.id) || 0)) + 1 : 1,
       challenge_id: challengeId,
       username,
       expires_at: expiresAt,
@@ -2979,13 +3338,15 @@ class ChennaiGuardianDatabase {
     };
 
     challenges.push(newChallenge);
-    jsonDb.setTable("mfa_challenges", challenges);
+    await this.persistTableToMySQL("mfa_challenges", challenges);
     return newChallenge;
   }
 
   public async validateMfaChallenge(challengeId: string, username: string): Promise<DBMfaChallenge | null> {
-    const challenges: DBMfaChallenge[] = jsonDb.getTable("mfa_challenges") || [];
-    const ch = challenges.find((c) => c.challenge_id === challengeId && c.username.toLowerCase() === username.toLowerCase() && c.verified === 0);
+    const challenges = await this.mysqlReadTable<DBMfaChallenge>("mfa_challenges");
+    const ch = challenges.find(
+      (c) => c.challenge_id === challengeId && c.username.toLowerCase() === username.toLowerCase() && Number(c.verified) === 0
+    );
     if (!ch) return null;
 
     if (new Date(ch.expires_at).getTime() < Date.now()) {
@@ -2995,33 +3356,34 @@ class ChennaiGuardianDatabase {
   }
 
   public async incrementMfaChallengeAttempt(challengeId: string): Promise<number> {
-    const challenges: DBMfaChallenge[] = jsonDb.getTable("mfa_challenges") || [];
+    const challenges = [...(await this.mysqlReadTable<DBMfaChallenge>("mfa_challenges"))];
     const idx = challenges.findIndex((c) => c.challenge_id === challengeId);
     if (idx >= 0) {
-      challenges[idx].attempt_count += 1;
-      jsonDb.setTable("mfa_challenges", challenges);
+      challenges[idx] = { ...challenges[idx], attempt_count: Number(challenges[idx].attempt_count || 0) + 1 };
+      await this.persistTableToMySQL("mfa_challenges", challenges);
       return challenges[idx].attempt_count;
     }
     return 0;
   }
 
   public async markMfaChallengeVerified(challengeId: string): Promise<void> {
-    const challenges: DBMfaChallenge[] = jsonDb.getTable("mfa_challenges") || [];
+    const challenges = [...(await this.mysqlReadTable<DBMfaChallenge>("mfa_challenges"))];
     const idx = challenges.findIndex((c) => c.challenge_id === challengeId);
     if (idx >= 0) {
-      challenges[idx].verified = 1;
-      jsonDb.setTable("mfa_challenges", challenges);
+      challenges[idx] = { ...challenges[idx], verified: 1 };
+      await this.persistTableToMySQL("mfa_challenges", challenges);
     }
   }
 
   public async saveRecoveryCodes(username: string, hashedCodes: string[]): Promise<void> {
-    const list: DBMfaRecoveryCode[] = jsonDb.getTable("mfa_recovery_codes") || [];
+    const list = await this.mysqlReadTable<DBMfaRecoveryCode>("mfa_recovery_codes");
     const filtered = list.filter((r) => r.username.toLowerCase() !== username.toLowerCase());
     const now = new Date().toISOString();
+    let nextId = filtered.length > 0 ? Math.max(...filtered.map((r) => Number(r.id) || 0)) + 1 : 1;
 
-    hashedCodes.forEach((hash, idx) => {
+    hashedCodes.forEach((hash) => {
       filtered.push({
-        id: filtered.length > 0 ? Math.max(...filtered.map((r) => r.id)) + 1 : idx + 1,
+        id: nextId++,
         username,
         code_hash: hash,
         used_at: null,
@@ -3029,7 +3391,7 @@ class ChennaiGuardianDatabase {
       });
     });
 
-    jsonDb.setTable("mfa_recovery_codes", filtered);
+    await this.persistTableToMySQL("mfa_recovery_codes", filtered);
   }
 
   public async verifyAndConsumeRecoveryCode(username: string, plainCode: string): Promise<boolean> {
@@ -3037,24 +3399,24 @@ class ChennaiGuardianDatabase {
     const cleanCode = plainCode.replace(/[^A-Z0-9]/gi, "").toUpperCase();
     const hash = crypto.createHash("sha256").update(cleanCode).digest("hex");
 
-    const list: DBMfaRecoveryCode[] = jsonDb.getTable("mfa_recovery_codes") || [];
+    const list = [...(await this.mysqlReadTable<DBMfaRecoveryCode>("mfa_recovery_codes"))];
     const idx = list.findIndex((r) => r.username.toLowerCase() === username.toLowerCase() && r.code_hash === hash && !r.used_at);
 
     if (idx >= 0) {
-      list[idx].used_at = new Date().toISOString();
-      jsonDb.setTable("mfa_recovery_codes", list);
+      list[idx] = { ...list[idx], used_at: new Date().toISOString() };
+      await this.persistTableToMySQL("mfa_recovery_codes", list);
       return true;
     }
     return false;
   }
 
   public async createTrustedDevice(username: string, tokenHash: string, deviceName: string, userAgentSummary: string): Promise<DBTrustedDevice> {
-    const devices: DBTrustedDevice[] = jsonDb.getTable("trusted_devices") || [];
+    const devices = [...(await this.mysqlReadTable<DBTrustedDevice>("trusted_devices"))];
     const now = new Date();
     const expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString(); // 30 days
 
     const record: DBTrustedDevice = {
-      id: devices.length > 0 ? Math.max(...devices.map((d) => d.id)) + 1 : 1,
+      id: devices.length > 0 ? Math.max(...devices.map((d) => Number(d.id) || 0)) + 1 : 1,
       username,
       token_hash: tokenHash,
       device_name: deviceName,
@@ -3066,57 +3428,65 @@ class ChennaiGuardianDatabase {
     };
 
     devices.push(record);
-    jsonDb.setTable("trusted_devices", devices);
+    await this.persistTableToMySQL("trusted_devices", devices);
     return record;
   }
 
   public async validateTrustedDevice(username: string, tokenHash: string): Promise<boolean> {
-    const devices: DBTrustedDevice[] = jsonDb.getTable("trusted_devices") || [];
-    const dev = devices.find((d) => d.username.toLowerCase() === username.toLowerCase() && d.token_hash === tokenHash && !d.revoked_at);
-    if (!dev) return false;
+    const devices = [...(await this.mysqlReadTable<DBTrustedDevice>("trusted_devices"))];
+    const idx = devices.findIndex((d) => d.username.toLowerCase() === username.toLowerCase() && d.token_hash === tokenHash && !d.revoked_at);
+    if (idx < 0) return false;
 
-    if (new Date(dev.expires_at).getTime() < Date.now()) return false;
-    dev.last_used_at = new Date().toISOString();
-    jsonDb.setTable("trusted_devices", devices);
+    if (new Date(devices[idx].expires_at).getTime() < Date.now()) return false;
+    devices[idx] = { ...devices[idx], last_used_at: new Date().toISOString() };
+    await this.persistTableToMySQL("trusted_devices", devices);
     return true;
   }
 
   public async getUserTrustedDevices(username: string): Promise<DBTrustedDevice[]> {
-    const devices: DBTrustedDevice[] = jsonDb.getTable("trusted_devices") || [];
+    const devices = await this.mysqlReadTable<DBTrustedDevice>("trusted_devices");
     return devices.filter((d) => d.username.toLowerCase() === username.toLowerCase() && !d.revoked_at);
   }
 
   public async revokeTrustedDevice(id: number, username: string): Promise<void> {
-    const devices: DBTrustedDevice[] = jsonDb.getTable("trusted_devices") || [];
-    const updated = devices.map((d) => (d.id === id && d.username.toLowerCase() === username.toLowerCase() ? { ...d, revoked_at: new Date().toISOString() } : d));
-    jsonDb.setTable("trusted_devices", updated);
+    const devices = await this.mysqlReadTable<DBTrustedDevice>("trusted_devices");
+    const updated = devices.map((d) =>
+      Number(d.id) === Number(id) && d.username.toLowerCase() === username.toLowerCase()
+        ? { ...d, revoked_at: new Date().toISOString() }
+        : d
+    );
+    await this.persistTableToMySQL("trusted_devices", updated);
   }
 
   public async revokeAllTrustedDevices(username: string): Promise<void> {
-    const devices: DBTrustedDevice[] = jsonDb.getTable("trusted_devices") || [];
-    const updated = devices.map((d) => (d.username.toLowerCase() === username.toLowerCase() ? { ...d, revoked_at: new Date().toISOString() } : d));
-    jsonDb.setTable("trusted_devices", updated);
+    const devices = await this.mysqlReadTable<DBTrustedDevice>("trusted_devices");
+    const updated = devices.map((d) =>
+      d.username.toLowerCase() === username.toLowerCase()
+        ? { ...d, revoked_at: new Date().toISOString() }
+        : d
+    );
+    await this.persistTableToMySQL("trusted_devices", updated);
   }
 
   // ── Media Files Security Registry ──
   public async getMediaFiles(): Promise<DBMediaFileRecord[]> {
-    const files: DBMediaFileRecord[] = jsonDb.getTable("media_files") || [];
+    const files = await this.mysqlReadTable<DBMediaFileRecord>("media_files", "`id` DESC");
     return files.filter((f) => f.status !== "DELETED");
   }
 
   public async saveMediaFileRecord(recordData: Omit<DBMediaFileRecord, "id">): Promise<DBMediaFileRecord> {
-    const files: DBMediaFileRecord[] = jsonDb.getTable("media_files") || [];
-    const id = files.length > 0 ? Math.max(...files.map((f) => f.id || 0)) + 1 : 1;
+    const files = [...(await this.mysqlReadTable<DBMediaFileRecord>("media_files", "`id` DESC"))];
+    const id = files.length > 0 ? Math.max(...files.map((f) => Number(f.id) || 0)) + 1 : 1;
     const newRecord: DBMediaFileRecord = { id, ...recordData };
     files.unshift(newRecord);
-    jsonDb.setTable("media_files", files);
+    await this.persistTableToMySQL("media_files", files);
     return newRecord;
   }
 
   public async updateMediaFileStatus(id: number, status: "QUARANTINED" | "APPROVED" | "REJECTED" | "DELETED"): Promise<void> {
-    const files: DBMediaFileRecord[] = jsonDb.getTable("media_files") || [];
-    const updated = files.map((f) => (f.id === id ? { ...f, status } : f));
-    jsonDb.setTable("media_files", updated);
+    const files = await this.mysqlReadTable<DBMediaFileRecord>("media_files", "`id` DESC");
+    const updated = files.map((f) => (Number(f.id) === Number(id) ? { ...f, status } : f));
+    await this.persistTableToMySQL("media_files", updated);
   }
 
   public async deleteMediaFile(id: number): Promise<void> {
@@ -3125,24 +3495,24 @@ class ChennaiGuardianDatabase {
 
   // ── Disaster Recovery & Backup Registry ──
   public async getBackups(): Promise<DBBackupRecord[]> {
-    const backups: DBBackupRecord[] = jsonDb.getTable("backups") || [];
+    const backups = await this.mysqlReadTable<DBBackupRecord>("backups", "`created_at` DESC");
     return backups.filter((b) => b.status !== "DELETED");
   }
 
   public async getBackupById(id: string): Promise<DBBackupRecord | null> {
-    const backups: DBBackupRecord[] = jsonDb.getTable("backups") || [];
-    return backups.find((b) => b.id === id) || null;
+    const backups = await this.mysqlReadTable<DBBackupRecord>("backups", "`created_at` DESC");
+    return backups.find((b) => String(b.id) === String(id)) || null;
   }
 
   public async saveBackupRecord(record: DBBackupRecord): Promise<DBBackupRecord> {
-    const backups: DBBackupRecord[] = jsonDb.getTable("backups") || [];
-    const existingIndex = backups.findIndex((b) => b.id === record.id);
+    const backups = [...(await this.mysqlReadTable<DBBackupRecord>("backups", "`created_at` DESC"))];
+    const existingIndex = backups.findIndex((b) => String(b.id) === String(record.id));
     if (existingIndex >= 0) {
       backups[existingIndex] = record;
     } else {
       backups.unshift(record);
     }
-    jsonDb.setTable("backups", backups);
+    await this.persistTableToMySQL("backups", backups);
     return record;
   }
 
@@ -3151,9 +3521,9 @@ class ChennaiGuardianDatabase {
     status: DBBackupRecord["status"],
     verification_status?: DBBackupRecord["verification_status"]
   ): Promise<void> {
-    const backups: DBBackupRecord[] = jsonDb.getTable("backups") || [];
+    const backups = await this.mysqlReadTable<DBBackupRecord>("backups", "`created_at` DESC");
     const updated = backups.map((b) => {
-      if (b.id === id) {
+      if (String(b.id) === String(id)) {
         return {
           ...b,
           status,
@@ -3162,7 +3532,7 @@ class ChennaiGuardianDatabase {
       }
       return b;
     });
-    jsonDb.setTable("backups", updated);
+    await this.persistTableToMySQL("backups", updated);
   }
 
   public async deleteBackupRecord(id: string): Promise<void> {
@@ -3171,21 +3541,24 @@ class ChennaiGuardianDatabase {
 
   // ── Security Assessment & Audit Registry ──
   public async getSecurityAssessments(): Promise<DBSecurityAssessmentRecord[]> {
-    const assessments: DBSecurityAssessmentRecord[] = jsonDb.getTable("security_assessments") || [];
-    return assessments;
+    const assessments = await this.mysqlReadTable<DBSecurityAssessmentRecord>("security_assessments", "`assessment_date` DESC");
+    return assessments.map((a) => ({
+      ...a,
+      findings: Array.isArray(a.findings) ? a.findings : [],
+    }));
   }
 
   public async saveSecurityAssessment(record: DBSecurityAssessmentRecord): Promise<DBSecurityAssessmentRecord> {
-    const assessments: DBSecurityAssessmentRecord[] = jsonDb.getTable("security_assessments") || [];
+    const assessments = [...(await this.getSecurityAssessments())];
     assessments.unshift(record);
-    jsonDb.setTable("security_assessments", assessments);
+    await this.persistTableToMySQL("security_assessments", assessments);
     return record;
   }
 
   public async updateFindingStatus(findingId: string, status: DBSecurityFinding["status"]): Promise<void> {
-    const assessments: DBSecurityAssessmentRecord[] = jsonDb.getTable("security_assessments") || [];
+    const assessments = await this.getSecurityAssessments();
     const updated = assessments.map((a) => {
-      const findingExists = a.findings.some((f) => f.id === findingId);
+      const findingExists = Array.isArray(a.findings) && a.findings.some((f) => f.id === findingId);
       if (findingExists) {
         return {
           ...a,
@@ -3194,43 +3567,40 @@ class ChennaiGuardianDatabase {
       }
       return a;
     });
-    jsonDb.setTable("security_assessments", updated);
+    await this.persistTableToMySQL("security_assessments", updated);
   }
 
   // ================= VISITOR ANALYTICS =================
   public async getVisitorStats(): Promise<{ totalVisitors: number; todayVisitors: number }> {
     let totalVisitors = 0;
     let todayVisitors = 0;
-    const todayStr = new Date().toISOString().slice(0, 10);
+    const nowIso = new Date().toISOString();
+    const todayStr = nowIso.slice(0, 10);
 
-    // Try MySQL first
     try {
       const statsRes: any = await mysqlQuery("SELECT total_page_views FROM portal_visitor_stats WHERE id = 1 LIMIT 1");
       if (Array.isArray(statsRes) && statsRes.length > 0) {
         totalVisitors = Number(statsRes[0].total_page_views || 0);
+        memoryDb.updateCacheOnly("portal_visitor_stats", [
+          { id: 1, total_page_views: totalVisitors, created_at: nowIso, updated_at: nowIso },
+        ]);
       }
       const dailyRes: any = await mysqlQuery("SELECT page_views FROM portal_daily_visits WHERE visit_date = CURDATE() LIMIT 1");
       if (Array.isArray(dailyRes) && dailyRes.length > 0) {
         todayVisitors = Number(dailyRes[0].page_views || 0);
+        memoryDb.updateCacheOnly("portal_daily_visits", [
+          { id: 1, visit_date: todayStr, page_views: todayVisitors, created_at: nowIso, updated_at: nowIso },
+        ]);
       }
     } catch {
-      // Fallback to JSON Database
-      const stats: DBVisitorStats[] = jsonDb.getTable("portal_visitor_stats") || [];
+      const stats: DBVisitorStats[] = memoryDb.getTable("portal_visitor_stats") || [];
       if (stats.length > 0) {
         totalVisitors = Number(stats[0].total_page_views || 0);
       }
-      const daily: DBDailyVisits[] = jsonDb.getTable("portal_daily_visits") || [];
+      const daily: DBDailyVisits[] = memoryDb.getTable("portal_daily_visits") || [];
       const todayEntry = daily.find((d) => d.visit_date === todayStr);
       if (todayEntry) {
         todayVisitors = Number(todayEntry.page_views || 0);
-      }
-    }
-
-    // Ensure fallback to JSON DB if MySQL was empty but JSON DB had a value
-    if (totalVisitors === 0) {
-      const stats: DBVisitorStats[] = jsonDb.getTable("portal_visitor_stats") || [];
-      if (stats.length > 0) {
-        totalVisitors = Number(stats[0].total_page_views || 0);
       }
     }
 
@@ -3283,43 +3653,38 @@ class ChennaiGuardianDatabase {
       if (Array.isArray(dailyRes) && dailyRes.length > 0) {
         todayVisitors = Number(dailyRes[0].page_views || 0);
       }
+
+      memoryDb.updateCacheOnly("portal_visitor_stats", [
+        { id: 1, total_page_views: totalVisitors, created_at: nowIso, updated_at: nowIso },
+      ]);
+      memoryDb.updateCacheOnly("portal_daily_visits", [
+        { id: 1, visit_date: todayStr, page_views: todayVisitors, created_at: nowIso, updated_at: nowIso },
+      ]);
     } catch (mysqlErr) {
-      console.warn("MySQL visitor counter increment fallback to JSON DB:", mysqlErr);
-    }
-
-    // 2. JSON Database sync & standalone fallback
-    try {
-      let stats: DBVisitorStats[] = jsonDb.getTable("portal_visitor_stats") || [];
+      if (!this.isMySqlUnavailableError(mysqlErr)) {
+        console.warn("MySQL visitor counter increment warning:", mysqlErr);
+      }
+      const stats: DBVisitorStats[] = [...(memoryDb.getTable<DBVisitorStats[]>("portal_visitor_stats") || [])];
       if (stats.length === 0) {
-        stats = [{ id: 1, total_page_views: totalVisitors > 0 ? totalVisitors : 1, created_at: nowIso, updated_at: nowIso }];
+        totalVisitors = 1;
+        stats.push({ id: 1, total_page_views: 1, created_at: nowIso, updated_at: nowIso });
       } else {
-        const nextCount = totalVisitors > 0 ? totalVisitors : (stats[0].total_page_views || 0) + 1;
-        stats[0].total_page_views = nextCount;
-        stats[0].updated_at = nowIso;
+        totalVisitors = Number(stats[0].total_page_views || 0) + 1;
+        stats[0] = { ...stats[0], total_page_views: totalVisitors, updated_at: nowIso };
       }
-      if (totalVisitors === 0) {
-        totalVisitors = stats[0].total_page_views;
-      }
-      jsonDb.setTable("portal_visitor_stats", stats);
+      memoryDb.updateCacheOnly("portal_visitor_stats", stats);
 
-      let daily: DBDailyVisits[] = jsonDb.getTable("portal_daily_visits") || [];
-      const existingToday = daily.find((d) => d.visit_date === todayStr);
-      if (existingToday) {
-        const nextDaily = todayVisitors > 0 ? todayVisitors : (existingToday.page_views || 0) + 1;
-        existingToday.page_views = nextDaily;
-        existingToday.updated_at = nowIso;
+      const daily: DBDailyVisits[] = [...(memoryDb.getTable<DBDailyVisits[]>("portal_daily_visits") || [])];
+      const existingTodayIdx = daily.findIndex((d) => d.visit_date === todayStr);
+      if (existingTodayIdx >= 0) {
+        todayVisitors = Number(daily[existingTodayIdx].page_views || 0) + 1;
+        daily[existingTodayIdx] = { ...daily[existingTodayIdx], page_views: todayVisitors, updated_at: nowIso };
       } else {
-        const nextDaily = todayVisitors > 0 ? todayVisitors : 1;
-        const newId = daily.length > 0 ? Math.max(...daily.map((d) => d.id || 0)) + 1 : 1;
-        daily.push({ id: newId, visit_date: todayStr, page_views: nextDaily, created_at: nowIso, updated_at: nowIso });
+        todayVisitors = 1;
+        const newId = daily.length > 0 ? Math.max(...daily.map((d) => Number(d.id) || 0)) + 1 : 1;
+        daily.push({ id: newId, visit_date: todayStr, page_views: 1, created_at: nowIso, updated_at: nowIso });
       }
-      if (todayVisitors === 0) {
-        const found = daily.find((d) => d.visit_date === todayStr);
-        todayVisitors = found ? found.page_views : 1;
-      }
-      jsonDb.setTable("portal_daily_visits", daily);
-    } catch (jsonErr) {
-      console.error("JSON DB visitor counter error:", jsonErr);
+      memoryDb.updateCacheOnly("portal_daily_visits", daily);
     }
 
     return { totalVisitors, todayVisitors };
@@ -3328,11 +3693,11 @@ class ChennaiGuardianDatabase {
   // ── FAQ Management Operations ──
   async getFaqs(status?: string): Promise<DBFaq[]> {
     try {
-      let faqs: DBFaq[] = jsonDb.getTable("faqs") || [];
+      let faqs = await this.mysqlReadTable<DBFaq>("faqs", "`display_order` ASC, `id` ASC");
       if (status) {
         faqs = faqs.filter((f) => f.status === status);
       }
-      return faqs.sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+      return faqs.sort((a, b) => (Number(a.display_order) || 0) - (Number(b.display_order) || 0));
     } catch (err) {
       console.error("Error fetching FAQs:", err);
       return [];
@@ -3341,8 +3706,8 @@ class ChennaiGuardianDatabase {
 
   async getFaqById(id: number): Promise<DBFaq | null> {
     try {
-      const faqs: DBFaq[] = jsonDb.getTable("faqs") || [];
-      return faqs.find((f) => f.id === id) || null;
+      const faqs = await this.mysqlReadTable<DBFaq>("faqs", "`display_order` ASC, `id` ASC");
+      return faqs.find((f) => Number(f.id) === Number(id)) || null;
     } catch (err) {
       console.error("Error fetching FAQ by ID:", err);
       return null;
@@ -3350,9 +3715,9 @@ class ChennaiGuardianDatabase {
   }
 
   async createFaq(data: Partial<DBFaq>): Promise<DBFaq> {
-    const faqs: DBFaq[] = jsonDb.getTable("faqs") || [];
-    const maxId = faqs.length > 0 ? Math.max(...faqs.map((f) => f.id || 0)) : 0;
-    const maxOrder = faqs.length > 0 ? Math.max(...faqs.map((f) => f.display_order || 0)) : 0;
+    const faqs = [...(await this.mysqlReadTable<DBFaq>("faqs", "`display_order` ASC, `id` ASC"))];
+    const maxId = faqs.length > 0 ? Math.max(...faqs.map((f) => Number(f.id) || 0)) : 0;
+    const maxOrder = faqs.length > 0 ? Math.max(...faqs.map((f) => Number(f.display_order) || 0)) : 0;
     const now = new Date().toISOString();
 
     const newFaq: DBFaq = {
@@ -3369,13 +3734,13 @@ class ChennaiGuardianDatabase {
     };
 
     faqs.push(newFaq);
-    jsonDb.setTable("faqs", faqs);
+    await this.persistTableToMySQL("faqs", faqs);
     return newFaq;
   }
 
   async updateFaq(id: number, data: Partial<DBFaq>): Promise<DBFaq | null> {
-    const faqs: DBFaq[] = jsonDb.getTable("faqs") || [];
-    const index = faqs.findIndex((f) => f.id === id);
+    const faqs = [...(await this.mysqlReadTable<DBFaq>("faqs", "`display_order` ASC, `id` ASC"))];
+    const index = faqs.findIndex((f) => Number(f.id) === Number(id));
     if (index === -1) return null;
 
     const existing = faqs[index];
@@ -3387,30 +3752,35 @@ class ChennaiGuardianDatabase {
     };
 
     faqs[index] = updated;
-    jsonDb.setTable("faqs", faqs);
+    await this.persistTableToMySQL("faqs", faqs);
     return updated;
   }
 
   async deleteFaq(id: number): Promise<boolean> {
-    const faqs: DBFaq[] = jsonDb.getTable("faqs") || [];
-    const filtered = faqs.filter((f) => f.id !== id);
+    const faqs = await this.mysqlReadTable<DBFaq>("faqs", "`display_order` ASC, `id` ASC");
+    const filtered = faqs.filter((f) => Number(f.id) !== Number(id));
     if (filtered.length === faqs.length) return false;
-    jsonDb.setTable("faqs", filtered);
+    await this.persistTableToMySQL("faqs", filtered);
     return true;
   }
 
   async reorderFaqs(items: { id: number; display_order: number }[]): Promise<boolean> {
-    const faqs: DBFaq[] = jsonDb.getTable("faqs") || [];
-    const orderMap = new Map<number, number>(items.map((item) => [item.id, item.display_order]));
+    const faqs = [...(await this.mysqlReadTable<DBFaq>("faqs", "`display_order` ASC, `id` ASC"))];
+    const orderMap = new Map<number, number>(items.map((item) => [Number(item.id), item.display_order]));
+    const now = new Date().toISOString();
 
-    faqs.forEach((faq) => {
-      if (orderMap.has(faq.id)) {
-        faq.display_order = orderMap.get(faq.id)!;
-        faq.updated_at = new Date().toISOString();
+    const updated = faqs.map((faq) => {
+      if (orderMap.has(Number(faq.id))) {
+        return {
+          ...faq,
+          display_order: orderMap.get(Number(faq.id))!,
+          updated_at: now,
+        };
       }
+      return faq;
     });
 
-    jsonDb.setTable("faqs", faqs);
+    await this.persistTableToMySQL("faqs", updated);
     return true;
   }
 }
@@ -3465,9 +3835,15 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<string, Record<string, string[]>> 
 let dbInstance: ChennaiGuardianDatabase;
 if (globalWithDb._chennaiGuardianDb) {
   // Turbopack / Next.js Dev Server Hot-Reload Support:
-  // Re-link prototype so newly added methods immediately exist on the cached singleton!
+  // Re-link prototype so newly added methods and state maps immediately exist on the cached singleton!
   Object.setPrototypeOf(globalWithDb._chennaiGuardianDb, ChennaiGuardianDatabase.prototype);
   dbInstance = globalWithDb._chennaiGuardianDb;
+  if (!(dbInstance as any).readyTables) {
+    (dbInstance as any).readyTables = new Set<string>();
+  }
+  if (!(dbInstance as any).tableColumns) {
+    (dbInstance as any).tableColumns = new Map<string, Set<string>>();
+  }
 } else {
   dbInstance = new ChennaiGuardianDatabase();
   globalWithDb._chennaiGuardianDb = dbInstance;

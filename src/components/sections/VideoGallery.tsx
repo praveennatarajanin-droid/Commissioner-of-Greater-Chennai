@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { Play, Tv, ChevronRight } from "lucide-react";
 
 const FacebookIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -97,16 +98,16 @@ export default function VideoGallery({ customVideos }: VideoGalleryProps) {
 
   const videosList: VideoData[] = customVideos
     ? activeCustomVideos
-        .filter(v => v.section === "main")
-        .sort((a, b) => a.order_num - b.order_num)
-        .map(v => ({ id: v.youtube_id, title: v.title, category: v.category, date: v.date }))
+      .filter(v => v.section === "main")
+      .sort((a, b) => a.order_num - b.order_num)
+      .map(v => ({ id: v.youtube_id, title: v.title, category: v.category, date: v.date }))
     : defaultVideosList;
 
   const bottomClips: VideoData[] = customVideos
     ? activeCustomVideos
-        .filter(v => v.section === "bottom")
-        .sort((a, b) => a.order_num - b.order_num)
-        .map(v => ({ id: v.youtube_id, title: v.title, category: v.category, date: v.date }))
+      .filter(v => v.section === "bottom")
+      .sort((a, b) => a.order_num - b.order_num)
+      .map(v => ({ id: v.youtube_id, title: v.title, category: v.category, date: v.date }))
     : defaultBottomClips;
 
   const [activeVideo, setActiveVideo] = useState<VideoData | null>(null);
@@ -125,7 +126,7 @@ export default function VideoGallery({ customVideos }: VideoGalleryProps) {
 
   useEffect(() => {
     if (activeVideo && isPlaying) {
-      fetch(`/api/videos/${activeVideo.id}/view`, { method: "POST" }).catch(() => {});
+      fetch(`/api/videos/${activeVideo.id}/view`, { method: "POST" }).catch(() => { });
     }
   }, [activeVideo, isPlaying]);
 
@@ -138,7 +139,7 @@ export default function VideoGallery({ customVideos }: VideoGalleryProps) {
   return (
     <section className="w-full bg-white dark:bg-stone-950 py-12 px-6 border-b border-stone-200 dark:border-stone-855">
       <div className="max-w-[1700px] mx-auto space-y-8">
-        
+
         {/* Section Title */}
         <div className="border-b-2 border-brand-maroon dark:border-brand-gold pb-2 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -147,15 +148,15 @@ export default function VideoGallery({ customVideos }: VideoGalleryProps) {
               Video & Media Center
             </h3>
           </div>
-          <a href="#" className="text-xs font-bold text-brand-maroon dark:text-brand-gold hover:text-brand-maroon-dark dark:hover:text-brand-gold-light uppercase tracking-wider flex items-center">
+          <Link href="/videos" className="text-xs font-bold text-brand-maroon dark:text-brand-gold hover:text-brand-maroon-dark dark:hover:text-brand-gold-light uppercase tracking-wider flex items-center">
             View All Videos <ChevronRight className="w-4 h-4" />
-          </a>
+          </Link>
         </div>
 
         {/* Top Grid: Player + Clips + Social Links */}
         {videosList.length > 0 ? (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            
+
             {/* 1. Large Main Video Player (7 cols) */}
             <div className="lg:col-span-7 flex flex-col bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-850 shadow-sm overflow-hidden">
               <div className="relative w-full aspect-video bg-black">
@@ -169,7 +170,7 @@ export default function VideoGallery({ customVideos }: VideoGalleryProps) {
                     allowFullScreen
                   ></iframe>
                 ) : activeVideo ? (
-                  <div 
+                  <div
                     className="absolute inset-0 cursor-pointer group"
                     onClick={() => setIsPlaying(true)}
                   >
@@ -179,7 +180,7 @@ export default function VideoGallery({ customVideos }: VideoGalleryProps) {
                       fill
                       unoptimized={!activeVideo.coverImage}
                       className="object-cover object-center group-hover:scale-[1.01] transition-transform duration-300"
-                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
                     {/* Glass Play Overlay */}
                     <div className="absolute inset-0 bg-black/10 group-hover:bg-black/25 transition-colors duration-300 flex items-center justify-center">
                       <div className="w-16 h-16 rounded-full bg-brand-maroon/90 border border-brand-gold/30 flex items-center justify-center text-white shadow-xl group-hover:scale-105 transition-transform duration-300">
@@ -207,20 +208,19 @@ export default function VideoGallery({ customVideos }: VideoGalleryProps) {
 
             {/* 2. Side Clips & Social Banners (5 cols) */}
             <div className="lg:col-span-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-6">
-              
+
               {/* Small Clips List */}
               <div className="space-y-4">
                 <h4 className="text-[10px] uppercase font-black text-stone-400 dark:text-slate-500 tracking-wider">Related Clips</h4>
-                
+
                 <div className="space-y-3">
                   {videosList.map((item, idx) => (
-                    <div 
-                      key={`${item.id}-${idx}`} 
-                      className={`flex gap-3 items-center p-2 rounded-xl hover:bg-stone-50/70 dark:hover:bg-stone-855/50 cursor-pointer border transition ${
-                        activeVideo?.id === item.id 
-                          ? "bg-brand-maroon/5 border-brand-maroon/20 dark:bg-brand-gold/5 dark:border-brand-gold/25" 
+                    <div
+                      key={`${item.id}-${idx}`}
+                      className={`flex gap-3 items-center p-2 rounded-xl hover:bg-stone-50/70 dark:hover:bg-stone-855/50 cursor-pointer border transition ${activeVideo?.id === item.id
+                          ? "bg-brand-maroon/5 border-brand-maroon/20 dark:bg-brand-gold/5 dark:border-brand-gold/25"
                           : "bg-white border-stone-100 dark:bg-stone-900 dark:border-stone-800"
-                      }`}
+                        }`}
                       onClick={() => handleSelectVideo(item)}
                     >
                       <div className="w-20 h-14 shrink-0 rounded-lg overflow-hidden relative bg-black">
@@ -230,7 +230,7 @@ export default function VideoGallery({ customVideos }: VideoGalleryProps) {
                           fill
                           unoptimized={!item.coverImage}
                           className="object-cover object-center"
-                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
                         <div className="absolute inset-0 flex items-center justify-center bg-black/25">
                           <Play className="w-3.5 h-3.5 text-white fill-white" />
                         </div>
@@ -269,7 +269,7 @@ export default function VideoGallery({ customVideos }: VideoGalleryProps) {
           </div>
         ) : (
           <div className="text-center py-16 bg-stone-50 dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-850 text-stone-500 text-xs font-bold uppercase tracking-wider">
-             No videos featured currently. Check back later!
+            No videos featured currently. Check back later!
           </div>
         )}
 
@@ -289,7 +289,7 @@ export default function VideoGallery({ customVideos }: VideoGalleryProps) {
                     fill
                     unoptimized
                     className="object-cover object-center group-hover:scale-[1.03] transition-transform duration-300"
-                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
                   <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/35 transition-colors duration-300">
                     <div className="w-9 h-9 rounded-full bg-brand-maroon/90 border border-brand-gold/30 flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-300">
                       <Play className="w-3.5 h-3.5 fill-white ml-0.5" />

@@ -7,6 +7,8 @@ import type { Metadata } from "next";
 export const revalidate = 0; // force dynamic fetching
 
 const ALIAS_MAP: Record<string, string> = {
+  "crime-news": "crime",
+  "community-outreach": "outreach",
   "public-warnings-alerts": "public-warnings",
   "public-warnings-and-alerts": "public-warnings",
   "warnings-alerts": "public-warnings",

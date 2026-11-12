@@ -90,13 +90,13 @@ export default function GcpBrandingStats() {
                 >
                   <Download className="w-3.5 h-3.5" /> Logo (PNG)
                 </a>
-                <a
-                  href="#"
-                  onClick={(e) => { e.preventDefault(); alert("Vector PDF/SVG package download initiated."); }}
+                <button
+                  type="button"
+                  onClick={() => alert("Vector PDF/SVG package download initiated.")}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded border border-brand-blue text-brand-blue dark:text-brand-gold dark:border-brand-gold text-[10px] font-black uppercase tracking-wider hover:bg-brand-blue/5 dark:hover:bg-brand-gold/5 transition cursor-pointer"
                 >
                   <Download className="w-3.5 h-3.5" /> Vector PDF
-                </a>
+                </button>
               </div>
             </div>
           </div>

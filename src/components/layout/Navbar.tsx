@@ -140,12 +140,12 @@ export default function Navbar({ customMenuItems, initialMenus, stickyOffset }: 
       const cat = (n.category_en || "").toLowerCase();
       const title = (n.title_en || "").toLowerCase();
 
-      const exactMatch = (normalizedId === "crime" && (cat === "crime" || cat === "crime prevention" || cat === "wanted criminals" || cat === "missing persons")) ||
+      const exactMatch = ((normalizedId === "crime" || normalizedId === "crime-news") && (cat === "crime" || cat === "crime news" || cat === "crime prevention" || cat === "wanted criminals" || cat === "missing persons")) ||
         (normalizedId === "cyber-safety" && (cat === "cyber safety" || cat === "cyber awareness" || cat === "online fraud")) ||
         (normalizedId === "women-safety" && (cat === "women safety" || cat === "women's safety" || cat === "pink patrol" || cat === "pink patrol (women safety)" || cat === "aval support wing" || cat === "aval support" || cat === "women helpline")) ||
         (normalizedId === "public-safety" && (cat === "public safety" || cat === "clean campus" || cat === "security audit")) ||
         (normalizedId === "traffic" && (cat === "traffic" || cat === "traffic news" || cat === "traffic advisory" || cat === "traffic updates")) ||
-        (normalizedId === "outreach" && (cat === "outreach" || cat === "community outreach" || cat === "social awareness" || cat === "legal outreach" || cat === "community support")) ||
+        ((normalizedId === "outreach" || normalizedId === "community-outreach") && (cat === "outreach" || cat === "community outreach" || cat === "social awareness" || cat === "legal outreach" || cat === "community support")) ||
         (normalizedId === "emergency-alerts" && (cat === "emergency alerts" || cat === "emergency-alerts" || cat === "police official news" || cat === "public warnings & alerts" || cat === "public warnings" || cat === "public announcements")) ||
         (normalizedId === "police-official-news" && (cat === "police official news" || cat === "police-official-news" || cat === "official news")) ||
         (normalizedId === "public-warnings" && (cat === "public warnings & alerts" || cat === "public warnings" || cat === "public-warnings" || cat === "warnings & alerts")) ||
@@ -158,7 +158,7 @@ export default function Navbar({ customMenuItems, initialMenus, stickyOffset }: 
           normalizedId === "women-safety" ? ["women", "harassment", "singappen", "gender", "ssf", "girls", "harass"] :
             normalizedId === "public-safety" ? ["safety", "patrol", "beach", "audit", "cctv", "third eye", "surveillance", "clean campus"] :
               normalizedId === "traffic" ? ["traffic", "diversion", "road closure", "signal", "congestion", "transport", "accident alert", "traffic police"] :
-                normalizedId === "outreach" ? ["community", "outreach", "karangal", "rescue", "welfare", "pledge", "labour", "students", "legal", "social awareness", "community support"] :
+                (normalizedId === "outreach" || normalizedId === "community-outreach") ? ["community", "outreach", "karangal", "rescue", "welfare", "pledge", "labour", "students", "legal", "social awareness", "community support"] :
                   normalizedId === "emergency-alerts" ? ["emergency", "alert", "warning", "announcement", "police news"] :
                     normalizedId === "police-official-news" ? ["police official news", "official news", "press release"] :
                       normalizedId === "public-warnings" ? ["warning", "alert", "danger", "hazard"] :
@@ -268,29 +268,19 @@ export default function Navbar({ customMenuItems, initialMenus, stickyOffset }: 
       href: "/citizen-services",
       subMenus: [
         {
-          label: language === "ta" ? "குற்றம்" : "Crime",
+          label: language === "ta" ? "குற்றச் செய்திகள்" : "Crime News",
           href: "/category/crime",
-          subMenus: [
-            { label: language === "ta" ? "தேடப்படும் குற்றவாளிகள்" : "Wanted Criminals", href: "/category/wanted-criminals" },
-            { label: language === "ta" ? "காணாமல் போனவர்கள்" : "Missing Persons", href: "/category/missing-persons" },
-          ]
+          subMenus: []
         },
         {
           label: language === "ta" ? "சைபர் பாதுகாப்பு" : "Cyber Safety",
           href: "/category/cyber-safety",
-          subMenus: [
-            { label: language === "ta" ? "இணைய விழிப்புணர்வு" : "Cyber Awareness", href: "/category/cyber-awareness" },
-            { label: language === "ta" ? "ஆன்லைன் மோசடி" : "Online Fraud", href: "/category/online-fraud" },
-          ]
+          subMenus: []
         },
         {
           label: language === "ta" ? "பெண்கள் பாதுகாப்பு" : "Women Safety",
           href: "/category/women-safety",
-          subMenus: [
-            { label: language === "ta" ? "பிங்க் பேட்ரோல்" : "Pink Patrol", href: "/category/pink-patrol" },
-            { label: language === "ta" ? "அவள் ஆதரவு பிரிவு" : "AVAL Support Wing", href: "/category/aval-support" },
-            { label: language === "ta" ? "பெண்கள் உதவி எண்" : "Women Helpline", href: "/category/women-helpline" },
-          ]
+          subMenus: []
         },
         {
           label: language === "ta" ? "பொது பாதுகாப்பு" : "Public Safety",
@@ -298,7 +288,7 @@ export default function Navbar({ customMenuItems, initialMenus, stickyOffset }: 
           subMenus: []
         },
         {
-          label: language === "ta" ? "சமூக உதவி" : "Outreach",
+          label: language === "ta" ? "சமூக உதவி" : "Community Outreach",
           href: "/category/outreach",
           subMenus: []
         },
@@ -337,8 +327,16 @@ export default function Navbar({ customMenuItems, initialMenus, stickyOffset }: 
   const finalNavItems = dbMenus.length > 0
     ? dbMenus.filter(Boolean).map((m: any) => {
       const isTraffic = isTrafficItem(m.name_en || m.name_ta || m.label_en || m.slug || "", m.url || m.href || "");
+      const isCitizenService =
+        (m.slug || "").toLowerCase() === "citizen-services" ||
+        (m.name_en || m.label_en || "").toLowerCase().includes("citizen service") ||
+        (m.name_ta || m.label_ta || "").includes("குடிமக்கள் சேவை");
       const rawHref = m.url || m.href || "/";
-      const href = isTraffic ? "https://gctp.in/chennai-home" : rawHref;
+      const href = isTraffic
+        ? "https://gctp.in/chennai-home"
+        : isCitizenService && (!rawHref || rawHref === "#" || rawHref === "/")
+          ? "/citizen-services"
+          : rawHref;
       const openInNewTab = isTraffic ? true : (m.open_in_new_tab === 1 || m.openInNewTab === true);
       const label = language === "ta" 
         ? (m.name_ta || m.label_ta || m.name_en || m.label_en || "") 
@@ -537,14 +535,27 @@ export default function Navbar({ customMenuItems, initialMenus, stickyOffset }: 
                       className={navLinkClass}
                       style={{ minHeight: "48px" }}
                       onClick={(e) => {
-                        if (hasSub && activeDropdown !== idx) {
+                        if (hasSub && (!item.href || item.href === "#")) {
                           e.preventDefault();
-                          setActiveDropdown(idx);
+                          e.stopPropagation();
+                          setActiveDropdown(activeDropdown === idx ? null : idx);
+                        } else {
+                          setActiveDropdown(null);
+                          setActiveNestedSubmenu(null);
                         }
                       }}
                     >
                       <span>{shortenTamilLabel(item.label)}</span>
-                      {hasSub && <ChevronDown className="w-2.5 h-2.5 xl:w-3 xl:h-3 ml-0.5 text-white/70 group-hover:text-[#c5a059] transition" />}
+                      {hasSub && (
+                        <ChevronDown
+                          className="w-2.5 h-2.5 xl:w-3 xl:h-3 ml-0.5 text-white/70 group-hover:text-[#c5a059] transition"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setActiveDropdown(activeDropdown === idx ? null : idx);
+                          }}
+                        />
+                      )}
                     </Link>
                   )}
                   {hasSub && (
@@ -699,7 +710,7 @@ export default function Navbar({ customMenuItems, initialMenus, stickyOffset }: 
                 return (
                   <div key={idx} className="inline-flex items-center">
                     <Link
-                      href={item.slug ? `/news/${item.slug}` : "#"}
+                      href={item.slug ? `/news/${item.slug}` : (item.id ? `/news/${item.id}` : "/citizen-services")}
                       className="inline-flex items-center gap-2 text-xs sm:text-[13px] text-slate-200 hover:text-amber-300 hover:underline transition-colors px-2 cursor-pointer"
                     >
                       <span className="text-amber-400 font-bold select-none">•</span>
@@ -768,7 +779,26 @@ export default function Navbar({ customMenuItems, initialMenus, stickyOffset }: 
                 return (
                   <div key={idx} className="flex flex-col border-b border-white/5 last:border-b-0">
                     <div className="flex items-center justify-between w-full">
-                      {hasSub ? (
+                      {hasSub && item.href && item.href !== "#" ? (
+                        <div className="flex items-center justify-between w-full">
+                          <Link
+                            href={item.href}
+                            target={item.openInNewTab ? "_blank" : undefined}
+                            onClick={() => setMobileMenuOpen(false)}
+                            className={mobileLinkClass}
+                          >
+                            {item.label}
+                          </Link>
+                          <button
+                            type="button"
+                            onClick={() => toggleMobileItem(idx)}
+                            aria-label={`Toggle ${item.label} submenu`}
+                            className="py-3.5 px-4 text-base font-bold text-stone-100 hover:text-[#c5a059] hover:bg-[#1e2060]/70 rounded-lg min-h-[44px] flex items-center justify-center cursor-pointer"
+                          >
+                            {isExpanded ? "−" : "+"}
+                          </button>
+                        </div>
+                      ) : hasSub ? (
                         <button
                           type="button"
                           onClick={() => toggleMobileItem(idx)}

@@ -1104,7 +1104,7 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
       const filterCat = categoryFilter.toUpperCase().trim();
       let isMatch = itemCat === filterCat;
       if (!isMatch) {
-        if (filterCat === "CRIME" && (itemCat === "CRIME" || itemCat === "CRIME PREVENTION")) isMatch = true;
+        if ((filterCat === "CRIME" || filterCat === "CRIME NEWS") && (itemCat === "CRIME" || itemCat === "CRIME NEWS" || itemCat === "CRIME PREVENTION" || itemCat === "WANTED CRIMINALS" || itemCat === "MISSING PERSONS")) isMatch = true;
         else if (filterCat === "TRAFFIC NEWS" && (itemCat === "TRAFFIC" || itemCat === "TRAFFIC NEWS" || itemCat === "TRAFFIC UPDATES" || itemCat === "TRAFFIC ADVISORY")) isMatch = true;
         else if (filterCat === "COMMUNITY OUTREACH" && (itemCat === "OUTREACH" || itemCat === "COMMUNITY OUTREACH")) isMatch = true;
         else if (filterCat === "GOVERNMENT UPDATE" && (itemCat === "GOVERNMENT" || itemCat === "GOVERNMENT UPDATE" || itemCat === "GOVERNMENT UPDATES")) isMatch = true;
@@ -2747,36 +2747,15 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                         className="w-full bg-stone-50 dark:bg-stone-955 border border-stone-200 dark:border-stone-850 px-3 py-2 rounded-lg text-xs outline-none focus:border-brand-gold/50 cursor-pointer text-slate-800 dark:text-stone-300 font-bold"
                       >
                         <option value="">All Categories</option>
-                        <optgroup label="🚨 CRIME CATEGORY & SUBMENUS">
-                          <option value="CRIME">CRIME</option>
-                          <option value="WANTED CRIMINALS">↳ WANTED CRIMINALS</option>
-                          <option value="MISSING PERSONS">↳ MISSING PERSONS</option>
-                        </optgroup>
-
-                        <optgroup label="🔒 CYBER SAFETY CATEGORY & SUBMENUS">
-                          <option value="CYBER SAFETY">CYBER SAFETY</option>
-                          <option value="CYBER AWARENESS">↳ CYBER AWARENESS</option>
-                          <option value="ONLINE FRAUD">↳ ONLINE FRAUD</option>
-                        </optgroup>
-
-                        <optgroup label="🩷 WOMEN SAFETY CATEGORY & SUBMENUS">
-                          <option value="WOMEN SAFETY">WOMEN SAFETY</option>
-                          <option value="PINK PATROL">↳ PINK PATROL</option>
-                          <option value="AVAL SUPPORT WING">↳ AVAL SUPPORT WING</option>
-                          <option value="WOMEN HELPLINE">↳ WOMEN HELPLINE</option>
-                        </optgroup>
-
-                        <optgroup label="👁️ PUBLIC SAFETY & OUTREACH">
-                          <option value="PUBLIC SAFETY">PUBLIC SAFETY</option>
-                          <option value="COMMUNITY OUTREACH">COMMUNITY OUTREACH</option>
-                        </optgroup>
-
-                        <optgroup label="🚨 EMERGENCY ALERTS & SUBMENUS">
-                          <option value="EMERGENCY ALERTS">EMERGENCY ALERTS</option>
-                          <option value="POLICE OFFICIAL NEWS">↳ POLICE OFFICIAL NEWS</option>
-                          <option value="PUBLIC WARNINGS & ALERTS">↳ PUBLIC WARNINGS & ALERTS</option>
-                          <option value="PUBLIC ANNOUNCEMENTS">↳ PUBLIC ANNOUNCEMENTS</option>
-                        </optgroup>
+                        <option value="CRIME NEWS">CRIME NEWS</option>
+                        <option value="CYBER SAFETY">CYBER SAFETY</option>
+                        <option value="WOMEN SAFETY">WOMEN SAFETY</option>
+                        <option value="PUBLIC SAFETY">PUBLIC SAFETY</option>
+                        <option value="COMMUNITY OUTREACH">COMMUNITY OUTREACH</option>
+                        <option value="EMERGENCY ALERTS">EMERGENCY ALERTS</option>
+                        <option value="POLICE OFFICIAL NEWS">↳ POLICE OFFICIAL NEWS</option>
+                        <option value="PUBLIC WARNINGS & ALERTS">↳ PUBLIC WARNINGS & ALERTS</option>
+                        <option value="PUBLIC ANNOUNCEMENTS">↳ PUBLIC ANNOUNCEMENTS</option>
                       </select>
                     </div>
                     {/* Filter Date */}
@@ -3014,17 +2993,10 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                             return;
                           }
                           const defaults = [
+                            { en: "CRIME NEWS", ta: "குற்றச் செய்திகள்" },
                             { en: "CRIME", ta: "குற்றம்" },
-                            { en: "WANTED CRIMINALS", ta: "தேடப்படும் குற்றவாளிகள்" },
-                            { en: "MISSING PERSONS", ta: "காணாமல் போனவர்கள்" },
                             { en: "CYBER SAFETY", ta: "இணைய பாதுகாப்பு" },
-                            { en: "CYBER AWARENESS", ta: "சைபர் விழிப்புணர்வு" },
-                            { en: "CYBER AWERENESS", ta: "சைபர் விழிப்புணர்வு" },
-                            { en: "ONLINE FRAUD", ta: "ஆன்லைன் மோசடி" },
                             { en: "WOMEN SAFETY", ta: "பெண்கள் பாதுகாப்பு" },
-                            { en: "PINK PATROL", ta: "பிங்க் ரோந்து" },
-                            { en: "AVAL SUPPORT WING", ta: "அவள் ஆதரவு பிரிவு" },
-                            { en: "WOMEN HELPLINE", ta: "பெண்கள் உதவி எண்" },
                             { en: "PUBLIC SAFETY", ta: "பொது பாதுகாப்பு" },
                             { en: "COMMUNITY OUTREACH", ta: "சமூக உதவி" },
                             { en: "EMERGENCY ALERTS", ta: "அவசர எச்சரிக்கைகள்" },
@@ -3037,37 +3009,16 @@ export default function AdminDashboard({ user, onLogout, activeTab: propActiveTa
                         }}
                         className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-855 outline-none text-xs text-slate-855 dark:text-white p-3 rounded-xl focus:border-brand-gold/50 cursor-pointer font-bold"
                       >
-                        <option value="">-- Select Category & Submenu --</option>
-                        <optgroup label="🚨 CRIME CATEGORY & SUBMENUS">
-                          <option value="CRIME">CRIME (Main Category)</option>
-                          <option value="WANTED CRIMINALS">↳ WANTED CRIMINALS</option>
-                          <option value="MISSING PERSONS">↳ MISSING PERSONS</option>
-                        </optgroup>
-
-                        <optgroup label="🔒 CYBER SAFETY CATEGORY & SUBMENUS">
-                          <option value="CYBER SAFETY">CYBER SAFETY (Main Category)</option>
-                          <option value="CYBER AWARENESS">↳ CYBER AWARENESS</option>
-                          <option value="ONLINE FRAUD">↳ ONLINE FRAUD</option>
-                        </optgroup>
-
-                        <optgroup label="🩷 WOMEN SAFETY CATEGORY & SUBMENUS">
-                          <option value="WOMEN SAFETY">WOMEN SAFETY (Main Category)</option>
-                          <option value="PINK PATROL">↳ PINK PATROL</option>
-                          <option value="AVAL SUPPORT WING">↳ AVAL SUPPORT WING</option>
-                          <option value="WOMEN HELPLINE">↳ WOMEN HELPLINE</option>
-                        </optgroup>
-
-                        <optgroup label="👁️ PUBLIC SAFETY & OUTREACH">
-                          <option value="PUBLIC SAFETY">PUBLIC SAFETY</option>
-                          <option value="COMMUNITY OUTREACH">COMMUNITY OUTREACH</option>
-                        </optgroup>
-
-                        <optgroup label="🚨 EMERGENCY ALERTS & SUBMENUS">
-                          <option value="EMERGENCY ALERTS">EMERGENCY ALERTS (Main Category)</option>
-                          <option value="POLICE OFFICIAL NEWS">↳ POLICE OFFICIAL NEWS</option>
-                          <option value="PUBLIC WARNINGS & ALERTS">↳ PUBLIC WARNINGS & ALERTS</option>
-                          <option value="PUBLIC ANNOUNCEMENTS">↳ PUBLIC ANNOUNCEMENTS</option>
-                        </optgroup>
+                        <option value="">-- Select Category --</option>
+                        <option value="CRIME NEWS">CRIME NEWS</option>
+                        <option value="CYBER SAFETY">CYBER SAFETY</option>
+                        <option value="WOMEN SAFETY">WOMEN SAFETY</option>
+                        <option value="PUBLIC SAFETY">PUBLIC SAFETY</option>
+                        <option value="COMMUNITY OUTREACH">COMMUNITY OUTREACH</option>
+                        <option value="EMERGENCY ALERTS">EMERGENCY ALERTS</option>
+                        <option value="POLICE OFFICIAL NEWS">↳ POLICE OFFICIAL NEWS</option>
+                        <option value="PUBLIC WARNINGS & ALERTS">↳ PUBLIC WARNINGS & ALERTS</option>
+                        <option value="PUBLIC ANNOUNCEMENTS">↳ PUBLIC ANNOUNCEMENTS</option>
                       </select>
                     </div>
 

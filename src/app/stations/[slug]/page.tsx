@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 import Navbar from "@/components/layout/Navbar";
 import NewsTicker from "@/components/layout/NewsTicker";
 import Footer from "@/components/layout/Footer";
@@ -63,9 +64,9 @@ export default async function StationDetailPage({ params }: PageProps) {
           <p className="text-stone-500 dark:text-stone-400 max-w-md text-sm font-semibold">
             We couldn't find the police station you were looking for. Please check the URL or use the directory search.
           </p>
-          <a href="/stations" className="px-5 py-2.5 rounded-xl bg-brand-maroon text-white font-bold text-xs uppercase tracking-wider transition-colors duration-300">
+          <Link href="/stations" className="px-5 py-2.5 rounded-xl bg-brand-maroon text-white font-bold text-xs uppercase tracking-wider transition-colors duration-300">
             Return to Directory
-          </a>
+          </Link>
         </main>
         <Footer />
       </div>

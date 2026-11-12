@@ -124,6 +124,18 @@ export default function SuperAdminConsole({ user, onTabChange }: SuperAdminConso
   // Security Hardening & Session States
   const [activeSessions, setActiveSessions] = useState<any[]>([]);
   const [secEvents, setSecEvents] = useState<any[]>([]);
+  const [envInfo, setEnvInfo] = useState<{
+    NODE_ENV?: string;
+    NEXT_PUBLIC_APP_URL?: string;
+    DB_HOST?: string;
+    DB_NAME?: string;
+    PORT?: string;
+  }>({
+    NODE_ENV: process.env.NODE_ENV,
+    DB_HOST: "127.0.0.1",
+    DB_NAME: "chennai_guardian",
+    PORT: "3306",
+  });
   const [secPolicyConfig, setSecPolicyConfig] = useState<any>({
     admin_console_path: "/controller",
     session_timeout_minutes: 30,
@@ -227,6 +239,13 @@ export default function SuperAdminConsole({ user, onTabChange }: SuperAdminConso
     }
   };
 
+  const loadEnvInfo = async () => {
+    try {
+      const res = await fetch("/api/admin/superadmin?action=env");
+      if (res.ok) setEnvInfo(await res.json());
+    } catch {}
+  };
+
   const handleRevokeSession = async (sessionId: string) => {
     try {
       const res = await fetch("/api/admin/sessions", {
@@ -287,7 +306,7 @@ export default function SuperAdminConsole({ user, onTabChange }: SuperAdminConso
 
   useEffect(() => {
     setLoading(true);
-    Promise.all([loadUsers(), loadRoles(), loadLogs(), loadConfig(), loadSessions(), loadSecEvents(), loadSecPolicyConfig(), loadMfaStatus(), loadTrustedDevices()]).finally(() => setLoading(false));
+    Promise.all([loadUsers(), loadRoles(), loadLogs(), loadConfig(), loadSessions(), loadSecEvents(), loadSecPolicyConfig(), loadMfaStatus(), loadTrustedDevices(), loadEnvInfo()]).finally(() => setLoading(false));
   }, []);
 
   // ── User Management handlers ──
@@ -1470,11 +1489,11 @@ export default function SuperAdminConsole({ user, onTabChange }: SuperAdminConso
                   <p className="text-[10px] text-slate-400 mt-0.5">Review active Node.js system environment configurations.</p>
                 </div>
                 <div className="border border-slate-200 dark:border-stone-850 p-5 rounded-2xl bg-white dark:bg-stone-950 font-mono text-[10px] text-slate-600 dark:text-stone-400 space-y-2 max-h-96 overflow-y-auto">
-                  <p><b>NODE_ENV:</b> {process.env.NODE_ENV}</p>
-                  <p><b>NEXT_PUBLIC_APP_URL:</b> {process.env.NEXT_PUBLIC_APP_URL || (typeof window !== "undefined" ? window.location.origin : "/")}</p>
-                  <p><b>DB_HOST:</b> 127.0.0.1</p>
-                  <p><b>DB_NAME:</b> startup_TN</p>
-                  <p><b>PORT:</b> 3306</p>
+                  <p><b>NODE_ENV:</b> {envInfo.NODE_ENV || process.env.NODE_ENV}</p>
+                  <p><b>NEXT_PUBLIC_APP_URL:</b> {process.env.NEXT_PUBLIC_APP_URL || envInfo.NEXT_PUBLIC_APP_URL || (typeof window !== "undefined" ? window.location.origin : "/")}</p>
+                  <p><b>DB_HOST:</b> {envInfo.DB_HOST || "127.0.0.1"}</p>
+                  <p><b>DB_NAME:</b> {envInfo.DB_NAME || "chennai_guardian"}</p>
+                  <p><b>PORT:</b> {envInfo.PORT || "3306"}</p>
                 </div>
               </div>
             )}

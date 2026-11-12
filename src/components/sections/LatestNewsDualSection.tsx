@@ -337,7 +337,7 @@ export default function LatestNewsDualSection({
                       className="flex flex-col space-y-1.5 pb-4 border-b border-slate-100 dark:border-stone-800/80 last:border-0 last:pb-0 text-left group"
                     >
                       <Link
-                        href={item.slug ? `/news/${item.slug}` : "#"}
+                        href={item.slug ? `/news/${item.slug}` : `/news/${item.id}`}
                         className="font-bold text-xs sm:text-sm md:text-[15px] text-slate-900 dark:text-white group-hover:text-blue-900 dark:group-hover:text-amber-400 transition-colors leading-snug"
                       >
                         {title}
@@ -740,7 +740,7 @@ export default function LatestNewsDualSection({
                         </div>
 
                         <Link
-                          href={item.slug ? `/news/${item.slug}` : "#"}
+                          href={item.slug ? `/news/${item.slug}` : `/news/${item.id}`}
                           onClick={() => setIsMediaModalOpen(false)}
                           className="block font-bold text-sm sm:text-base text-slate-900 dark:text-white group-hover:text-blue-900 dark:group-hover:text-[#c5a059] transition-colors leading-snug"
                         >
@@ -755,7 +755,7 @@ export default function LatestNewsDualSection({
 
                         <div className="pt-1">
                           <Link
-                            href={item.slug ? `/news/${item.slug}` : "#"}
+                            href={item.slug ? `/news/${item.slug}` : `/news/${item.id}`}
                             onClick={() => setIsMediaModalOpen(false)}
                             className="inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-[#081325] hover:text-blue-900 dark:text-[#c5a059] dark:hover:text-amber-300 transition-colors"
                           >

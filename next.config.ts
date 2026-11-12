@@ -18,6 +18,7 @@ const cspHeader = [
 ].join("; ");
 
 const nextConfig: NextConfig = {
+  agentRules: false,
   poweredByHeader: false, // Disables X-Powered-By: Next.js technology disclosure (POC-14)
   reactStrictMode: false,
   devIndicators: {

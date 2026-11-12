@@ -1,6 +1,6 @@
 -- ==============================================================================
 -- GREATER CHENNAI POLICE COMMISSIONER PORTAL — ENTERPRISE DATABASE DUMP
--- Target Database: chennaiguardian
+-- Target Database: chennai_guardian
 -- Generated on: 2026-11-09T21:53:34.925Z
 -- Includes Maintenance Mode & Automated Restoration Alert Tables
 -- ==============================================================================
@@ -8,8 +8,8 @@
 SET FOREIGN_KEY_CHECKS = 0;
 SET NAMES utf8mb4;
 
-CREATE DATABASE IF NOT EXISTS `chennaiguardian` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE `chennaiguardian`;
+CREATE DATABASE IF NOT EXISTS `chennai_guardian` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE `chennai_guardian`;
 
 -- ----------------------------------------------------------------------------
 -- Table: `maintenance_config`
@@ -639,7 +639,11 @@ INSERT INTO `activity_logs` (`id`, `username`, `role`, `ip_address`, `action`, `
 -- ----------------------------------------------------------------------------
 DROP TABLE IF EXISTS `custom_roles`;
 CREATE TABLE `custom_roles` (
-  `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY
+  `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `name` VARCHAR(255) NULL,
+  `description` LONGTEXT NULL,
+  `permissions_json` LONGTEXT NULL,
+  `created_at` VARCHAR(64) NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ----------------------------------------------------------------------------
@@ -7719,7 +7723,19 @@ INSERT INTO `media_files` (`id`, `uuid`, `original_name`, `stored_name`, `mime_t
 -- ----------------------------------------------------------------------------
 DROP TABLE IF EXISTS `backups`;
 CREATE TABLE `backups` (
-  `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY
+  `id` VARCHAR(128) NOT NULL PRIMARY KEY,
+  `backup_name` VARCHAR(255) NULL,
+  `backup_type` VARCHAR(64) NULL,
+  `file_path` VARCHAR(500) NULL,
+  `file_size` DOUBLE NULL,
+  `db_size` DOUBLE NULL,
+  `media_size` DOUBLE NULL,
+  `file_count` DOUBLE NULL,
+  `sha256_checksum` VARCHAR(255) NULL,
+  `created_by` VARCHAR(255) NULL,
+  `status` VARCHAR(64) NULL,
+  `verification_status` VARCHAR(64) NULL,
+  `created_at` VARCHAR(64) NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ----------------------------------------------------------------------------
@@ -7727,7 +7743,19 @@ CREATE TABLE `backups` (
 -- ----------------------------------------------------------------------------
 DROP TABLE IF EXISTS `security_assessments`;
 CREATE TABLE `security_assessments` (
-  `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY
+  `id` VARCHAR(128) NOT NULL PRIMARY KEY,
+  `assessment_date` VARCHAR(64) NULL,
+  `created_by` VARCHAR(255) NULL,
+  `score` DOUBLE NULL,
+  `status` VARCHAR(64) NULL,
+  `total_checks` DOUBLE NULL,
+  `passed_checks` DOUBLE NULL,
+  `findings_critical` DOUBLE NULL,
+  `findings_high` DOUBLE NULL,
+  `findings_medium` DOUBLE NULL,
+  `findings_low` DOUBLE NULL,
+  `findings_info` DOUBLE NULL,
+  `findings` LONGTEXT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ----------------------------------------------------------------------------
@@ -7868,7 +7896,8 @@ INSERT INTO `portal_daily_visits` (`id`, `visit_date`, `page_views`, `created_at
 DROP TABLE IF EXISTS `superadmin_config`;
 CREATE TABLE `superadmin_config` (
   `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  `footer_config` LONGTEXT NULL
+  `footer_config` LONGTEXT NULL,
+  `config_json` LONGTEXT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Data for table `superadmin_config` (1 records)

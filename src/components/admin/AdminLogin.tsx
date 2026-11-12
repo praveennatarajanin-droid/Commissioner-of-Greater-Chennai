@@ -937,10 +937,9 @@ export default function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
                   >
                     Password
                   </label>
-                  <a
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
+                  <button
+                    type="button"
+                    onClick={() => {
                       alert("Contact your system Super Administrator to reset access credentials.");
                     }}
                     className="text-[11px] font-bold transition-colors duration-200"
@@ -949,7 +948,7 @@ export default function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
                     onMouseLeave={(e) => (e.currentTarget.style.color = "#1e40af")}
                   >
                     Forgot Password?
-                  </a>
+                  </button>
                 </div>
                 <div className="relative flex items-center">
                   <Lock

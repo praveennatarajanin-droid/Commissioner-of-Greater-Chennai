@@ -32,6 +32,13 @@ export async function GET() {
       isoDate = new Date().toISOString();
     }
 
+    const safeKeywords = custom?.meta_keywords ||
+      (Array.isArray(article.tags_en)
+        ? article.tags_en.join(", ")
+        : typeof article.tags_en === "string"
+          ? article.tags_en
+          : article.category_en || "");
+
     xml += `  <url>
     <loc>${baseUrl}/news/${slug}</loc>
     <news:news>
@@ -41,7 +48,7 @@ export async function GET() {
       </news:publication>
       <news:publication_date>${isoDate}</news:publication_date>
       <news:title>${escapeXml(title)}</news:title>
-      <news:keywords>${escapeXml(custom?.meta_keywords || (article.tags_en || []).join(", "))}</news:keywords>
+      <news:keywords>${escapeXml(safeKeywords)}</news:keywords>
     </news:news>
   </url>
 `;

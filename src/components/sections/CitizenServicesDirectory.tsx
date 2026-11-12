@@ -189,9 +189,12 @@ const DEFAULT_CATEGORY_STYLE = {
 function sanitizeUrl(rawUrl?: string): string | null {
   if (!rawUrl) return null;
   const trimmed = rawUrl.trim();
-  if (!trimmed) return null;
-  if (/^https?:\/\//i.test(trimmed) || trimmed.startsWith("/")) {
+  if (!trimmed || trimmed === "#") return null;
+  if (/^https?:\/\//i.test(trimmed) || (trimmed.startsWith("/") && !trimmed.startsWith("//"))) {
     return trimmed;
+  }
+  if (/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/.test(trimmed)) {
+    return `https://${trimmed}`;
   }
   return null;
 }
@@ -215,8 +218,8 @@ export default function CitizenServicesDirectory({
     async function loadData() {
       try {
         const [catRes, srvRes] = await Promise.all([
-          fetch("/api/citizen-service-categories"),
-          fetch("/api/citizen-services")
+          fetch("/api/citizen-service-categories", { cache: "no-store" }),
+          fetch("/api/citizen-services", { cache: "no-store" })
         ]);
         if (catRes.ok && srvRes.ok) {
           const [catData, srvData] = await Promise.all([catRes.json(), srvRes.json()]);

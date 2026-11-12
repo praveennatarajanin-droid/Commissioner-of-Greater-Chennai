@@ -116,7 +116,7 @@ async function main() {
     port: 3306,
     user: 'root',
     password: '',
-    database: process.env.DB_NAME || 'startup_TN'
+    database: process.env.DB_NAME || 'chennaiguardian'
   });
 
   const [dbStations] = await connection.query('select * from police_stations');

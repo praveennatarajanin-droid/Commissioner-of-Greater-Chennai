@@ -1,3 +1,4 @@
+
 import { NextResponse } from "next/server";
 import { getIpAddress } from "@/lib/auth";
 import { db, hashPassword, normalizeUsername } from "@/lib/db";
@@ -37,11 +38,11 @@ export async function GET(req: Request) {
       const ip = getIpAddress(req);
       const browser = req.headers.get("user-agent") || "Unknown";
       await db.addRbacAuditLog(user.username, user.role, ip, "Database backup downloaded", "Backup", browser);
-      
+
       return new NextResponse(backupJson, {
         headers: {
           "Content-Type": "application/json",
-          "Content-Disposition": `attachment; filename="startup_TN_backup_${Date.now()}.json"`,
+          "Content-Disposition": `attachment; filename="chennaiguardian_backup_${Date.now()}.json"`,
         },
       });
     }
@@ -49,6 +50,16 @@ export async function GET(req: Request) {
     if (action === "config") {
       const config = await db.getSuperadminConfig();
       return NextResponse.json(config);
+    }
+
+    if (action === "env") {
+      return NextResponse.json({
+        NODE_ENV: process.env.NODE_ENV || "development",
+        NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
+        DB_HOST: process.env.DB_HOST || "127.0.0.1",
+        DB_NAME: process.env.DB_NAME || "chennai_guardian",
+        PORT: process.env.DB_PORT || "3306",
+      });
     }
 
     return NextResponse.json({ error: "Invalid action" }, { status: 400 });

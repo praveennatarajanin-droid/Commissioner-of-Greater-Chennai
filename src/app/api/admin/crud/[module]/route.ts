@@ -9,17 +9,26 @@ function sanitizeHtml(html: string): string {
 
 function validateExternalUrl(url: string | null | undefined): string | null {
   if (!url || typeof url !== "string" || !url.trim()) return null;
-  const trimmed = url.trim();
-  if (trimmed.startsWith("/")) return trimmed;
-  if (/^https?:\/\/[^\s$.?#].[^\s]*$/i.test(trimmed)) {
-    return trimmed;
+  let trimmed = url.trim();
+  if (trimmed.startsWith("/") && !trimmed.startsWith("//")) return trimmed;
+  if (!trimmed.startsWith("http://") && !trimmed.startsWith("https://")) {
+    if (/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/.test(trimmed)) {
+      trimmed = `https://${trimmed}`;
+    }
+  }
+  try {
+    const parsed = new URL(trimmed);
+    if (parsed.protocol === "http:" || parsed.protocol === "https:") {
+      return trimmed;
+    }
+  } catch {
+    return null;
   }
   return null;
 }
 
 import { verifySignedSessionToken } from "@/lib/auth";
-import { invalidateTrendingNewsCache } from "@/app/api/news/trending/route";
-import { invalidateMostReadNewsCache } from "@/app/api/news/most-read/route";
+import { invalidateTrendingNewsCache, invalidateMostReadNewsCache } from "@/lib/newsCache";
 
 // Authentication Helper
 async function checkAuth(requiredRoles?: string[]) {
@@ -99,6 +108,7 @@ async function hasPermission(
   let key = module;
   if (module === "alert_settings") key = "settings";
   if (module === "seo_settings" || module === "article_seo") key = "settings";
+  if (module === "citizen-service-categories") key = "citizen-services";
 
   const modulePerms = permissions[key] || [];
   return modulePerms.includes(action);
@@ -170,9 +180,13 @@ export async function GET(req: Request, { params }: { params: Promise<{ module: 
     case "web-stories":
       return NextResponse.json(await db.getWebStories());
     case "citizen-services":
-      return NextResponse.json(await db.getCitizenServicesWithCategories(true));
+      return NextResponse.json(await db.getCitizenServicesWithCategories(true), {
+        headers: { "Cache-Control": "no-store, no-cache, must-revalidate" },
+      });
     case "citizen-service-categories":
-      return NextResponse.json(await db.getCitizenServiceCategories(true));
+      return NextResponse.json(await db.getCitizenServiceCategories(true), {
+        headers: { "Cache-Control": "no-store, no-cache, must-revalidate" },
+      });
     default:
       return NextResponse.json({ error: "Invalid module" }, { status: 400 });
   }
@@ -434,7 +448,14 @@ export async function POST(req: Request, { params }: { params: Promise<{ module:
         const services = await db.getCitizenServices(true);
         const id = services.length > 0 ? Math.max(...services.map((s) => s.id || 0)) + 1 : 1;
         const srvData = data.data || data;
+        const rawUrl = typeof srvData.external_url === "string" ? srvData.external_url.trim() : "";
         const validatedUrl = validateExternalUrl(srvData.external_url);
+        if (rawUrl !== "" && validatedUrl === null) {
+          return NextResponse.json(
+            { error: "External URL must begin with https://, http://, or /" },
+            { status: 400 }
+          );
+        }
         const now = new Date().toISOString();
         const nameEn = sanitizePlainText(srvData.service_name_en || srvData.service_name || srvData.name || srvData.name_en || "");
         const nameTa = sanitizePlainText(srvData.service_name_ta || srvData.name_ta || "");
@@ -797,7 +818,17 @@ export async function PUT(req: Request, { params }: { params: Promise<{ module: 
         if (!existing) {
           return NextResponse.json({ error: "Citizen service not found" }, { status: 404 });
         }
-        const validatedUrl = srvData.external_url !== undefined ? validateExternalUrl(srvData.external_url) : existing.external_url;
+        let validatedUrl = existing.external_url;
+        if (srvData.external_url !== undefined) {
+          const rawUrl = typeof srvData.external_url === "string" ? srvData.external_url.trim() : "";
+          validatedUrl = validateExternalUrl(srvData.external_url);
+          if (rawUrl !== "" && validatedUrl === null) {
+            return NextResponse.json(
+              { error: "External URL must begin with https://, http://, or /" },
+              { status: 400 }
+            );
+          }
+        }
         const now = new Date().toISOString();
         const nameEn = srvData.service_name_en !== undefined || srvData.service_name !== undefined
           ? sanitizePlainText(srvData.service_name_en || srvData.service_name || "")
@@ -812,9 +843,10 @@ export async function PUT(req: Request, { params }: { params: Promise<{ module: 
           ? sanitizePlainText(srvData.description_ta)
           : (existing.description_ta || "");
 
+        let updatedItem: any = null;
         services = services.map((s) => {
           if (s.id === targetId) {
-            return {
+            updatedItem = {
               ...s,
               category_id: srvData.category_id !== undefined ? (parseInt(srvData.category_id, 10) || s.category_id) : s.category_id,
               service_name: nameEn,
@@ -832,12 +864,13 @@ export async function PUT(req: Request, { params }: { params: Promise<{ module: 
               updated_by: auth.username,
               updated_at: now
             };
+            return updatedItem;
           }
           return s;
         });
         await db.saveCitizenServices(services);
         await db.addActivityLog(auth.username, `Updated citizen service: ${nameEn}`);
-        return NextResponse.json({ success: true });
+        return NextResponse.json({ success: true, item: updatedItem });
       }
       case "citizen-service-categories": {
         let categories = await db.getCitizenServiceCategories(true);

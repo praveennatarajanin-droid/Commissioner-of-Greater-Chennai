@@ -4,7 +4,11 @@ import { db } from "@/lib/db";
 export async function GET() {
   try {
     const categories = await db.getCitizenServiceCategories(false);
-    return NextResponse.json(categories);
+    return NextResponse.json(categories, {
+      headers: {
+        "Cache-Control": "no-store, no-cache, must-revalidate",
+      },
+    });
   } catch (error: any) {
     console.error("Failed to fetch citizen service categories:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

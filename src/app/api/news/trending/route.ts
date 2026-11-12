@@ -1,20 +1,12 @@
 import { NextResponse } from "next/server";
 import { db, sanitizePublicNewsItem } from "@/lib/db";
-
-let trendingCache: any = null;
-let trendingCacheTime = 0;
-const CACHE_TTL = 2 * 60 * 1000; // 2 minutes
-
-export function invalidateTrendingNewsCache() {
-  trendingCache = null;
-  trendingCacheTime = 0;
-}
+import { getTrendingCache, setTrendingCache } from "@/lib/newsCache";
 
 export async function GET() {
   try {
-    const now = Date.now();
-    if (trendingCache && (now - trendingCacheTime < CACHE_TTL)) {
-      return NextResponse.json(trendingCache, {
+    const cached = getTrendingCache();
+    if (cached) {
+      return NextResponse.json(cached, {
         headers: {
           "Cache-Control": "public, max-age=60, s-maxage=120, stale-while-revalidate=300",
         },
@@ -27,8 +19,7 @@ export async function GET() {
       .slice(0, 5)
       .map(sanitizePublicNewsItem);
 
-    trendingCache = rows;
-    trendingCacheTime = now;
+    setTrendingCache(rows);
 
     return NextResponse.json(rows, {
       headers: {

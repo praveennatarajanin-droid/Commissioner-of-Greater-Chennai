@@ -29,6 +29,18 @@ export async function GET() {
     { url: "/achievements", contentType: "achievements_page", id: 0, priority: "0.6", changefreq: "monthly" },
     { url: "/traffic", contentType: "traffic_alerts_page", id: 0, priority: "0.8", changefreq: "daily" },
     { url: "/contact-us", contentType: "contact_us_page", id: 0, priority: "0.6", changefreq: "monthly" },
+    { url: "/category/crime", contentType: "category_crime", id: 0, priority: "0.8", changefreq: "daily" },
+    { url: "/category/cyber-safety", contentType: "category_cyber_safety", id: 0, priority: "0.8", changefreq: "daily" },
+    { url: "/category/women-safety", contentType: "category_women_safety", id: 0, priority: "0.8", changefreq: "daily" },
+    { url: "/category/public-safety", contentType: "category_public_safety", id: 0, priority: "0.8", changefreq: "daily" },
+    { url: "/category/outreach", contentType: "category_outreach", id: 0, priority: "0.8", changefreq: "daily" },
+    { url: "/category/emergency-alerts", contentType: "category_emergency_alerts", id: 0, priority: "0.8", changefreq: "daily" },
+    { url: "/category/police-official-news", contentType: "category_police_official_news", id: 0, priority: "0.7", changefreq: "daily" },
+    { url: "/category/public-warnings", contentType: "category_public_warnings", id: 0, priority: "0.7", changefreq: "daily" },
+    { url: "/category/public-announcements", contentType: "category_public_announcements", id: 0, priority: "0.7", changefreq: "daily" },
+    { url: "/faq", contentType: "faq_page", id: 0, priority: "0.6", changefreq: "monthly" },
+    { url: "/privacy-policy", contentType: "privacy_policy_page", id: 0, priority: "0.5", changefreq: "monthly" },
+    { url: "/site-map", contentType: "sitemap_page", id: 0, priority: "0.6", changefreq: "weekly" },
   ];
 
   let xml = `<?xml version="1.0" encoding="UTF-8"?>

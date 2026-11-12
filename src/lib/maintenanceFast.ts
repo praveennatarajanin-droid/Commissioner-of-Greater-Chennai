@@ -1,6 +1,3 @@
-import fs from "fs";
-import path from "path";
-
 export interface FastMaintenanceState {
   maintenance_enabled: boolean;
   maintenance_title_en: string;
@@ -14,8 +11,6 @@ export interface FastMaintenanceState {
   updated_by: string;
   updated_at: string;
 }
-
-const DB_JSON_PATH = path.join(process.cwd(), "src", "data", "db.json");
 
 const fallbackState: FastMaintenanceState = {
   maintenance_enabled: false,
@@ -68,51 +63,7 @@ export function getFastMaintenanceState(): FastMaintenanceState {
   if (cache && cache.mtime === -1) {
     return cache.state;
   }
-  try {
-    if (!fs.existsSync(DB_JSON_PATH)) {
-      return fallbackState;
-    }
-
-    const stat = fs.statSync(DB_JSON_PATH);
-    if (cache && cache.mtime === stat.mtimeMs) {
-      return cache.state;
-    }
-
-    const raw = fs.readFileSync(DB_JSON_PATH, "utf8");
-    const parsed = JSON.parse(raw);
-    const table = parsed.maintenance_config;
-
-    let state: FastMaintenanceState = fallbackState;
-    if (Array.isArray(table) && table.length > 0) {
-      const rec = table[0];
-      const descEn = rec.maintenance_description_en || rec.maintenance_message_en || fallbackState.maintenance_description_en;
-      const descTa = rec.maintenance_description_ta || rec.maintenance_message_ta || fallbackState.maintenance_description_ta;
-      const restoreTime = rec.expected_restoration_datetime || rec.expected_restore_at || null;
-
-      state = {
-        maintenance_enabled: Boolean(rec.maintenance_enabled),
-        maintenance_title_en: rec.maintenance_title_en || fallbackState.maintenance_title_en,
-        maintenance_description_en: descEn,
-        maintenance_title_ta: rec.maintenance_title_ta || fallbackState.maintenance_title_ta,
-        maintenance_description_ta: descTa,
-        expected_restoration_datetime: restoreTime,
-        expected_restore_at: restoreTime,
-        maintenance_message_en: descEn,
-        maintenance_message_ta: descTa,
-        updated_by: rec.updated_by || "System",
-        updated_at: rec.updated_at || new Date().toISOString(),
-      };
-    }
-
-    cache = {
-      mtime: stat.mtimeMs,
-      state,
-    };
-    return state;
-  } catch (err) {
-    console.error("[Maintenance] Error in getFastMaintenanceState:", err);
-    return fallbackState;
-  }
+  return fallbackState;
 }
 
 /**

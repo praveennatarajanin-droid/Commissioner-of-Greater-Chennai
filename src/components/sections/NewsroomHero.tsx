@@ -199,9 +199,9 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
   }, [slidesToUse.length, isHovered]);
 
   const currentSlide = slidesToUse[sliderIndex] || slidesToUse[0];
-  const slideTitle = language === "ta" ? (currentSlide.title_ta || currentSlide.title_en) : currentSlide.title_en;
-  const slideDesc = language === "ta" ? (currentSlide.desc_ta || currentSlide.desc_en) : currentSlide.desc_en;
-  const slideCategory = language === "ta" ? (currentSlide.category_ta || currentSlide.category_en) : currentSlide.category_en;
+  const slideTitle = currentSlide ? (language === "ta" ? (currentSlide.title_ta || currentSlide.title_en) : currentSlide.title_en) : "";
+  const slideDesc = currentSlide ? (language === "ta" ? (currentSlide.desc_ta || currentSlide.desc_en) : currentSlide.desc_en) : "";
+  const slideCategory = currentSlide ? (language === "ta" ? (currentSlide.category_ta || currentSlide.category_en) : currentSlide.category_en) : "";
 
   // Derive slide URL link
   const findSlideLink = (slide: typeof currentSlide) => {
@@ -263,27 +263,34 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
   };
 
   // Right Column Tabs (use dynamically fetched lists if available)
-  const trendingNews = dbTrending.length > 0 ? dbTrending : [...sortedNews]
+  const dedupeNews = (list: NewsItem[]) => {
+    const seen = new Set<number>();
+    return list.filter((item) => {
+      if (!item || !item.id || seen.has(item.id)) return false;
+      seen.add(item.id);
+      return true;
+    });
+  };
+
+  const rawTrending = dbTrending.length > 0 ? dbTrending : [...sortedNews]
     .sort((a, b) => {
       const aTrend = a.section === "trending" ? 1 : 0;
       const bTrend = b.section === "trending" ? 1 : 0;
       if (aTrend !== bTrend) return bTrend - aTrend;
-      return (b.views_count || 0) - (a.views_count || 0);
-    })
-    .filter(n => n.id !== heroStory?.id)
+      return (b.views_count || 0) - (a.views_count || 0) || (b.id || 0) - (a.id || 0);
+    });
+  const trendingNews = dedupeNews(rawTrending).slice(0, 8);
+
+  const rawMostRead = dbMostRead.length > 0 ? dbMostRead : [...sortedNews]
+    .sort((a, b) => (b.views_count || 0) - (a.views_count || 0) || (b.id || 0) - (a.id || 0));
+  const mostReadNews = dedupeNews(rawMostRead).slice(0, 8);
+
+  const sidebarVideos = (dbVideos.length > 0 ? dbVideos : (videos || []))
+    .filter((v: any) => v.active === 1)
+    .sort((a: any, b: any) => b.id - a.id)
     .slice(0, 8);
 
-  const mostReadNews = dbMostRead.length > 0 ? dbMostRead : [...sortedNews]
-    .sort((a, b) => (b.views_count || 0) - (a.views_count || 0))
-    .filter(n => n.id !== heroStory?.id)
-    .slice(0, 8);
-
-  const sidebarVideos = dbVideos.length > 0 ? dbVideos : (videos || [])
-    .filter(v => v.active === 1)
-    .sort((a, b) => b.id - a.id)
-    .slice(0, 8);
-
-  if (!heroStory) {
+  if (!heroStory || !currentSlide) {
     return (
       <section className="w-full py-16 text-center text-stone-400 text-sm font-bold uppercase tracking-wider">
         No stories available.
@@ -291,10 +298,9 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
     );
   }
 
-  // Double arrays for continuous infinite marquee looping
-  const trendingMarqueeList = trendingNews.length > 0 ? [...trendingNews, ...trendingNews] : [];
-  const mostReadMarqueeList = mostReadNews.length > 0 ? [...mostReadNews, ...mostReadNews] : [];
-  const videosMarqueeList = sidebarVideos.length > 0 ? [...sidebarVideos, ...sidebarVideos] : [];
+  const trendingList = trendingNews;
+  const mostReadList = mostReadNews;
+  const videosList = sidebarVideos;
 
   return (
     <section className="w-full bg-white dark:bg-stone-950 border-b border-stone-200 dark:border-stone-850">
@@ -455,30 +461,25 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
                 </button>
               </div>
 
-              {/* Auto-scrolling Viewport (Continuous Vertical Marquee, Pauses on Hover) */}
+              {/* Sidebar Feed Viewport */}
               <div 
-                className="relative h-[380px] sm:h-[420px] lg:h-[430px] overflow-hidden rounded-xl border border-stone-150 dark:border-stone-850/80 bg-stone-50/50 dark:bg-stone-900/30 p-2.5 group/marquee"
-                title={language === "ta" ? "நிறுத்த மேலே வைக்கவும்" : "Hover to pause scrolling"}
+                className="relative h-[380px] sm:h-[420px] lg:h-[430px] overflow-y-auto overflow-x-hidden rounded-xl border border-stone-150 dark:border-stone-850/80 bg-stone-50/50 dark:bg-stone-900/30 p-2.5"
               >
-                {/* Subtle top & bottom fade masks for seamless infinite feel */}
-                <div className="absolute top-0 inset-x-0 h-4 bg-gradient-to-b from-stone-50 dark:from-stone-900 to-transparent z-10 pointer-events-none opacity-80" />
-                <div className="absolute bottom-0 inset-x-0 h-4 bg-gradient-to-t from-stone-50 dark:from-stone-900 to-transparent z-10 pointer-events-none opacity-80" />
-
-                {/* 1. TRENDING TAB (Auto-scrolling) */}
+                {/* 1. TRENDING TAB */}
                 {activeTab === "trending" && (
-                  <div className="animate-vertical-marquee space-y-3">
-                    {trendingMarqueeList.map((item, idx) => {
+                  <div className="space-y-3">
+                    {trendingList.map((item, idx) => {
                       const title = language === "ta"
                         ? (item.title_ta || item.title_en || "")
                         : (item.title_en || item.title_ta || "");
-                      const rank = (idx % (trendingNews.length || 1)) + 1;
+                      const rank = idx + 1;
                       const category = language === "ta" ? (item.category_ta || item.category_en) : item.category_en;
                       const displayDate = item.published_at || item.publishedAt || item.created_at || item.date;
 
                       return (
                         <Link
                           key={`trend-${item.id}-${idx}`}
-                          href={item.slug ? `/news/${item.slug}` : "#"}
+                          href={item.slug ? `/news/${item.slug}` : `/news/${item.id}`}
                           className="flex items-center gap-3 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-2.5 rounded-xl hover:shadow-md hover:border-brand-maroon/30 dark:hover:border-brand-gold/30 transition-all duration-200 group text-left shrink-0"
                         >
                           {/* Image with Rank Badge */}
@@ -518,24 +519,29 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
                         </Link>
                       );
                     })}
+                    {trendingList.length === 0 && (
+                      <p className="text-xs text-stone-400 text-center py-8">
+                        {language === "ta" ? "செய்திகள் எதுவும் இல்லை" : "No trending stories available"}
+                      </p>
+                    )}
                   </div>
                 )}
 
-                {/* 2. MOST READ TAB (Auto-scrolling) */}
+                {/* 2. MOST READ TAB */}
                 {activeTab === "most-read" && (
-                  <div className="animate-vertical-marquee space-y-3">
-                    {mostReadMarqueeList.map((item, idx) => {
+                  <div className="space-y-3">
+                    {mostReadList.map((item, idx) => {
                       const title = language === "ta"
                         ? (item.title_ta || item.title_en || "")
                         : (item.title_en || item.title_ta || "");
-                      const rank = (idx % (mostReadNews.length || 1)) + 1;
+                      const rank = idx + 1;
                       const category = language === "ta" ? (item.category_ta || item.category_en) : item.category_en;
                       const displayDate = item.published_at || item.publishedAt || item.created_at || item.date;
 
                       return (
                         <Link
                           key={`read-${item.id}-${idx}`}
-                          href={item.slug ? `/news/${item.slug}` : "#"}
+                          href={item.slug ? `/news/${item.slug}` : `/news/${item.id}`}
                           className="flex items-center gap-3 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-2.5 rounded-xl hover:shadow-md hover:border-brand-maroon/30 dark:hover:border-brand-gold/30 transition-all duration-200 group text-left shrink-0"
                         >
                           {/* Image with Rank Badge */}
@@ -575,13 +581,18 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
                         </Link>
                       );
                     })}
+                    {mostReadList.length === 0 && (
+                      <p className="text-xs text-stone-400 text-center py-8">
+                        {language === "ta" ? "செய்திகள் எதுவும் இல்லை" : "No stories available"}
+                      </p>
+                    )}
                   </div>
                 )}
 
-                {/* 3. VIDEOS TAB (Auto-scrolling) */}
+                {/* 3. VIDEOS TAB */}
                 {activeTab === "videos" && (
-                  <div className="animate-vertical-marquee space-y-3">
-                    {videosMarqueeList.map((video, idx) => (
+                  <div className="space-y-3">
+                    {videosList.map((video, idx) => (
                       <a
                         key={`vid-${video.id}-${idx}`}
                         href="/videos"
@@ -616,8 +627,10 @@ export default function NewsroomHero({ news, slider = [], language = "en", video
                         </div>
                       </a>
                     ))}
-                    {videosMarqueeList.length === 0 && (
-                      <p className="text-xs text-stone-400 text-center py-8">No videos available</p>
+                    {videosList.length === 0 && (
+                      <p className="text-xs text-stone-400 text-center py-8">
+                        {language === "ta" ? "வீடியோக்கள் எதுவும் இல்லை" : "No videos available"}
+                      </p>
                     )}
                   </div>
                 )}

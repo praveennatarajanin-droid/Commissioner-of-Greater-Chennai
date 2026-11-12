@@ -110,7 +110,7 @@ export default function CategoryNewsSection({ news, language = "en" }: CategoryN
               return (
                 <Link
                   key={item.id}
-                  href={item.slug ? `/news/${item.slug}` : "#"}
+                  href={item.slug ? `/news/${item.slug}` : `/news/${item.id}`}
                   className="group flex flex-col bg-stone-50 dark:bg-stone-900 rounded-xl overflow-hidden border border-stone-100 dark:border-stone-800 hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 news-card-white"
                 >
                   {/* Image */}
@@ -169,7 +169,20 @@ export default function CategoryNewsSection({ news, language = "en" }: CategoryN
         {/* View All for this category */}
         <div className="flex justify-center">
           <Link
-            href="/news"
+            href={
+              activeCat.id === "crime"
+                ? "/category/crime"
+                : activeCat.id === "traffic"
+                  ? "https://gctp.in/chennai-home"
+                  : activeCat.id === "cyber"
+                    ? "/category/cyber-safety"
+                    : activeCat.id === "women"
+                      ? "/category/women-safety"
+                      : activeCat.id === "community"
+                        ? "/category/outreach"
+                        : `/category/${activeCat.id}`
+            }
+            target={activeCat.id === "traffic" ? "_blank" : undefined}
             className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest text-white transition hover:opacity-90"
             style={{ background: activeCat.color }}
           >

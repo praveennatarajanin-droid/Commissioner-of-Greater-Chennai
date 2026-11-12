@@ -155,7 +155,7 @@ const NewsCard = ({ n, lang, idx, liveNow }: { n: NewsItem; lang: "en" | "ta"; i
 
   return (
     <Link
-      href={n.slug ? `/news/${n.slug}` : "#"}
+      href={n.slug ? `/news/${n.slug}` : `/news/${n.id}`}
       className="news-card-white group flex flex-col bg-white dark:bg-stone-900 rounded-xl overflow-hidden border border-stone-200 dark:border-stone-850 hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 text-left"
     >
       <div className="relative w-full overflow-hidden" style={{ paddingTop: "56.25%" }}>
